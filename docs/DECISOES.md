@@ -57,3 +57,4 @@ Substitui a trava "um repo, uma conta" (C13 antigo). Proibido: mudar a conta de
 um quadro já aberto (remova e crie outro) e ler `auth.json` do Codex (tem tokens).
 O Codex não estava instalado no PC em 14/10/2026: o formato do
 `codex login status` precisa ser confirmado na T1.4b.
+- **D12 (14/10/2026):** instalador com electron-builder 26.15.3, NSIS por usuário (sem administrador), sem assinatura digital por ora; integridade pelo SHA-256 em `release/SHA256.txt`.

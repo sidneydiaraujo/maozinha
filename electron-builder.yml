@@ -1,0 +1,19 @@
+appId: ia.lousa.app
+productName: Lousa.ia
+directories:
+  output: release
+files:
+  - out/**
+  - package.json
+# binarios e conpty.dll do node-pty precisam ficar fora do asar
+asarUnpack:
+  - node_modules/node-pty/**
+win:
+  target: nsis
+  # sem assinatura digital por enquanto: o hash do instalador vai em release/SHA256.txt
+  signAndEditExecutable: false
+nsis:
+  oneClick: true
+  perMachine: false
+# node-pty ja traz binarios prontos (prebuilds); nao ha compilador C++ no PC
+npmRebuild: false
