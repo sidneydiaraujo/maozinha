@@ -3,7 +3,7 @@
 // e o main valida a entrada com zod (src/main/ipc.ts).
 // Regra: este arquivo nao importa nada (nem electron, nem node), so tipos de ./model.
 
-import type { AlvoTerminal, PerfilComConta, Repo, StatusConta } from './model'
+import type { AlvoTerminal, EstadoTela, PerfilComConta, Quadro, Repo, StatusConta, TipoQuadro } from './model'
 
 export const IPC = {
   appInfo: 'app:info',
@@ -14,6 +14,9 @@ export const IPC = {
   reposAdicionar: 'repos:adicionar',
   reposMudarPerfilPadrao: 'repos:mudarPerfilPadrao',
   reposRemover: 'repos:remover',
+  quadrosCriar: 'quadros:criar',
+  quadrosRemover: 'quadros:remover',
+  lousaCarregar: 'lousa:carregar',
   terminaisAbrir: 'terminais:abrir',
   terminaisEscrever: 'terminais:escrever',
   terminaisRedimensionar: 'terminais:redimensionar',
@@ -41,6 +44,14 @@ export interface LousaApi {
     adicionar(caminho: string, perfilId: string): Promise<Repo>
     mudarPerfilPadrao(repoId: string, perfilId: string): Promise<Repo>
     remover(repoId: string): Promise<void>
+  }
+  quadros: {
+    /** `perfilId` ausente = conta padrao do repo. */
+    criar(repoId: string, tipo: TipoQuadro, perfilId?: string): Promise<Quadro>
+    remover(quadroId: string): Promise<void>
+  }
+  lousa: {
+    carregar(): Promise<EstadoTela>
   }
   terminais: {
     abrir(alvo: AlvoTerminal, cols: number, rows: number): Promise<{ terminalId: string; bufferInicial: string }>

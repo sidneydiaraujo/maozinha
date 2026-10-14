@@ -5,11 +5,12 @@ import { existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
-import { criarArmazem } from './estado/armazem'
+import { criarArmazem, type Armazem } from './estado/armazem'
 import { montarAmbiente } from './perfis/ambiente'
 import { executarReal, lerStatusConta, localizarClaude } from './perfis/conta'
 import { depsReais, detectarPerfis } from './perfis/detectar'
 import { ServicoPerfis } from './perfis/servico'
+import { ServicoQuadros } from './quadros/servico'
 import { ServicoRepos } from './repos/servico'
 import { ServicoTerminais } from './terminais/servico'
 import { spawnReal } from './terminais/spawnReal'
@@ -17,6 +18,8 @@ import { spawnReal } from './terminais/spawnReal'
 export interface Contexto {
   perfis: ServicoPerfis
   repos: ServicoRepos
+  quadros: ServicoQuadros
+  armazem: Armazem
   terminais: ServicoTerminais
 }
 
@@ -62,5 +65,11 @@ export function criarContexto(): Contexto {
     aoDados: (terminalId, dados) => enviarParaJanelas(IPC.terminaisDados, { terminalId, dados }),
     aoSair: (terminalId, codigo) => enviarParaJanelas(IPC.terminaisSaiu, { terminalId, codigo }),
   })
-  return { perfis, repos, terminais }
+  const quadros = new ServicoQuadros({
+    armazem,
+    perfis,
+    fecharTerminal: (id) => terminais.fechar(id),
+    novoId: randomUUID,
+  })
+  return { perfis, repos, quadros, armazem, terminais }
 }

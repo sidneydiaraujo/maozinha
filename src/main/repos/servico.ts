@@ -27,6 +27,13 @@ export class ServicoRepos {
     return this.deps.armazem.carregar().repos
   }
 
+  /** Lanca 'Repositório não encontrado'. */
+  obter(repoId: string): Repo {
+    const repo = this.listar().find((r) => r.id === repoId)
+    if (!repo) throw new Error(NAO_ENCONTRADO)
+    return repo
+  }
+
   sugerir(caminho: string): string | null {
     const { ultimoPerfilId } = this.deps.armazem.carregar()
     return sugerirPerfil(caminho, this.deps.perfis.detectados(), ultimoPerfilId)

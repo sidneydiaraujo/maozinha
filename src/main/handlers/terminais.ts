@@ -4,6 +4,8 @@ import { IPC } from '../../shared/ipc'
 import { handle } from '../ipc'
 import { montarAmbiente } from '../perfis/ambiente'
 import type { ServicoPerfis } from '../perfis/servico'
+import type { ServicoQuadros } from '../quadros/servico'
+import type { ServicoRepos } from '../repos/servico'
 import { resolverAlvo } from '../terminais/alvo'
 import type { ServicoTerminais } from '../terminais/servico'
 
@@ -16,10 +18,20 @@ const Abrir = z.object({ alvo: Alvo, ...Tamanho })
 const Escrever = z.object({ terminalId: z.string().min(1), dados: z.string().max(1_000_000) })
 const Redimensionar = z.object({ terminalId: z.string().min(1), ...Tamanho })
 
-export function registrarHandlersTerminais(terminais: ServicoTerminais, perfis: ServicoPerfis): void {
+export function registrarHandlersTerminais(
+  terminais: ServicoTerminais,
+  perfis: ServicoPerfis,
+  quadros: ServicoQuadros,
+  repos: ServicoRepos,
+): void {
   const home = app.getPath('home')
   handle(IPC.terminaisAbrir, Abrir, ({ alvo, cols, rows }) => {
-    const r = resolverAlvo(alvo, { home, obterPerfil: (id) => perfis.obter(id) })
+    const r = resolverAlvo(alvo, {
+      home,
+      obterPerfil: (id) => perfis.obter(id),
+      obterQuadro: (id) => quadros.obter(id),
+      obterRepo: (id) => repos.obter(id),
+    })
     const { bufferInicial } = terminais.abrir({
       terminalId: r.terminalId,
       cwd: r.cwd,

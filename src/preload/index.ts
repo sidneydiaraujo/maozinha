@@ -25,6 +25,13 @@ const api: LousaApi = {
     mudarPerfilPadrao: (repoId, perfilId) => ipcRenderer.invoke(IPC.reposMudarPerfilPadrao, { repoId, perfilId }),
     remover: (repoId) => ipcRenderer.invoke(IPC.reposRemover, { repoId }),
   },
+  quadros: {
+    criar: (repoId, tipo, perfilId) => ipcRenderer.invoke(IPC.quadrosCriar, { repoId, tipo, perfilId }),
+    remover: (quadroId) => ipcRenderer.invoke(IPC.quadrosRemover, { quadroId }),
+  },
+  lousa: {
+    carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),
+  },
   terminais: {
     abrir: (alvo, cols, rows) => ipcRenderer.invoke(IPC.terminaisAbrir, { alvo, cols, rows }),
     escrever: (terminalId, dados) => ipcRenderer.invoke(IPC.terminaisEscrever, { terminalId, dados }),
