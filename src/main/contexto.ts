@@ -1,16 +1,27 @@
 // Cria uma vez, no inicio do app, os servicos que os canais de IPC usam.
-import { app } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
 import { criarArmazem } from './estado/armazem'
 import { montarAmbiente } from './perfis/ambiente'
 import { executarReal, lerStatusConta, localizarClaude } from './perfis/conta'
 import { depsReais, detectarPerfis } from './perfis/detectar'
 import { ServicoPerfis } from './perfis/servico'
+import { ServicoTerminais } from './terminais/servico'
+import { spawnReal } from './terminais/spawnReal'
 
 export interface Contexto {
   perfis: ServicoPerfis
+  terminais: ServicoTerminais
+}
+
+/** Entrega um evento a todas as janelas abertas. */
+function enviarParaJanelas(canal: string, payload: unknown): void {
+  for (const janela of BrowserWindow.getAllWindows()) {
+    if (!janela.isDestroyed()) janela.webContents.send(canal, payload)
+  }
 }
 
 function caminhoDoPath(): string {
@@ -35,5 +46,9 @@ export function criarContexto(): Contexto {
     detectar: (ajustes) => detectarPerfis(depsReais(home), ajustes),
     lerConta: (perfil) => lerContaReal(perfil, home),
   })
-  return { perfis }
+  const terminais = new ServicoTerminais(spawnReal, {
+    aoDados: (terminalId, dados) => enviarParaJanelas(IPC.terminaisDados, { terminalId, dados }),
+    aoSair: (terminalId, codigo) => enviarParaJanelas(IPC.terminaisSaiu, { terminalId, codigo }),
+  })
+  return { perfis, terminais }
 }
