@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T1.4** (`docs/plano/fatia-1-contas.md`)
+**Próxima tarefa: T1.4b** (`docs/plano/fatia-1-contas.md`)
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -13,7 +13,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T1.1 | Modelo compartilhado | ✅ 14/10/2026 |
 | T1.2 | Detectar as contas do PC | ✅ 14/10/2026 |
 | T1.3 | Montar o ambiente de um terminal | ✅ 14/10/2026 |
-| T1.4 | Ler o status de login (Claude) | ⬜ |
+| T1.4 | Ler o status de login (Claude) | ✅ 14/10/2026 |
 | T1.4b | Ler o status de login (Codex) | ⬜ |
 | T1.5 | Guardar o estado | ⬜ |
 | T1.6 | Serviço e canais das contas | ⬜ |
@@ -61,3 +61,4 @@ Nenhum.
 - **14/10/2026 (T1.1):** `src/shared/model.ts` criado a partir do bloco de tipos da ARQUITETURA (com `Provedor`, conta por quadro). `npm run check` verde.
 - **14/10/2026 (T1.2):** `src/main/perfis/detectar.ts` com 9 testes. No PC do Sidney acha `principal` (~/.claude) e `pessoal` (~/.claude-pessoal, com a pasta pessoal como raiz). Dica: o TS usa `noUncheckedIndexedAccess`, então `arr[i]` pode ser `undefined`.
 - **14/10/2026 (T1.3):** `src/main/perfis/ambiente.ts` (`montarAmbiente`, lista permitida, `CLAUDE_CONFIG_DIR` ou `CODEX_HOME` só em conta não padrão) com 10 testes. `npm run check` verde (23 testes).
+- **14/10/2026 (T1.4):** `src/main/perfis/conta.ts` (localizarClaude, interpretarStatus, lerStatusConta, executarReal) com 12 testes. Conferido no PC: `principal` = plano team (e-mail da empresa), `pessoal` = plano pro (gmail), cada uma lida com o próprio ambiente. Atenção T1.4b: `executarReal` ainda não trata `.cmd`.
