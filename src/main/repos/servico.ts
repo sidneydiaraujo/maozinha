@@ -9,6 +9,8 @@ export interface DepsServicoRepos {
   armazem: Armazem
   perfis: Pick<ServicoPerfis, 'obter' | 'detectados'>
   ehPasta(caminho: string): boolean
+  /** Fecha o terminal que vive no main (id do terminal = id do quadro). */
+  fecharTerminal(terminalId: string): void
   novoId(): string
 }
 
@@ -71,10 +73,11 @@ export class ServicoRepos {
     return repo
   }
 
-  /** Apaga o repo da lousa e os quadros dele. Os arquivos da pasta nunca sao tocados. */
+  /** Fecha os terminais, apaga o repo da lousa e os quadros dele. Os arquivos da pasta nunca sao tocados. */
   remover(repoId: string): void {
     const estado = this.deps.armazem.carregar()
     if (!estado.repos.some((r) => r.id === repoId)) throw new Error(NAO_ENCONTRADO)
+    for (const q of estado.quadros) if (q.repoId === repoId) this.deps.fecharTerminal(q.id)
     estado.repos = estado.repos.filter((r) => r.id !== repoId)
     estado.quadros = estado.quadros.filter((q) => q.repoId !== repoId)
     this.deps.armazem.salvar(estado)

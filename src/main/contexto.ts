@@ -60,10 +60,16 @@ export function criarContexto(): Contexto {
     detectar: (ajustes) => detectarPerfis(depsReais(home), ajustes),
     lerConta: (perfil) => lerContaReal(perfil, home),
   })
-  const repos = new ServicoRepos({ armazem, perfis, ehPasta, novoId: randomUUID })
   const terminais = new ServicoTerminais(spawnReal, {
     aoDados: (terminalId, dados) => enviarParaJanelas(IPC.terminaisDados, { terminalId, dados }),
     aoSair: (terminalId, codigo) => enviarParaJanelas(IPC.terminaisSaiu, { terminalId, codigo }),
+  })
+  const repos = new ServicoRepos({
+    armazem,
+    perfis,
+    ehPasta,
+    fecharTerminal: (id) => terminais.fechar(id),
+    novoId: randomUUID,
   })
   const quadros = new ServicoQuadros({
     armazem,

@@ -12,6 +12,7 @@ function montar(pastas: string[] = ['C:\\Users\\x\\pessoal\\app', 'C:\\empresa\\
   let estado: EstadoSalvo = structuredClone(ESTADO_PADRAO)
   const armazem: Armazem = { carregar: () => structuredClone(estado), salvar: (e) => void (estado = structuredClone(e)) }
   let n = 0
+  const fechados: string[] = []
   const servico = new ServicoRepos({
     armazem,
     perfis: {
@@ -23,9 +24,10 @@ function montar(pastas: string[] = ['C:\\Users\\x\\pessoal\\app', 'C:\\empresa\\
       detectados: () => PERFIS,
     },
     ehPasta: (c) => pastas.includes(c),
+    fecharTerminal: (id) => void fechados.push(id),
     novoId: () => `r${++n}`,
   })
-  return { servico, armazem, estado: () => estado }
+  return { servico, armazem, fechados, estado: () => estado }
 }
 
 describe('ServicoRepos', () => {
@@ -73,7 +75,7 @@ describe('ServicoRepos', () => {
   })
 
   it('remover leva os quadros do repo e so os dele', () => {
-    const { servico, armazem, estado } = montar()
+    const { servico, armazem, fechados, estado } = montar()
     const a = servico.adicionar('C:\\Users\\x\\pessoal\\app', 'pessoal')
     const b = servico.adicionar('C:\\empresa\\api', 'principal')
     const e = estado()
@@ -86,6 +88,7 @@ describe('ServicoRepos', () => {
     servico.remover(a.id)
     expect(estado().repos.map((r) => r.id)).toEqual([b.id])
     expect(estado().quadros.map((q) => q.id)).toEqual(['q2'])
+    expect(fechados).toEqual(['q1'])
     expect(() => servico.remover(a.id)).toThrow('Repositório não encontrado')
   })
 })

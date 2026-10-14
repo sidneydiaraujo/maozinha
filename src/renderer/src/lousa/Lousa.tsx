@@ -1,11 +1,12 @@
 import { Background, Controls, MiniMap, ReactFlow, useNodesState, type Node, type Viewport } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { EstadoTela, TipoQuadro } from '../../../shared/model'
+import { useCallback, useEffect, useState } from 'react'
+import type { EstadoTela } from '../../../shared/model'
 import '../estilos/lousa.css'
-import { montarNos, type AcoesLousa, type QuadroNo, type RepoNo } from './nos'
+import { montarNos, type QuadroNo, type RepoNo } from './nos'
 import { QuadroNode } from './QuadroNode'
 import { RepoNode } from './RepoNode'
+import { useAcoesLousa } from './useAcoesLousa'
 import { useSalvarLayout } from './useSalvarLayout'
 
 // Fora do componente: dentro dele o React Flow recriaria todos os nos a cada render.
@@ -45,24 +46,7 @@ export function Lousa({ versao }: Props): React.JSX.Element {
   }, [versao])
 
   const falhou = useCallback((e: unknown) => setErro(e instanceof Error ? e.message : String(e)), [])
-  const acoes = useMemo<AcoesLousa>(
-    () => ({
-      criarQuadro: (repoId: string, tipo: TipoQuadro, perfilId?: string) => {
-        setErro(null)
-        window.lousa.quadros
-          .criar(repoId, tipo, perfilId)
-          .then((q) => setEstado((e) => (e ? { ...e, quadros: [...e.quadros, q] } : e)))
-          .catch(falhou)
-      },
-      removerQuadro: (quadroId: string) => {
-        window.lousa.quadros
-          .remover(quadroId)
-          .then(() => setEstado((e) => (e ? { ...e, quadros: e.quadros.filter((q) => q.id !== quadroId) } : e)))
-          .catch(falhou)
-      },
-    }),
-    [falhou],
-  )
+  const acoes = useAcoesLousa(setEstado, setErro)
 
   const { aoMudar, aoMoverVista } = useSalvarLayout({
     nos,

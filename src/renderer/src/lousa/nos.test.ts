@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest'
 import type { EstadoTela, PerfilComConta } from '../../../shared/model'
 import { caixaDoNo, montarNos, repoIdDoNo, type AcoesLousa } from './nos'
 
-const acoes: AcoesLousa = { criarQuadro: () => undefined, removerQuadro: () => undefined }
+const acoes: AcoesLousa = {
+  criarQuadro: () => undefined,
+  removerQuadro: () => undefined,
+  mudarPerfilPadrao: () => undefined,
+  removerRepo: () => undefined,
+}
 const caixa = { x: 10, y: 20, largura: 300, altura: 200 }
 const perfil = (id: string): PerfilComConta => ({
   id, provedor: 'claude', nome: id, cor: '#123456', configDir: '', ehPadrao: false, raizes: [],

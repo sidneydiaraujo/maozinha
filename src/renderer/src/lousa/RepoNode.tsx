@@ -1,6 +1,7 @@
 import { NodeResizer, type NodeProps } from '@xyflow/react'
 import { useState } from 'react'
 import type { PerfilComConta, TipoQuadro } from '../../../shared/model'
+import { MenuRepo } from './MenuRepo'
 import type { RepoNo } from './nos'
 
 interface BotaoProps {
@@ -72,6 +73,12 @@ export function RepoNode({ data, selected }: NodeProps<RepoNo>): React.JSX.Eleme
             perfis={perfis}
             nomeDoPadrao={padrao?.nome ?? '—'}
             aoCriar={(tipo, perfilId) => acoes.criarQuadro(repo.id, tipo, perfilId)}
+          />
+          <MenuRepo
+            repo={repo}
+            perfis={perfis}
+            aoMudarPadrao={(perfilId) => acoes.mudarPerfilPadrao(repo.id, perfilId)}
+            aoRemover={() => acoes.removerRepo(repo.id)}
           />
         </div>
       </header>

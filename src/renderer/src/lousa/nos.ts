@@ -5,6 +5,8 @@ import type { Caixa, EstadoTela, PerfilComConta, Quadro, Repo, TipoQuadro } from
 export interface AcoesLousa {
   criarQuadro(repoId: string, tipo: TipoQuadro, perfilId?: string): void
   removerQuadro(quadroId: string): void
+  mudarPerfilPadrao(repoId: string, perfilId: string): void
+  removerRepo(repoId: string): void
 }
 
 export type RepoNo = Node<{ repo: Repo; perfis: PerfilComConta[]; acoes: AcoesLousa }, 'repo'>
