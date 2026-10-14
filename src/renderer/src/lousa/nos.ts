@@ -9,7 +9,7 @@ export interface AcoesLousa {
   removerRepo(repoId: string): void
 }
 
-export type RepoNo = Node<{ repo: Repo; perfis: PerfilComConta[]; acoes: AcoesLousa }, 'repo'>
+export type RepoNo = Node<{ repo: Repo; perfis: PerfilComConta[]; acoes: AcoesLousa; vazio: boolean }, 'repo'>
 export type QuadroNo = Node<{ quadro: Quadro; perfil: PerfilComConta | undefined; acoes: AcoesLousa }, 'quadro'>
 
 export const idDoNoRepo = (repoId: string): string => `repo:${repoId}`
@@ -29,30 +29,26 @@ export function caixaDoNo(no: Node): Caixa {
 
 /** O pai (moldura do repo) vem ANTES dos filhos (quadros): exigencia do React Flow. */
 export function montarNos(estado: EstadoTela, acoes: AcoesLousa): Array<RepoNo | QuadroNo> {
-  const repos = estado.repos.map(
-    (repo): RepoNo => ({
-      id: idDoNoRepo(repo.id),
-      type: 'repo',
-      position: { x: repo.caixa.x, y: repo.caixa.y },
-      style: { width: repo.caixa.largura, height: repo.caixa.altura },
-      dragHandle: '.cabecalho-repo',
-      data: { repo, perfis: estado.perfis, acoes },
-    }),
-  )
+  const repos = estado.repos.map((repo): RepoNo => ({
+    id: idDoNoRepo(repo.id),
+    type: 'repo',
+    position: { x: repo.caixa.x, y: repo.caixa.y },
+    style: { width: repo.caixa.largura, height: repo.caixa.altura },
+    dragHandle: '.cabecalho-repo',
+    data: { repo, perfis: estado.perfis, acoes, vazio: !estado.quadros.some((q) => q.repoId === repo.id) },
+  }))
   const existentes = new Set(estado.repos.map((r) => r.id))
   const quadros = estado.quadros
     .filter((q) => existentes.has(q.repoId))
-    .map(
-      (quadro): QuadroNo => ({
-        id: quadro.id,
-        type: 'quadro',
-        parentId: idDoNoRepo(quadro.repoId),
-        extent: 'parent',
-        position: { x: quadro.caixa.x, y: quadro.caixa.y },
-        style: { width: quadro.caixa.largura, height: quadro.caixa.altura },
-        dragHandle: '.cabecalho-quadro',
-        data: { quadro, perfil: estado.perfis.find((p) => p.id === quadro.perfilId), acoes },
-      }),
-    )
+    .map((quadro): QuadroNo => ({
+      id: quadro.id,
+      type: 'quadro',
+      parentId: idDoNoRepo(quadro.repoId),
+      extent: 'parent',
+      position: { x: quadro.caixa.x, y: quadro.caixa.y },
+      style: { width: quadro.caixa.largura, height: quadro.caixa.altura },
+      dragHandle: '.cabecalho-quadro',
+      data: { quadro, perfil: estado.perfis.find((p) => p.id === quadro.perfilId), acoes },
+    }))
   return [...repos, ...quadros]
 }

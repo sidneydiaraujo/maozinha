@@ -93,6 +93,11 @@ export function CartaoConta({ perfil, aoRenomear, aoAtualizar, aviso }: Props): 
       </header>
       <p className="cartao-email">{email}</p>
       {conta.plano && <span className="etiqueta">{conta.plano}</span>}
+      {perfil.ehPadrao && (
+        <span className="etiqueta" title="Mesma conta do VSCode e dos terminais fora da Lousa">
+          padrão do PC · compartilhada
+        </span>
+      )}
       {conta.erro && (
         <p className="erro" role="alert">
           {conta.erro}

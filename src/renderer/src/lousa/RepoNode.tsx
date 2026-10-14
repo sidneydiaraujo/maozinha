@@ -2,7 +2,7 @@ import { NodeResizer, type NodeProps } from '@xyflow/react'
 import { useState } from 'react'
 import type { PerfilComConta, TipoQuadro } from '../../../shared/model'
 import { MenuRepo } from './MenuRepo'
-import type { RepoNo } from './nos'
+import type { AcoesLousa, RepoNo } from './nos'
 
 interface BotaoProps {
   rotulo: string
@@ -46,8 +46,38 @@ function BotaoCriar({ rotulo, tipo, perfis, nomeDoPadrao, aoCriar }: BotaoProps)
   )
 }
 
+interface PrimeiroProps {
+  repoId: string
+  perfis: PerfilComConta[]
+  acoes: AcoesLousa
+}
+
+/** Moldura sem quadros: mostra o proximo passo com um botao por conta, em vez de deixar o usuario procurar. */
+function PrimeiroQuadro({ repoId, perfis, acoes }: PrimeiroProps): React.JSX.Element {
+  return (
+    <div className="primeiro-quadro nodrag">
+      <p>Abra um agente do Claude nesta pasta. Cada botão usa uma conta:</p>
+      <div className="primeiro-quadro-botoes">
+        {perfis.map((p) => (
+          <button
+            key={p.id}
+            className="botao-grande"
+            style={{ '--cor': p.cor } as React.CSSProperties}
+            onClick={() => acoes.criarQuadro(repoId, 'agente', p.id)}
+          >
+            + Claude · {p.nome}
+          </button>
+        ))}
+        <button className="botao-grande neutro" onClick={() => acoes.criarQuadro(repoId, 'terminal')}>
+          + Terminal
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export function RepoNode({ data, selected }: NodeProps<RepoNo>): React.JSX.Element {
-  const { repo, perfis, acoes } = data
+  const { repo, perfis, acoes, vazio } = data
   const padrao = perfis.find((p) => p.id === repo.perfilPadraoId)
   return (
     <div className="moldura">
@@ -82,6 +112,7 @@ export function RepoNode({ data, selected }: NodeProps<RepoNo>): React.JSX.Eleme
           />
         </div>
       </header>
+      {vazio && <PrimeiroQuadro repoId={repo.id} perfis={perfis} acoes={acoes} />}
     </div>
   )
 }

@@ -45,10 +45,11 @@ export function MenuRepo({ repo, perfis, aoMudarPadrao, aoRemover }: Props): Rea
         ref={botao}
         className="botao-pequeno seta"
         aria-label="Mais ações do repositório"
+        title="Conta padrão e remover repositório"
         aria-expanded={aberto}
         onClick={() => (aberto ? fechar() : setAberto(true))}
       >
-        ⋯
+        Opções ⋯
       </button>
       {aberto &&
         canto &&

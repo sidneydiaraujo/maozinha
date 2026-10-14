@@ -37,9 +37,29 @@ function useLoginLimpo(perfilId: string, semPrograma: boolean, aoFechar: () => v
   return { tentativa, pronto, reiniciar, fechar }
 }
 
+function AvisoContaPadrao({ nome, aoConfirmar }: { nome: string; aoConfirmar(): void }): React.JSX.Element {
+  return (
+    <>
+      <p className="erro">
+        <strong>{nome} é a conta padrão do PC.</strong> Ela é a mesma usada pelo VSCode e por qualquer terminal fora da
+        Lousa: trocar o login aqui troca nesses lugares também.
+      </p>
+      <p className="apagado">
+        Para entrar com outro e-mail sem mexer neles, use uma conta separada da Lousa (ex.: Pessoal) em vez desta.
+      </p>
+      <button className="botao-pequeno perigo" onClick={aoConfirmar}>
+        Entendi, trocar mesmo assim
+      </button>
+    </>
+  )
+}
+
 export function JanelaLogin({ perfil, aoConcluir, aoFechar }: Props): React.JSX.Element {
   const semPrograma = perfil.conta.erro?.includes('não encontrado') ?? false
-  const { tentativa, pronto, reiniciar, fechar } = useLoginLimpo(perfil.id, semPrograma, aoFechar)
+  // A conta padrao do PC e a mesma do VSCode e de qualquer terminal fora da Lousa: trocar o login
+  // dela troca tudo isso. Pede confirmacao antes de abrir o login.
+  const [confirmado, setConfirmado] = useState(!(perfil.ehPadrao && perfil.conta.logado))
+  const { tentativa, pronto, reiniciar, fechar } = useLoginLimpo(perfil.id, semPrograma || !confirmado, aoFechar)
 
   useEffect(() => {
     const tecla = (e: KeyboardEvent): void => {
@@ -61,6 +81,8 @@ export function JanelaLogin({ perfil, aoConcluir, aoFechar }: Props): React.JSX.
               Verificar de novo
             </button>
           </>
+        ) : !confirmado ? (
+          <AvisoContaPadrao nome={perfil.nome} aoConfirmar={() => setConfirmado(true)} />
         ) : (
           <>
             <p className="apagado">
@@ -80,7 +102,7 @@ export function JanelaLogin({ perfil, aoConcluir, aoFechar }: Props): React.JSX.
           </>
         )}
         <div className="janela-botoes">
-          {!semPrograma && (
+          {!semPrograma && confirmado && (
             <button className="botao-pequeno" onClick={() => void reiniciar()}>
               Tentar de novo
             </button>
