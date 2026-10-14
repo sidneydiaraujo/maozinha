@@ -21,6 +21,7 @@ export const IPC = {
   terminaisAbrir: 'terminais:abrir',
   terminaisEscrever: 'terminais:escrever',
   terminaisRedimensionar: 'terminais:redimensionar',
+  terminaisFecharLogin: 'terminais:fecharLogin',
   terminaisDados: 'terminais:dados', // evento main -> tela
   terminaisSaiu: 'terminais:saiu', // evento main -> tela
 } as const
@@ -66,6 +67,8 @@ export interface LousaApi {
     abrir(alvo: AlvoTerminal, cols: number, rows: number): Promise<{ terminalId: string; bufferInicial: string }>
     escrever(terminalId: string, dados: string): Promise<void>
     redimensionar(terminalId: string, cols: number, rows: number): Promise<void>
+    /** Encerra o terminal de login da conta, para o proximo "Entrar" comecar do zero. */
+    fecharLogin(perfilId: string): Promise<void>
     /** Devolvem a funcao que cancela a inscricao. */
     aoDados(cb: (terminalId: string, dados: string) => void): () => void
     aoSair(cb: (terminalId: string, codigo: number) => void): () => void

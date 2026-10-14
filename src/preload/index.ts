@@ -36,6 +36,7 @@ const api: LousaApi = {
   terminais: {
     abrir: (alvo, cols, rows) => ipcRenderer.invoke(IPC.terminaisAbrir, { alvo, cols, rows }),
     escrever: (terminalId, dados) => ipcRenderer.invoke(IPC.terminaisEscrever, { terminalId, dados }),
+    fecharLogin: (perfilId) => ipcRenderer.invoke(IPC.terminaisFecharLogin, { perfilId }),
     redimensionar: (terminalId, cols, rows) =>
       ipcRenderer.invoke(IPC.terminaisRedimensionar, { terminalId, cols, rows }),
     aoDados: (cb) => inscrever<{ terminalId: string; dados: string }>(IPC.terminaisDados, (p) => cb(p.terminalId, p.dados)),

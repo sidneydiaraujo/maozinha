@@ -42,6 +42,9 @@ export function registrarHandlersTerminais(
     })
     return { terminalId: r.terminalId, bufferInicial }
   })
+  handle(IPC.terminaisFecharLogin, z.object({ perfilId: z.string().min(1) }), ({ perfilId }) =>
+    terminais.fechar(`login:${perfilId}`),
+  )
   handle(IPC.terminaisEscrever, Escrever, ({ terminalId, dados }) => terminais.escrever(terminalId, dados))
   handle(IPC.terminaisRedimensionar, Redimensionar, ({ terminalId, cols, rows }) =>
     terminais.redimensionar(terminalId, cols, rows),

@@ -257,3 +257,14 @@
   outline: 2px solid var(--cor, #2f6df6);
   outline-offset: 1px;
 }
+
+.janela-botoes {
+  display: flex;
+  gap: 8px;
+}
+
+.aviso-conta {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #ffcc66;
+}

@@ -9,10 +9,45 @@ interface Props {
   aoMudar(): void
 }
 
+/** Duas contas com o mesmo e-mail quase sempre e o login ter caido na conta errada do navegador. */
+function avisoDeEmail(perfil: PerfilComConta, todos: PerfilComConta[]): string | undefined {
+  const email = perfil.conta.email?.toLowerCase()
+  if (!email) return undefined
+  const outra = todos.find((p) => p.id !== perfil.id && p.conta.email?.toLowerCase() === email)
+  return outra
+    ? `Mesmo e-mail da conta ${outra.nome}. Se não era para ser, entre de novo numa janela anônima.`
+    : undefined
+}
+
+interface ListaProps {
+  perfis: PerfilComConta[]
+  aoRenomear(perfil: PerfilComConta, nome: string): Promise<void>
+  aoAtualizar(perfil: PerfilComConta): Promise<void>
+}
+
+function ListaCartoes({ perfis, aoRenomear, aoAtualizar }: ListaProps): React.JSX.Element {
+  return (
+    <>
+      {perfis.map((p) => (
+        <CartaoConta
+          key={p.id}
+          perfil={p}
+          aoRenomear={(nome) => aoRenomear(p, nome)}
+          aoAtualizar={() => aoAtualizar(p)}
+          aviso={avisoDeEmail(p, perfis)}
+        />
+      ))}
+    </>
+  )
+}
+
 export function BarraContas({ rodape, aoMudar }: Props): React.JSX.Element {
   const [perfis, setPerfis] = useState<PerfilComConta[] | null>(null)
   const [erro, setErro] = useState<string | null>(null)
-  const [escolhida, setEscolhida] = useState<{ caminho: string; sugestaoPerfilId: string | null } | null>(null)
+  const [escolhida, setEscolhida] = useState<{
+    caminho: string
+    sugestaoPerfilId: string | null
+  } | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
 
   useEffect(() => {
@@ -73,14 +108,7 @@ export function BarraContas({ rodape, aoMudar }: Props): React.JSX.Element {
         )}
         {!erro && perfis === null && <p className="apagado">Lendo contas…</p>}
         {perfis?.length === 0 && <p className="apagado">Nenhuma conta do Claude Code neste PC.</p>}
-        {perfis?.map((p) => (
-          <CartaoConta
-            key={p.id}
-            perfil={p}
-            aoRenomear={(nome) => renomear(p, nome)}
-            aoAtualizar={() => atualizar(p)}
-          />
-        ))}
+        {perfis && <ListaCartoes perfis={perfis} aoRenomear={renomear} aoAtualizar={atualizar} />}
       </div>
       <footer className="barra-rodape">{rodape}</footer>
       {escolhida && perfis && (

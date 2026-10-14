@@ -6,14 +6,43 @@ interface Props {
   perfil: PerfilComConta
   aoRenomear(nome: string): Promise<void>
   aoAtualizar(): Promise<void>
+  /** Ex.: "mesmo e-mail da conta Principal". */
+  aviso?: string
 }
 
 const NOME_DO_PROVEDOR = { claude: 'Claude', codex: 'Codex' } as const
 
-export function CartaoConta({ perfil, aoRenomear, aoAtualizar }: Props): React.JSX.Element {
+interface AcoesProps {
+  logado: boolean
+  aoAtualizar(): Promise<void>
+  aoEntrar(): void
+}
+
+function AcoesCartao({ logado, aoAtualizar, aoEntrar }: AcoesProps): React.JSX.Element {
+  const [atualizando, setAtualizando] = useState(false)
+  async function atualizar(): Promise<void> {
+    setAtualizando(true)
+    try {
+      await aoAtualizar()
+    } finally {
+      setAtualizando(false)
+    }
+  }
+  return (
+    <div className="cartao-acoes">
+      <button className="botao-pequeno" disabled={atualizando} onClick={() => void atualizar()}>
+        {atualizando ? 'Atualizando…' : 'Atualizar'}
+      </button>
+      <button className="botao-pequeno botao-entrar" onClick={aoEntrar}>
+        {logado ? 'Trocar login' : 'Entrar'}
+      </button>
+    </div>
+  )
+}
+
+export function CartaoConta({ perfil, aoRenomear, aoAtualizar, aviso }: Props): React.JSX.Element {
   const [editando, setEditando] = useState(false)
   const [rascunho, setRascunho] = useState(perfil.nome)
-  const [atualizando, setAtualizando] = useState(false)
   const [falha, setFalha] = useState<string | null>(null)
   const [entrando, setEntrando] = useState(false)
   const { conta } = perfil
@@ -38,15 +67,6 @@ export function CartaoConta({ perfil, aoRenomear, aoAtualizar }: Props): React.J
   function teclou(e: KeyboardEvent<HTMLInputElement>): void {
     if (e.key === 'Enter') void salvar()
     if (e.key === 'Escape') setEditando(false)
-  }
-
-  async function atualizar(): Promise<void> {
-    setAtualizando(true)
-    try {
-      await aoAtualizar()
-    } finally {
-      setAtualizando(false)
-    }
   }
 
   const email = conta.email ?? (conta.logado ? 'Logado' : 'Sem login')
@@ -78,19 +98,17 @@ export function CartaoConta({ perfil, aoRenomear, aoAtualizar }: Props): React.J
           {conta.erro}
         </p>
       )}
+      {aviso && (
+        <p className="aviso-conta" role="status">
+          {aviso}
+        </p>
+      )}
       {falha && (
         <p className="erro" role="alert">
           {falha}
         </p>
       )}
-      <div className="cartao-acoes">
-        <button className="botao-pequeno" disabled={atualizando} onClick={() => void atualizar()}>
-          {atualizando ? 'Atualizando…' : 'Atualizar'}
-        </button>
-        <button className="botao-pequeno botao-entrar" onClick={() => setEntrando(true)}>
-          {conta.logado ? 'Trocar login' : 'Entrar'}
-        </button>
-      </div>
+      <AcoesCartao logado={conta.logado} aoAtualizar={aoAtualizar} aoEntrar={() => setEntrando(true)} />
       {entrando && <JanelaLogin perfil={perfil} aoConcluir={aoAtualizar} aoFechar={() => setEntrando(false)} />}
     </article>
   )
