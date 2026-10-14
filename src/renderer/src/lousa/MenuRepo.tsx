@@ -9,6 +9,29 @@ interface Props {
   aoRemover(): void;
 }
 
+function ConfirmarRemocao({
+  aoConfirmar,
+  aoCancelar,
+}: {
+  aoConfirmar(): void;
+  aoCancelar(): void;
+}): React.JSX.Element {
+  return (
+    <div className="menu-repo-confirma">
+      <p>
+        Fecha os terminais deste repositório e tira ele da lousa. Os arquivos da
+        pasta não são apagados.
+      </p>
+      <button className="botao-pequeno perigo" onClick={aoConfirmar}>
+        Remover da lousa
+      </button>
+      <button className="botao-pequeno" onClick={aoCancelar}>
+        Cancelar
+      </button>
+    </div>
+  );
+}
+
 /**
  * Menu "⋯" da moldura (T3.6). "Conta padrao" so vale para os quadros NOVOS; remover
  * fecha os terminais do repo e tira a moldura, mas nunca mexe nos arquivos da pasta.
@@ -71,27 +94,13 @@ export function MenuRepo({
             ))}
             <hr />
             {confirmando ? (
-              <div className="menu-repo-confirma">
-                <p>
-                  Fecha os terminais deste repositório e tira ele da lousa. Os
-                  arquivos da pasta não são apagados.
-                </p>
-                <button
-                  className="botao-pequeno perigo"
-                  onClick={() => {
-                    fechar();
-                    aoRemover();
-                  }}
-                >
-                  Remover da lousa
-                </button>
-                <button
-                  className="botao-pequeno"
-                  onClick={() => setConfirmando(false)}
-                >
-                  Cancelar
-                </button>
-              </div>
+              <ConfirmarRemocao
+                aoConfirmar={() => {
+                  fechar();
+                  aoRemover();
+                }}
+                aoCancelar={() => setConfirmando(false)}
+              />
             ) : (
               <button
                 className="botao-pequeno perigo"
