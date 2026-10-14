@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T1.1** (`docs/plano/fatia-1-contas.md`)
+**Próxima tarefa: T1.2** (`docs/plano/fatia-1-contas.md`)
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -10,7 +10,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | Id | Tarefa | Status |
 |---|---|---|
 | T0 | Esqueleto: Electron + React + régua + `npm run smoke` | ✅ 13/10/2026 |
-| T1.1 | Modelo compartilhado | ⬜ |
+| T1.1 | Modelo compartilhado | ✅ 14/10/2026 |
 | T1.2 | Detectar as contas do PC | ⬜ |
 | T1.3 | Montar o ambiente de um terminal | ⬜ |
 | T1.4 | Ler o status de login (Claude) | ⬜ |
@@ -58,3 +58,4 @@ Nenhum.
   Electron (`npm run smoke`), sem compilador C++. Achado: `kill()` em processo
   já encerrado gera "AttachConsole failed" (corrigido e anotado no CLAUDE.md).
   Plano completo em `docs/plano/`.
+- **14/10/2026 (T1.1):** `src/shared/model.ts` criado a partir do bloco de tipos da ARQUITETURA (com `Provedor`, conta por quadro). `npm run check` verde.
