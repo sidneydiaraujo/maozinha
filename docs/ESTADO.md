@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T2.4** (`docs/plano/fatia-1-contas.md`)
+**Próxima tarefa: T3.1** (`docs/plano/fatia-1-contas.md`)
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -22,8 +22,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T2.1 | Serviço de terminais | ✅ 14/10/2026 |
 | T2.2 | node-pty real + teste de isolamento | ✅ 14/10/2026 |
 | T2.3 | Canais dos terminais (login) | ✅ 14/10/2026 |
-| T2.4 | Componente de terminal | ⬜ |
-| T2.5 | Botão "Entrar" | ⬜ |
+| T2.4 | Componente de terminal | ✅ 14/10/2026 |
+| T2.5 | Botão "Entrar" | ✅ 14/10/2026 |
 | T3.1 | Sugerir a conta de um repo | ⬜ |
 | T3.2 | Serviço e canais de repos | ⬜ |
 | T3.3 | Fluxo "Adicionar repositório" | ⬜ |
@@ -65,3 +65,4 @@ Nenhum.
 - **14/10/2026 (T1.5):** `src/main/estado/armazem.ts` (JSON atômico, schema zod, arquivo estragado vai para `.corrompido-<data>`) com 7 testes; 42 no total. Sidney decidiu começar só com duas contas Claude: T1.4b adiada, não removida.
 - **14/10/2026 (T1.6 + T1.7):** `ServicoPerfis` (cache da conta, renomear grava só o nome), canais `perfis:listar/renomear/atualizarConta`, `contexto.ts`, barra lateral (`BarraContas`, `CartaoConta`). Conferido com captura de tela no PC do Sidney: Principal (team, e-mail da empresa) e Pessoal (pro, gmail), cores e etiqueta Claude. `npm run check` (48 testes) e `npm run smoke` verdes. Contas Codex mostram erro "ainda não disponível" até a T1.4b. Próxima: T1.8 (Nova conta) é opcional para Claude+Claude; seguir para a fatia 2 (T2.1) é o caminho mais curto até o login e a lousa.
 - **14/10/2026 (T2.1–T2.3):** `ServicoTerminais` (idempotente, buffer 200 mil), `spawnReal`, `isolamento.test.ts` (4 casos em terminal real: principal, pessoal, Codex padrão e Codex extra; rodaram, não foram pulados), `resolverAlvo`/`comandos.ts`, canais `terminais:*` e eventos `terminais:dados/saiu`, `registrarCanais()` no `index.ts`. 66 testes e smoke verdes.
+- **14/10/2026 (T2.4 + T2.5):** `Terminal.tsx` (xterm, assina eventos antes do `abrir` e ignora os que chegam antes da resposta, pois já estão no buffer), `JanelaLogin.tsx`, botão Entrar/Trocar login. Mudança em relação ao plano: o comando de login é `claude auth login; if ($?) { exit }`, porque o shell não fecha sozinho quando o `claude` termina (a tela só saberia que acabou se o shell saísse). Provado com captura de tela (comando trocado temporariamente por `claude auth status`, sem abrir navegador): o botão da conta Pessoal abre um terminal real cujo `claude` enxerga `.claude-pessoal` e o gmail. O login de verdade (navegador) ainda não foi exercitado: é o item para o Sidney validar.
