@@ -1,6 +1,7 @@
 // Cria uma vez, no inicio do app, os servicos que os canais de IPC usam.
 import { app, BrowserWindow } from 'electron'
-import { existsSync } from 'node:fs'
+import { randomUUID } from 'node:crypto'
+import { existsSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
@@ -9,11 +10,13 @@ import { montarAmbiente } from './perfis/ambiente'
 import { executarReal, lerStatusConta, localizarClaude } from './perfis/conta'
 import { depsReais, detectarPerfis } from './perfis/detectar'
 import { ServicoPerfis } from './perfis/servico'
+import { ServicoRepos } from './repos/servico'
 import { ServicoTerminais } from './terminais/servico'
 import { spawnReal } from './terminais/spawnReal'
 
 export interface Contexto {
   perfis: ServicoPerfis
+  repos: ServicoRepos
   terminais: ServicoTerminais
 }
 
@@ -38,6 +41,14 @@ async function lerContaReal(perfil: Perfil, home: string): Promise<StatusConta> 
   return lerStatusConta(exe, montarAmbiente(perfil, process.env), executarReal)
 }
 
+function ehPasta(caminho: string): boolean {
+  try {
+    return statSync(caminho).isDirectory()
+  } catch {
+    return false
+  }
+}
+
 export function criarContexto(): Contexto {
   const home = app.getPath('home')
   const armazem = criarArmazem(join(app.getPath('userData'), 'estado.json'))
@@ -46,9 +57,10 @@ export function criarContexto(): Contexto {
     detectar: (ajustes) => detectarPerfis(depsReais(home), ajustes),
     lerConta: (perfil) => lerContaReal(perfil, home),
   })
+  const repos = new ServicoRepos({ armazem, perfis, ehPasta, novoId: randomUUID })
   const terminais = new ServicoTerminais(spawnReal, {
     aoDados: (terminalId, dados) => enviarParaJanelas(IPC.terminaisDados, { terminalId, dados }),
     aoSair: (terminalId, codigo) => enviarParaJanelas(IPC.terminaisSaiu, { terminalId, codigo }),
   })
-  return { perfis, terminais }
+  return { perfis, repos, terminais }
 }

@@ -2,6 +2,7 @@ import { app, BrowserWindow, session } from 'electron'
 import { criarContexto, type Contexto } from './contexto'
 import { registrarHandlersApp } from './handlers/app'
 import { registrarHandlersPerfis } from './handlers/perfis'
+import { registrarHandlersRepos } from './handlers/repos'
 import { registrarHandlersTerminais } from './handlers/terminais'
 import { log } from './log'
 import { iniciarSmoke } from './smoke'
@@ -12,6 +13,7 @@ function registrarCanais(): void {
   const contexto: Contexto = criarContexto()
   registrarHandlersApp()
   registrarHandlersPerfis(contexto.perfis)
+  registrarHandlersRepos(contexto.repos)
   registrarHandlersTerminais(contexto.terminais, contexto.perfis)
   app.on('before-quit', () => contexto.terminais.fecharTodos())
 }

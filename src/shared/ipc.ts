@@ -3,13 +3,17 @@
 // e o main valida a entrada com zod (src/main/ipc.ts).
 // Regra: este arquivo nao importa nada (nem electron, nem node), so tipos de ./model.
 
-import type { AlvoTerminal, PerfilComConta, StatusConta } from './model'
+import type { AlvoTerminal, PerfilComConta, Repo, StatusConta } from './model'
 
 export const IPC = {
   appInfo: 'app:info',
   perfisListar: 'perfis:listar',
   perfisRenomear: 'perfis:renomear',
   perfisAtualizarConta: 'perfis:atualizarConta',
+  reposEscolherPasta: 'repos:escolherPasta',
+  reposAdicionar: 'repos:adicionar',
+  reposMudarPerfilPadrao: 'repos:mudarPerfilPadrao',
+  reposRemover: 'repos:remover',
   terminaisAbrir: 'terminais:abrir',
   terminaisEscrever: 'terminais:escrever',
   terminaisRedimensionar: 'terminais:redimensionar',
@@ -30,6 +34,13 @@ export interface LousaApi {
     listar(): Promise<PerfilComConta[]>
     renomear(perfilId: string, nome: string): Promise<PerfilComConta>
     atualizarConta(perfilId: string): Promise<StatusConta>
+  }
+  repos: {
+    /** Abre o seletor de pasta do Windows; null se o usuario cancelar. */
+    escolherPasta(): Promise<{ caminho: string; sugestaoPerfilId: string | null } | null>
+    adicionar(caminho: string, perfilId: string): Promise<Repo>
+    mudarPerfilPadrao(repoId: string, perfilId: string): Promise<Repo>
+    remover(repoId: string): Promise<void>
   }
   terminais: {
     abrir(alvo: AlvoTerminal, cols: number, rows: number): Promise<{ terminalId: string; bufferInicial: string }>

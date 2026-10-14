@@ -36,6 +36,11 @@ export class ServicoPerfis {
     return perfis.map((p, i) => ({ ...p, conta: contas[i] as StatusConta }))
   }
 
+  /** So o que foi detectado no PC, sem ler o login de nenhuma conta (rapido). */
+  detectados(): Perfil[] {
+    return this.perfis()
+  }
+
   /** Lanca 'Conta não encontrada' para id desconhecido. */
   obter(perfilId: PerfilId): Perfil {
     const perfil = this.perfis().find((p) => p.id === perfilId)

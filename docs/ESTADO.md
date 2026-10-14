@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T3.1** (`docs/plano/fatia-1-contas.md`)
+**Próxima tarefa: T3.3** (`docs/plano/fatia-1-contas.md`)
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -24,8 +24,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T2.3 | Canais dos terminais (login) | ✅ 14/10/2026 |
 | T2.4 | Componente de terminal | ✅ 14/10/2026 |
 | T2.5 | Botão "Entrar" | ✅ 14/10/2026 |
-| T3.1 | Sugerir a conta de um repo | ⬜ |
-| T3.2 | Serviço e canais de repos | ⬜ |
+| T3.1 | Sugerir a conta de um repo | ✅ 14/10/2026 |
+| T3.2 | Serviço e canais de repos | ✅ 14/10/2026 |
 | T3.3 | Fluxo "Adicionar repositório" | ⬜ |
 | T3.4 | Lousa: molduras e quadros | ⬜ |
 | T3.5 | Salvar e reabrir a lousa | ⬜ |
@@ -66,3 +66,4 @@ Nenhum.
 - **14/10/2026 (T1.6 + T1.7):** `ServicoPerfis` (cache da conta, renomear grava só o nome), canais `perfis:listar/renomear/atualizarConta`, `contexto.ts`, barra lateral (`BarraContas`, `CartaoConta`). Conferido com captura de tela no PC do Sidney: Principal (team, e-mail da empresa) e Pessoal (pro, gmail), cores e etiqueta Claude. `npm run check` (48 testes) e `npm run smoke` verdes. Contas Codex mostram erro "ainda não disponível" até a T1.4b. Próxima: T1.8 (Nova conta) é opcional para Claude+Claude; seguir para a fatia 2 (T2.1) é o caminho mais curto até o login e a lousa.
 - **14/10/2026 (T2.1–T2.3):** `ServicoTerminais` (idempotente, buffer 200 mil), `spawnReal`, `isolamento.test.ts` (4 casos em terminal real: principal, pessoal, Codex padrão e Codex extra; rodaram, não foram pulados), `resolverAlvo`/`comandos.ts`, canais `terminais:*` e eventos `terminais:dados/saiu`, `registrarCanais()` no `index.ts`. 66 testes e smoke verdes.
 - **14/10/2026 (T2.4 + T2.5):** `Terminal.tsx` (xterm, assina eventos antes do `abrir` e ignora os que chegam antes da resposta, pois já estão no buffer), `JanelaLogin.tsx`, botão Entrar/Trocar login. Mudança em relação ao plano: o comando de login é `claude auth login; if ($?) { exit }`, porque o shell não fecha sozinho quando o `claude` termina (a tela só saberia que acabou se o shell saísse). Provado com captura de tela (comando trocado temporariamente por `claude auth status`, sem abrir navegador): o botão da conta Pessoal abre um terminal real cujo `claude` enxerga `.claude-pessoal` e o gmail. O login de verdade (navegador) ainda não foi exercitado: é o item para o Sidney validar.
+- **14/10/2026 (T3.1 + T3.2):** `sugerir.ts` (raiz da conta, depois a última usada, depois a primeira; `pessoal-2` não casa com a raiz `pessoal`), `ServicoRepos` (um repo aparece uma vez; conta padrão por repo; remover leva os quadros), canais `repos:*` com o seletor de pasta do Windows no handler. `ServicoPerfis.detectados()` novo (lista sem ler login, rápido). 81 testes verdes.
