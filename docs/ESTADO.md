@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T1.4b** (`docs/plano/fatia-1-contas.md`)
+**Próxima tarefa: T1.6** (`docs/plano/fatia-1-contas.md`)
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -14,8 +14,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T1.2 | Detectar as contas do PC | ✅ 14/10/2026 |
 | T1.3 | Montar o ambiente de um terminal | ✅ 14/10/2026 |
 | T1.4 | Ler o status de login (Claude) | ✅ 14/10/2026 |
-| T1.4b | Ler o status de login (Codex) | ⬜ |
-| T1.5 | Guardar o estado | ⬜ |
+| T1.4b | Ler o status de login (Codex) | ⏸ adiada (v1 começa só com Claude; fazer antes de testar ChatGPT) |
+| T1.5 | Guardar o estado | ✅ 14/10/2026 |
 | T1.6 | Serviço e canais das contas | ⬜ |
 | T1.7 | Barra lateral de contas | ⬜ |
 | T1.8 | Nova conta (Claude ou Codex) | ⬜ |
@@ -62,3 +62,4 @@ Nenhum.
 - **14/10/2026 (T1.2):** `src/main/perfis/detectar.ts` com 9 testes. No PC do Sidney acha `principal` (~/.claude) e `pessoal` (~/.claude-pessoal, com a pasta pessoal como raiz). Dica: o TS usa `noUncheckedIndexedAccess`, então `arr[i]` pode ser `undefined`.
 - **14/10/2026 (T1.3):** `src/main/perfis/ambiente.ts` (`montarAmbiente`, lista permitida, `CLAUDE_CONFIG_DIR` ou `CODEX_HOME` só em conta não padrão) com 10 testes. `npm run check` verde (23 testes).
 - **14/10/2026 (T1.4):** `src/main/perfis/conta.ts` (localizarClaude, interpretarStatus, lerStatusConta, executarReal) com 12 testes. Conferido no PC: `principal` = plano team (e-mail da empresa), `pessoal` = plano pro (gmail), cada uma lida com o próprio ambiente. Atenção T1.4b: `executarReal` ainda não trata `.cmd`.
+- **14/10/2026 (T1.5):** `src/main/estado/armazem.ts` (JSON atômico, schema zod, arquivo estragado vai para `.corrompido-<data>`) com 7 testes; 42 no total. Sidney decidiu começar só com duas contas Claude: T1.4b adiada, não removida.
