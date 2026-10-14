@@ -1,0 +1,127 @@
+.barra {
+  width: 280px;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  background: var(--painel);
+  border-right: 1px solid var(--borda);
+}
+
+.barra-titulo {
+  margin: 0;
+  padding: 16px 16px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--apagado);
+}
+
+.barra-lista {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.barra-rodape {
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--apagado);
+  border-top: 1px solid var(--borda);
+}
+
+.cartao {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 12px 12px 12px 14px;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-left: 4px solid var(--cor, var(--borda));
+  border-radius: 8px;
+}
+
+.cartao-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+}
+
+.cartao-nome {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: text;
+}
+
+.cartao-nome-campo {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--texto);
+  background: var(--fundo);
+  border: 1px solid var(--cor, var(--borda));
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.cartao-email {
+  margin: 0;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.etiqueta {
+  font-size: 11px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  color: var(--apagado);
+}
+
+.etiqueta-provedor {
+  color: var(--cor, var(--apagado));
+  border-color: var(--cor, var(--borda));
+}
+
+.erro {
+  margin: 0;
+  font-size: 12px;
+  color: #ff7b7b;
+}
+
+.apagado {
+  margin: 0;
+  font-size: 13px;
+  color: var(--apagado);
+}
+
+.botao-pequeno {
+  margin-top: 2px;
+  font: inherit;
+  font-size: 12px;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.botao-pequeno:hover:not(:disabled) {
+  border-color: var(--apagado);
+}
+
+.botao-pequeno:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

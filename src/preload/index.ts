@@ -5,6 +5,11 @@ import { IPC, type LousaApi } from '../shared/ipc'
 
 const api: LousaApi = {
   appInfo: () => ipcRenderer.invoke(IPC.appInfo),
+  perfis: {
+    listar: () => ipcRenderer.invoke(IPC.perfisListar),
+    renomear: (perfilId, nome) => ipcRenderer.invoke(IPC.perfisRenomear, { perfilId, nome }),
+    atualizarConta: (perfilId) => ipcRenderer.invoke(IPC.perfisAtualizarConta, { perfilId }),
+  },
 }
 
 contextBridge.exposeInMainWorld('lousa', api)

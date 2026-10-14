@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T1.6** (`docs/plano/fatia-1-contas.md`)
+**Próxima tarefa: T1.8** (`docs/plano/fatia-1-contas.md`)
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -16,8 +16,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T1.4 | Ler o status de login (Claude) | ✅ 14/10/2026 |
 | T1.4b | Ler o status de login (Codex) | ⏸ adiada (v1 começa só com Claude; fazer antes de testar ChatGPT) |
 | T1.5 | Guardar o estado | ✅ 14/10/2026 |
-| T1.6 | Serviço e canais das contas | ⬜ |
-| T1.7 | Barra lateral de contas | ⬜ |
+| T1.6 | Serviço e canais das contas | ✅ 14/10/2026 |
+| T1.7 | Barra lateral de contas | ✅ 14/10/2026 |
 | T1.8 | Nova conta (Claude ou Codex) | ⬜ |
 | T2.1 | Serviço de terminais | ⬜ |
 | T2.2 | node-pty real + teste de isolamento | ⬜ |
@@ -63,3 +63,4 @@ Nenhum.
 - **14/10/2026 (T1.3):** `src/main/perfis/ambiente.ts` (`montarAmbiente`, lista permitida, `CLAUDE_CONFIG_DIR` ou `CODEX_HOME` só em conta não padrão) com 10 testes. `npm run check` verde (23 testes).
 - **14/10/2026 (T1.4):** `src/main/perfis/conta.ts` (localizarClaude, interpretarStatus, lerStatusConta, executarReal) com 12 testes. Conferido no PC: `principal` = plano team (e-mail da empresa), `pessoal` = plano pro (gmail), cada uma lida com o próprio ambiente. Atenção T1.4b: `executarReal` ainda não trata `.cmd`.
 - **14/10/2026 (T1.5):** `src/main/estado/armazem.ts` (JSON atômico, schema zod, arquivo estragado vai para `.corrompido-<data>`) com 7 testes; 42 no total. Sidney decidiu começar só com duas contas Claude: T1.4b adiada, não removida.
+- **14/10/2026 (T1.6 + T1.7):** `ServicoPerfis` (cache da conta, renomear grava só o nome), canais `perfis:listar/renomear/atualizarConta`, `contexto.ts`, barra lateral (`BarraContas`, `CartaoConta`). Conferido com captura de tela no PC do Sidney: Principal (team, e-mail da empresa) e Pessoal (pro, gmail), cores e etiqueta Claude. `npm run check` (48 testes) e `npm run smoke` verdes. Contas Codex mostram erro "ainda não disponível" até a T1.4b. Próxima: T1.8 (Nova conta) é opcional para Claude+Claude; seguir para a fatia 2 (T2.1) é o caminho mais curto até o login e a lousa.

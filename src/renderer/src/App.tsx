@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { AppInfo } from '../../shared/ipc'
+import { BarraContas } from './componentes/BarraContas'
 
 export function App(): React.JSX.Element {
   const [info, setInfo] = useState<AppInfo | null>(null)
@@ -12,16 +13,15 @@ export function App(): React.JSX.Element {
       .catch((e: unknown) => setErro(e instanceof Error ? e.message : String(e)))
   }, [])
 
+  // O `npm run smoke` procura "Electron <versao>" neste rodape: mantenha o texto.
+  const rodape = info ? `v${info.version} · Electron ${info.electron}` : ''
   return (
-    <main className="esqueleto">
-      <h1>Lousa.ia</h1>
-      {info && (
-        <p>
-          versão {info.version} · Electron {info.electron} · {info.platform}
-        </p>
-      )}
-      {erro && <p role="alert">Falha ao falar com o processo principal: {erro}</p>}
-      <p className="dica">Esqueleto pronto. O plano de construção está em docs/ESTADO.md.</p>
-    </main>
+    <div className="app">
+      <BarraContas rodape={rodape} />
+      <main className="area-lousa">
+        {erro && <p role="alert">Falha ao falar com o processo principal: {erro}</p>}
+        <p className="apagado">A lousa chega na fatia 3</p>
+      </main>
+    </div>
   )
 }

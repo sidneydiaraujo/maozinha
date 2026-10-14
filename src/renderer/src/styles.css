@@ -1,6 +1,11 @@
+@import './estilos/contas.css';
+
 :root {
   color-scheme: dark;
   --fundo: #111318;
+  --painel: #161922;
+  --cartao: #1c202b;
+  --borda: #2a2f3c;
   --texto: #e6e8ee;
   --apagado: #8b90a0;
   font-family: 'Segoe UI', system-ui, sans-serif;
@@ -15,10 +20,13 @@ body,
   color: var(--texto);
 }
 
-.esqueleto {
-  padding: 32px;
+.app {
+  display: flex;
+  height: 100%;
 }
 
-.dica {
-  color: var(--apagado);
+.area-lousa {
+  flex: 1;
+  display: grid;
+  place-items: center;
 }
