@@ -21,13 +21,13 @@ describe('resolverAlvo', () => {
     expect(r).toMatchObject({
       terminalId: 'login:principal',
       cwd: 'C:\\Users\\x',
-      comandoInicial: 'claude auth login\r',
+      comandoInicial: 'claude auth login; if ($?) { exit }\r',
     })
     expect(r.perfil.id).toBe('principal')
   })
 
   it('login de conta Codex usa o comando do Codex', () => {
-    expect(resolverAlvo({ tipo: 'login', perfilId: 'cx:x' }, deps).comandoInicial).toBe('codex login\r')
+    expect(resolverAlvo({ tipo: 'login', perfilId: 'cx:x' }, deps).comandoInicial).toBe('codex login; if ($?) { exit }\r')
   })
 
   it('conta inexistente propaga o erro', () => {

@@ -1,5 +1,6 @@
 import { useState, type CSSProperties, type KeyboardEvent } from 'react'
 import type { PerfilComConta } from '../../../shared/model'
+import { JanelaLogin } from './JanelaLogin'
 
 interface Props {
   perfil: PerfilComConta
@@ -14,6 +15,7 @@ export function CartaoConta({ perfil, aoRenomear, aoAtualizar }: Props): React.J
   const [rascunho, setRascunho] = useState(perfil.nome)
   const [atualizando, setAtualizando] = useState(false)
   const [falha, setFalha] = useState<string | null>(null)
+  const [entrando, setEntrando] = useState(false)
   const { conta } = perfil
 
   function comecarEdicao(): void {
@@ -81,9 +83,15 @@ export function CartaoConta({ perfil, aoRenomear, aoAtualizar }: Props): React.J
           {falha}
         </p>
       )}
-      <button className="botao-pequeno" disabled={atualizando} onClick={() => void atualizar()}>
-        {atualizando ? 'Atualizando…' : 'Atualizar'}
-      </button>
+      <div className="cartao-acoes">
+        <button className="botao-pequeno" disabled={atualizando} onClick={() => void atualizar()}>
+          {atualizando ? 'Atualizando…' : 'Atualizar'}
+        </button>
+        <button className="botao-pequeno botao-entrar" onClick={() => setEntrando(true)}>
+          {conta.logado ? 'Trocar login' : 'Entrar'}
+        </button>
+      </div>
+      {entrando && <JanelaLogin perfil={perfil} aoConcluir={aoAtualizar} aoFechar={() => setEntrando(false)} />}
     </article>
   )
 }
