@@ -166,3 +166,94 @@
   width: 100%;
   height: 420px;
 }
+
+.barra-acoes {
+  padding: 4px 12px 8px;
+}
+
+.botao-principal {
+  width: 100%;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: #2f6df6;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  cursor: pointer;
+}
+
+.botao-principal:hover:not(:disabled) {
+  background: #4a80ff;
+}
+
+.botao-principal:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.aviso {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #6fdc8c;
+}
+
+.caminho-escolhido {
+  margin: 0;
+  padding: 6px 10px;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  font-size: 13px;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  word-break: break-all;
+}
+
+.escolhas-conta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  width: 100%;
+}
+
+.escolha-conta {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  font: inherit;
+  color: var(--texto);
+  text-align: left;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-left: 5px solid var(--cor, var(--borda));
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+
+.escolha-conta strong {
+  font-size: 16px;
+}
+
+.escolha-conta span {
+  font-size: 12px;
+  color: var(--apagado);
+  word-break: break-all;
+}
+
+.escolha-conta em {
+  font-size: 11px;
+  font-style: normal;
+  color: var(--cor, var(--texto));
+}
+
+.escolha-conta.sugerida,
+.escolha-conta:focus-visible {
+  outline: 2px solid var(--cor, #2f6df6);
+  outline-offset: 1px;
+}

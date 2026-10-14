@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { PerfilComConta } from '../../../shared/model'
+import type { PerfilComConta, Repo } from '../../../shared/model'
+import { AdicionarRepo } from './AdicionarRepo'
 import { CartaoConta } from './CartaoConta'
 
 interface Props {
@@ -9,6 +10,8 @@ interface Props {
 export function BarraContas({ rodape }: Props): React.JSX.Element {
   const [perfis, setPerfis] = useState<PerfilComConta[] | null>(null)
   const [erro, setErro] = useState<string | null>(null)
+  const [escolhida, setEscolhida] = useState<{ caminho: string; sugestaoPerfilId: string | null } | null>(null)
+  const [aviso, setAviso] = useState<string | null>(null)
 
   useEffect(() => {
     let ativo = true
@@ -34,9 +37,30 @@ export function BarraContas({ rodape }: Props): React.JSX.Element {
     trocar({ ...perfil, conta })
   }
 
+  async function escolherPasta(): Promise<void> {
+    setAviso(null)
+    try {
+      setEscolhida(await window.lousa.repos.escolherPasta())
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : String(e))
+    }
+  }
+
+  function adicionou(repo: Repo): void {
+    const conta = perfis?.find((p) => p.id === repo.perfilPadraoId)?.nome ?? ''
+    setEscolhida(null)
+    setAviso(`Adicionado: ${repo.nome} (conta ${conta})`)
+  }
+
   return (
     <aside className="barra">
       <h1 className="barra-titulo">Contas</h1>
+      <div className="barra-acoes">
+        <button className="botao-principal" disabled={!perfis?.length} onClick={() => void escolherPasta()}>
+          + Adicionar repositório
+        </button>
+        {aviso && <p className="aviso">{aviso}</p>}
+      </div>
       <div className="barra-lista">
         {erro && (
           <p className="erro" role="alert">
@@ -55,6 +79,15 @@ export function BarraContas({ rodape }: Props): React.JSX.Element {
         ))}
       </div>
       <footer className="barra-rodape">{rodape}</footer>
+      {escolhida && perfis && (
+        <AdicionarRepo
+          caminho={escolhida.caminho}
+          perfis={perfis}
+          sugestaoPerfilId={escolhida.sugestaoPerfilId}
+          aoAdicionar={adicionou}
+          aoCancelar={() => setEscolhida(null)}
+        />
+      )}
     </aside>
   )
 }
