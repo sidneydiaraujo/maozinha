@@ -5,9 +5,11 @@ import { CartaoConta } from './CartaoConta'
 
 interface Props {
   rodape: string
+  /** Avisa a lousa que conta ou repositorio mudou. */
+  aoMudar(): void
 }
 
-export function BarraContas({ rodape }: Props): React.JSX.Element {
+export function BarraContas({ rodape, aoMudar }: Props): React.JSX.Element {
   const [perfis, setPerfis] = useState<PerfilComConta[] | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [escolhida, setEscolhida] = useState<{ caminho: string; sugestaoPerfilId: string | null } | null>(null)
@@ -30,6 +32,7 @@ export function BarraContas({ rodape }: Props): React.JSX.Element {
 
   async function renomear(perfil: PerfilComConta, nome: string): Promise<void> {
     trocar(await window.lousa.perfis.renomear(perfil.id, nome))
+    aoMudar()
   }
 
   async function atualizar(perfil: PerfilComConta): Promise<void> {
@@ -50,6 +53,7 @@ export function BarraContas({ rodape }: Props): React.JSX.Element {
     const conta = perfis?.find((p) => p.id === repo.perfilPadraoId)?.nome ?? ''
     setEscolhida(null)
     setAviso(`Adicionado: ${repo.nome} (conta ${conta})`)
+    aoMudar()
   }
 
   return (

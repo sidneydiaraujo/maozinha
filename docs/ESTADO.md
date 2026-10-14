@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T3.4b** (`docs/plano/fatia-1-contas.md`)
+**Próxima tarefa: T3.5** (`docs/plano/fatia-1-contas.md`)
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -27,7 +27,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T3.1 | Sugerir a conta de um repo | ✅ 14/10/2026 |
 | T3.2 | Serviço e canais de repos | ✅ 14/10/2026 |
 | T3.3 | Fluxo "Adicionar repositório" | ✅ 14/10/2026 |
-| T3.4 | Lousa: molduras e quadros | ⬜ |
+| T3.4 | Lousa: molduras e quadros | ✅ 14/10/2026 |
 | T3.5 | Salvar e reabrir a lousa | ⬜ |
 | T3.6 | Conta padrão do repo e remover | ⬜ |
 | T4.1 | Instalador | ⬜ |
@@ -69,3 +69,4 @@ Nenhum.
 - **14/10/2026 (T3.1 + T3.2):** `sugerir.ts` (raiz da conta, depois a última usada, depois a primeira; `pessoal-2` não casa com a raiz `pessoal`), `ServicoRepos` (um repo aparece uma vez; conta padrão por repo; remover leva os quadros), canais `repos:*` com o seletor de pasta do Windows no handler. `ServicoPerfis.detectados()` novo (lista sem ler login, rápido). 81 testes verdes.
 - **14/10/2026 (T3.3):** `AdicionarRepo.tsx` + botão "+ Adicionar repositório". Captura de tela: `C:\Users\sidne\pessoal\lousa-ia` vem com Pessoal sugerida e focada (Enter confirma). Sem a lousa (T3.4) o único retorno é a linha verde "Adicionado: ..." na barra; provisório. T3.4 dividida em T3.4a (main: quadros, alvo, `lousa:carregar`) e T3.4b (tela React Flow).
 - **14/10/2026 (T3.4a):** `ServicoQuadros` (conta fixa por quadro, título numerado por prefixo, grade de 2 colunas), `resolverAlvo` para quadros (pasta do repo, conta do quadro, `claude`/`codex` conforme o provedor), canais `quadros:criar/remover` e `lousa:carregar`. 91 testes. Teste chave: dois quadros do mesmo repo com contas diferentes resolvem perfis diferentes e a mesma pasta.
+- **14/10/2026 (T3.4b):** `Lousa.tsx` (React Flow), `RepoNode` (moldura neutra, "+ Terminal" e "+ Agente" com ▾ para escolher a conta), `QuadroNode` (cor da conta do quadro, não do repo), `nos.ts` (+4 testes). 95 testes e smoke verdes. **Prova (captura de tela, pasta de dados temporária):** um repo com dois quadros `agente`, um na conta Principal (empresa) e outro na Pessoal, abriram dois Claude Code reais lado a lado, cada um com a sua cor. Layout ainda não é salvo ao arrastar/redimensionar (T3.5). Faltam também o menu "⋯" da moldura (conta padrão/remover) na T3.6.

@@ -1,0 +1,144 @@
+.lousa {
+  position: relative;
+  flex: 1;
+  height: 100%;
+}
+
+.lousa-erro,
+.lousa-vazia {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 13px;
+}
+
+.lousa-erro {
+  top: 12px;
+  padding: 8px 14px;
+  color: #ff9b9b;
+  background: #2a1414;
+  border: 1px solid #5a2323;
+  border-radius: 8px;
+}
+
+.lousa-vazia {
+  top: 45%;
+  color: var(--apagado);
+  font-size: 15px;
+}
+
+.moldura {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.025);
+  border: 2px dashed #3a4050;
+  border-radius: 12px;
+}
+
+.cabecalho-repo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 48px;
+  padding: 0 14px;
+  box-sizing: border-box;
+  cursor: grab;
+}
+
+.repo-titulo {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+
+.repo-titulo strong {
+  font-size: 16px;
+}
+
+.repo-caminho {
+  font-size: 12px;
+  color: var(--apagado);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repo-acoes {
+  display: flex;
+  gap: 12px;
+  flex: none;
+}
+
+.botao-criar {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.botao-criar .seta {
+  padding: 3px 6px;
+}
+
+.chip-conta {
+  color: var(--cor);
+  border-color: var(--cor);
+}
+
+.quadro {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: #0b0d12;
+  border: 1px solid var(--cor);
+  border-top: 3px solid var(--cor);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.cabecalho-quadro {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 4px 8px;
+  background: var(--cartao);
+  cursor: grab;
+  font-size: 12px;
+}
+
+.quadro-titulo {
+  font-weight: 600;
+}
+
+.quadro-conta {
+  flex: 1;
+  color: var(--cor);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.botao-fechar {
+  font: inherit;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--apagado);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.botao-fechar:hover {
+  color: var(--texto);
+}
+
+.quadro-corpo {
+  flex: 1;
+  min-height: 0;
+}
