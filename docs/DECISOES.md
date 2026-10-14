@@ -58,3 +58,4 @@ um quadro já aberto (remova e crie outro) e ler `auth.json` do Codex (tem token
 O Codex não estava instalado no PC em 14/10/2026: o formato do
 `codex login status` precisa ser confirmado na T1.4b.
 - **D12 (14/10/2026):** instalador com electron-builder 26.15.3, NSIS por usuário (sem administrador), sem assinatura digital por ora; integridade pelo SHA-256 em `release/SHA256.txt`.
+- **D13 (14/10/2026):** lousa livre. Quadros soltos na lousa (pasta no cabeçalho), sem moldura de repo; conta e pasta escolhidas no mesmo gesto (arrastar a conta, duplo clique no vazio ou "+ Agente" no cartão). Some a "conta padrão do repo"; a pasta guarda só a última conta usada, como sugestão. Motivo: teste do Sidney — a moldura limitava o canvas e havia três caminhos para a mesma ação.

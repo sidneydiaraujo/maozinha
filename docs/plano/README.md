@@ -1,6 +1,6 @@
 # Plano de execução
 
-Quatro fatias. Cada fatia termina com algo que o Sidney consegue ver ou usar.
+Cinco fatias. Cada fatia termina com algo que o Sidney consegue ver ou usar.
 Faça as tarefas **na ordem**: cada uma usa o que a anterior entregou.
 
 | Fatia | Entrega visível | Arquivo |
@@ -10,6 +10,7 @@ Faça as tarefas **na ordem**: cada uma usa o que a anterior entregou.
 | 2. Terminais | Botão "Entrar" abre o login (Claude ou ChatGPT) da conta certa num terminal real | `fatia-2-terminais.md` |
 | 3. Repos e lousa | Adicionar repo → moldura → quadros de terminal/agente, cada um na sua conta (duas no mesmo repo ou em repos diferentes), salvos ao reabrir | `fatia-3-repos-e-lousa.md` |
 | 4. Entrega | Instalador, atalho e a jornada aceita pelo Sidney | `fatia-4-entrega.md` |
+| 5. Lousa livre | Quadros soltos na lousa; conta e pasta escolhidas no mesmo gesto (arrastar a conta, duplo clique ou "+ Agente") | `fatia-5-lousa-livre.md` |
 
 ## Como cada tarefa está escrita
 
