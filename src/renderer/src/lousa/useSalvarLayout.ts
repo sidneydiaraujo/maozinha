@@ -1,18 +1,12 @@
 import type { Node, NodeChange, Viewport } from '@xyflow/react'
 import { useCallback, useEffect, useRef } from 'react'
 import type { LayoutLousa } from '../../../shared/ipc'
-import { caixaDoNo, repoIdDoNo } from './nos'
+import { caixaDoNo } from './nos'
 
 const ESPERA_SALVAR_MS = 500
 
 function layoutDosNos(nos: Node[], viewport: Viewport): LayoutLousa {
-  const layout: LayoutLousa = { repos: [], quadros: [], viewport }
-  for (const no of nos) {
-    const caixa = caixaDoNo(no)
-    if (no.type === 'repo') layout.repos.push({ id: repoIdDoNo(no.id), caixa })
-    else layout.quadros.push({ id: no.id, caixa })
-  }
-  return layout
+  return { quadros: nos.map((no) => ({ id: no.id, caixa: caixaDoNo(no) })), viewport }
 }
 
 interface Opcoes<N extends Node> {

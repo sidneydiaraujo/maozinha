@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react'
-import type { PerfilComConta, Repo } from '../../../shared/model'
-import { AdicionarRepo } from './AdicionarRepo'
+import type { PerfilComConta } from '../../../shared/model'
 import { CartaoConta } from './CartaoConta'
+import { ListaPastas } from './ListaPastas'
 
 interface Props {
   rodape: string
-  /** Avisa a lousa que conta ou repositorio mudou. */
+  /** Muda quando a lousa cadastrou uma pasta nova. */
+  versaoPastas: number
+  /** Avisa a lousa que conta ou pasta mudou. */
   aoMudar(): void
+  /** "+ Agente" num cartao. */
+  aoAbrir(perfilId: string): void
 }
 
 /** Duas contas com o mesmo e-mail quase sempre e o login ter caido na conta errada do navegador. */
@@ -23,9 +27,10 @@ interface ListaProps {
   perfis: PerfilComConta[]
   aoRenomear(perfil: PerfilComConta, nome: string): Promise<void>
   aoAtualizar(perfil: PerfilComConta): Promise<void>
+  aoAbrir(perfilId: string): void
 }
 
-function ListaCartoes({ perfis, aoRenomear, aoAtualizar }: ListaProps): React.JSX.Element {
+function ListaCartoes({ perfis, aoRenomear, aoAtualizar, aoAbrir }: ListaProps): React.JSX.Element {
   return (
     <>
       {perfis.map((p) => (
@@ -34,6 +39,7 @@ function ListaCartoes({ perfis, aoRenomear, aoAtualizar }: ListaProps): React.JS
           perfil={p}
           aoRenomear={(nome) => aoRenomear(p, nome)}
           aoAtualizar={() => aoAtualizar(p)}
+          aoAbrir={() => aoAbrir(p.id)}
           aviso={avisoDeEmail(p, perfis)}
         />
       ))}
@@ -41,15 +47,9 @@ function ListaCartoes({ perfis, aoRenomear, aoAtualizar }: ListaProps): React.JS
   )
 }
 
-export function BarraContas({ rodape, aoMudar }: Props): React.JSX.Element {
+export function BarraContas({ rodape, versaoPastas, aoMudar, aoAbrir }: Props): React.JSX.Element {
   const [perfis, setPerfis] = useState<PerfilComConta[] | null>(null)
   const [erro, setErro] = useState<string | null>(null)
-  const [escolhida, setEscolhida] = useState<{
-    caminho: string
-    sugestaoPerfilId: string | null
-  } | null>(null)
-  const [aviso, setAviso] = useState<string | null>(null)
-
   useEffect(() => {
     let ativo = true
     window.lousa.perfis
@@ -75,31 +75,10 @@ export function BarraContas({ rodape, aoMudar }: Props): React.JSX.Element {
     trocar({ ...perfil, conta })
   }
 
-  async function escolherPasta(): Promise<void> {
-    setAviso(null)
-    try {
-      setEscolhida(await window.lousa.repos.escolherPasta())
-    } catch (e) {
-      setErro(e instanceof Error ? e.message : String(e))
-    }
-  }
-
-  function adicionou(repo: Repo): void {
-    const conta = perfis?.find((p) => p.id === repo.perfilPadraoId)?.nome ?? ''
-    setEscolhida(null)
-    setAviso(`Adicionado: ${repo.nome} (conta ${conta})`)
-    aoMudar()
-  }
-
   return (
     <aside className="barra">
       <h1 className="barra-titulo">Contas</h1>
-      <div className="barra-acoes">
-        <button className="botao-principal" disabled={!perfis?.length} onClick={() => void escolherPasta()}>
-          + Adicionar repositório
-        </button>
-        {aviso && <p className="aviso">{aviso}</p>}
-      </div>
+      <p className="barra-dica">Arraste uma conta para a lousa ou use “+ Agente”.</p>
       <div className="barra-lista">
         {erro && (
           <p className="erro" role="alert">
@@ -108,18 +87,10 @@ export function BarraContas({ rodape, aoMudar }: Props): React.JSX.Element {
         )}
         {!erro && perfis === null && <p className="apagado">Lendo contas…</p>}
         {perfis?.length === 0 && <p className="apagado">Nenhuma conta do Claude Code neste PC.</p>}
-        {perfis && <ListaCartoes perfis={perfis} aoRenomear={renomear} aoAtualizar={atualizar} />}
+        {perfis && <ListaCartoes perfis={perfis} aoRenomear={renomear} aoAtualizar={atualizar} aoAbrir={aoAbrir} />}
+        <ListaPastas versao={versaoPastas} aoRemover={aoMudar} />
       </div>
       <footer className="barra-rodape">{rodape}</footer>
-      {escolhida && perfis && (
-        <AdicionarRepo
-          caminho={escolhida.caminho}
-          perfis={perfis}
-          sugestaoPerfilId={escolhida.sugestaoPerfilId}
-          aoAdicionar={adicionou}
-          aoCancelar={() => setEscolhida(null)}
-        />
-      )}
     </aside>
   )
 }

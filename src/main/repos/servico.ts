@@ -1,5 +1,5 @@
-// Cadastro de repositorios da lousa (T3.2). O repo tem UMA conta padrao (a dos
-// quadros novos); cada quadro pode usar outra (D11), entao um repo aparece so uma vez.
+// Pastas onde os quadros trabalham (T3.2, D13). Cada quadro tem a sua conta (D11);
+// a pasta so guarda a ultima conta usada, como sugestao.
 import type { Repo } from '../../shared/model'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoPerfis } from '../perfis/servico'
@@ -41,34 +41,16 @@ export class ServicoRepos {
     return sugerirPerfil(caminho, this.deps.perfis.detectados(), ultimoPerfilId)
   }
 
+  /** Pasta ja cadastrada (mesmo com outra caixa de letras) devolve a existente: escolher de novo e normal. */
   adicionar(caminho: string, perfilId: string): Repo {
     if (!this.deps.ehPasta(caminho)) throw new Error('Pasta não encontrada')
     this.deps.perfis.obter(perfilId)
     const estado = this.deps.armazem.carregar()
-    const jaTem = estado.repos.some((r) => normalizarCaminho(r.caminho) === normalizarCaminho(caminho))
-    if (jaTem) {
-      throw new Error('Este repositório já está na lousa. Use "+ Agente" nele para abrir outra conta')
-    }
-    const repo: Repo = {
-      id: this.deps.novoId(),
-      nome: nomeDaPasta(caminho),
-      caminho,
-      perfilPadraoId: perfilId,
-      caixa: { x: 40 + estado.repos.length * 960, y: 40, largura: 920, altura: 620 },
-    }
+    const existente = estado.repos.find((r) => normalizarCaminho(r.caminho) === normalizarCaminho(caminho))
+    if (existente) return existente
+    const repo: Repo = { id: this.deps.novoId(), nome: nomeDaPasta(caminho), caminho, perfilPadraoId: perfilId }
     estado.repos.push(repo)
     estado.ultimoPerfilId = perfilId
-    this.deps.armazem.salvar(estado)
-    return repo
-  }
-
-  /** So muda a conta usada nos quadros novos; os quadros que ja existem ficam como estao. */
-  mudarPerfilPadrao(repoId: string, perfilId: string): Repo {
-    this.deps.perfis.obter(perfilId)
-    const estado = this.deps.armazem.carregar()
-    const repo = estado.repos.find((r) => r.id === repoId)
-    if (!repo) throw new Error(NAO_ENCONTRADO)
-    repo.perfilPadraoId = perfilId
     this.deps.armazem.salvar(estado)
     return repo
   }

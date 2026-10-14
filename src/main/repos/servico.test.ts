@@ -45,17 +45,11 @@ describe('ServicoRepos', () => {
     expect(() => servico.adicionar('C:\\empresa\\api', 'nada')).toThrow('Conta não encontrada')
   })
 
-  it('repo duplicado e recusado mesmo com outra caixa de letras', () => {
-    const { servico } = montar(['C:\\empresa\\api', 'c:/EMPRESA/api/'])
-    servico.adicionar('C:\\empresa\\api', 'principal')
-    expect(() => servico.adicionar('c:/EMPRESA/api/', 'pessoal')).toThrow(/já está na lousa/)
-  })
-
-  it('as molduras nao se sobrepoem', () => {
-    const { servico } = montar()
-    const a = servico.adicionar('C:\\Users\\x\\pessoal\\app', 'pessoal')
-    const b = servico.adicionar('C:\\empresa\\api', 'principal')
-    expect(b.caixa.x).toBeGreaterThanOrEqual(a.caixa.x + a.caixa.largura)
+  it('pasta ja cadastrada devolve a existente, mesmo com outra caixa de letras', () => {
+    const { servico, estado } = montar(['C:\\empresa\\api', 'c:/EMPRESA/api/'])
+    const a = servico.adicionar('C:\\empresa\\api', 'principal')
+    expect(servico.adicionar('c:/EMPRESA/api/', 'pessoal')).toEqual(a)
+    expect(estado().repos).toHaveLength(1)
   })
 
   it('sugerir usa a raiz da conta e depois a ultima conta usada', () => {
@@ -63,15 +57,6 @@ describe('ServicoRepos', () => {
     expect(servico.sugerir('C:\\Users\\x\\pessoal\\outro')).toBe('pessoal')
     servico.adicionar('C:\\empresa\\api', 'principal')
     expect(servico.sugerir('D:\\qualquer')).toBe('principal')
-  })
-
-  it('mudarPerfilPadrao persiste; repo ou conta inexistente falha', () => {
-    const { servico, estado } = montar()
-    const repo = servico.adicionar('C:\\empresa\\api', 'principal')
-    expect(servico.mudarPerfilPadrao(repo.id, 'pessoal').perfilPadraoId).toBe('pessoal')
-    expect(estado().repos[0]?.perfilPadraoId).toBe('pessoal')
-    expect(() => servico.mudarPerfilPadrao('x', 'pessoal')).toThrow('Repositório não encontrado')
-    expect(() => servico.mudarPerfilPadrao(repo.id, 'nada')).toThrow('Conta não encontrada')
   })
 
   it('remover leva os quadros do repo e so os dele', () => {

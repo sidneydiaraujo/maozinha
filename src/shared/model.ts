@@ -26,14 +26,15 @@ export interface StatusConta {
 
 export interface PerfilComConta extends Perfil { conta: StatusConta }
 
-export interface Caixa { x: number; y: number; largura: number; altura: number }
+export interface Posicao { x: number; y: number }
+export interface Caixa extends Posicao { largura: number; altura: number }
 
+// Pasta onde os quadros trabalham (D13: sem moldura na lousa; aparece no cabeçalho do quadro).
 export interface Repo {
   id: string
   nome: string        // nome da pasta
   caminho: string     // absoluto, como o usuário escolheu
-  perfilPadraoId: PerfilId // conta usada nos quadros novos; cada quadro pode usar outra (C13)
-  caixa: Caixa        // moldura na lousa (coordenadas da lousa)
+  perfilPadraoId: PerfilId // última conta usada nesta pasta: só sugestão, cada quadro tem a sua
 }
 
 export type TipoQuadro = 'terminal' | 'agente' // 'agente' digita o CLI do provedor da conta (claude ou codex)
@@ -44,7 +45,7 @@ export interface Quadro {
   perfilId: PerfilId  // conta DESTE quadro; fixa. Trocar de conta = remover e criar outro
   tipo: TipoQuadro
   titulo: string
-  caixa: Caixa        // relativa à moldura do repo
+  caixa: Caixa        // posição e tamanho na lousa
 }
 
 export interface Viewport { x: number; y: number; zoom: number }
@@ -54,7 +55,7 @@ export type AlvoTerminal =
   | { tipo: 'login'; perfilId: PerfilId }
 
 export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
-  versao: 1
+  versao: 2           // 1 = lousa com molduras, migrada ao carregar (estado/migrar.ts)
   perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean }>
   // só o que o usuário mudou; criada = conta criada pelo app (a pasta pode estar vazia)
   repos: Repo[]

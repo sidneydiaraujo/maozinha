@@ -9,9 +9,9 @@ const pasta = (): string => mkdtempSync(join(tmpdir(), 'lousa-'))
 const caixa = { x: 1, y: 2, largura: 300, altura: 200 }
 
 const estado: EstadoSalvo = {
-  versao: 1,
+  versao: 2,
   perfis: { principal: { nome: 'Empresa' }, 'cx:novo': { provedor: 'codex', criada: true } },
-  repos: [{ id: 'r1', nome: 'app', caminho: 'C:\\app', perfilPadraoId: 'principal', caixa }],
+  repos: [{ id: 'r1', nome: 'app', caminho: 'C:\\app', perfilPadraoId: 'principal' }],
   quadros: [{ id: 'q1', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'Claude 1', caixa }],
   viewport: { x: 10, y: 20, zoom: 0.5 },
   ultimoPerfilId: 'principal',
@@ -50,7 +50,7 @@ describe('criarArmazem', () => {
   it('versao desconhecida vira padrao e fica guardada', () => {
     const dir = pasta()
     const arquivo = join(dir, 'estado.json')
-    writeFileSync(arquivo, JSON.stringify({ ...estado, versao: 2 }), 'utf8')
+    writeFileSync(arquivo, JSON.stringify({ ...estado, versao: 99 }), 'utf8')
     expect(criarArmazem(arquivo).carregar()).toEqual(ESTADO_PADRAO)
     expect(readdirSync(dir).some((n) => n.includes('.corrompido-'))).toBe(true)
   })

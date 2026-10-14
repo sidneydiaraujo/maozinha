@@ -3,7 +3,18 @@
 // e o main valida a entrada com zod (src/main/ipc.ts).
 // Regra: este arquivo nao importa nada (nem electron, nem node), so tipos de ./model.
 
-import type { AlvoTerminal, Caixa, EstadoTela, PerfilComConta, Quadro, Repo, StatusConta, TipoQuadro, Viewport } from './model'
+import type {
+  AlvoTerminal,
+  Caixa,
+  EstadoTela,
+  PerfilComConta,
+  Posicao,
+  Quadro,
+  Repo,
+  StatusConta,
+  TipoQuadro,
+  Viewport,
+} from './model'
 
 export const IPC = {
   appInfo: 'app:info',
@@ -12,7 +23,6 @@ export const IPC = {
   perfisAtualizarConta: 'perfis:atualizarConta',
   reposEscolherPasta: 'repos:escolherPasta',
   reposAdicionar: 'repos:adicionar',
-  reposMudarPerfilPadrao: 'repos:mudarPerfilPadrao',
   reposRemover: 'repos:remover',
   quadrosCriar: 'quadros:criar',
   quadrosRemover: 'quadros:remover',
@@ -28,7 +38,6 @@ export const IPC = {
 
 /** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
 export interface LayoutLousa {
-  repos: Array<{ id: string; caixa: Caixa }>
   quadros: Array<{ id: string; caixa: Caixa }>
   viewport: Viewport
 }
@@ -51,12 +60,11 @@ export interface LousaApi {
     /** Abre o seletor de pasta do Windows; null se o usuario cancelar. */
     escolherPasta(): Promise<{ caminho: string; sugestaoPerfilId: string | null } | null>
     adicionar(caminho: string, perfilId: string): Promise<Repo>
-    mudarPerfilPadrao(repoId: string, perfilId: string): Promise<Repo>
     remover(repoId: string): Promise<void>
   }
   quadros: {
-    /** `perfilId` ausente = conta padrao do repo. */
-    criar(repoId: string, tipo: TipoQuadro, perfilId?: string): Promise<Quadro>
+    /** `posicao` ausente = ao lado dos outros quadros. */
+    criar(repoId: string, tipo: TipoQuadro, perfilId: string, posicao?: Posicao): Promise<Quadro>
     remover(quadroId: string): Promise<void>
   }
   lousa: {

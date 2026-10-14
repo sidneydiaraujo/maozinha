@@ -7,7 +7,7 @@ const perfil = (id: string, provedor: Perfil['provedor']): Perfil => ({
 })
 const perfis = [perfil('principal', 'claude'), perfil('pessoal', 'claude'), perfil('cx:x', 'codex')]
 const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
-const repos: Repo[] = [{ id: 'r1', nome: 'app', caminho: 'C:\\empresa\\app', perfilPadraoId: 'principal', caixa }]
+const repos: Repo[] = [{ id: 'r1', nome: 'app', caminho: 'C:\\empresa\\app', perfilPadraoId: 'principal' }]
 const quadros: Quadro[] = [
   { id: 'q1', repoId: 'r1', perfilId: 'principal', tipo: 'agente', titulo: 'Claude 1', caixa },
   { id: 'q2', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'Claude 2', caixa },

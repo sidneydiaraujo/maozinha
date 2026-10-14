@@ -13,7 +13,6 @@ const Caixa = z.object({
 const Item = z.object({ id: z.string().min(1), caixa: Caixa })
 
 export const SchemaLayout = z.object({
-  repos: z.array(Item).max(1000),
   quadros: z.array(Item).max(5000),
   viewport: z.object({ x: Numero, y: Numero, zoom: Numero.min(0.05).max(4) }),
 })
@@ -22,11 +21,9 @@ export type Layout = z.infer<typeof SchemaLayout>
 
 /** Devolve um estado novo; ids desconhecidos sao ignorados. */
 export function aplicarLayout(estado: EstadoSalvo, layout: Layout): EstadoSalvo {
-  const repos = new Map(layout.repos.map((r) => [r.id, r.caixa]))
   const quadros = new Map(layout.quadros.map((q) => [q.id, q.caixa]))
   return {
     ...estado,
-    repos: estado.repos.map((r) => ({ ...r, caixa: repos.get(r.id) ?? r.caixa })),
     quadros: estado.quadros.map((q) => ({ ...q, caixa: quadros.get(q.id) ?? q.caixa })),
     viewport: layout.viewport,
   }

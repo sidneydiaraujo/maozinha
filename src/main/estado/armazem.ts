@@ -4,11 +4,12 @@ import { dirname } from 'node:path'
 import { z } from 'zod'
 import type { EstadoSalvo } from '../../shared/model'
 import { log } from '../log'
+import { migrar } from './migrar'
 
 const Caixa = z.object({ x: z.number(), y: z.number(), largura: z.number(), altura: z.number() })
 
 const SchemaEstado = z.object({
-  versao: z.literal(1),
+  versao: z.literal(2),
   perfis: z.record(
     z.string(),
     z.object({
@@ -25,7 +26,6 @@ const SchemaEstado = z.object({
       nome: z.string(),
       caminho: z.string(),
       perfilPadraoId: z.string(),
-      caixa: Caixa,
     }),
   ),
   quadros: z.array(
@@ -43,7 +43,7 @@ const SchemaEstado = z.object({
 })
 
 export const ESTADO_PADRAO: EstadoSalvo = {
-  versao: 1,
+  versao: 2,
   perfis: {},
   repos: [],
   quadros: [],
@@ -82,7 +82,7 @@ export function criarArmazem(arquivo: string): Armazem {
       } catch {
         return isolarCorrompido(arquivo, 'JSON quebrado')
       }
-      const lido = SchemaEstado.safeParse(bruto)
+      const lido = SchemaEstado.safeParse(migrar(bruto))
       if (!lido.success) return isolarCorrompido(arquivo, 'formato ou versao inesperados')
       return lido.data
     },

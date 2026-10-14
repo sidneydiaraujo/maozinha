@@ -7,14 +7,13 @@ const perfil = (id: string, provedor: Perfil['provedor'] = 'claude'): Perfil => 
   id, provedor, nome: id, cor: '#000', configDir: `C:\\${id}`, ehPadrao: false, raizes: [],
 })
 const PERFIS = [perfil('principal'), perfil('pessoal'), perfil('cx:x', 'codex')]
-const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
 
 function montar() {
   let estado: EstadoSalvo = {
     ...structuredClone(ESTADO_PADRAO),
     repos: [
-      { id: 'r1', nome: 'app', caminho: 'C:\\app', perfilPadraoId: 'principal', caixa },
-      { id: 'r2', nome: 'api', caminho: 'C:\\api', perfilPadraoId: 'pessoal', caixa },
+      { id: 'r1', nome: 'app', caminho: 'C:\\app', perfilPadraoId: 'principal' },
+      { id: 'r2', nome: 'api', caminho: 'C:\\api', perfilPadraoId: 'pessoal' },
     ],
   }
   const armazem: Armazem = { carregar: () => structuredClone(estado), salvar: (e) => void (estado = structuredClone(e)) }
@@ -36,54 +35,60 @@ function montar() {
 }
 
 describe('ServicoQuadros', () => {
-  it('sem conta informada usa a conta padrao do repo', () => {
+  it('duas contas na MESMA pasta: cada quadro fica na sua', () => {
     const { servico } = montar()
-    expect(servico.criar('r1', 'agente').perfilId).toBe('principal')
-    expect(servico.criar('r2', 'terminal').perfilId).toBe('pessoal')
-  })
-
-  it('duas contas no MESMO repo: cada quadro fica na sua', () => {
-    const { servico } = montar()
-    const a = servico.criar('r1', 'agente')
+    const a = servico.criar('r1', 'agente', 'principal')
     const b = servico.criar('r1', 'agente', 'pessoal')
     expect([a.perfilId, b.perfilId]).toEqual(['principal', 'pessoal'])
     expect(servico.listar().every((q) => q.repoId === 'r1')).toBe(true)
   })
 
-  it('titulos numerados por prefixo: Terminal N e Claude N / Codex N', () => {
+  it('a conta usada vira a sugestao da pasta e a ultima conta do app', () => {
+    const { servico, estado } = montar()
+    servico.criar('r1', 'agente', 'pessoal')
+    expect(estado().repos.find((r) => r.id === 'r1')?.perfilPadraoId).toBe('pessoal')
+    expect(estado().ultimoPerfilId).toBe('pessoal')
+  })
+
+  it('titulos numerados por prefixo na lousa toda: Terminal N e Claude N / Codex N', () => {
     const { servico } = montar()
-    expect(servico.criar('r1', 'terminal').titulo).toBe('Terminal 1')
-    expect(servico.criar('r1', 'agente').titulo).toBe('Claude 1')
-    expect(servico.criar('r1', 'agente', 'pessoal').titulo).toBe('Claude 2')
+    expect(servico.criar('r1', 'terminal', 'principal').titulo).toBe('Terminal 1')
+    expect(servico.criar('r1', 'agente', 'principal').titulo).toBe('Claude 1')
+    expect(servico.criar('r2', 'agente', 'pessoal').titulo).toBe('Claude 2')
     expect(servico.criar('r1', 'agente', 'cx:x').titulo).toBe('Codex 1')
-    expect(servico.criar('r1', 'terminal').titulo).toBe('Terminal 2')
+    expect(servico.criar('r2', 'terminal', 'pessoal').titulo).toBe('Terminal 2')
   })
 
   it('apagar um quadro nao repete titulo no proximo', () => {
     const { servico } = montar()
-    const um = servico.criar('r1', 'agente')
-    servico.criar('r1', 'agente')
+    const um = servico.criar('r1', 'agente', 'principal')
+    servico.criar('r1', 'agente', 'principal')
     servico.remover(um.id)
-    expect(servico.criar('r1', 'agente').titulo).toBe('Claude 3')
+    expect(servico.criar('r1', 'agente', 'principal').titulo).toBe('Claude 3')
   })
 
-  it('grade de 2 colunas dentro da moldura, abaixo do cabecalho', () => {
+  it('sem posicao: o primeiro em (40, 40), os outros a direita do mais a direita', () => {
     const { servico } = montar()
-    const caixas = [0, 1, 2].map(() => servico.criar('r1', 'terminal').caixa)
-    expect(caixas.map((c) => [c.x, c.y])).toEqual([[20, 68], [480, 68], [20, 368]])
-    expect(caixas.every((c) => c.largura === 440 && c.altura === 280)).toBe(true)
+    const caixas = [0, 1, 2].map(() => servico.criar('r1', 'terminal', 'principal').caixa)
+    expect(caixas.map((c) => [c.x, c.y])).toEqual([[40, 40], [704, 40], [1368, 40]])
+    expect(caixas.every((c) => c.largura === 640 && c.altura === 420)).toBe(true)
   })
 
-  it('repo ou conta inexistente falham', () => {
+  it('com posicao: o quadro nasce onde foi pedido', () => {
     const { servico } = montar()
-    expect(() => servico.criar('nada', 'terminal')).toThrow('Repositório não encontrado')
+    expect(servico.criar('r1', 'agente', 'pessoal', { x: -300, y: 900 }).caixa).toMatchObject({ x: -300, y: 900 })
+  })
+
+  it('pasta ou conta inexistente falham', () => {
+    const { servico } = montar()
+    expect(() => servico.criar('nada', 'terminal', 'principal')).toThrow('Repositório não encontrado')
     expect(() => servico.criar('r1', 'terminal', 'nada')).toThrow('Conta não encontrada')
   })
 
   it('remover fecha o terminal do quadro e apaga so ele', () => {
     const { servico, fechados, estado } = montar()
-    const a = servico.criar('r1', 'terminal')
-    const b = servico.criar('r1', 'terminal')
+    const a = servico.criar('r1', 'terminal', 'principal')
+    const b = servico.criar('r1', 'terminal', 'principal')
     servico.remover(a.id)
     expect(fechados).toEqual([a.id])
     expect(estado().quadros.map((q) => q.id)).toEqual([b.id])

@@ -12,8 +12,8 @@ Coordenação entre agentes, worktrees, diff e navegador ficam para depois.
 │ main (Node)                         tela (React, sandbox) │
 │  perfis/   detectar, ambiente,       Barra lateral: contas │
 │            conta (auth status)       Lousa (React Flow):   │
-│  repos/    sugerir, serviço           moldura por repo +   │
-│  terminais/ serviço (node-pty)        quadros de terminal  │
+│  repos/    sugerir, serviço           quadros soltos (D13) │
+│  terminais/ serviço (node-pty)        + "Novo quadro"      │
 │  estado/   armazém (estado.json)     Terminal (xterm.js)   │
 │  handlers/ um arquivo por grupo                            │
 │        ▲  ipcMain.handle (zod)   preload  window.lousa  ▲  │
@@ -76,14 +76,15 @@ export interface StatusConta {
 
 export interface PerfilComConta extends Perfil { conta: StatusConta }
 
-export interface Caixa { x: number; y: number; largura: number; altura: number }
+export interface Posicao { x: number; y: number }
+export interface Caixa extends Posicao { largura: number; altura: number }
 
+// Pasta onde os quadros trabalham (D13: sem moldura na lousa; aparece no cabeçalho do quadro).
 export interface Repo {
   id: string
   nome: string        // nome da pasta
   caminho: string     // absoluto, como o usuário escolheu
-  perfilPadraoId: PerfilId // conta usada nos quadros novos; cada quadro pode usar outra (C13)
-  caixa: Caixa        // moldura na lousa (coordenadas da lousa)
+  perfilPadraoId: PerfilId // última conta usada nesta pasta: só sugestão, cada quadro tem a sua
 }
 
 export type TipoQuadro = 'terminal' | 'agente' // 'agente' digita o CLI do provedor da conta (claude ou codex)
@@ -94,7 +95,7 @@ export interface Quadro {
   perfilId: PerfilId  // conta DESTE quadro; fixa. Trocar de conta = remover e criar outro
   tipo: TipoQuadro
   titulo: string
-  caixa: Caixa        // relativa à moldura do repo
+  caixa: Caixa        // posição e tamanho na lousa
 }
 
 export interface Viewport { x: number; y: number; zoom: number }
@@ -104,7 +105,7 @@ export type AlvoTerminal =
   | { tipo: 'login'; perfilId: PerfilId }
 
 export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
-  versao: 1
+  versao: 2           // 1 = lousa com molduras, migrada ao carregar (estado/migrar.ts)
   perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean }>
   // só o que o usuário mudou; criada = conta criada pelo app (a pasta pode estar vazia)
   repos: Repo[]
@@ -136,13 +137,12 @@ export interface EstadoTela {
 | evento `terminais:dados` | — | `{ terminalId, dados }` | T2.3 |
 | evento `terminais:saiu` | — | `{ terminalId, codigo }` | T2.3 |
 | `repos:escolherPasta` | — | `{ caminho, sugestaoPerfilId } \| null` | T3.2 |
-| `repos:adicionar` | `{ caminho, perfilId }` | `Repo` | T3.2 |
-| `repos:mudarPerfilPadrao` | `{ repoId, perfilId }` | `Repo` | T3.6 |
+| `repos:adicionar` | `{ caminho, perfilId }` | `Repo` (a existente, se a pasta já estava cadastrada) | T3.2, T5.1 |
 | `repos:remover` | `{ repoId }` | — | T3.6 |
-| `quadros:criar` | `{ repoId, tipo, perfilId? }` | `Quadro` | T3.4 |
+| `quadros:criar` | `{ repoId, tipo, perfilId, posicao? }` | `Quadro` | T3.4, T5.1 |
 | `quadros:remover` | `{ quadroId }` | — | T3.4 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
-| `lousa:salvarLayout` | `{ repos: {id, caixa}[], quadros: {id, caixa}[], viewport }` | — | T3.5 |
+| `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login.
 

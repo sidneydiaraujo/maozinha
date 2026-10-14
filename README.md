@@ -37,8 +37,9 @@ Regras de lint em `eslint-rules/`: cópia do
    confira o hash em `release/SHA256.txt`). Instalar não pede administrador.
 2. Abra pelo Menu Iniciar. A barra da esquerda mostra as contas do Claude do PC.
    "Entrar" / "Trocar login" abre o login de cada conta.
-3. "+ Adicionar repositório" escolhe uma pasta; a Lousa sugere a conta pelo caminho.
-4. Na moldura do repo, "+ Agente" abre o Claude Code na conta padrão e o "▾"
-   abre em outra conta, até no mesmo repo. "+ Terminal" abre um PowerShell.
-5. Posição, tamanho e zoom ficam salvos. O menu "⋯" da moldura muda a conta
-   padrão (só quadros novos) ou remove o repo da lousa (nunca apaga arquivos).
+3. Para abrir um quadro: arraste o cartão de uma conta para a lousa, dê duplo
+   clique no vazio ou use "+ Agente" no cartão. Escolha a pasta (recentes ou
+   "Outra pasta…") e clique em "Abrir agente" (Claude Code) ou "Abrir terminal".
+4. Cada quadro tem a sua conta, mesmo na mesma pasta; o cabeçalho mostra conta e pasta.
+5. Posição, tamanho e zoom ficam salvos. Em "Pastas", o "×" tira uma pasta e
+   fecha os quadros dela (nunca apaga arquivos).

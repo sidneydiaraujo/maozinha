@@ -22,11 +22,11 @@ const api: LousaApi = {
   repos: {
     escolherPasta: () => ipcRenderer.invoke(IPC.reposEscolherPasta),
     adicionar: (caminho, perfilId) => ipcRenderer.invoke(IPC.reposAdicionar, { caminho, perfilId }),
-    mudarPerfilPadrao: (repoId, perfilId) => ipcRenderer.invoke(IPC.reposMudarPerfilPadrao, { repoId, perfilId }),
     remover: (repoId) => ipcRenderer.invoke(IPC.reposRemover, { repoId }),
   },
   quadros: {
-    criar: (repoId, tipo, perfilId) => ipcRenderer.invoke(IPC.quadrosCriar, { repoId, tipo, perfilId }),
+    criar: (repoId, tipo, perfilId, posicao) =>
+      ipcRenderer.invoke(IPC.quadrosCriar, { repoId, tipo, perfilId, posicao }),
     remover: (quadroId) => ipcRenderer.invoke(IPC.quadrosRemover, { quadroId }),
   },
   lousa: {
