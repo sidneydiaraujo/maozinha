@@ -1,4 +1,4 @@
-import { Background, Controls, MiniMap, ReactFlow, useNodesState, type Node } from '@xyflow/react'
+import { Background, Controls, MiniMap, ReactFlow, useNodesState, type Node, type Viewport } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { EstadoTela, TipoQuadro } from '../../../shared/model'
@@ -6,6 +6,7 @@ import '../estilos/lousa.css'
 import { montarNos, type AcoesLousa, type QuadroNo, type RepoNo } from './nos'
 import { QuadroNode } from './QuadroNode'
 import { RepoNode } from './RepoNode'
+import { useSalvarLayout } from './useSalvarLayout'
 
 // Fora do componente: dentro dele o React Flow recriaria todos os nos a cada render.
 const nodeTypes = { repo: RepoNode, quadro: QuadroNode }
@@ -23,6 +24,9 @@ function preservarGeometria(novos: Array<RepoNo | QuadroNo>, atuais: Node[]): Ar
     return { ...no, position: antigo.position, width: antigo.width, height: antigo.height, style: antigo.style }
   })
 }
+
+/** Vista ainda no valor de fabrica: nunca foi movida, entao ajusta para mostrar tudo. */
+const vistaIntocada = (v: Viewport): boolean => v.x === 0 && v.y === 0 && v.zoom === 1
 
 export function Lousa({ versao }: Props): React.JSX.Element {
   const [estado, setEstado] = useState<EstadoTela | null>(null)
@@ -60,6 +64,13 @@ export function Lousa({ versao }: Props): React.JSX.Element {
     [falhou],
   )
 
+  const { aoMudar, aoMoverVista } = useSalvarLayout({
+    nos,
+    aoMudarNos,
+    viewportInicial: estado?.viewport,
+    aoFalhar: falhou,
+  })
+
   useEffect(() => {
     if (estado) setNos((atuais) => preservarGeometria(montarNos(estado, acoes), atuais))
   }, [estado, acoes, setNos])
@@ -71,25 +82,27 @@ export function Lousa({ versao }: Props): React.JSX.Element {
           {erro}
         </p>
       )}
-      {estado?.repos.length === 0 && (
-        <p className="lousa-vazia">Adicione um repositório para começar.</p>
+      {estado?.repos.length === 0 && <p className="lousa-vazia">Adicione um repositório para começar.</p>}
+      {estado && (
+        <ReactFlow
+          nodes={nos}
+          onNodesChange={aoMudar}
+          onMoveEnd={(_, viewport) => aoMoverVista(viewport)}
+          nodeTypes={nodeTypes}
+          colorMode="dark"
+          minZoom={0.2}
+          maxZoom={2}
+          defaultViewport={estado.viewport}
+          fitView={vistaIntocada(estado.viewport)}
+          fitViewOptions={{ maxZoom: 1 }}
+          deleteKeyCode={null}
+          proOptions={{ hideAttribution: true }}
+        >
+          <Background gap={24} />
+          <Controls showInteractive={false} />
+          <MiniMap pannable zoomable />
+        </ReactFlow>
       )}
-      <ReactFlow
-        nodes={nos}
-        onNodesChange={aoMudarNos}
-        nodeTypes={nodeTypes}
-        colorMode="dark"
-        minZoom={0.2}
-        maxZoom={2}
-        fitView
-        fitViewOptions={{ maxZoom: 1 }}
-        deleteKeyCode={null}
-        proOptions={{ hideAttribution: true }}
-      >
-        <Background gap={24} />
-        <Controls showInteractive={false} />
-        <MiniMap pannable zoomable />
-      </ReactFlow>
     </div>
   )
 }

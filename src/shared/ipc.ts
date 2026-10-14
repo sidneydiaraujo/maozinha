@@ -3,7 +3,7 @@
 // e o main valida a entrada com zod (src/main/ipc.ts).
 // Regra: este arquivo nao importa nada (nem electron, nem node), so tipos de ./model.
 
-import type { AlvoTerminal, EstadoTela, PerfilComConta, Quadro, Repo, StatusConta, TipoQuadro } from './model'
+import type { AlvoTerminal, Caixa, EstadoTela, PerfilComConta, Quadro, Repo, StatusConta, TipoQuadro, Viewport } from './model'
 
 export const IPC = {
   appInfo: 'app:info',
@@ -17,12 +17,20 @@ export const IPC = {
   quadrosCriar: 'quadros:criar',
   quadrosRemover: 'quadros:remover',
   lousaCarregar: 'lousa:carregar',
+  lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
   terminaisEscrever: 'terminais:escrever',
   terminaisRedimensionar: 'terminais:redimensionar',
   terminaisDados: 'terminais:dados', // evento main -> tela
   terminaisSaiu: 'terminais:saiu', // evento main -> tela
 } as const
+
+/** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
+export interface LayoutLousa {
+  repos: Array<{ id: string; caixa: Caixa }>
+  quadros: Array<{ id: string; caixa: Caixa }>
+  viewport: Viewport
+}
 
 export interface AppInfo {
   version: string
@@ -52,6 +60,7 @@ export interface LousaApi {
   }
   lousa: {
     carregar(): Promise<EstadoTela>
+    salvarLayout(layout: LayoutLousa): Promise<void>
   }
   terminais: {
     abrir(alvo: AlvoTerminal, cols: number, rows: number): Promise<{ terminalId: string; bufferInicial: string }>

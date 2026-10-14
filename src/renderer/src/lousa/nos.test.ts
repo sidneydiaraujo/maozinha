@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { EstadoTela, PerfilComConta } from '../../../shared/model'
-import { montarNos, type AcoesLousa } from './nos'
+import { caixaDoNo, montarNos, repoIdDoNo, type AcoesLousa } from './nos'
 
 const acoes: AcoesLousa = { criarQuadro: () => undefined, removerQuadro: () => undefined }
 const caixa = { x: 10, y: 20, largura: 300, altura: 200 }
@@ -39,5 +39,22 @@ describe('montarNos', () => {
 
   it('posicao e tamanho vem da caixa salva', () => {
     expect(nos[0]).toMatchObject({ position: { x: 10, y: 20 }, style: { width: 300, height: 200 } })
+  })
+})
+
+describe('caixaDoNo', () => {
+  it('le posicao e o tamanho do style', () => {
+    expect(caixaDoNo({ id: 'a', position: { x: 1, y: 2 }, data: {}, style: { width: 300, height: 200 } })).toEqual({
+      x: 1, y: 2, largura: 300, altura: 200,
+    })
+  })
+
+  it('depois de redimensionar width/height mandam no style', () => {
+    const no = { id: 'a', position: { x: 0, y: 0 }, data: {}, style: { width: 300, height: 200 }, width: 640, height: 480 }
+    expect(caixaDoNo(no)).toMatchObject({ largura: 640, altura: 480 })
+  })
+
+  it('repoIdDoNo tira o prefixo', () => {
+    expect(repoIdDoNo('repo:abc')).toBe('abc')
   })
 })

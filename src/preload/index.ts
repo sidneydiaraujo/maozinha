@@ -31,6 +31,7 @@ const api: LousaApi = {
   },
   lousa: {
     carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),
+    salvarLayout: (layout) => ipcRenderer.invoke(IPC.lousaSalvarLayout, layout),
   },
   terminais: {
     abrir: (alvo, cols, rows) => ipcRenderer.invoke(IPC.terminaisAbrir, { alvo, cols, rows }),
