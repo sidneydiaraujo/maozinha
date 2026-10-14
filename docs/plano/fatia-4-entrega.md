@@ -48,14 +48,19 @@ código 0 (num terminal sem `ELECTRON_RUN_AS_NODE`).
 4. Adicionar um repo pessoal (em `C:\Users\sidne\pessoal\`): "Pessoal" já
    vem marcado; Enter confirma.
 5. Adicionar um repo da empresa: escolher "Empresa" (1 clique).
-6. "+ Claude" em cada moldura; `/status` mostra a conta certa em cada uma,
-   lado a lado.
-7. Num terminal pessoal: `$env:GITHUB_TOKEN`, `$env:HOME` vazios;
-   `$env:CLAUDE_CONFIG_DIR` = pasta pessoal. Num da empresa: os três vazios.
-8. Fechar e abrir: tudo no lugar.
-9. Adicionar o mesmo repo de novo: a Lousa recusa e diz em qual conta ele está.
+6. **Duas contas Claude, repos diferentes:** "+ Agente" em cada moldura;
+   `/status` mostra a conta certa em cada uma, lado a lado.
+7. **Duas contas, mesmo repo:** no repo da empresa, "+ Agente ▾" na conta Pessoal
+   abre um segundo Claude na mesma moldura, em outra conta; `/status` confere.
+8. **Claude e ChatGPT:** "+ Nova conta" → ChatGPT (Codex) → Entrar; "+ Agente ▾"
+   com essa conta abre o Codex lado a lado com um Claude (mesmo repo ou outro).
+9. Num terminal da conta pessoal: `$env:GITHUB_TOKEN`, `$env:HOME` e
+   `$env:CODEX_HOME` vazios, `$env:CLAUDE_CONFIG_DIR` = pasta pessoal. Num da
+   empresa: os quatro vazios.
+10. Fechar e abrir: tudo no lugar, cada quadro na sua conta.
+11. Adicionar o mesmo repo de novo: a Lousa recusa e orienta a usar "+ Agente" nele.
 
-**Pronto quando:** os 9 itens passaram e estão registrados com prints.
+**Pronto quando:** os 11 itens passaram e estão registrados com prints.
 Itens que falharem viram tarefas novas no `ESTADO.md`.
 
 **Commit:** `docs: acceptance of the two-account journey`

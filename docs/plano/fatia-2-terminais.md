@@ -1,7 +1,8 @@
 # Fatia 2 — Terminais
 
 Entrega: o botão "Entrar" de uma conta abre um terminal real, já naquela conta,
-rodando `claude auth login`. Prova o isolamento com teste automático (C8).
+rodando o login do provedor (`claude auth login` ou `codex login`). Prova o
+isolamento, para Claude e Codex, com teste automático (C8).
 
 ---
 
@@ -91,15 +92,18 @@ export const spawnReal: Spawner // adapta spawn() do node-pty (name 'xterm-256co
 **Regras do teste** (`it.runIf(process.platform === 'win32')`):
 - Base falsa = `process.env` + armadilhas: `CLAUDE_CONFIG_DIR=C:\errado`,
   `GITHUB_TOKEN=vazou`, `HOME=C:\casa-falsa`, `ANTHROPIC_API_KEY=vazou`.
-- Perfis falsos: `principal` (ehPadrao, configDir qualquer) e `pessoal`
-  (configDir numa pasta temporária).
+- Base falsa também com `CODEX_HOME=C:\errado` e `OPENAI_API_KEY=vazou`.
+- Perfis falsos: `principal` (Claude, ehPadrao, configDir qualquer), `pessoal`
+  (Claude, configDir numa pasta temporária), `cx:padrao` (Codex, ehPadrao) e
+  `cx:trabalho` (Codex, configDir noutra pasta temporária).
 - Para cada perfil: `ServicoTerminais` com `spawnReal`, `shell` =
   `powershell.exe -NoLogo -NoProfile -Command <script>`, env = `montarAmbiente(perfil, base)`.
 - Script imprime marcadores montados por concatenação (ver `CLAUDE.md`):
-  `Write-Output (('C'+'FG=') + $env:CLAUDE_CONFIG_DIR + '|GT=' + $env:GITHUB_TOKEN + '|HM=' + $env:HOME + '|AK=' + $env:ANTHROPIC_API_KEY + '|FIM')`
-- Espera `aoSair` + 500 ms, procura com regex `/CFG=([^|]*)\|GT=([^|]*)\|HM=([^|]*)\|AK=([^|]*)\|FIM/`.
-- Esperado: pessoal → `CFG` = pasta temporária; principal → `CFG` vazio;
-  `GT`, `HM` e `AK` vazios nos dois.
+  `Write-Output (('C'+'FG=') + $env:CLAUDE_CONFIG_DIR + '|GT=' + $env:GITHUB_TOKEN + '|HM=' + $env:HOME + '|AK=' + $env:ANTHROPIC_API_KEY + '|CX=' + $env:CODEX_HOME + '|OK=' + $env:OPENAI_API_KEY + '|FIM')`
+- Espera `aoSair` + 500 ms, procura com regex `/CFG=([^|]*)\|GT=([^|]*)\|HM=([^|]*)\|AK=([^|]*)\|CX=([^|]*)\|OK=([^|]*)\|FIM/`.
+- Esperado: `pessoal` → `CFG` = pasta temporária, `CX` vazio; `principal` → `CFG` e `CX` vazios;
+  `cx:trabalho` → `CX` = sua pasta temporária, `CFG` vazio; `cx:padrao` → `CFG` e `CX` vazios;
+  `GT`, `HM`, `AK` e `OK` vazios nos quatro.
 - Teste opcional (`it.runIf(process.env.LOUSA_TESTE_CLAUDE === '1')`): para
   cada conta real do PC, `claude auth status` dentro do terminal deve mostrar
   `configDirectory` igual ao `configDir` da conta.
@@ -116,12 +120,16 @@ não foi pulado: confira na saída do Vitest).
 **Objetivo:** a tela abre e conversa com um terminal; o main decide tudo.
 
 **Arquivos:**
-- `src/main/terminais/alvo.ts` e `alvo.test.ts`
+- `src/main/terminais/comandos.ts`, `alvo.ts` e `alvo.test.ts`
 - `src/main/handlers/terminais.ts`; `src/main/contexto.ts` (cria o serviço)
 - `src/shared/ipc.ts`, `src/preload/index.ts`, `src/main/index.ts`
 
 **Interface:**
 ```ts
+// comandos.ts
+export function comandoAgente(p: Provedor): string // 'claude\r' | 'codex\r'
+export function comandoLogin(p: Provedor): string  // 'claude auth login\r' | 'codex login\r'
+
 // alvo.ts
 export interface AlvoResolvido {
   terminalId: string
@@ -146,7 +154,7 @@ terminais: {
 
 **Regras:**
 - `login` → `terminalId: 'login:<perfilId>'`, `cwd: home`,
-  `comandoInicial: 'claude auth login\r'`.
+  `comandoInicial: comandoLogin(perfil.provedor)`.
 - `quadro` → por enquanto lança `'Quadros chegam na fatia 3'` (T3.4 completa).
 - Handler `terminais:abrir`: `resolverAlvo` → `montarAmbiente(perfil, process.env)`
   → `servico.abrir(...)`. A entrada da tela é só o alvo e o tamanho (zod).
@@ -157,7 +165,7 @@ terminais: {
   chama `removeListener`. O callback recebe só os campos, nunca o `event`.
 - `app.on('before-quit')` → `servico.fecharTodos()`.
 
-**Testes** (`alvo.test.ts`): login monta id, cwd e comando; conta inexistente
+**Testes** (`alvo.test.ts`): login monta id, cwd e comando (Claude e Codex); conta inexistente
 propaga o erro; quadro lança a mensagem da fatia 3.
 
 **Pronto quando:** `npm run check` e `npm run smoke` verdes.
@@ -208,12 +216,17 @@ export function Terminal(props: {
 - Abre uma janela sobreposta (modal) com título "Entrar na conta <nome>",
   uma linha de ajuda ("O navegador vai abrir para você fazer o login. Volte
   aqui quando terminar.") e o `<Terminal alvo={{ tipo: 'login', perfilId }} />`.
+- Se a conta tiver `erro` de CLI não encontrado (T1.4/T1.4b), em vez do terminal
+  a janela mostra como instalar (Codex: `npm i -g @openai/codex`; Claude: instalar
+  o Claude Code) e um botão "Verificar de novo" que chama `atualizarConta`.
 - Quando o terminal sair: chama `atualizarConta`, atualiza o cartão e fecha o modal.
+- Conta recém-criada na T1.8 ("+ Nova conta"): ao criar, abre esta janela de login direto.
 - Botão "Fechar" no modal: fecha o modal (o terminal de login continua no
   main até sair sozinho).
 
 **Pronto quando:** `npm run check` e `npm run smoke` verdes; em `npm run dev`,
 "Entrar" na conta Principal abre o login do Claude e, depois de logar com o
-e-mail da empresa, o cartão mostra esse e-mail.
+e-mail da empresa, o cartão mostra esse e-mail. Com o Codex instalado, "Entrar"
+numa conta Codex abre o login do ChatGPT e o cartão passa a "Logado".
 
 **Commit:** `feat: sign-in button per account`

@@ -6,9 +6,9 @@ Faça as tarefas **na ordem**: cada uma usa o que a anterior entregou.
 | Fatia | Entrega visível | Arquivo |
 |---|---|---|
 | 0. Fundação | Esqueleto que abre, com régua e smoke | feita em 13/10/2026 |
-| 1. Contas | Barra lateral com as contas do PC, e-mail e nome editável | `fatia-1-contas.md` |
-| 2. Terminais | Botão "Entrar" abre o login da conta certa num terminal real | `fatia-2-terminais.md` |
-| 3. Repos e lousa | Adicionar repo → moldura colorida → terminais/Claude na conta certa, salvos ao reabrir | `fatia-3-repos-e-lousa.md` |
+| 1. Contas | Barra lateral com as contas do PC (Claude e Codex), e-mail, nome editável e "+ Nova conta" | `fatia-1-contas.md` |
+| 2. Terminais | Botão "Entrar" abre o login (Claude ou ChatGPT) da conta certa num terminal real | `fatia-2-terminais.md` |
+| 3. Repos e lousa | Adicionar repo → moldura → quadros de terminal/agente, cada um na sua conta (duas no mesmo repo ou em repos diferentes), salvos ao reabrir | `fatia-3-repos-e-lousa.md` |
 | 4. Entrega | Instalador, atalho e a jornada aceita pelo Sidney | `fatia-4-entrega.md` |
 
 ## Como cada tarefa está escrita

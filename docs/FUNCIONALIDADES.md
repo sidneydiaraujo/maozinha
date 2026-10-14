@@ -37,6 +37,17 @@ Meta: depois da primeira abertura, **o único passo é adicionar o repositório*
    conta certa, com a cor e o e-mail no quadro. As duas contas ficam lado a lado
    na mesma lousa.
 
+4. **Teste da primeira versão (pedido do Sidney, 14/10/2026):** abrir ao menos
+   dois terminais com **duas contas distintas**, do mesmo provedor ou não
+   (Claude + Claude, Claude + ChatGPT/Codex), em **repositórios diferentes ou no
+   mesmo repositório**. A conta é escolhida **por quadro**: o repo tem uma conta
+   padrão (a sugerida), e "+ Agente ▾" abre outra conta ali mesmo. "Contexto
+   igual ou distinto" na v1 significa: cada agente tem a sua conversa; os dois
+   veem os mesmos arquivos do repo. Passar contexto de um para o outro é manual
+   (copiar e colar). Coordenação automática é E1–E3, depois da v1. Atenção: dois
+   agentes no mesmo repo editam os mesmos arquivos; uma cópia isolada por quadro
+   (worktree, D1) é pós-v1.
+
 Por que aqui dá para ser simples e no OpenCove não: a Lousa monta o ambiente de
 cada terminal do zero (C3). A Empresa roda no modo padrão do Claude, sem
 variável nenhuma; a Pessoal recebe só `CLAUDE_CONFIG_DIR`. Não há casa falsa,
@@ -97,7 +108,7 @@ Origem entre parênteses.
 | # | Funcionalidade | P |
 |---|---|---|
 | C1 | Perfil = nome + cor + pastas próprias: `CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GH_CONFIG_DIR`, `GIT_CONFIG_GLOBAL`, chave SSH | M |
-| C2 | Detecta perfis existentes (`~/.claude`, `~/.claude-pessoal`) e permite criar novos | M |
+| C2 | Detecta perfis existentes (`~/.claude`, `~/.claude-pessoal`, `~/.codex`, `~/.codex-<nome>`) e permite criar novos de Claude ou Codex | M |
 | C3 | Terminal recebe **só** as variáveis necessárias (lista permitida), nunca o ambiente inteiro do PC | M |
 | C4 | Segredos no Gerenciador de Credenciais do Windows, nunca em arquivo da Lousa | M |
 | C5 | Hooks injetados por sessão (OpenCove); **nunca** reescrever o `settings.json` de um perfil | M |
@@ -108,7 +119,7 @@ Origem entre parênteses.
 | C10 | Por perfil: desligar tráfego não essencial do Claude, regras de leitura proibida (ex.: a pasta do outro perfil) | V1 |
 | C11 | Ao adicionar repo: conta sugerida pela raiz da pasta ou pela última usada; 1 clique para confirmar (seção 1.1) | M |
 | C12 | E-mail da conta em cada quadro, lido de `claude auth status`; botão "Entrar" que abre o `/login` no perfil certo | M |
-| C13 | Trava: um repo pertence a um perfil só; abrir com outro perfil exige mudar o repo de dono, com aviso | M |
+| C13 | O repo tem uma conta **padrão** (para quadros novos); cada quadro tem a sua conta, fixa, e mostra cor, nome e provedor. Várias contas no mesmo repo são permitidas (D11) | M |
 
 ### D. Git e revisão
 | # | Funcionalidade | P |

@@ -13,10 +13,12 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T1.1 | Modelo compartilhado | ⬜ |
 | T1.2 | Detectar as contas do PC | ⬜ |
 | T1.3 | Montar o ambiente de um terminal | ⬜ |
-| T1.4 | Ler o status de login | ⬜ |
+| T1.4 | Ler o status de login (Claude) | ⬜ |
+| T1.4b | Ler o status de login (Codex) | ⬜ |
 | T1.5 | Guardar o estado | ⬜ |
 | T1.6 | Serviço e canais das contas | ⬜ |
 | T1.7 | Barra lateral de contas | ⬜ |
+| T1.8 | Nova conta (Claude ou Codex) | ⬜ |
 | T2.1 | Serviço de terminais | ⬜ |
 | T2.2 | node-pty real + teste de isolamento | ⬜ |
 | T2.3 | Canais dos terminais (login) | ⬜ |
@@ -27,9 +29,9 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T3.3 | Fluxo "Adicionar repositório" | ⬜ |
 | T3.4 | Lousa: molduras e quadros | ⬜ |
 | T3.5 | Salvar e reabrir a lousa | ⬜ |
-| T3.6 | Trocar a conta de um repo | ⬜ |
+| T3.6 | Conta padrão do repo e remover | ⬜ |
 | T4.1 | Instalador | ⬜ |
-| T4.2 | Aceite da jornada | ⬜ |
+| T4.2 | Aceite da jornada (11 itens) | ⬜ |
 
 ## Bloqueios
 
@@ -45,6 +47,11 @@ Nenhum.
 
 ## Diário
 
+- **14/10/2026 (conta da empresa, Sonnet):** o Sidney definiu o teste da v1:
+  duas contas distintas (Claude+Claude ou Claude+ChatGPT), no mesmo repo ou em
+  repos diferentes. Plano ajustado antes de escrever código (D11): `provedor` na
+  conta, conta por quadro, T1.4b (status Codex) e T1.8 (nova conta) novas,
+  quadro `agente`. Codex não está instalado no PC; formato do status a confirmar.
 - **13/10/2026 (conta pessoal, Opus):** repositório criado. Esqueleto com
   Electron 41, React 19, ESLint 10 com as regras do claude-pessoal, Vitest.
   Provado: `node-pty` 1.1.0 pré-compilado funciona no Node (`npm test`) e no

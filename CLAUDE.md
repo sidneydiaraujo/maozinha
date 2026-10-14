@@ -1,9 +1,10 @@
 # Lousa.ia — instruções para o Claude
 
 App de desktop (Windows, Electron) com uma lousa onde cada quadro é um terminal
-de IA. Cada repositório pertence a uma **conta** (perfil do Claude Code) e todo
-terminal dele já nasce nessa conta. Dor nº 1 a resolver: usar a conta pessoal
-e a da empresa lado a lado sem configuração (docs/FUNCIONALIDADES.md, seção 1.1).
+de IA. Cada quadro pertence a uma **conta** (Claude Code ou Codex/ChatGPT) e já nasce
+nela; o repositório só tem a conta padrão. Dor nº 1 a resolver: usar duas contas
+lado a lado, no mesmo repo ou em repos diferentes, sem configuração
+(docs/FUNCIONALIDADES.md, seção 1.1).
 
 Dono: Sidney (não é programador de formação; explique em português simples).
 Pode ser construído pela conta pessoal **ou** pela da empresa (decisão de
@@ -24,11 +25,14 @@ nunca só na memória de uma conta.
 **Isolamento entre contas (o produto existe por causa disto)**
 - O ambiente de todo terminal é montado do zero por `montarAmbiente()`
   (lista permitida). Nunca passe `process.env` inteiro para um terminal.
-- Perfil principal (`~/.claude`) roda **sem** `CLAUDE_CONFIG_DIR`. Os outros
-  recebem só `CLAUDE_CONFIG_DIR=<pasta>`. Nunca `HOME`, tokens ou chaves.
-- Quem decide conta, pasta e comando de um terminal é o **main**, a partir do
-  repo salvo. A tela só manda o id do quadro; nunca um caminho ou um comando.
-- A Lousa nunca escreve nas pastas de configuração do Claude (`~/.claude*`).
+- Conta Claude padrão (`~/.claude`) roda **sem** `CLAUDE_CONFIG_DIR`; as outras
+  recebem só `CLAUDE_CONFIG_DIR=<pasta>`. Conta Codex: igual, com `CODEX_HOME`
+  (`~/.codex` sem variável). Nunca as duas juntas; nunca `HOME`, tokens ou chaves.
+- Quem decide conta, pasta e comando de um terminal é o **main**: a pasta vem do
+  repo salvo e a conta do **quadro** salvo (D11). A tela só manda o id do quadro;
+  nunca um caminho, uma conta ou um comando.
+- A Lousa nunca escreve dentro das pastas de configuração (`~/.claude*`, `~/.codex*`);
+  só cria a pasta vazia de uma conta nova (T1.8). Nunca leia `auth.json` do Codex.
 
 **Segurança do Electron**
 - Janela sempre com `secureWebPreferences` (src/main/security.ts).

@@ -31,8 +31,8 @@ caminho padrão faria o Claude usar outro arquivo de preferências
 (`~/.claude/.claude.json`, visto no teste do OpenCove). Proibido repassar
 `process.env` inteiro.
 
-**D7 — O main decide tudo (13/10/2026).** Conta, pasta e comando de um terminal
-vêm do repo salvo no main. A tela manda só ids. Assim um bug ou conteúdo
+**D7 — O main decide tudo (13/10/2026).** Pasta, conta e comando de um terminal
+vêm do repo e do quadro salvos no main. A tela manda só ids. Assim um bug ou conteúdo
 malicioso na tela não abre terminal na conta errada.
 
 **D8 — Terminais vivem no main (13/10/2026).** `abrir` idempotente e buffer de
@@ -46,3 +46,14 @@ inline e WebSocket. O dev só carrega `localhost`; o app instalado tem CSP.
 projeto pode ser evoluído pela conta pessoal ou pela da empresa. Por isso o
 plano, o estado e as decisões ficam neste repositório, não na memória de uma
 conta.
+
+**D11 — Duas fatias a mais no escopo da v1: Codex e conta por quadro (14/10/2026, Sidney).**
+O teste da v1 pede duas contas distintas (Claude e Claude, ou Claude e
+ChatGPT), em repos diferentes ou no mesmo. Por isso: (1) toda conta tem um
+`provedor` (`claude` ou `codex`); o ambiente usa `CLAUDE_CONFIG_DIR` ou
+`CODEX_HOME`, nunca os dois; (2) a conta é do **quadro**, não do repo (o repo só
+tem a conta padrão); (3) quadro `agente` roda o CLI do provedor da conta.
+Substitui a trava "um repo, uma conta" (C13 antigo). Proibido: mudar a conta de
+um quadro já aberto (remova e crie outro) e ler `auth.json` do Codex (tem tokens).
+O Codex não estava instalado no PC em 14/10/2026: o formato do
+`codex login status` precisa ser confirmado na T1.4b.
