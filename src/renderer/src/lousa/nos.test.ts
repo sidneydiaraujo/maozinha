@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { EstadoTela, PerfilComConta } from '../../../shared/model'
 import { algumQuadroVisivel, caixaDoNo, montarNos, type AcoesLousa } from './nos'
 
-const acoes: AcoesLousa = { removerQuadro: () => undefined, trocarConta: async () => {} }
+const acoes: AcoesLousa = { removerQuadro: () => undefined, trocarConta: async () => {}, abrirArquivo: () => undefined }
 const caixa = { x: 10, y: 20, largura: 300, altura: 200 }
 const perfil = (id: string): PerfilComConta => ({
   id, provedor: 'claude', nome: id, cor: '#123456', configDir: '', ehPadrao: false, raizes: [],

@@ -5,6 +5,8 @@ import type { Caixa, EstadoTela, PerfilComConta, Quadro, Repo, Viewport } from '
 export interface AcoesLousa {
   removerQuadro(quadroId: string): void
   trocarConta(quadroId: string, perfilId: string): Promise<void>
+  /** Caminho clicado no terminal (T8.3): abre no leitor ou no programa do Windows. */
+  abrirArquivo(repoId: string, relativo: string): void
 }
 
 export type QuadroNo = Node<

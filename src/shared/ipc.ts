@@ -23,6 +23,8 @@ import type {
 
 export const IPC = {
   appInfo: 'app:info',
+  appCopiar: 'app:copiar',
+  appColar: 'app:colar',
   perfisListar: 'perfis:listar',
   perfisRenomear: 'perfis:renomear',
   perfisAtualizarConta: 'perfis:atualizarConta',
@@ -68,6 +70,11 @@ export interface AppInfo {
 /** O que a tela enxerga em `window.lousa`. */
 export interface LousaApi {
   appInfo(): Promise<AppInfo>
+  /** Area de transferencia do Windows (T8.3): a tela nao tem permissao direta. */
+  app: {
+    copiar(texto: string): Promise<void>
+    colar(): Promise<string>
+  }
   perfis: {
     listar(): Promise<PerfilComConta[]>
     renomear(perfilId: string, nome: string): Promise<PerfilComConta>

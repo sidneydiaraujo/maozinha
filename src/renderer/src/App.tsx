@@ -74,7 +74,7 @@ export function App(): React.JSX.Element {
         )}
         <main className="area-lousa">
           {erro && <p role="alert">Falha ao falar com o processo principal: {erro}</p>}
-          <Lousa versao={versaoLousa} aoMudarPastas={aoMudarPastas} />
+          <Lousa versao={versaoLousa} aoMudarPastas={aoMudarPastas} aoAbrirArquivo={abrir} />
         </main>
       </div>
     </div>

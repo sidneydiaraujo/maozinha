@@ -15,6 +15,10 @@ function inscrever<T>(canal: string, cb: (payload: T) => void): () => void {
 
 const api: LousaApi = {
   appInfo: () => ipcRenderer.invoke(IPC.appInfo),
+  app: {
+    copiar: (texto) => ipcRenderer.invoke(IPC.appCopiar, { texto }),
+    colar: () => ipcRenderer.invoke(IPC.appColar),
+  },
   perfis: {
     listar: () => ipcRenderer.invoke(IPC.perfisListar),
     renomear: (perfilId, nome) => ipcRenderer.invoke(IPC.perfisRenomear, { perfilId, nome }),

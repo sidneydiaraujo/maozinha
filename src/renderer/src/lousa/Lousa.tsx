@@ -30,6 +30,8 @@ interface Props {
   versao: number
   /** Pastas e quadros mudaram: a lateral (T7.3) acompanha. */
   aoMudarPastas(repos: Repo[], quadros: Quadro[]): void
+  /** Caminho clicado num terminal (T8.3). */
+  aoAbrirArquivo(repoId: string, relativo: string): void
 }
 
 /** Mantem posicao/tamanho que o usuario acabou de ajustar quando o estado e recarregado. */
@@ -44,7 +46,7 @@ function preservarGeometria(novos: QuadroNo[], atuais: Node[]): QuadroNo[] {
 /** Vista ainda no valor de fabrica: nunca foi movida, entao ajusta para mostrar tudo. */
 const vistaIntocada = (v: Viewport): boolean => v.x === 0 && v.y === 0 && v.zoom === 1
 
-function useEstadoLousa(versao: number) {
+function useEstadoLousa(versao: number, aoAbrirArquivo: Props['aoAbrirArquivo']) {
   const [estado, setEstado] = useState<EstadoTela | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   useEffect(() => {
@@ -71,8 +73,9 @@ function useEstadoLousa(versao: number) {
         const novo = await window.lousa.quadros.trocarConta(quadroId, perfilId)
         setEstado((e) => (e ? { ...e, quadros: e.quadros.map((q) => (q.id === quadroId ? novo : q)) } : e))
       },
+      abrirArquivo: aoAbrirArquivo,
     }),
-    [falhou],
+    [falhou, aoAbrirArquivo],
   )
   const tirarPasta = useCallback(async (repoId: string) => {
     await window.lousa.repos.remover(repoId)
@@ -125,8 +128,8 @@ function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React
   )
 }
 
-export function Lousa({ versao, aoMudarPastas }: Props): React.JSX.Element {
-  const { estado, setEstado, erro, falhou, acoes, tirarPasta } = useEstadoLousa(versao)
+export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.JSX.Element {
+  const { estado, setEstado, erro, falhou, acoes, tirarPasta } = useEstadoLousa(versao, aoAbrirArquivo)
   const repos = estado?.repos
   const quadros = estado?.quadros
   useEffect(() => {

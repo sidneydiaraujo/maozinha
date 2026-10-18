@@ -1,4 +1,5 @@
 import { NodeResizer, type NodeProps } from '@xyflow/react'
+import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import { chamaAtencao, seloDoAviso } from './atencao'
@@ -25,6 +26,14 @@ function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | nul
 export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.Element {
   const { quadro, perfil, repo, rotulo, contas, acoes } = data
   const chamando = chamaAtencao(useAtencao(quadro.id))
+  // caminho citado no terminal: so os de dentro da pasta do quadro viram link (T8.3)
+  const arquivos = {
+    aceita: (texto: string) => caminhoNoRepo(repo.caminho, texto) !== null,
+    abrir: (texto: string) => {
+      const relativo = caminhoNoRepo(repo.caminho, texto)
+      if (relativo) acoes.abrirArquivo(repo.id, relativo)
+    },
+  }
   return (
     <div
       className={chamando ? 'quadro quadro-chamando' : 'quadro'}
@@ -58,6 +67,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           key={quadro.perfilId}
           alvo={{ tipo: 'quadro', quadroId: quadro.id }}
           aoAviso={(aviso) => atencao.aplicar(quadro.id, aviso)}
+          arquivos={arquivos}
         />
       </div>
     </div>
