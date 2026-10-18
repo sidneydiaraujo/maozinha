@@ -28,6 +28,12 @@ describe('renderizarMarkdown', () => {
     expect(html).toContain('<li class="md-tarefa">☐ 3. Login</li>')
     expect(html).toContain('<li class="md-tarefa md-feita">☑ 4. Pasta</li>')
   })
+
+  it('caixas tambem em lista com linha em branco entre os itens (como o roteiro)', () => {
+    const html = renderizarMarkdown('- [ ] 3. Login\n\n- [x] 4. Pasta\n')
+    expect(html).toContain('<li class="md-tarefa">\n<p>☐ 3. Login</p>')
+    expect(html).toContain('<li class="md-tarefa md-feita">\n<p>☑ 4. Pasta</p>')
+  })
 })
 
 describe('resolverLink', () => {

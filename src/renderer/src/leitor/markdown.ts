@@ -10,11 +10,11 @@ md.renderer.rules.image = (tokens, i) => {
   return `<span class="md-imagem">[${md.utils.escapeHtml(alt)}]</span>`
 }
 
-/** Caixas de tarefa "- [ ]" e "- [x]" do GitHub viram ☐ e ☑. */
+/** Caixas de tarefa "- [ ]" e "- [x]" do GitHub viram ☐ e ☑ (lista junta ou com linha em branco). */
 function caixas(html: string): string {
   return html
-    .replace(/<li>(<p>)?\[ \] /g, '<li class="md-tarefa">$1☐ ')
-    .replace(/<li>(<p>)?\[[xX]\] /g, '<li class="md-tarefa md-feita">$1☑ ')
+    .replace(/<li>(\s*<p>)?\[ \] /g, '<li class="md-tarefa">$1☐ ')
+    .replace(/<li>(\s*<p>)?\[[xX]\] /g, '<li class="md-tarefa md-feita">$1☑ ')
 }
 
 export function renderizarMarkdown(texto: string): string {
