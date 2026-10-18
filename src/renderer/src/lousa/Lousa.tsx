@@ -16,6 +16,7 @@ import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from '.
 import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
 import { useNovoQuadro } from './useNovoQuadro'
+import { usePanoMeio } from './usePanoMeio'
 import { useSalvarLayout } from './useSalvarLayout'
 
 // Fora do componente: dentro dele o React Flow recriaria todos os nos a cada render.
@@ -101,6 +102,7 @@ export function Lousa({ versao, pedido, aoMudarPastas }: Props): React.JSX.Eleme
     viewportInicial: estado?.viewport,
     aoFalhar: falhou,
   })
+  const aoApertarMeio = usePanoMeio(instancia, aoMoverVista)
 
   useEffect(() => {
     if (estado) setNos((atuais) => preservarGeometria(montarNos(estado, acoes), atuais))
@@ -113,6 +115,7 @@ export function Lousa({ versao, pedido, aoMudarPastas }: Props): React.JSX.Eleme
     <div
       className="lousa"
       ref={area}
+      onMouseDownCapture={aoApertarMeio}
       onDoubleClick={novo.aoDuploClique}
       onDragOver={novo.aoArrastarPorCima}
       onDrop={novo.aoSoltar}
