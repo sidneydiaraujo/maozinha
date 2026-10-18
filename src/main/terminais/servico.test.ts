@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import type { AvisoAgente } from '../../shared/model'
 import { ServicoTerminais, type Descartavel, type PtyLike, type Spawner } from './servico'
+import { respostaEmTeclas } from './status'
 
 class PtyFalso implements PtyLike {
   escritos: string[] = []
@@ -44,12 +46,17 @@ function montar(limite?: number) {
   }
   const dados: Array<[string, string]> = []
   const saidas: Array<[string, number]> = []
+  const estados: Array<[string, AvisoAgente]> = []
   const servico = new ServicoTerminais(
     spawn,
-    { aoDados: (id, d) => void dados.push([id, d]), aoSair: (id, c) => void saidas.push([id, c]) },
+    {
+      aoDados: (id, d) => void dados.push([id, d]),
+      aoSair: (id, c) => void saidas.push([id, c]),
+      aoEstado: (id, a) => void estados.push([id, a]),
+    },
     limite,
   )
-  return { servico, ptys, chamadas, dados, saidas }
+  return { servico, ptys, chamadas, dados, saidas, estados }
 }
 
 const pedido = { terminalId: 't1', cwd: 'C:\\repo', env: { A: '1' }, cols: 80, rows: 24 }
@@ -145,5 +152,29 @@ describe('ServicoTerminais', () => {
     servico.redimensionar('t1', 1, 1000)
     servico.redimensionar('t1', 120, 40)
     expect(ptys[0]!.tamanhos).toEqual([[2, 500], [120, 40]])
+  })
+
+  it('com status: responde a pergunta do Claude e avisa cada estado novo uma vez', () => {
+    const { servico, ptys, estados } = montar()
+    servico.abrir({ ...pedido, status: true })
+    ptys[0]!.emitir(']7501;?')
+    expect(ptys[0]!.escritos).toEqual([respostaEmTeclas()])
+    ptys[0]!.emitir(']7501;state=working:app=claude-code')
+    ptys[0]!.emitir(']7501;state=working:app=claude-code')
+    ptys[0]!.emitir(']7501;state=blocked:app=claude-code:kind=question')
+    expect(estados).toEqual([
+      ['t1', { estado: 'trabalhando' }],
+      ['t1', { estado: 'esperando', motivo: 'pergunta' }],
+    ])
+    expect(servico.aviso('t1')).toEqual({ estado: 'esperando', motivo: 'pergunta' })
+  })
+
+  it('sem status (login, padrao): nao responde nem le estados', () => {
+    const { servico, ptys, estados } = montar()
+    servico.abrir(pedido)
+    ptys[0]!.emitir(']7501;?]7501;state=done')
+    expect(ptys[0]!.escritos).toEqual([])
+    expect(estados).toEqual([])
+    expect(servico.aviso('t1')).toBeNull()
   })
 })

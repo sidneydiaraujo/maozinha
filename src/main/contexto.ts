@@ -6,9 +6,11 @@ import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
 import { discoReal, observarReal } from './arquivos/disco'
+import { AvisosDoWindows } from './avisos/notificar'
 import { ServicoArquivos } from './arquivos/servico'
 import { VigiaArquivos } from './arquivos/vigia'
 import { criarArmazem, type Armazem } from './estado/armazem'
+import { log } from './log'
 import { montarAmbiente } from './perfis/ambiente'
 import { executarReal, lerStatusConta, localizarClaude } from './perfis/conta'
 import { depsReais, detectarPerfis } from './perfis/detectar'
@@ -27,6 +29,7 @@ export interface Contexto {
   terminais: ServicoTerminais
   arquivos: ServicoArquivos
   vigia: VigiaArquivos
+  avisos: AvisosDoWindows
 }
 
 /** Entrega um evento a todas as janelas abertas. */
@@ -50,6 +53,16 @@ async function lerContaReal(perfil: Perfil, home: string): Promise<StatusConta> 
   return lerStatusConta(exe, montarAmbiente(perfil, process.env), executarReal)
 }
 
+/** "pasta · Claude 1" para a notificacao; null se o terminal nao e de um quadro (login). */
+function descreverQuadro(quadros: ServicoQuadros, repos: ServicoRepos, terminalId: string): string | null {
+  try {
+    const quadro = quadros.obter(terminalId)
+    return `${repos.obter(quadro.repoId).nome} · ${quadro.titulo}`
+  } catch {
+    return null
+  }
+}
+
 function ehPasta(caminho: string): boolean {
   try {
     return statSync(caminho).isDirectory()
@@ -68,9 +81,21 @@ export function criarContexto(): Contexto {
     home,
     criarPasta: (caminho) => mkdirSync(caminho, { recursive: true }),
   })
+  // `quadros` e `repos` sao criados logo abaixo; descrever so roda quando um agente avisa algo
+  const avisos = new AvisosDoWindows({
+    descrever: (terminalId) => descreverQuadro(quadros, repos, terminalId),
+    enviar: enviarParaJanelas,
+  })
   const terminais = new ServicoTerminais(spawnReal, {
     aoDados: (terminalId, dados) => enviarParaJanelas(IPC.terminaisDados, { terminalId, dados }),
-    aoSair: (terminalId, codigo) => enviarParaJanelas(IPC.terminaisSaiu, { terminalId, codigo }),
+    aoSair: (terminalId, codigo) => {
+      log('info', `terminal saiu: ${terminalId} (código ${codigo})`)
+      enviarParaJanelas(IPC.terminaisSaiu, { terminalId, codigo })
+    },
+    aoEstado: (terminalId, aviso) => {
+      enviarParaJanelas(IPC.terminaisEstado, { terminalId, aviso })
+      avisos.aoEstado(terminalId, aviso)
+    },
   })
   const repos = new ServicoRepos({
     armazem,
@@ -92,5 +117,5 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia }
+  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos }
 }

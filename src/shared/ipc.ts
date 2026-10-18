@@ -6,6 +6,7 @@
 import type {
   Abertura,
   AlvoTerminal,
+  AvisoAgente,
   Caixa,
   ConteudoArquivo,
   EstadoTela,
@@ -32,6 +33,7 @@ export const IPC = {
   quadrosCriar: 'quadros:criar',
   quadrosRemover: 'quadros:remover',
   quadrosTrocarConta: 'quadros:trocarConta',
+  quadrosFocar: 'quadros:focar', // evento main -> tela (clique na notificacao)
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -40,6 +42,7 @@ export const IPC = {
   terminaisFecharLogin: 'terminais:fecharLogin',
   terminaisDados: 'terminais:dados', // evento main -> tela
   terminaisSaiu: 'terminais:saiu', // evento main -> tela
+  terminaisEstado: 'terminais:estado', // evento main -> tela (OSC 7501, T8.1)
   arquivosListar: 'arquivos:listar',
   arquivosAbrir: 'arquivos:abrir',
   arquivosLer: 'arquivos:ler',
@@ -84,13 +87,20 @@ export interface LousaApi {
     remover(quadroId: string): Promise<void>
     /** Mesmo quadro e pasta, outra conta: reinicia o terminal e a conversa vai junto (D14). */
     trocarConta(quadroId: string, perfilId: string): Promise<Quadro>
+    /** Clique na notificacao do Windows: a lousa enquadra este quadro. */
+    aoFocar(cb: (quadroId: string) => void): () => void
   }
   lousa: {
     carregar(): Promise<EstadoTela>
     salvarLayout(layout: LayoutLousa): Promise<void>
   }
   terminais: {
-    abrir(alvo: AlvoTerminal, cols: number, rows: number): Promise<{ terminalId: string; bufferInicial: string }>
+    /** `aviso` = ultimo estado do agente do quadro (null se nao mandou nenhum). */
+    abrir(
+      alvo: AlvoTerminal,
+      cols: number,
+      rows: number,
+    ): Promise<{ terminalId: string; bufferInicial: string; aviso: AvisoAgente | null }>
     escrever(terminalId: string, dados: string): Promise<void>
     redimensionar(terminalId: string, cols: number, rows: number): Promise<void>
     /** Encerra o terminal de login da conta, para o proximo "Entrar" comecar do zero. */
@@ -98,6 +108,8 @@ export interface LousaApi {
     /** Devolvem a funcao que cancela a inscricao. */
     aoDados(cb: (terminalId: string, dados: string) => void): () => void
     aoSair(cb: (terminalId: string, codigo: number) => void): () => void
+    /** O agente do quadro mudou de estado (trabalhando, esperando voce, terminou...). */
+    aoEstado(cb: (terminalId: string, aviso: AvisoAgente) => void): () => void
   }
   /** Pastas na lateral (T7.1): sempre repoId + caminho relativo com '/'; o main confere que fica dentro. */
   arquivos: {

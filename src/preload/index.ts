@@ -2,6 +2,7 @@
 // contrato em src/shared/ipc.ts; nenhuma regra mora aqui.
 import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
 import { IPC, type LousaApi } from '../shared/ipc'
+import type { AvisoAgente } from '../shared/model'
 
 /** Assina um evento do main entregando so o payload (nunca o `event`); devolve o cancelar. */
 function inscrever<T>(canal: string, cb: (payload: T) => void): () => void {
@@ -30,6 +31,7 @@ const api: LousaApi = {
       ipcRenderer.invoke(IPC.quadrosCriar, { repoId, tipo, perfilId, posicao }),
     remover: (quadroId) => ipcRenderer.invoke(IPC.quadrosRemover, { quadroId }),
     trocarConta: (quadroId, perfilId) => ipcRenderer.invoke(IPC.quadrosTrocarConta, { quadroId, perfilId }),
+    aoFocar: (cb) => inscrever<{ quadroId: string }>(IPC.quadrosFocar, (p) => cb(p.quadroId)),
   },
   lousa: {
     carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),
@@ -43,6 +45,8 @@ const api: LousaApi = {
       ipcRenderer.invoke(IPC.terminaisRedimensionar, { terminalId, cols, rows }),
     aoDados: (cb) => inscrever<{ terminalId: string; dados: string }>(IPC.terminaisDados, (p) => cb(p.terminalId, p.dados)),
     aoSair: (cb) => inscrever<{ terminalId: string; codigo: number }>(IPC.terminaisSaiu, (p) => cb(p.terminalId, p.codigo)),
+    aoEstado: (cb) =>
+      inscrever<{ terminalId: string; aviso: AvisoAgente }>(IPC.terminaisEstado, (p) => cb(p.terminalId, p.aviso)),
   },
   arquivos: {
     listar: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosListar, { repoId, relativo }),

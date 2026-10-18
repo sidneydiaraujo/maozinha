@@ -1,4 +1,5 @@
 import { app, BrowserWindow, session } from 'electron'
+import { AvisosDoWindows } from './avisos/notificar'
 import { criarContexto, type Contexto } from './contexto'
 import { registrarHandlersApp } from './handlers/app'
 import { registrarHandlersArquivos } from './handlers/arquivos'
@@ -28,6 +29,9 @@ function registrarCanais(): void {
 }
 
 async function iniciar(): Promise<void> {
+  // Mesmo id do instalador (electron-builder.yml): sem ele o Windows nao mostra a notificacao
+  app.setAppUserModelId('ia.lousa.app')
+  app.on('browser-window-focus', (_evento, janela) => AvisosDoWindows.pararDePiscar(janela))
   await app.whenReady()
   // A tela nunca precisa de camera, microfone, notificacoes do navegador etc.
   session.defaultSession.setPermissionRequestHandler((_conteudo, _permissao, responder) =>

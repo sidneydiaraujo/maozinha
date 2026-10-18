@@ -42,8 +42,9 @@ export function registrarHandlersTerminais(
       rows,
       comandoInicial: r.comandoInicial,
       shell: r.shell,
+      status: alvo.tipo === 'quadro',
     })
-    return { terminalId: r.terminalId, bufferInicial }
+    return { terminalId: r.terminalId, bufferInicial, aviso: terminais.aviso(r.terminalId) }
   })
   handle(IPC.terminaisFecharLogin, z.object({ perfilId: z.string().min(1) }), ({ perfilId }) =>
     terminais.fechar(`login:${perfilId}`),

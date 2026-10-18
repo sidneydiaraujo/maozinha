@@ -1,5 +1,8 @@
 // Abre, alimenta e fecha terminais no main, sem duplicar (T2.1, D8).
 // O processo vive aqui; a tela (React, StrictMode, remontagem) so se inscreve nele.
+import type { AvisoAgente } from '../../shared/model'
+import { LeitorStatus, mesmoAviso, respostaEmTeclas } from './status'
+
 export interface Descartavel {
   dispose(): void
 }
@@ -26,11 +29,14 @@ export interface PedidoAbrir {
   rows: number
   comandoInicial?: string // ex.: 'claude\r'
   shell?: { arquivo: string; args: string[] } // padrao: powershell.exe -NoLogo
+  /** Responde a pergunta OSC 7501 e acompanha o estado do agente (T8.1). So terminais de quadro. */
+  status?: boolean
 }
 
 export interface Ouvintes {
   aoDados(terminalId: string, dados: string): void
   aoSair(terminalId: string, codigo: number): void
+  aoEstado?(terminalId: string, aviso: AvisoAgente): void
 }
 
 interface Terminal {
@@ -38,6 +44,8 @@ interface Terminal {
   buffer: string
   saiu: boolean
   ouvintes: Descartavel[]
+  leitor: LeitorStatus | null
+  aviso: AvisoAgente | null
 }
 
 const SHELL_PADRAO = { arquivo: 'powershell.exe', args: ['-NoLogo'] }
@@ -65,11 +73,19 @@ export class ServicoTerminais {
       cols: limitar(p.cols),
       rows: limitar(p.rows),
     })
-    const terminal: Terminal = { pty, buffer: '', saiu: false, ouvintes: [] }
+    const terminal: Terminal = {
+      pty,
+      buffer: '',
+      saiu: false,
+      ouvintes: [],
+      leitor: p.status ? new LeitorStatus() : null,
+      aviso: null,
+    }
     terminal.ouvintes.push(
       pty.onData((dados) => {
         terminal.buffer = (terminal.buffer + dados).slice(-this.limiteBuffer)
         this.ouvintes.aoDados(p.terminalId, dados)
+        this.lerStatus(p.terminalId, terminal, dados)
       }),
       pty.onExit(({ exitCode }) => {
         terminal.saiu = true
@@ -79,6 +95,23 @@ export class ServicoTerminais {
     this.terminais.set(p.terminalId, terminal)
     if (p.comandoInicial) pty.write(p.comandoInicial)
     return { bufferInicial: '', jaEstavaAberto: false }
+  }
+
+  /** Pergunta do Claude: responde na hora (texto fixo). Estado novo: avisa uma vez. */
+  private lerStatus(terminalId: string, t: Terminal, dados: string): void {
+    if (!t.leitor) return
+    const { perguntas, avisos } = t.leitor.ler(dados)
+    if (perguntas > 0 && !t.saiu) t.pty.write(respostaEmTeclas())
+    for (const aviso of avisos) {
+      if (mesmoAviso(t.aviso, aviso)) continue
+      t.aviso = aviso
+      this.ouvintes.aoEstado?.(terminalId, aviso)
+    }
+  }
+
+  /** Ultimo estado do agente (a tela que remonta comeca dele). */
+  aviso(terminalId: string): AvisoAgente | null {
+    return this.vivo(terminalId)?.aviso ?? null
   }
 
   private vivo(terminalId: string): Terminal | undefined {

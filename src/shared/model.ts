@@ -69,6 +69,15 @@ export type AlvoTerminal =
   | { tipo: 'quadro'; quadroId: string }
   | { tipo: 'login'; perfilId: PerfilId }
 
+// O que o agente do quadro diz pelo Program Status Protocol (OSC 7501, T8.1, D16)
+export type EstadoAgente = 'trabalhando' | 'esperando' | 'terminou' | 'parado' | 'erro'
+export type MotivoEspera = 'permissao' | 'pergunta' | 'login'
+export interface AvisoAgente {
+  estado: EstadoAgente
+  motivo?: MotivoEspera // só quando esperando
+  mensagem?: string     // texto curto do Claude (ex.: o que terminou)
+}
+
 export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   versao: 2           // 1 = lousa com molduras, migrada ao carregar (estado/migrar.ts)
   perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean }>
