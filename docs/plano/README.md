@@ -1,6 +1,6 @@
 # Plano de execução
 
-Sete fatias. Cada fatia termina com algo que o Sidney consegue ver ou usar.
+Oito fatias. Cada fatia termina com algo que o Sidney consegue ver ou usar.
 Faça as tarefas **na ordem**: cada uma usa o que a anterior entregou.
 
 | Fatia | Entrega visível | Arquivo |
@@ -13,6 +13,7 @@ Faça as tarefas **na ordem**: cada uma usa o que a anterior entregou.
 | 5. Lousa livre | Quadros soltos na lousa; conta e pasta escolhidas no mesmo gesto (arrastar a conta, duplo clique ou "+ Agente") | `fatia-5-lousa-livre.md` |
 | 6. Quadro e conta | Pasta em destaque no quadro; trocar a conta (quem paga) mantém a conversa; barra só com contas; login sem terminal | `fatia-6-quadro-e-conta.md` |
 | 7. Barra e arquivos | Contas como ícones numa barra no alto (engrenagem + "+ Nova conta"); lateral com as pastas em cascata e os arquivos que os terminais mexeram; leitor de md/código | `fatia-7-barra-e-arquivos.md` |
+| 8. Uma semana sem ajustes | Agente avisa quando para (quadro brilha, notificação do Windows); copiar, colar e links no terminal; ampliar quadro e letra; reabrir terminal; registros em arquivo; janela lembra o tamanho | `fatia-8-uma-semana.md` |
 
 ## Como cada tarefa está escrita
 

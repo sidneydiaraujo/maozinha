@@ -97,6 +97,7 @@ minimapa pinta esses quadros de âmbar.
 - **Links:** `http(s)` sublinhado abre no navegador. Caminho de arquivo
   (`src/a.ts`, `docs/ESTADO.md:12`, `C:\...\x.md` dentro da pasta) abre no
   leitor, e documento abre no programa do Windows.
+  - Caminho longo que o terminal quebrou em duas linhas continua um link só.
 - **Canais:** `app:copiar { texto }` e `app:colar` → `string`.
 
 ## T8.4 Histórico, ampliar e tamanho da letra
@@ -104,7 +105,8 @@ minimapa pinta esses quadros de âmbar.
 - **Histórico:** 10.000 linhas no terminal (antes 1.000). O main guarda 1 MB
   para remontar (antes 200 KB).
 - **Ampliar:** duplo clique no cabeçalho (ou o botão ⤢) enquadra o quadro na
-  tela. Outro duplo clique volta para a vista anterior. Não muda o layout salvo.
+  tela. Outro duplo clique volta para a vista anterior. Posição e tamanho dos
+  quadros não mudam.
 - **Tamanho da letra:** Ctrl+roda do mouse dentro do terminal muda a letra
   (9 a 24), guardada por quadro.
 

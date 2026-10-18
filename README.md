@@ -49,3 +49,9 @@ Regras de lint em `eslint-rules/`: cópia do
 6. A lateral "Pastas" mostra as pastas em uso, em cascata. O que os terminais
    mexem fica marcado (e aparece em "Alterados agora"). Clique num md ou código
    para ler ao lado; pdf, Word, Excel e imagens abrem no programa do Windows.
+7. Quando um agente para (pedindo permissão, com pergunta ou terminou), o quadro
+   brilha em âmbar e o alto mostra "● N esperando você" (clique para ir até ele);
+   com a Lousa minimizada, vem uma notificação do Windows. No terminal: Ctrl+C
+   copia a seleção, Ctrl+V cola, botão direito copia ou cola, links e caminhos
+   de arquivo são clicáveis, Ctrl+roda muda a letra, duplo clique no cabeçalho
+   amplia o quadro. Se algo falhar: engrenagem → "Abrir pasta de registros".

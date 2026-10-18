@@ -133,6 +133,11 @@ export interface ConteudoArquivo {
   texto: string; tamanho: number; podeAbrirFora: boolean
 }
 export type Abertura = { onde: 'fora' } | { onde: 'leitor'; conteudo: ConteudoArquivo }
+
+// O que o agente do quadro diz pelo OSC 7501 (T8.1)
+export type EstadoAgente = 'trabalhando' | 'esperando' | 'terminou' | 'parado' | 'erro'
+export type MotivoEspera = 'permissao' | 'pergunta' | 'login'
+export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mensagem?: string }
 ```
 
 ## Canais de IPC (todos em `src/shared/ipc.ts`)
@@ -140,21 +145,27 @@ export type Abertura = { onde: 'fora' } | { onde: 'leitor'; conteudo: ConteudoAr
 | Canal | Entrada | Saída | Tarefa |
 |---|---|---|---|
 | `app:info` | — | `AppInfo` | feito |
+| `app:copiar` | `{ texto }` | — (área de transferência do Windows) | T8.3 |
+| `app:colar` | — | `string` | T8.3 |
+| `app:erroDaTela` | `{ mensagem }` | — (vai para o arquivo de registros) | T8.6 |
+| `app:abrirRegistros` | — | — (abre `<userData>\logs`) | T8.6 |
 | `perfis:listar` | — | `PerfilComConta[]` | T1.6 |
 | `perfis:renomear` | `{ perfilId, nome }` | `PerfilComConta` | T1.6 |
 | `perfis:atualizarConta` | `{ perfilId }` | `StatusConta` | T1.6 |
 | `perfis:criar` | `{ provedor, nome }` | `PerfilComConta` | T1.8 |
-| `terminais:abrir` | `{ alvo: AlvoTerminal, cols, rows }` | `{ terminalId, bufferInicial }` | T2.3 |
+| `terminais:abrir` | `{ alvo: AlvoTerminal, cols, rows }` | `{ terminalId, bufferInicial, aviso }` (aviso = último estado do agente) | T2.3, T8.1 |
 | `terminais:escrever` | `{ terminalId, dados }` | — | T2.3 |
 | `terminais:redimensionar` | `{ terminalId, cols, rows }` | — | T2.3 |
 | evento `terminais:dados` | — | `{ terminalId, dados }` | T2.3 |
 | evento `terminais:saiu` | — | `{ terminalId, codigo }` | T2.3 |
+| evento `terminais:estado` | — | `{ terminalId, aviso: AvisoAgente }` (OSC 7501, só quando muda) | T8.1 |
 | `repos:escolherPasta` | — | `{ caminho, sugestaoPerfilId } \| null` | T3.2 |
 | `repos:adicionar` | `{ caminho, perfilId }` | `Repo` (a existente, se a pasta já estava cadastrada) | T3.2, T5.1 |
 | `repos:remover` | `{ repoId }` | — | T3.6 |
 | `quadros:criar` | `{ repoId, tipo, perfilId, posicao? }` | `Quadro` | T3.4, T5.1 |
 | `quadros:remover` | `{ quadroId }` | — | T3.4 |
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
+| evento `quadros:focar` | — | `{ quadroId }` (clique na notificação do Windows) | T8.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 | `arquivos:listar` | `{ repoId, relativo }` | `ItemArquivo[]` (ordem do VSCode, sem `.git` e afins) | T7.1 |
@@ -192,7 +203,9 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
 
 - Um terminal por `terminalId`, vivo no main. `abrir` é idempotente: se já
   existe, devolve o buffer guardado e não abre outro shell.
-- Guarda as últimas 200 mil letras de saída para a tela redesenhar ao remontar.
+- Guarda as últimas 1 milhão de letras de saída para a tela redesenhar ao remontar (T8.4).
+- Terminal de quadro lê o OSC 7501 da saída (`terminais/status.ts`): responde à pergunta do
+  Claude com texto fixo em teclas `win32-input-mode` e avisa quando o estado do agente muda (T8.1).
 - Shell: `powershell.exe -NoLogo`, `cwd` = pasta do repo (login: `USERPROFILE`).
 - Quadro tipo `agente`: depois de abrir, escreve o comando do provedor da conta
   do quadro (`claude\r` ou `codex\r`). Login: `claude auth login\r` ou `codex login\r`.
@@ -216,7 +229,12 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
 - Arquivos (T7.1): a tela manda `repoId` + caminho relativo; o main monta o caminho a partir
   do repo salvo e recusa o que sai da pasta. Clicar num arquivo nunca roda nada: script e
   executável só têm "Mostrar na pasta". O md é formatado com `html: false`.
-- Nenhuma biblioteca de rastreamento; o app não acessa a rede (links do md abrem no navegador).
+- Aviso do agente (T8.1): a resposta à pergunta OSC 7501 é sempre o mesmo texto; nada da saída
+  de um programa volta como entrada do terminal.
+- Área de transferência só pelo main (`app:copiar` / `app:colar`, só texto, até 5 MB).
+- Registros (T8.6): `<userData>\logs\lousa-AAAA-MM-DD.log`, 14 dias, e-mails como `***@domínio`,
+  nunca token nem conteúdo de terminal.
+- Nenhuma biblioteca de rastreamento; o app não acessa a rede (links do md e do terminal abrem no navegador).
 
 ## Testes
 

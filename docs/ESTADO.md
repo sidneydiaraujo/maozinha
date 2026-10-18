@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T7.6** (`docs/plano/fatia-7-barra-e-arquivos.md`) — o Sidney testa com o instalador novo (itens 17 a 22 do `docs/aceite/roteiro.md`).
+**Próxima tarefa: T7.6 + T8.8** — o Sidney testa com o instalador novo os itens 17 a 30 do `docs/aceite/roteiro.md` (Fatias 7 e 8 juntas).
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -48,6 +48,14 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T7.4 | Leitor de md e código | ✅ 18/10/2026 |
 | T7.5 | Nova conta (T1.8) | ✅ 18/10/2026 |
 | T7.6 | Aceite | ⬜ |
+| T8.1 | Aviso do agente no main (OSC 7501) + notificação do Windows | ✅ 18/10/2026 |
+| T8.2 | Aviso na tela: brilho, selo, contador, minimapa | ✅ 18/10/2026 |
+| T8.3 | Copiar, colar e links no terminal | ✅ 18/10/2026 |
+| T8.4 | Histórico de 10 mil linhas, ampliar quadro, letra com Ctrl+roda | ✅ 18/10/2026 |
+| T8.5 | Reabrir terminal encerrado | ✅ 18/10/2026 |
+| T8.6 | Registros em arquivo | ✅ 18/10/2026 |
+| T8.7 | Janela lembra tamanho e posição | ✅ 18/10/2026 |
+| T8.8 | Aceite | ⬜ |
 
 ## Bloqueios
 
@@ -98,3 +106,32 @@ Nenhum.
 - **17/10/2026 (T6.1–T6.5, Fatia 6, D14):** pedido do Sidney depois de testar: pasta em destaque, conta só como "quem paga", trocar a conta sem perder o contexto, login sem códigos e texto quebrando no terminal. **Prova antes de codar** (CLI real, pasta de teste): conversa criada na Pessoal com `--session-id`; na Principal sem o arquivo, "No conversation found"; depois de copiar o `.jsonl`, continuou e lembrou a palavra combinada. Ficaram duas conversas de teste em `projects/*scratchpad-prova-sessao` nas duas contas (apagar foi bloqueado pela permissão). Código: `quadros/sessoes.ts` (+5 testes), `quadros:trocarConta`, `comSessao`, `comandoAgente` com `--resume`/`--session-id`, login via `powershell -Command` com `exit $LASTEXITCODE`, `ContaDoQuadro`, `PastasRecentes`, `useLogin`/`PassosLogin`/`login.ts` (+6 testes), `@xterm/addon-unicode11` 0.9.0. 125 testes, lint zerado, smoke ok. **Provado na janela real (estado de teste, login trocado por um falso para não abrir navegador):** cabeçalhos "📁 lousa-ia | Pessoal ▾" e "📁 lousa-ia 2 | terminal | Principal ▾"; menu → confirmação → troca (o agente reiniciou na Principal com o mesmo id); "+ Novo quadro" com pastas e "×"; login abrindo → navegador (link lido, "Copiar link" ativo) → conferindo → conectada (✓ + e-mail) → fecha sozinha; e falhou (✗ + detalhes só com a saída do CLI) → "Tentar de novo" → conectada; emoji ❌ 🟡 ✅ alinhados. Bugs achados e corrigidos na prova: classe da fase "navegador" igual à do desenho; largura da janela perdida para o CSS antigo; eco do comando nos detalhes. **Não provado:** trocar a conta de um quadro com conversa já existente (a cópia + `--resume` está provada no CLI e em teste de unidade, não na tela); login real pelo navegador e o "colar código".
 - **18/10/2026 (T6.6):** Sidney testou com o instalador novo seguindo `docs/aceite/roteiro.md` (itens 3, 4, 7, 12, 14, 15, 16 inclusive): tudo funcionou como esperado. Fatia 6 aceita; push dos commits para o GitHub.
 - **18/10/2026 (T7.1–T7.5 + T1.8, Fatia 7, D15):** pedido do Sidney depois do aceite da Fatia 6: contas como ícones numa barra no alto e a lateral virando um explorador de pastas como o do VSCode, para ver os arquivos que os terminais mexem e abrir md/código ao lado. **Engenharia reversa antes de codar:** REA (pela linha de comando; o servidor MCP não conectou) sobre `resources/app/out` do VSCode 1.142 instalado (evidência `ev_40ea7451…`), mais leitura direta do pacote `workbench.desktop.main.js` e `watcherMain.js`: padrões de `files.exclude`, ordem `explorer.sortOrder = default`, `fetchChildren` sob demanda, `FILE_CHANGES_HANDLER_DELAY = 75`, `files.watcherExclude`, marca do chat que sobe (`bubble: true`) e o teste de binário dos 512 bytes. Código: `src/main/arquivos/` (regras, serviço, vigia, disco; +23 testes), canais `arquivos:*` e `perfis:criar` (+4 testes, `slug.ts` +3), tela `topo/`, `explorador/`, `leitor/` (+16 testes). 170 testes, lint zerado, smoke ok. **Provado na janela real (estado de teste só com terminais comuns e uma pasta de exemplo):** barra com engrenagem e ícones (bolinha verde = logada); balão com o cartão; painel com os cartões e "+ Nova conta" recusando "Principal" ("Nome reservado"); árvore com `.git` escondido e `node_modules` visível; md formatado; o main escreveu em `roteiro.md` e criou `src/novo.ts`: "Alterados agora" listou os dois (e ignorou `node_modules` e `.git`), a marca subiu pelas pastas, o leitor recarregou com "atualizado agora" e a pasta `src` mostrou o arquivo novo; `<script>` do md virou texto; link relativo abriu o outro md; código com número de linha; binário → "não é texto" só com "Mostrar na pasta"; o main recusou `../../x.md`, abrir binário fora e link `file:`. Bug achado e corrigido: caixas `[ ]` não viravam ☐ em lista com linha em branco. **Não provado:** arrastar o ícone da conta para a lousa, "Abrir fora" de verdade (abriria um programa no PC) e criar uma conta de verdade (criaria uma pasta em `C:\Users\sidne`).
+- **18/10/2026 (T8.1–T8.7, Fatia 8, D16):** pergunta do Sidney ("o que adiantar para trabalhar uma semana sem ajustes?") e "pode seguir com o recomendado".
+  - **Engenharia reversa antes de codar:** lido no `claude.exe` instalado, sem rodar. O Claude só avisa (campainha/OSC 9) em iTerm2, kitty e Ghostty, mas tem o Program Status Protocol (OSC 7501, 2.1.295): pergunta `ESC]7501;?` e, se o terminal responder, manda `state=working|blocked|done|idle|error`.
+  - **Provado com programa simulado no ConPTY:** a saída passa; a resposta crua some; a mesma resposta em teclas `win32-input-mode` chega (modo VT e modo cru).
+  - **Código:**
+    - `terminais/status.ts` (+8 testes) e `avisos/` (+3);
+    - tela `lousa/atencao.ts` (+4);
+    - `componentes/links.ts` (+12), `teclas.ts` (+3), `fonte.ts` (+2);
+    - `log.ts` (+3), `registros.ts` (+3), `janela/estadoJanela.ts` (+5).
+    - 215 testes, lint zerado, smoke ok.
+  - **Provado na janela real**, com estado de teste, terminais comuns e um "Claude falso" que fala o OSC 7501:
+    - a resposta passou pelo ConPTY ("RESPOSTA OK"); selo "pedindo permissão" com a frase no balão; borda âmbar; "● 1 esperando você"; minimapa âmbar; o main registrou "aviso do agente: esperando";
+    - o botão do alto enquadrou o quadro;
+    - ponteiro de link em caminho e URL; clicar em `docs/notas.md` abriu o leitor, e um caminho absoluto longo, quebrado em duas linhas, abriu `src/app.ts`;
+    - Ctrl+V com tecla de verdade colou uma vez só; duplo clique + Ctrl+C copiou; botão direito sem seleção colou;
+    - duplo clique no cabeçalho: zoom 2 e volta exata;
+    - Ctrl+roda: letra 13 → 15 sem zoom na lousa, mantida depois de reabrir;
+    - `exit` → "Terminal encerrado (código 0) · Reabrir" → prompt novo;
+    - o agente terminou: selo "terminou" com "Pronto: src/app.ts atualizado"; clicar no quadro apagou o brilho;
+    - o app de verdade (sem smoke), aberto e fechado pelo X três vezes:
+      - criou `logs\lousa-2026-10-18.log` com "abriu" e "fechou";
+      - gravou `janela.json`;
+      - reabriu maximizado no lugar salvo;
+      - com o lugar salvo fora das telas, voltou ao padrão.
+  - **Bug achado e corrigido:** link de caminho quebrado em duas linhas abria um caminho errado.
+  - **Não provado:**
+    - a notificação do Windows aparecendo de fato (no teste a janela ficou escondida e sem o id do instalador);
+    - o clique nela;
+    - um Claude real mandando OSC 7501 (o "falso" copia o formato lido no executável);
+    - o botão direito com o mouse físico (provado com o evento da tela).

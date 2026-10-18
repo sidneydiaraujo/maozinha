@@ -25,3 +25,11 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 - [ ] 20. Peça a um agente para criar ou mudar um `.md`: o arquivo aparece em "Alterados agora", fica amarelo na árvore (a marca sobe pelas pastas) e, se estiver aberto no leitor, recarrega com "atualizado agora".
 - [ ] 21. Clicar num `.md` abre o leitor ao lado, formatado ("Ver código" mostra o texto puro); clicar num `.ts`/`.json` mostra o código com número de linha; a borda direita do leitor muda a largura.
 - [ ] 22. Clicar num `.pdf`/`.docx`/`.xlsx` abre no programa do Windows; um `.exe` ou `.bat` nunca abre (só "Mostrar na pasta").
+- [ ] 23. Num agente, peça algo que precise de permissão (ex.: "crie um arquivo teste.md"). Quando o Claude perguntar, o quadro fica com borda âmbar, o selo diz "pedindo permissão" e aparece "● 1 esperando você" no alto. Com a Lousa minimizada, aparece uma notificação do Windows e a barra de tarefas pisca; clicar na notificação traz a Lousa e mostra o quadro.
+- [ ] 24. Quando o Claude termina, o selo diz "terminou" (e o quadro brilha até você clicar nele). Com dois agentes esperando, cada clique em "● 2 esperando você" mostra um deles.
+- [ ] 25. No terminal: selecione um texto e aperte Ctrl+C (copia; sem seleção, o Ctrl+C continua interrompendo). Ctrl+V cola. Botão direito: com seleção copia, sem seleção cola.
+- [ ] 26. Um link `https://...` que o Claude escrever abre no navegador; um caminho de arquivo da pasta (ex.: `docs/ESTADO.md`) abre no leitor ao lado.
+- [ ] 27. Duplo clique no cabeçalho de um quadro (ou ⤢) amplia o quadro na tela; de novo volta. Ctrl+roda do mouse dentro do terminal aumenta e diminui a letra, e o tamanho fica guardado.
+- [ ] 28. Rolar para cima num agente com uma conversa longa mostra bem mais que antes (até 10 mil linhas).
+- [ ] 29. Num quadro de terminal, digite `exit`: aparece "Terminal encerrado · Reabrir"; "Reabrir" volta com um terminal novo (num agente, o Claude retoma a conversa).
+- [ ] 30. Feche a Lousa maximizada e abra de novo: volta maximizada. Engrenagem → "Abrir pasta de registros" abre a pasta com o arquivo do dia.
