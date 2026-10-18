@@ -1,6 +1,7 @@
 /* Janela de login sem terminal (T6.4): uma animacao por fase. */
 
-.janela-login {
+/* Duas classes: precisa vencer o .janela (contas.css), que pode vir depois no pacote. */
+.janela.janela-login {
   width: min(520px, 92vw);
   align-items: stretch;
 }

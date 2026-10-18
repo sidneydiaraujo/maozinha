@@ -3,7 +3,13 @@ import type { Perfil, Quadro, Repo } from '../../shared/model'
 import { resolverAlvo, type DepsAlvo } from './alvo'
 
 const perfil = (id: string, provedor: Perfil['provedor']): Perfil => ({
-  id, provedor, nome: id, cor: '#000', configDir: `C:\\${id}`, ehPadrao: false, raizes: [],
+  id,
+  provedor,
+  nome: id,
+  cor: '#000',
+  configDir: `C:\\${id}`,
+  ehPadrao: false,
+  raizes: [],
 })
 const perfis = [perfil('principal', 'claude'), perfil('pessoal', 'claude'), perfil('cx:x', 'codex')]
 const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
@@ -34,17 +40,20 @@ const deps: DepsAlvo = {
 }
 
 describe('resolverAlvo: login', () => {
-  it('monta id, pasta e comando do Claude', () => {
+  it('monta id e pasta; o login roda como -Command, sem nada digitado (T6.4)', () => {
     const r = resolverAlvo({ tipo: 'login', perfilId: 'principal' }, deps)
-    expect(r).toMatchObject({
-      terminalId: 'login:principal',
-      cwd: 'C:\\Users\\x',
-      comandoInicial: 'claude auth login; exit $LASTEXITCODE\r',
+    expect(r).toMatchObject({ terminalId: 'login:principal', cwd: 'C:\\Users\\x' })
+    expect(r.comandoInicial).toBeUndefined()
+    expect(r.shell).toEqual({
+      arquivo: 'powershell.exe',
+      args: ['-NoLogo', '-NoProfile', '-Command', 'claude auth login; exit $LASTEXITCODE'],
     })
   })
 
   it('conta Codex usa o comando do Codex', () => {
-    expect(resolverAlvo({ tipo: 'login', perfilId: 'cx:x' }, deps).comandoInicial).toBe('codex login; exit $LASTEXITCODE\r')
+    expect(resolverAlvo({ tipo: 'login', perfilId: 'cx:x' }, deps).shell?.args.at(-1)).toBe(
+      'codex login; exit $LASTEXITCODE',
+    )
   })
 
   it('conta inexistente propaga o erro', () => {

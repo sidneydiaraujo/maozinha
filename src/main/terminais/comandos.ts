@@ -1,4 +1,4 @@
-// O que digitar no terminal para cada provedor (T2.3). \r = Enter.
+// O que rodar no terminal para cada provedor (T2.3). \r = Enter.
 import type { Provedor } from '../../shared/model'
 import { FORMATO_SESSAO } from '../quadros/sessoes'
 
@@ -16,10 +16,11 @@ export function comandoAgente(provedor: Provedor, sessao?: SessaoAgente): string
 }
 
 /**
- * O shell sai junto com o login, dando certo ou nao (T6.4): a janela de login nao mostra
- * o terminal, entao o codigo de saida e o que diz se deu certo.
+ * O login roda direto no PowerShell (-Command), sem prompt nem eco do comando, e o shell
+ * sai junto com ele (T6.4): a janela de login nao mostra o terminal, entao o codigo de
+ * saida diz se deu certo e o "ver detalhes" mostra so o que o CLI escreveu.
  */
-export function comandoLogin(provedor: Provedor): string {
+export function shellLogin(provedor: Provedor): { arquivo: string; args: string[] } {
   const comando = provedor === 'claude' ? 'claude auth login' : 'codex login'
-  return `${comando}; exit $LASTEXITCODE\r`
+  return { arquivo: 'powershell.exe', args: ['-NoLogo', '-NoProfile', '-Command', `${comando}; exit $LASTEXITCODE`] }
 }

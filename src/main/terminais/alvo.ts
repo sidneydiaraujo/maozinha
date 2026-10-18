@@ -1,13 +1,15 @@
 // Transforma o que a tela pede ("login da conta X", "o quadro q1") em pasta,
 // conta e comando. Quem decide e o main (D7): a tela so manda ids.
 import type { AlvoTerminal, Perfil, Quadro, Repo } from '../../shared/model'
-import { comandoAgente, comandoLogin } from './comandos'
+import { comandoAgente, shellLogin } from './comandos'
 
 export interface AlvoResolvido {
   terminalId: string
   cwd: string
   perfil: Perfil
   comandoInicial?: string
+  /** Outro shell no lugar do PowerShell interativo (o login roda como -Command). */
+  shell?: { arquivo: string; args: string[] }
 }
 
 export interface DepsAlvo {
@@ -26,7 +28,7 @@ export function resolverAlvo(alvo: AlvoTerminal, deps: DepsAlvo): AlvoResolvido 
       terminalId: `login:${alvo.perfilId}`,
       cwd: deps.home,
       perfil,
-      comandoInicial: comandoLogin(perfil.provedor),
+      shell: shellLogin(perfil.provedor),
     }
   }
   // Pasta vem do repo e conta vem do quadro, ambos salvos no main: nunca da tela.

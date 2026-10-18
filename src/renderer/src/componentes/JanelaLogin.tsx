@@ -41,7 +41,7 @@ function AvisoContaPadrao({ nome, aoConfirmar }: { nome: string; aoConfirmar(): 
 function Andamento({ login, aviso }: { login: ReturnType<typeof useLogin>; aviso?: string }): React.JSX.Element {
   const texto = TEXTOS[login.fase]
   return (
-    <div className={`login-andamento login-${login.fase}`} aria-live="polite">
+    <div className={`login-andamento login-fase-${login.fase}`} aria-live="polite">
       <Animacao fase={login.fase} />
       <p className="login-titulo">{texto.titulo}</p>
       {login.fase === 'pronto' && login.conta ? (

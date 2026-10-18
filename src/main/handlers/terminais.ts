@@ -41,6 +41,7 @@ export function registrarHandlersTerminais(
       cols,
       rows,
       comandoInicial: r.comandoInicial,
+      shell: r.shell,
     })
     return { terminalId: r.terminalId, bufferInicial }
   })
