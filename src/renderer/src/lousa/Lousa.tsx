@@ -10,7 +10,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { EstadoTela } from '../../../shared/model'
+import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
 import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from './nos'
 import { NovoQuadro } from './NovoQuadro'
@@ -25,6 +25,8 @@ const nodeTypes = { quadro: QuadroNode }
 interface Props {
   /** Muda quando algo fora da lousa (nome de conta) mudou: a lousa recarrega. */
   versao: number
+  /** Pastas e quadros mudaram: a lateral (T7.3) acompanha. */
+  aoMudarPastas(repos: Repo[], quadros: Quadro[]): void
 }
 
 /** Mantem posicao/tamanho que o usuario acabou de ajustar quando o estado e recarregado. */
@@ -90,15 +92,20 @@ function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React
       )}
       {vazia && (
         <p className="lousa-vazia">
-          Clique em “+ Novo quadro”, dê duplo clique aqui ou arraste uma conta da barra para cá.
+          Clique em “+ Novo quadro”, dê duplo clique aqui ou arraste o ícone de uma conta (no alto) para cá.
         </p>
       )}
     </>
   )
 }
 
-export function Lousa({ versao }: Props): React.JSX.Element {
+export function Lousa({ versao, aoMudarPastas }: Props): React.JSX.Element {
   const { estado, setEstado, erro, falhou, acoes, tirarPasta } = useEstadoLousa(versao)
+  const repos = estado?.repos
+  const quadros = estado?.quadros
+  useEffect(() => {
+    if (repos && quadros) aoMudarPastas(repos, quadros)
+  }, [repos, quadros, aoMudarPastas])
   const [nos, setNos, aoMudarNos] = useNodesState<QuadroNo>([])
   const instancia = useRef<ReactFlowInstance<QuadroNo> | null>(null)
   const area = useRef<HTMLDivElement>(null)

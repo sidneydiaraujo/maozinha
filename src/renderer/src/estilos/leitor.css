@@ -1,0 +1,211 @@
+/* Leitor de arquivos (T7.4), entre a lateral e a lousa. */
+.leitor {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+  max-width: 60vw;
+  background: var(--fundo);
+  border-right: 1px solid var(--borda);
+}
+
+.leitor-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px 8px 14px;
+  background: var(--painel);
+  border-bottom: 1px solid var(--borda);
+}
+
+.leitor-topo .botao-pequeno {
+  margin-top: 0;
+}
+
+.leitor-titulo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 120px;
+}
+
+.leitor-titulo strong {
+  overflow: hidden;
+  font-size: 14px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.leitor-titulo small {
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--apagado);
+}
+
+.leitor-atualizado {
+  padding: 1px 8px;
+  font-size: 11px;
+  color: #1a1300;
+  background: #f5d76e;
+  border-radius: 999px;
+}
+
+.leitor-erro {
+  padding: 6px 14px;
+}
+
+.leitor-corpo {
+  flex: 1;
+  overflow: auto;
+}
+
+.leitor-vazio {
+  margin: 24px 16px;
+  color: var(--apagado);
+}
+
+.leitor-alca {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  bottom: 0;
+  z-index: 5;
+  width: 6px;
+  cursor: col-resize;
+}
+
+.leitor-alca:hover {
+  background: color-mix(in srgb, #2f6df6 50%, transparent);
+}
+
+/* Codigo com numero de linha. */
+.leitor-codigo {
+  display: flex;
+  min-width: max-content;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.leitor-codigo pre {
+  margin: 0;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.leitor-numeros {
+  position: sticky;
+  left: 0;
+  color: #5b6170;
+  text-align: right;
+  background: var(--fundo);
+  user-select: none;
+}
+
+.leitor-texto {
+  color: var(--texto);
+}
+
+/* Markdown formatado. */
+.leitor-md {
+  max-width: 860px;
+  padding: 8px 22px 32px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--texto);
+}
+
+.leitor-md h1,
+.leitor-md h2,
+.leitor-md h3,
+.leitor-md h4 {
+  margin: 1.2em 0 0.5em;
+  line-height: 1.3;
+}
+
+.leitor-md h1 {
+  padding-bottom: 0.3em;
+  font-size: 1.6em;
+  border-bottom: 1px solid var(--borda);
+}
+
+.leitor-md h2 {
+  padding-bottom: 0.25em;
+  font-size: 1.3em;
+  border-bottom: 1px solid var(--borda);
+}
+
+.leitor-md h3 {
+  font-size: 1.1em;
+}
+
+.leitor-md a {
+  color: #6ea8ff;
+}
+
+.leitor-md code {
+  padding: 1px 5px;
+  font-family: 'Cascadia Mono', Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--cartao);
+  border-radius: 4px;
+}
+
+.leitor-md pre {
+  overflow: auto;
+  padding: 10px 12px;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+}
+
+.leitor-md pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.leitor-md blockquote {
+  margin: 0;
+  padding: 2px 14px;
+  color: var(--apagado);
+  border-left: 3px solid var(--borda);
+}
+
+.leitor-md table {
+  margin: 10px 0;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+
+.leitor-md th,
+.leitor-md td {
+  padding: 5px 10px;
+  border: 1px solid var(--borda);
+}
+
+.leitor-md th {
+  background: var(--painel);
+}
+
+.leitor-md hr {
+  border: 0;
+  border-top: 1px solid var(--borda);
+}
+
+.leitor-md li.md-tarefa {
+  margin-left: -1.2em;
+  list-style: none;
+}
+
+.leitor-md li.md-feita {
+  color: var(--apagado);
+}
+
+.md-imagem {
+  font-style: italic;
+  color: var(--apagado);
+}

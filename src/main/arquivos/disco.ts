@@ -3,6 +3,7 @@ import { shell } from 'electron'
 import { readdirSync, readFileSync, statSync, watch } from 'node:fs'
 import { join } from 'node:path'
 import type { ItemArquivo } from '../../shared/model'
+import { mudancaRelevante } from './regras'
 import type { DepsArquivos } from './servico'
 import type { Observar } from './vigia'
 
@@ -34,11 +35,15 @@ export const discoReal: Omit<DepsArquivos, 'repos'> = {
   mostrarNaPasta: (caminho) => shell.showItemInFolder(caminho),
 }
 
-/** fs.watch recursivo: no Windows usa a mesma API do sistema que o VSCode (ReadDirectoryChangesW). */
+/**
+ * fs.watch recursivo: no Windows usa a mesma API do sistema que o VSCode (ReadDirectoryChangesW).
+ * O Windows tambem avisa quando uma pasta muda (porque algo dentro mudou): so arquivos seguem.
+ */
 export const observarReal: Observar = (caminho, aoMudar, aoFalhar) => {
   try {
     const vigia = watch(caminho, { recursive: true }, (_tipo, nome) => {
-      if (nome) aoMudar(nome.toString())
+      const texto = nome?.toString()
+      if (texto && mudancaRelevante(texto) !== null && !ehPasta(join(caminho, texto))) aoMudar(texto)
     })
     vigia.on('error', aoFalhar)
     return { fechar: () => vigia.close() }

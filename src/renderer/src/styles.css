@@ -22,7 +22,14 @@ body,
 
 .app {
   display: flex;
+  flex-direction: column;
   height: 100%;
+}
+
+.app-corpo {
+  flex: 1;
+  display: flex;
+  min-height: 0;
 }
 
 .area-lousa {

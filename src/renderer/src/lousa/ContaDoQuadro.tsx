@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { PerfilComConta, TipoQuadro } from '../../../shared/model'
+import { useFecharFora } from '../componentes/useFecharFora'
 
 interface Props {
   perfil: PerfilComConta | undefined
@@ -10,25 +11,6 @@ interface Props {
 }
 
 const LARGURA_MENU = 260
-
-/** Fecha o menu ao clicar fora dele ou apertar Esc. */
-function useFecharFora(aberto: boolean, menu: React.RefObject<HTMLDivElement | null>, fechar: () => void): void {
-  useEffect(() => {
-    if (!aberto) return
-    const clique = (e: MouseEvent): void => {
-      if (!menu.current?.contains(e.target as Node)) fechar()
-    }
-    const tecla = (e: KeyboardEvent): void => {
-      if (e.key === 'Escape') fechar()
-    }
-    window.addEventListener('mousedown', clique)
-    window.addEventListener('keydown', tecla)
-    return () => {
-      window.removeEventListener('mousedown', clique)
-      window.removeEventListener('keydown', tecla)
-    }
-  }, [aberto, menu, fechar])
-}
 
 function Confirmar(p: {
   conta: PerfilComConta

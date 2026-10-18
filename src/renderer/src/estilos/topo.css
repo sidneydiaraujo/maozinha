@@ -1,0 +1,234 @@
+/* Barra de cima (T7.2): engrenagem + um icone por conta, versao a direita. */
+.topo {
+  position: relative;
+  z-index: 20;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 10px;
+  background: var(--painel);
+  border-bottom: 1px solid var(--borda);
+}
+
+.topo-engrenagem,
+.icone-conta {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  color: var(--apagado);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.icone-conta {
+  color: var(--cor);
+  cursor: grab;
+}
+
+.topo-engrenagem:hover,
+.topo-engrenagem[aria-expanded='true'] {
+  color: var(--texto);
+  background: var(--cartao);
+  border-color: var(--borda);
+}
+
+.icone-conta:hover,
+.icone-conta[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--cor) 16%, transparent);
+  border-color: color-mix(in srgb, var(--cor) 45%, transparent);
+}
+
+.icone-status {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 7px;
+  height: 7px;
+  background: #5b6170;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px var(--painel);
+}
+
+.icone-status-on {
+  background: #22c55e;
+}
+
+.topo-contas {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+  padding-left: 8px;
+  border-left: 1px solid var(--borda);
+}
+
+.topo-marca {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--apagado);
+}
+
+.topo-versao {
+  margin-left: 12px;
+  font-size: 12px;
+  color: var(--apagado);
+}
+
+.botao-fechar {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  font: inherit;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--apagado);
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.botao-fechar:hover {
+  color: var(--texto);
+  background: var(--cartao);
+}
+
+/* Balao com o cartao da conta, abaixo do icone. */
+.balao-conta {
+  position: fixed;
+  z-index: 40;
+  box-sizing: border-box;
+  padding: 6px;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.balao-conta .cartao {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Painel da engrenagem: todas as contas e "+ Nova conta". */
+.painel-contas {
+  position: fixed;
+  z-index: 35;
+  top: 44px;
+  left: 8px;
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  max-height: calc(100% - 56px);
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.painel-contas-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 8px;
+}
+
+.botao-nova-conta {
+  padding: 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--apagado);
+  background: transparent;
+  border: 1px dashed var(--borda);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.botao-nova-conta:hover {
+  color: var(--texto);
+  border-color: var(--apagado);
+}
+
+.nova-conta {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+}
+
+.nova-conta-titulo {
+  margin: 0;
+  font-size: 14px;
+}
+
+.nova-conta-provedores {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.nova-conta-provedor {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px;
+  font: inherit;
+  color: var(--texto);
+  text-align: left;
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.nova-conta-provedor small {
+  font-size: 11px;
+  color: var(--apagado);
+}
+
+.nova-conta-provedor[aria-checked='true'] {
+  border-color: #2f6df6;
+  box-shadow: inset 0 0 0 1px #2f6df6;
+}
+
+.nova-conta-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--apagado);
+}
+
+.nova-conta-campo input {
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--texto);
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+}
+
+.nova-conta-botoes {
+  display: flex;
+  gap: 8px;
+}
+
+.nova-conta-botoes .botao-principal {
+  width: auto;
+  padding: 4px 14px;
+  font-size: 12px;
+}

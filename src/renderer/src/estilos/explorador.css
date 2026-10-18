@@ -1,0 +1,203 @@
+/* Lateral com as pastas (T7.3), no jeito do Explorer do VSCode. */
+.explorador {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  background: var(--painel);
+  border-right: 1px solid var(--borda);
+}
+
+.explorador-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 10px;
+}
+
+.explorador-topo .barra-titulo {
+  padding: 12px 14px 8px;
+}
+
+.explorador-secao {
+  margin: 0;
+  padding: 6px 14px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--apagado);
+}
+
+.recentes {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--borda);
+}
+
+.recente {
+  display: grid;
+  grid-template-columns: 10px 1fr;
+  column-gap: 6px;
+  align-items: center;
+  padding: 3px 12px 3px 14px;
+  font: inherit;
+  color: var(--texto);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.recente:hover {
+  background: var(--cartao);
+}
+
+.recente-nome {
+  overflow: hidden;
+  font-size: 13px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: #e2c08d;
+}
+
+.recente-onde {
+  grid-column: 2;
+  overflow: hidden;
+  font-size: 11px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--apagado);
+}
+
+.arvore {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 0 12px;
+}
+
+.arvore-linha {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 24px;
+  padding-right: 10px;
+  font: inherit;
+  font-size: 13px;
+  color: var(--texto);
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.arvore-linha:hover {
+  background: var(--cartao);
+}
+
+.arvore-selecionada,
+.arvore-selecionada:hover {
+  background: color-mix(in srgb, #2f6df6 22%, transparent);
+  border-color: color-mix(in srgb, #2f6df6 55%, transparent);
+}
+
+.arvore-raiz {
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+.seta {
+  flex: none;
+  display: inline-block;
+  width: 12px;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+  color: var(--apagado);
+  transition: transform 0.12s;
+}
+
+.seta-aberta {
+  transform: rotate(90deg);
+}
+
+.seta-vazia {
+  visibility: hidden;
+}
+
+.simbolo-pasta {
+  flex: none;
+  color: #c09553;
+}
+
+.simbolo-arquivo {
+  flex: none;
+  color: var(--apagado);
+}
+
+.arvore-nome {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.arvore-nome-alterado {
+  color: #e2c08d;
+}
+
+.arvore-contas {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.arvore-aviso {
+  min-height: 22px;
+  font-size: 12px;
+  font-style: italic;
+  line-height: 22px;
+  color: var(--apagado);
+}
+
+.explorador-vazio {
+  padding: 8px 14px;
+}
+
+.explorador-nota {
+  margin: 0;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--texto);
+  background: var(--cartao);
+  border-top: 1px solid var(--borda);
+}
+
+/* Arquivo mexido por um terminal: marca amarela que pulsa enquanto ele esta sendo escrito. */
+.marca {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: #e2c08d;
+  border-radius: 50%;
+}
+
+.marca-escrevendo {
+  background: #f5d76e;
+  animation: marca-pulso 0.9s ease-in-out infinite;
+}
+
+@keyframes marca-pulso {
+  50% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marca-escrevendo {
+    animation: none;
+  }
+}
