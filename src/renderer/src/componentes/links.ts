@@ -71,26 +71,59 @@ interface CelulaLida {
   getChars(): string
 }
 
-/** Texto da linha e, para cada letra, a coluna (1-based) onde ela comeca e onde termina. */
-export function textoComColunas(
-  linha: { length: number; getCell(x: number): CelulaLida | undefined },
+interface LinhaLida {
+  readonly isWrapped: boolean
+  readonly length: number
+  getCell(x: number): CelulaLida | undefined
+}
+
+/** Celula do buffer (1-based), como o xterm pede no range do link. */
+export interface Celula {
+  x: number
+  y: number
+}
+
+/** Uma linha que o terminal quebrou em varias (caminho longo) vira um texto so (T8.3). */
+const MAIS_LINHAS = 20
+
+/**
+ * Texto de uma linha logica (a primeira e as que continuam nela, `isWrapped`) e, para cada
+ * letra, a celula onde ela comeca e onde termina. `y` de cada parte e 1-based.
+ */
+export function textoDaLinhaLogica(
+  partes: Array<{ y: number; linha: LinhaLida }>,
   colunas: number,
-): { texto: string; inicio: number[]; fim: number[] } {
+): { texto: string; inicio: Celula[]; fim: Celula[] } {
   let texto = ''
-  const inicio: number[] = []
-  const fim: number[] = []
-  for (let x = 0; x < Math.min(linha.length, colunas); x++) {
-    const celula = linha.getCell(x)
-    const largura = celula?.getWidth() ?? 1
-    if (largura === 0) continue // segunda metade de uma letra larga (emoji, CJK)
-    const letras = celula?.getChars() || ' '
-    for (let i = 0; i < letras.length; i++) {
-      inicio.push(x + 1)
-      fim.push(x + largura)
+  const inicio: Celula[] = []
+  const fim: Celula[] = []
+  for (const { y, linha } of partes) {
+    for (let x = 0; x < Math.min(linha.length, colunas); x++) {
+      const celula = linha.getCell(x)
+      const largura = celula?.getWidth() ?? 1
+      if (largura === 0) continue // segunda metade de uma letra larga (emoji, CJK)
+      const letras = celula?.getChars() || ' '
+      for (let i = 0; i < letras.length; i++) {
+        inicio.push({ x: x + 1, y })
+        fim.push({ x: x + largura, y })
+      }
+      texto += letras
     }
-    texto += letras
   }
   return { texto, inicio, fim }
+}
+
+/** Linhas do buffer (0-based) que formam a linha logica que contem `indice`. */
+function partesDaLinha(buffer: { getLine(i: number): LinhaLida | undefined }, indice: number) {
+  let primeira = indice
+  while (primeira > 0 && buffer.getLine(primeira)?.isWrapped && indice - primeira < MAIS_LINHAS) primeira--
+  const partes: Array<{ y: number; linha: LinhaLida }> = []
+  for (let i = primeira; partes.length <= MAIS_LINHAS * 2; i++) {
+    const linha = buffer.getLine(i)
+    if (!linha || (i > primeira && !linha.isWrapped)) break
+    partes.push({ y: i + 1, linha })
+  }
+  return partes
 }
 
 export interface AcoesLink {
@@ -102,17 +135,20 @@ export interface AcoesLink {
 export function ligarLinks(term: Terminal, acoes: () => AcoesLink): IDisposable {
   return term.registerLinkProvider({
     provideLinks(y, devolver) {
-      const linha = term.buffer.active.getLine(y - 1)
-      if (!linha) return devolver(undefined)
-      const { texto, inicio, fim } = textoComColunas(linha, term.cols)
+      const partes = partesDaLinha(term.buffer.active, y - 1)
+      if (partes.length === 0) return devolver(undefined)
+      const { texto, inicio, fim } = textoDaLinhaLogica(partes, term.cols)
       const atuais = acoes()
       const links: ILink[] = acharLinks(texto)
         .filter((l) => l.tipo === 'url' || atuais.arquivo?.aceita(l.texto))
         .map((l) => ({
-          range: { start: { x: inicio[l.inicio] ?? 1, y }, end: { x: fim[l.fim - 1] ?? 1, y } },
+          range: { start: inicio[l.inicio] ?? { x: 1, y }, end: fim[l.fim - 1] ?? { x: 1, y } },
           text: l.texto,
-          activate: (_evento, t) => (l.tipo === 'url' ? acoes().abrirUrl(t) : acoes().arquivo?.abrir(t)),
+          activate: (_evento: MouseEvent, t: string) =>
+            l.tipo === 'url' ? acoes().abrirUrl(t) : acoes().arquivo?.abrir(t),
         }))
+        // o xterm pergunta linha a linha: so os links que passam por esta linha
+        .filter((link) => link.range.start.y <= y && link.range.end.y >= y)
       devolver(links.length > 0 ? links : undefined)
     },
   })

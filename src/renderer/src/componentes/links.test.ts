@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { acharLinks, arquivoDeUri, caminhoNoRepo, textoComColunas } from './links'
+import { acharLinks, arquivoDeUri, caminhoNoRepo, textoDaLinhaLogica } from './links'
 
 const textos = (linha: string): Array<[string, string]> => acharLinks(linha).map((l) => [l.tipo, l.texto])
 
@@ -70,31 +70,57 @@ describe('arquivoDeUri', () => {
   })
 })
 
-describe('textoComColunas', () => {
-  const linha = (celulas: Array<[string, number]>) => ({
+describe('textoDaLinhaLogica', () => {
+  const linha = (celulas: Array<[string, number]>, quebrada = false) => ({
+    isWrapped: quebrada,
     length: celulas.length,
     getCell: (x: number) => {
       const c = celulas[x]
       return c ? { getChars: () => c[0], getWidth: () => c[1] } : undefined
     },
   })
+  const letras = (t: string): Array<[string, number]> => [...t].map((c) => [c, 1])
 
   it('letra larga ocupa duas colunas; celula vazia vira espaco', () => {
-    const r = textoComColunas(
-      linha([
-        ['✅', 2],
-        ['', 0],
-        ['', 1],
-        ['a', 1],
-      ]),
+    const r = textoDaLinhaLogica(
+      [
+        {
+          y: 5,
+          linha: linha([
+            ['✅', 2],
+            ['', 0],
+            ['', 1],
+            ['a', 1],
+          ]),
+        },
+      ],
       80,
     )
     expect(r.texto).toBe('✅ a')
-    expect(r.inicio).toEqual([1, 3, 4])
-    expect(r.fim).toEqual([2, 3, 4])
+    expect(r.inicio).toEqual([
+      { x: 1, y: 5 },
+      { x: 3, y: 5 },
+      { x: 4, y: 5 },
+    ])
+    expect(r.fim.map((c) => c.x)).toEqual([2, 3, 4])
   })
 
   it('para nas colunas do terminal', () => {
-    expect(textoComColunas(linha([['a', 1], ['b', 1], ['c', 1]]), 2).texto).toBe('ab')
+    expect(textoDaLinhaLogica([{ y: 1, linha: linha(letras('abc')) }], 2).texto).toBe('ab')
+  })
+
+  it('caminho quebrado em duas linhas vira um link so, do comeco ao fim', () => {
+    const r = textoDaLinhaLogica(
+      [
+        { y: 7, linha: linha(letras('ver C:\\pasta\\lon')) },
+        { y: 8, linha: linha(letras('go\\a.md:2 ok'), true) },
+      ],
+      80,
+    )
+    expect(r.texto).toBe('ver C:\\pasta\\longo\\a.md:2 ok')
+    const [link] = acharLinks(r.texto)
+    expect(link?.texto).toBe('C:\\pasta\\longo\\a.md:2')
+    expect(r.inicio[link!.inicio]).toEqual({ x: 5, y: 7 })
+    expect(r.fim[link!.fim - 1]).toEqual({ x: 9, y: 8 })
   })
 })
