@@ -1,4 +1,5 @@
 import { FitAddon } from '@xterm/addon-fit'
+import { Unicode11Addon } from '@xterm/addon-unicode11'
 import { Terminal as XTerm } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
@@ -33,7 +34,13 @@ export function Terminal({ alvo, aoSair }: Props): React.JSX.Element {
       fontFamily: 'Cascadia Mono, Consolas, monospace',
       fontSize: 13,
       theme: { background: '#0b0d12' },
+      // Necessario para term.unicode (API marcada como "proposta" no xterm).
+      allowProposedApi: true,
     })
+    // Emoji como ❌ e 🟡 ocupam 2 colunas no Claude Code; sem a tabela Unicode 11 o xterm conta 1,
+    // e cada redesenho escreve na coluna errada: palavras se misturam (print de 17/10/2026).
+    term.loadAddon(new Unicode11Addon())
+    term.unicode.activeVersion = '11'
     const ajustar = new FitAddon()
     term.loadAddon(ajustar)
     term.open(el)

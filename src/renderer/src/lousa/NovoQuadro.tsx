@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react'
 import type { PerfilComConta, Repo, TipoQuadro } from '../../../shared/model'
+import { PastasRecentes } from './PastasRecentes'
 
 interface Props {
   perfis: PerfilComConta[]
   repos: Repo[]
-  /** Veio de arrastar a conta ou do "+ Agente" do cartao: ja vem marcada. */
+  /** Veio de arrastar o cartao da conta: ja vem marcada. */
   perfilInicial?: string
   /** Onde a janelinha aparece, em pixels da tela. */
   tela: { x: number; y: number }
   aoCriar(repoId: string, tipo: TipoQuadro, perfilId: string): Promise<void>
   aoNovaPasta(repo: Repo): void
+  aoTirarPasta(repoId: string): Promise<void>
   aoCancelar(): void
 }
 
@@ -41,34 +43,32 @@ function ChipsConta(p: { perfis: PerfilComConta[]; marcada: string; aoMarcar(id:
   )
 }
 
-function ListaPastas(p: { repos: Repo[]; marcada: string | null; aoMarcar(id: string): void }): React.JSX.Element {
+function BotoesAbrir(p: { desligado: boolean; aoAbrir(tipo: TipoQuadro): void }): React.JSX.Element {
   return (
-    <div className="novo-pastas" role="radiogroup" aria-label="Pasta">
-      {[...p.repos].reverse().map((r) => (
-        <button
-          key={r.id}
-          role="radio"
-          aria-checked={r.id === p.marcada}
-          className="pasta-escolha"
-          title={r.caminho}
-          onClick={() => p.aoMarcar(r.id)}
-        >
-          <strong>{r.nome}</strong>
-          <span>{r.caminho}</span>
-        </button>
-      ))}
+    <div className="novo-botoes">
+      <button className="botao-principal" disabled={p.desligado} onClick={() => p.aoAbrir('agente')}>
+        Abrir agente
+      </button>
+      <button className="botao-pequeno" disabled={p.desligado} onClick={() => p.aoAbrir('terminal')}>
+        Abrir terminal
+      </button>
     </div>
   )
 }
 
 /**
- * "Novo quadro" (T5.3): conta + pasta no mesmo gesto. Unica forma de abrir um quadro;
- * chega por arrastar a conta, duplo clique na lousa ou "+ Agente" no cartao.
+ * "Novo quadro" (T5.3, D14): conta + pasta no mesmo gesto. Unica forma de abrir um quadro;
+ * chega pelo botao "+ Novo quadro", duplo clique na lousa ou arrastando o cartao da conta.
  */
 export function NovoQuadro(props: Props): React.JSX.Element {
-  const { perfis, repos, perfilInicial, tela, aoCriar, aoNovaPasta, aoCancelar } = props
-  const [perfilId, setPerfilId] = useState(perfilInicial ?? perfis[0]?.id ?? '')
-  const [repoId, setRepoId] = useState<string | null>(() => pastaSugerida(repos, perfilId))
+  const { perfis, repos, perfilInicial, tela, aoCriar, aoNovaPasta, aoTirarPasta, aoCancelar } = props
+  // Sem conta marcada: a ultima usada na pasta mais recente.
+  const [perfilId, setPerfilId] = useState(
+    perfilInicial ?? repos[repos.length - 1]?.perfilPadraoId ?? perfis[0]?.id ?? '',
+  )
+  const [escolhida, setRepoId] = useState<string | null>(() => pastaSugerida(repos, perfilId))
+  // A pasta marcada pode ter sido tirada da lista: volta para a sugerida.
+  const repoId = repos.some((r) => r.id === escolhida) ? escolhida : pastaSugerida(repos, perfilId)
   const [erro, setErro] = useState<string | null>(null)
   const [ocupado, setOcupado] = useState(false)
 
@@ -114,10 +114,19 @@ export function NovoQuadro(props: Props): React.JSX.Element {
     <>
       <div className="novo-fundo" onMouseDown={aoCancelar} />
       <div className="novo-quadro" role="dialog" aria-label="Novo quadro" style={{ left, top, width: LARGURA }}>
-        <p className="novo-rotulo">Conta</p>
+        <p className="novo-rotulo">Conta · quem paga</p>
         <ChipsConta perfis={perfis} marcada={perfilId} aoMarcar={setPerfilId} />
-        <p className="novo-rotulo">Pasta</p>
-        {repos.length > 0 && <ListaPastas repos={repos} marcada={repoId} aoMarcar={setRepoId} />}
+        <p className="novo-rotulo">Pasta · onde o trabalho fica</p>
+        {repos.length > 0 && (
+          <PastasRecentes
+            repos={repos}
+            marcada={repoId}
+            aoMarcar={setRepoId}
+            aoTirar={(id) =>
+              aoTirarPasta(id).catch((e: unknown) => setErro(e instanceof Error ? e.message : String(e)))
+            }
+          />
+        )}
         <button className="botao-pequeno" onClick={() => void outraPasta()}>
           {repos.length > 0 ? 'Outra pasta…' : 'Escolher pasta…'}
         </button>
@@ -126,14 +135,7 @@ export function NovoQuadro(props: Props): React.JSX.Element {
             {erro}
           </p>
         )}
-        <div className="novo-botoes">
-          <button className="botao-principal" disabled={!repoId || ocupado} onClick={() => void abrir('agente')}>
-            Abrir agente
-          </button>
-          <button className="botao-pequeno" disabled={!repoId || ocupado} onClick={() => void abrir('terminal')}>
-            Abrir terminal
-          </button>
-        </div>
+        <BotoesAbrir desligado={!repoId || ocupado} aoAbrir={(tipo) => void abrir(tipo)} />
       </div>
     </>
   )

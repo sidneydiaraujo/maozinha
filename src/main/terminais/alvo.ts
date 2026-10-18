@@ -15,6 +15,8 @@ export interface DepsAlvo {
   obterPerfil(id: string): Perfil
   obterQuadro(id: string): Quadro // lanca 'Quadro não encontrado'
   obterRepo(id: string): Repo
+  /** A conversa do quadro ja esta gravada na pasta desta conta? */
+  existeSessao(configDir: string, sessaoId: string): boolean
 }
 
 export function resolverAlvo(alvo: AlvoTerminal, deps: DepsAlvo): AlvoResolvido {
@@ -30,10 +32,13 @@ export function resolverAlvo(alvo: AlvoTerminal, deps: DepsAlvo): AlvoResolvido 
   // Pasta vem do repo e conta vem do quadro, ambos salvos no main: nunca da tela.
   const quadro = deps.obterQuadro(alvo.quadroId)
   const perfil = deps.obterPerfil(quadro.perfilId)
+  const sessao = quadro.sessaoId
+    ? { id: quadro.sessaoId, existe: deps.existeSessao(perfil.configDir, quadro.sessaoId) }
+    : undefined
   return {
     terminalId: quadro.id,
     cwd: deps.obterRepo(quadro.repoId).caminho,
     perfil,
-    comandoInicial: quadro.tipo === 'agente' ? comandoAgente(perfil.provedor) : undefined,
+    comandoInicial: quadro.tipo === 'agente' ? comandoAgente(perfil.provedor, sessao) : undefined,
   }
 }

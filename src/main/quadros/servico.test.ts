@@ -18,7 +18,9 @@ function montar() {
   }
   const armazem: Armazem = { carregar: () => structuredClone(estado), salvar: (e) => void (estado = structuredClone(e)) }
   const fechados: string[] = []
+  const copias: string[] = []
   let n = 0
+  let s = 0
   const servico = new ServicoQuadros({
     armazem,
     perfis: {
@@ -30,8 +32,11 @@ function montar() {
     },
     fecharTerminal: (id) => void fechados.push(id),
     novoId: () => `q${++n}`,
+    novaSessao: () => `s${++s}`,
+    copiarSessao: (de, para, id) => copias.push(`${de} -> ${para}: ${id}`) > 0,
+    esperar: async () => {},
   })
-  return { servico, fechados, estado: () => estado }
+  return { servico, fechados, copias, estado: () => estado }
 }
 
 describe('ServicoQuadros', () => {
@@ -93,5 +98,50 @@ describe('ServicoQuadros', () => {
     expect(fechados).toEqual([a.id])
     expect(estado().quadros.map((q) => q.id)).toEqual([b.id])
     expect(() => servico.remover(a.id)).toThrow('Quadro não encontrado')
+  })
+
+  it('agente do Claude nasce com conversa propria; terminal e Codex nao', () => {
+    const { servico } = montar()
+    expect(servico.criar('r1', 'agente', 'principal').sessaoId).toBe('s1')
+    expect(servico.criar('r1', 'terminal', 'principal').sessaoId).toBeUndefined()
+    expect(servico.criar('r1', 'agente', 'cx:x').sessaoId).toBeUndefined()
+  })
+
+  it('comSessao da conversa a quadro antigo e guarda; nao troca a que ja existe', () => {
+    const { servico, estado } = montar()
+    const q = servico.criar('r1', 'agente', 'principal')
+    expect(servico.comSessao(q.id).sessaoId).toBe('s1')
+    const antigo = estado().quadros[0]
+    if (antigo) delete antigo.sessaoId
+    expect(servico.comSessao(q.id).sessaoId).toBe('s2')
+    expect(estado().quadros[0]?.sessaoId).toBe('s2')
+  })
+
+  it('trocarConta: fecha o terminal, copia a conversa e muda so a conta', async () => {
+    const { servico, fechados, copias, estado } = montar()
+    const q = servico.criar('r1', 'agente', 'principal', { x: 5, y: 6 })
+    const trocado = await servico.trocarConta(q.id, 'pessoal')
+    expect(fechados).toEqual([q.id])
+    expect(copias).toEqual(['C:\\principal -> C:\\pessoal: s1'])
+    expect(trocado).toMatchObject({ id: q.id, repoId: 'r1', perfilId: 'pessoal', sessaoId: 's1' })
+    expect(trocado.caixa).toMatchObject({ x: 5, y: 6 })
+    expect(estado().repos.find((r) => r.id === 'r1')?.perfilPadraoId).toBe('pessoal')
+  })
+
+  it('trocarConta para a mesma conta nao faz nada; conta inexistente falha antes de fechar', async () => {
+    const { servico, fechados } = montar()
+    const q = servico.criar('r1', 'agente', 'principal')
+    await servico.trocarConta(q.id, 'principal')
+    await expect(servico.trocarConta(q.id, 'nada')).rejects.toThrow('Conta não encontrada')
+    expect(fechados).toEqual([])
+  })
+
+  it('trocarConta de terminal ou de Codex: nao copia conversa', async () => {
+    const { servico, copias } = montar()
+    const t = servico.criar('r1', 'terminal', 'principal')
+    await servico.trocarConta(t.id, 'pessoal')
+    const c = servico.criar('r1', 'agente', 'cx:x')
+    await servico.trocarConta(c.id, 'pessoal')
+    expect(copias).toEqual([])
   })
 })

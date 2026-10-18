@@ -4,6 +4,7 @@ import { dirname } from 'node:path'
 import { z } from 'zod'
 import type { EstadoSalvo } from '../../shared/model'
 import { log } from '../log'
+import { FORMATO_SESSAO } from '../quadros/sessoes'
 import { migrar } from './migrar'
 
 const Caixa = z.object({ x: z.number(), y: z.number(), largura: z.number(), altura: z.number() })
@@ -36,6 +37,7 @@ const SchemaEstado = z.object({
       tipo: z.enum(['terminal', 'agente']),
       titulo: z.string(),
       caixa: Caixa,
+      sessaoId: z.string().regex(FORMATO_SESSAO).optional(),
     }),
   ),
   viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),

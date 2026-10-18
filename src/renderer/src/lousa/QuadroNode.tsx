@@ -1,31 +1,38 @@
 import { NodeResizer, type NodeProps } from '@xyflow/react'
 import { Terminal } from '../componentes/Terminal'
+import { ContaDoQuadro } from './ContaDoQuadro'
 import type { QuadroNo } from './nos'
 
-/** Quadro solto na lousa (D13): titulo, conta (com a cor dela) e pasta no cabecalho. */
+/**
+ * Quadro solto na lousa (D13, D14): a pasta da o nome (onde o trabalho fica) e o selo
+ * diz a conta (quem paga). Trocar a conta remonta o terminal, que retoma a conversa.
+ */
 export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.Element {
-  const { quadro, perfil, repo, acoes } = data
+  const { quadro, perfil, repo, rotulo, contas, acoes } = data
   return (
     <div className="quadro" data-quadro={quadro.id} style={{ '--cor': perfil?.cor ?? '#555' } as React.CSSProperties}>
       <NodeResizer minWidth={360} minHeight={220} isVisible={selected} />
       <header className="cabecalho-quadro">
-        <span className="quadro-titulo">{quadro.titulo}</span>
-        <span className="quadro-conta" title={perfil?.conta.email ?? undefined}>
-          {perfil?.nome ?? 'conta não encontrada'}
-        </span>
         <span className="quadro-pasta" title={repo.caminho}>
-          {repo.nome}
+          <span aria-hidden="true">📁</span> {rotulo}
         </span>
+        {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}
+        <ContaDoQuadro
+          perfil={perfil}
+          contas={contas}
+          tipo={quadro.tipo}
+          aoTrocar={(perfilId) => acoes.trocarConta(quadro.id, perfilId)}
+        />
         <button
           className="botao-fechar nodrag"
-          aria-label={`Fechar ${quadro.titulo}`}
+          aria-label={`Fechar ${rotulo}`}
           onClick={() => acoes.removerQuadro(quadro.id)}
         >
           ×
         </button>
       </header>
       <div className="quadro-corpo">
-        <Terminal alvo={{ tipo: 'quadro', quadroId: quadro.id }} />
+        <Terminal key={quadro.perfilId} alvo={{ tipo: 'quadro', quadroId: quadro.id }} />
       </div>
     </div>
   )

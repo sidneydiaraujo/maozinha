@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { EstadoTela, PerfilComConta } from '../../../shared/model'
 import { algumQuadroVisivel, caixaDoNo, montarNos, type AcoesLousa } from './nos'
 
-const acoes: AcoesLousa = { removerQuadro: () => undefined }
+const acoes: AcoesLousa = { removerQuadro: () => undefined, trocarConta: async () => {} }
 const caixa = { x: 10, y: 20, largura: 300, altura: 200 }
 const perfil = (id: string): PerfilComConta => ({
   id, provedor: 'claude', nome: id, cor: '#123456', configDir: '', ehPadrao: false, raizes: [],
@@ -31,6 +31,15 @@ describe('montarNos', () => {
   it('cada quadro leva a sua conta e a pasta, mesmo na mesma pasta', () => {
     expect(nos.map((n) => n.data.perfil?.id)).toEqual(['principal', 'pessoal'])
     expect(nos.map((n) => n.data.repo.nome)).toEqual(['app', 'app'])
+  })
+
+  it('o nome e a pasta, numerada a partir do segundo quadro nela (D14)', () => {
+    expect(nos.map((n) => n.data.rotulo)).toEqual(['app', 'app 2'])
+  })
+
+  it('o quadro pode ir para qualquer conta do mesmo provedor', () => {
+    const comCodex = { ...estado, perfis: [...estado.perfis, { ...perfil('cx:x'), provedor: 'codex' as const }] }
+    expect(montarNos(comCodex, acoes)[0]?.data.contas.map((p) => p.id)).toEqual(['principal', 'pessoal'])
   })
 
   it('posicao e tamanho vem da caixa salva', () => {

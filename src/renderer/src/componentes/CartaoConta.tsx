@@ -1,5 +1,5 @@
 import { useState, type CSSProperties, type KeyboardEvent } from 'react'
-import type { PerfilComConta } from '../../../shared/model'
+import type { PerfilComConta, StatusConta } from '../../../shared/model'
 import { TIPO_ARRASTE_CONTA } from '../lousa/nos'
 import { JanelaLogin } from './JanelaLogin'
 
@@ -7,10 +7,12 @@ interface Props {
   perfil: PerfilComConta
   aoRenomear(nome: string): Promise<void>
   aoAtualizar(): Promise<void>
-  /** "+ Agente": abre o "Novo quadro" com esta conta. */
-  aoAbrir(): void
+  /** O login terminou: a conta ja foi lida de novo. */
+  aoEntrou(conta: StatusConta): void
   /** Ex.: "mesmo e-mail da conta Principal". */
   aviso?: string
+  /** O aviso que este e-mail geraria (para a janela de login avisar na hora). */
+  conferirEmail(email: string): string | undefined
 }
 
 const NOME_DO_PROVEDOR = { claude: 'Claude', codex: 'Codex' } as const
@@ -19,10 +21,9 @@ interface AcoesProps {
   logado: boolean
   aoAtualizar(): Promise<void>
   aoEntrar(): void
-  aoAbrir(): void
 }
 
-function AcoesCartao({ logado, aoAtualizar, aoEntrar, aoAbrir }: AcoesProps): React.JSX.Element {
+function AcoesCartao({ logado, aoAtualizar, aoEntrar }: AcoesProps): React.JSX.Element {
   const [atualizando, setAtualizando] = useState(false)
   async function atualizar(): Promise<void> {
     setAtualizando(true)
@@ -34,9 +35,6 @@ function AcoesCartao({ logado, aoAtualizar, aoEntrar, aoAbrir }: AcoesProps): Re
   }
   return (
     <div className="cartao-acoes">
-      <button className="botao-pequeno botao-agente" title="Ou arraste este cartão para a lousa" onClick={aoAbrir}>
-        + Agente
-      </button>
       <button className="botao-pequeno" disabled={atualizando} onClick={() => void atualizar()}>
         {atualizando ? 'Atualizando…' : 'Atualizar'}
       </button>
@@ -85,7 +83,8 @@ function Avisos({
   )
 }
 
-export function CartaoConta({ perfil, aoRenomear, aoAtualizar, aoAbrir, aviso }: Props): React.JSX.Element {
+export function CartaoConta(props: Props): React.JSX.Element {
+  const { perfil, aoRenomear, aoAtualizar, aoEntrou, aviso, conferirEmail } = props
   const [editando, setEditando] = useState(false)
   const [rascunho, setRascunho] = useState(perfil.nome)
   const [falha, setFalha] = useState<string | null>(null)
@@ -147,13 +146,15 @@ export function CartaoConta({ perfil, aoRenomear, aoAtualizar, aoAbrir, aviso }:
       </header>
       <p className="cartao-email">{email}</p>
       <Avisos perfil={perfil} aviso={aviso} falha={falha} />
-      <AcoesCartao
-        logado={conta.logado}
-        aoAtualizar={aoAtualizar}
-        aoEntrar={() => setEntrando(true)}
-        aoAbrir={aoAbrir}
-      />
-      {entrando && <JanelaLogin perfil={perfil} aoConcluir={aoAtualizar} aoFechar={() => setEntrando(false)} />}
+      <AcoesCartao logado={conta.logado} aoAtualizar={aoAtualizar} aoEntrar={() => setEntrando(true)} />
+      {entrando && (
+        <JanelaLogin
+          perfil={perfil}
+          aoConcluir={aoEntrou}
+          conferirEmail={conferirEmail}
+          aoFechar={() => setEntrando(false)}
+        />
+      )}
     </article>
   )
 }

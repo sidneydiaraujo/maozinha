@@ -1,16 +1,11 @@
 import { useEffect, useState } from 'react'
-import type { PerfilComConta } from '../../../shared/model'
+import type { PerfilComConta, StatusConta } from '../../../shared/model'
 import { CartaoConta } from './CartaoConta'
-import { ListaPastas } from './ListaPastas'
 
 interface Props {
   rodape: string
-  /** Muda quando a lousa cadastrou uma pasta nova. */
-  versaoPastas: number
-  /** Avisa a lousa que conta ou pasta mudou. */
+  /** Avisa a lousa que uma conta mudou (nome, login): os selos dos quadros acompanham. */
   aoMudar(): void
-  /** "+ Agente" num cartao. */
-  aoAbrir(perfilId: string): void
 }
 
 /** Duas contas com o mesmo e-mail quase sempre e o login ter caido na conta errada do navegador. */
@@ -27,10 +22,10 @@ interface ListaProps {
   perfis: PerfilComConta[]
   aoRenomear(perfil: PerfilComConta, nome: string): Promise<void>
   aoAtualizar(perfil: PerfilComConta): Promise<void>
-  aoAbrir(perfilId: string): void
+  aoEntrou(perfil: PerfilComConta, conta: StatusConta): void
 }
 
-function ListaCartoes({ perfis, aoRenomear, aoAtualizar, aoAbrir }: ListaProps): React.JSX.Element {
+function ListaCartoes({ perfis, aoRenomear, aoAtualizar, aoEntrou }: ListaProps): React.JSX.Element {
   return (
     <>
       {perfis.map((p) => (
@@ -39,15 +34,16 @@ function ListaCartoes({ perfis, aoRenomear, aoAtualizar, aoAbrir }: ListaProps):
           perfil={p}
           aoRenomear={(nome) => aoRenomear(p, nome)}
           aoAtualizar={() => aoAtualizar(p)}
-          aoAbrir={() => aoAbrir(p.id)}
+          aoEntrou={(conta) => aoEntrou(p, conta)}
           aviso={avisoDeEmail(p, perfis)}
+          conferirEmail={(email) => avisoDeEmail({ ...p, conta: { ...p.conta, email } }, perfis)}
         />
       ))}
     </>
   )
 }
 
-export function BarraContas({ rodape, versaoPastas, aoMudar, aoAbrir }: Props): React.JSX.Element {
+export function BarraContas({ rodape, aoMudar }: Props): React.JSX.Element {
   const [perfis, setPerfis] = useState<PerfilComConta[] | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   useEffect(() => {
@@ -78,7 +74,7 @@ export function BarraContas({ rodape, versaoPastas, aoMudar, aoAbrir }: Props): 
   return (
     <aside className="barra">
       <h1 className="barra-titulo">Contas</h1>
-      <p className="barra-dica">Arraste uma conta para a lousa ou use “+ Agente”.</p>
+      <p className="barra-dica">Quem paga cada quadro. Arraste uma conta para a lousa para abrir um quadro nela.</p>
       <div className="barra-lista">
         {erro && (
           <p className="erro" role="alert">
@@ -87,8 +83,17 @@ export function BarraContas({ rodape, versaoPastas, aoMudar, aoAbrir }: Props): 
         )}
         {!erro && perfis === null && <p className="apagado">Lendo contas…</p>}
         {perfis?.length === 0 && <p className="apagado">Nenhuma conta do Claude Code neste PC.</p>}
-        {perfis && <ListaCartoes perfis={perfis} aoRenomear={renomear} aoAtualizar={atualizar} aoAbrir={aoAbrir} />}
-        <ListaPastas versao={versaoPastas} aoRemover={aoMudar} />
+        {perfis && (
+          <ListaCartoes
+            perfis={perfis}
+            aoRenomear={renomear}
+            aoAtualizar={atualizar}
+            aoEntrou={(perfil, conta) => {
+              trocar({ ...perfil, conta })
+              aoMudar()
+            }}
+          />
+        )}
       </div>
       <footer className="barra-rodape">{rodape}</footer>
     </aside>

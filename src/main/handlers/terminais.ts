@@ -6,6 +6,7 @@ import { montarAmbiente } from '../perfis/ambiente'
 import type { ServicoPerfis } from '../perfis/servico'
 import type { ServicoQuadros } from '../quadros/servico'
 import type { ServicoRepos } from '../repos/servico'
+import { acharSessao } from '../quadros/sessoes'
 import { resolverAlvo } from '../terminais/alvo'
 import type { ServicoTerminais } from '../terminais/servico'
 
@@ -29,8 +30,9 @@ export function registrarHandlersTerminais(
     const r = resolverAlvo(alvo, {
       home,
       obterPerfil: (id) => perfis.obter(id),
-      obterQuadro: (id) => quadros.obter(id),
+      obterQuadro: (id) => quadros.comSessao(id),
       obterRepo: (id) => repos.obter(id),
+      existeSessao: (configDir, sessaoId) => acharSessao(configDir, sessaoId) !== null,
     })
     const { bufferInicial } = terminais.abrir({
       terminalId: r.terminalId,

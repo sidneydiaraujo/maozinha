@@ -7,12 +7,17 @@ const perfil = (id: string, provedor: Perfil['provedor']): Perfil => ({
 })
 const perfis = [perfil('principal', 'claude'), perfil('pessoal', 'claude'), perfil('cx:x', 'codex')]
 const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
+const SESSAO = '6d6af6e2-54e2-4c60-905c-497cd36f8073'
+const NOVA = '00000000-54e2-4c60-905c-497cd36f8073'
 const repos: Repo[] = [{ id: 'r1', nome: 'app', caminho: 'C:\\empresa\\app', perfilPadraoId: 'principal' }]
 const quadros: Quadro[] = [
   { id: 'q1', repoId: 'r1', perfilId: 'principal', tipo: 'agente', titulo: 'Claude 1', caixa },
   { id: 'q2', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'Claude 2', caixa },
   { id: 'q3', repoId: 'r1', perfilId: 'cx:x', tipo: 'agente', titulo: 'Codex 1', caixa },
   { id: 'q4', repoId: 'r1', perfilId: 'pessoal', tipo: 'terminal', titulo: 'Terminal 1', caixa },
+  { id: 'q5', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'app', caixa, sessaoId: SESSAO },
+  { id: 'q6', repoId: 'r1', perfilId: 'principal', tipo: 'agente', titulo: 'app 2', caixa, sessaoId: SESSAO },
+  { id: 'q7', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'app 3', caixa, sessaoId: NOVA },
 ]
 
 const achar = <T extends { id: string }>(lista: T[], id: string, erro: string): T => {
@@ -25,6 +30,7 @@ const deps: DepsAlvo = {
   obterPerfil: (id) => achar(perfis, id, 'Conta não encontrada'),
   obterQuadro: (id) => achar(quadros, id, 'Quadro não encontrado'),
   obterRepo: (id) => achar(repos, id, 'Repositório não encontrado'),
+  existeSessao: (configDir, id) => configDir === 'C:\\pessoal' && id === SESSAO,
 }
 
 describe('resolverAlvo: login', () => {
@@ -33,12 +39,12 @@ describe('resolverAlvo: login', () => {
     expect(r).toMatchObject({
       terminalId: 'login:principal',
       cwd: 'C:\\Users\\x',
-      comandoInicial: 'claude auth login; if ($?) { exit }\r',
+      comandoInicial: 'claude auth login; exit $LASTEXITCODE\r',
     })
   })
 
   it('conta Codex usa o comando do Codex', () => {
-    expect(resolverAlvo({ tipo: 'login', perfilId: 'cx:x' }, deps).comandoInicial).toBe('codex login; if ($?) { exit }\r')
+    expect(resolverAlvo({ tipo: 'login', perfilId: 'cx:x' }, deps).comandoInicial).toBe('codex login; exit $LASTEXITCODE\r')
   })
 
   it('conta inexistente propaga o erro', () => {
@@ -67,5 +73,23 @@ describe('resolverAlvo: quadro', () => {
 
   it('quadro inexistente falha', () => {
     expect(() => resolverAlvo({ tipo: 'quadro', quadroId: 'nada' }, deps)).toThrow('Quadro não encontrado')
+  })
+})
+
+describe('resolverAlvo: conversa do quadro (T6.1)', () => {
+  const comando = (quadroId: string): string | undefined =>
+    resolverAlvo({ tipo: 'quadro', quadroId }, deps).comandoInicial
+
+  it('conversa ja gravada na pasta da conta: retoma', () => {
+    expect(comando('q5')).toBe(`claude --resume ${SESSAO}\r`)
+  })
+
+  it('mesma conversa, mas a conta do quadro nao tem o arquivo: abre com o id escolhido', () => {
+    expect(comando('q6')).toBe(`claude --session-id ${SESSAO}\r`)
+    expect(comando('q7')).toBe(`claude --session-id ${NOVA}\r`)
+  })
+
+  it('quadro antigo sem conversa: claude puro', () => {
+    expect(comando('q1')).toBe('claude\r')
   })
 })

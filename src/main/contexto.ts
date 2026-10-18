@@ -11,6 +11,7 @@ import { executarReal, lerStatusConta, localizarClaude } from './perfis/conta'
 import { depsReais, detectarPerfis } from './perfis/detectar'
 import { ServicoPerfis } from './perfis/servico'
 import { ServicoQuadros } from './quadros/servico'
+import { copiarSessao } from './quadros/sessoes'
 import { ServicoRepos } from './repos/servico'
 import { ServicoTerminais } from './terminais/servico'
 import { spawnReal } from './terminais/spawnReal'
@@ -76,6 +77,9 @@ export function criarContexto(): Contexto {
     perfis,
     fecharTerminal: (id) => terminais.fechar(id),
     novoId: randomUUID,
+    novaSessao: randomUUID,
+    copiarSessao,
+    esperar: (ms) => new Promise((r) => setTimeout(r, ms)),
   })
   return { perfis, repos, quadros, armazem, terminais }
 }

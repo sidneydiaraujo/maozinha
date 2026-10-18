@@ -1,13 +1,23 @@
-// Converte o estado salvo em nos do React Flow (T3.4b, D13: so quadros, soltos). Funcao pura, testavel.
+// Converte o estado salvo em nos do React Flow (T3.4b, D13: so quadros, soltos; D14: a pasta da o nome). Funcao pura.
 import type { Node } from '@xyflow/react'
 import type { Caixa, EstadoTela, PerfilComConta, Quadro, Repo, Viewport } from '../../../shared/model'
 
 export interface AcoesLousa {
   removerQuadro(quadroId: string): void
+  trocarConta(quadroId: string, perfilId: string): Promise<void>
 }
 
 export type QuadroNo = Node<
-  { quadro: Quadro; perfil: PerfilComConta | undefined; repo: Repo; acoes: AcoesLousa },
+  {
+    quadro: Quadro
+    perfil: PerfilComConta | undefined
+    repo: Repo
+    /** Nome no cabecalho: a pasta, numerada se tiver mais de um quadro nela. */
+    rotulo: string
+    /** Contas para onde este quadro pode ir (mesmo provedor: a conversa vai junto). */
+    contas: PerfilComConta[]
+    acoes: AcoesLousa
+  },
   'quadro'
 >
 
@@ -29,9 +39,13 @@ export function caixaDoNo(no: Node): Caixa {
 /** Quadro de pasta que ja nao existe some (remover a pasta fecha os quadros dela). */
 export function montarNos(estado: EstadoTela, acoes: AcoesLousa): QuadroNo[] {
   const repos = new Map(estado.repos.map((r) => [r.id, r]))
+  const porPasta = new Map<string, number>()
   return estado.quadros.flatMap((quadro): QuadroNo[] => {
     const repo = repos.get(quadro.repoId)
     if (!repo) return []
+    const ordem = (porPasta.get(repo.id) ?? 0) + 1
+    porPasta.set(repo.id, ordem)
+    const perfil = estado.perfis.find((p) => p.id === quadro.perfilId)
     return [
       {
         id: quadro.id,
@@ -39,7 +53,14 @@ export function montarNos(estado: EstadoTela, acoes: AcoesLousa): QuadroNo[] {
         position: { x: quadro.caixa.x, y: quadro.caixa.y },
         style: { width: quadro.caixa.largura, height: quadro.caixa.altura },
         dragHandle: '.cabecalho-quadro',
-        data: { quadro, perfil: estado.perfis.find((p) => p.id === quadro.perfilId), repo, acoes },
+        data: {
+          quadro,
+          perfil,
+          repo,
+          rotulo: ordem === 1 ? repo.nome : `${repo.nome} ${ordem}`,
+          contas: estado.perfis.filter((p) => !perfil || p.provedor === perfil.provedor),
+          acoes,
+        },
       },
     ]
   })

@@ -3,7 +3,7 @@ import { useCallback, useState, type Dispatch, type RefObject, type SetStateActi
 import type { EstadoTela, Posicao, Repo, TipoQuadro } from '../../../shared/model'
 import { TIPO_ARRASTE_CONTA, type QuadroNo } from './nos'
 
-/** Tamanho do quadro novo (igual ao do main): o "+ Agente" centraliza o quadro na vista. */
+/** Tamanho do quadro novo (igual ao do main): o "+ Novo quadro" centraliza o quadro na vista. */
 const METADE_QUADRO = { x: 320, y: 210 }
 const METADE_JANELA = { x: 170, y: 200 }
 
@@ -22,8 +22,8 @@ interface Opcoes {
 }
 
 /**
- * As tres portas para o "Novo quadro" (T5.3): duplo clique no vazio, soltar uma conta
- * arrastada da barra e o "+ Agente" do cartao. Todas abrem a mesma janelinha.
+ * As tres portas para o "Novo quadro" (T5.3, D14): o botao "+ Novo quadro", duplo clique no
+ * vazio e soltar uma conta arrastada da barra. Todas abrem a mesma janelinha.
  */
 export function useNovoQuadro({ instancia, area, setEstado }: Opcoes) {
   const [novo, setNovo] = useState<PedidoNovo | null>(null)
@@ -33,8 +33,9 @@ export function useNovoQuadro({ instancia, area, setEstado }: Opcoes) {
     [instancia],
   )
 
+  /** Botao "+ Novo quadro": sem conta marcada, a janelinha sugere a ultima usada na pasta. */
   const abrirNoCentro = useCallback(
-    (perfilId: string) => {
+    (perfilId?: string) => {
       const r = area.current?.getBoundingClientRect()
       const centro = r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: 600, y: 400 }
       const lousa = naLousa(centro)

@@ -42,10 +42,11 @@ export type TipoQuadro = 'terminal' | 'agente' // 'agente' digita o CLI do prove
 export interface Quadro {
   id: string
   repoId: string
-  perfilId: PerfilId  // conta DESTE quadro; fixa. Trocar de conta = remover e criar outro
+  perfilId: PerfilId  // conta DESTE quadro (quem paga); trocar = quadros:trocarConta, a conversa vai junto (D14)
   tipo: TipoQuadro
   titulo: string
   caixa: Caixa        // posição e tamanho na lousa
+  sessaoId?: string   // conversa do Claude neste quadro (agente): o Lousa escolhe e retoma com --resume
 }
 
 export interface Viewport { x: number; y: number; zoom: number }

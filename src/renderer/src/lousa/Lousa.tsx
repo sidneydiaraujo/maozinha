@@ -23,12 +23,8 @@ import { useSalvarLayout } from './useSalvarLayout'
 const nodeTypes = { quadro: QuadroNode }
 
 interface Props {
-  /** Muda quando algo fora da lousa (conta, pasta) mudou: a lousa recarrega. */
+  /** Muda quando algo fora da lousa (nome de conta) mudou: a lousa recarrega. */
   versao: number
-  /** "+ Agente" num cartao: abre o "Novo quadro" com essa conta. Muda a cada clique. */
-  pedido: { perfilId: string; vez: number } | null
-  /** Uma pasta nova entrou pela janelinha: a barra lateral atualiza a lista. */
-  aoMudarPastas(): void
 }
 
 /** Mantem posicao/tamanho que o usuario acabou de ajustar quando o estado e recarregado. */
@@ -65,10 +61,23 @@ function useEstadoLousa(versao: number) {
           .then(() => setEstado((e) => (e ? { ...e, quadros: e.quadros.filter((q) => q.id !== quadroId) } : e)))
           .catch(falhou)
       },
+      // Erro aqui aparece no menu da conta (quem chamou), nao no topo da lousa.
+      trocarConta: async (quadroId, perfilId) => {
+        const novo = await window.lousa.quadros.trocarConta(quadroId, perfilId)
+        setEstado((e) => (e ? { ...e, quadros: e.quadros.map((q) => (q.id === quadroId ? novo : q)) } : e))
+      },
     }),
     [falhou],
   )
-  return { estado, setEstado, erro, falhou, acoes }
+  const tirarPasta = useCallback(async (repoId: string) => {
+    await window.lousa.repos.remover(repoId)
+    setEstado((e) =>
+      e
+        ? { ...e, repos: e.repos.filter((r) => r.id !== repoId), quadros: e.quadros.filter((q) => q.repoId !== repoId) }
+        : e,
+    )
+  }, [])
+  return { estado, setEstado, erro, falhou, acoes, tirarPasta }
 }
 
 function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React.JSX.Element {
@@ -81,20 +90,19 @@ function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React
       )}
       {vazia && (
         <p className="lousa-vazia">
-          Arraste uma conta da barra para cá, dê duplo clique aqui ou use “+ Agente” num cartão.
+          Clique em “+ Novo quadro”, dê duplo clique aqui ou arraste uma conta da barra para cá.
         </p>
       )}
     </>
   )
 }
 
-export function Lousa({ versao, pedido, aoMudarPastas }: Props): React.JSX.Element {
-  const { estado, setEstado, erro, falhou, acoes } = useEstadoLousa(versao)
+export function Lousa({ versao }: Props): React.JSX.Element {
+  const { estado, setEstado, erro, falhou, acoes, tirarPasta } = useEstadoLousa(versao)
   const [nos, setNos, aoMudarNos] = useNodesState<QuadroNo>([])
   const instancia = useRef<ReactFlowInstance<QuadroNo> | null>(null)
   const area = useRef<HTMLDivElement>(null)
   const novo = useNovoQuadro({ instancia, area, setEstado })
-  const { abrirNoCentro } = novo
 
   const { aoMudar, aoMoverVista } = useSalvarLayout({
     nos,
@@ -107,9 +115,6 @@ export function Lousa({ versao, pedido, aoMudarPastas }: Props): React.JSX.Eleme
   useEffect(() => {
     if (estado) setNos((atuais) => preservarGeometria(montarNos(estado, acoes), atuais))
   }, [estado, acoes, setNos])
-  useEffect(() => {
-    if (pedido) abrirNoCentro(pedido.perfilId)
-  }, [pedido, abrirNoCentro])
 
   return (
     <div
@@ -121,6 +126,11 @@ export function Lousa({ versao, pedido, aoMudarPastas }: Props): React.JSX.Eleme
       onDrop={novo.aoSoltar}
     >
       <Avisos erro={erro} vazia={estado?.quadros.length === 0} />
+      {estado && (
+        <button className="botao-novo-quadro" onClick={() => novo.abrirNoCentro()}>
+          + Novo quadro
+        </button>
+      )}
       {estado && (
         <ReactFlow
           nodes={nos}
@@ -156,10 +166,8 @@ export function Lousa({ versao, pedido, aoMudarPastas }: Props): React.JSX.Eleme
           perfilInicial={novo.novo.perfilId}
           tela={novo.novo.tela}
           aoCriar={novo.criar}
-          aoNovaPasta={(repo) => {
-            novo.pastaNova(repo)
-            aoMudarPastas()
-          }}
+          aoNovaPasta={novo.pastaNova}
+          aoTirarPasta={tirarPasta}
           aoCancelar={novo.cancelar}
         />
       )}

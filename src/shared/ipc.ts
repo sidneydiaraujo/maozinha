@@ -26,6 +26,7 @@ export const IPC = {
   reposRemover: 'repos:remover',
   quadrosCriar: 'quadros:criar',
   quadrosRemover: 'quadros:remover',
+  quadrosTrocarConta: 'quadros:trocarConta',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -66,6 +67,8 @@ export interface LousaApi {
     /** `posicao` ausente = ao lado dos outros quadros. */
     criar(repoId: string, tipo: TipoQuadro, perfilId: string, posicao?: Posicao): Promise<Quadro>
     remover(quadroId: string): Promise<void>
+    /** Mesmo quadro e pasta, outra conta: reinicia o terminal e a conversa vai junto (D14). */
+    trocarConta(quadroId: string, perfilId: string): Promise<Quadro>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

@@ -10,10 +10,12 @@ const Criar = z.object({
   posicao: z.object({ x: z.number().finite(), y: z.number().finite() }).optional(),
 })
 const Remover = z.object({ quadroId: z.string().min(1) })
+const TrocarConta = z.object({ quadroId: z.string().min(1), perfilId: z.string().min(1) })
 
 export function registrarHandlersQuadros(quadros: ServicoQuadros): void {
   handle(IPC.quadrosCriar, Criar, ({ repoId, tipo, perfilId, posicao }) =>
     quadros.criar(repoId, tipo, perfilId, posicao),
   )
   handle(IPC.quadrosRemover, Remover, ({ quadroId }) => quadros.remover(quadroId))
+  handle(IPC.quadrosTrocarConta, TrocarConta, ({ quadroId, perfilId }) => quadros.trocarConta(quadroId, perfilId))
 }
