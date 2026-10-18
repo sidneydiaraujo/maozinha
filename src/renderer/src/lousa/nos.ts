@@ -7,6 +7,8 @@ export interface AcoesLousa {
   trocarConta(quadroId: string, perfilId: string): Promise<void>
   /** Caminho clicado no terminal (T8.3): abre no leitor ou no programa do Windows. */
   abrirArquivo(repoId: string, relativo: string): void
+  /** Enquadra o quadro na tela; de novo, volta a vista de antes (T8.4). */
+  ampliar(quadroId: string): void
 }
 
 export type QuadroNo = Node<

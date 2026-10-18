@@ -42,7 +42,13 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
       onMouseDownCapture={() => chamando && atencao.marcarVisto(quadro.id)}
     >
       <NodeResizer minWidth={360} minHeight={220} isVisible={selected} />
-      <header className="cabecalho-quadro">
+      <header
+        className="cabecalho-quadro"
+        title="Duplo clique amplia o quadro na tela"
+        onDoubleClick={(e) => {
+          if (!(e.target as Element).closest('button')) acoes.ampliar(quadro.id)
+        }}
+      >
         <span className="quadro-pasta" title={repo.caminho}>
           <span aria-hidden="true">📁</span> {rotulo}
         </span>
@@ -54,6 +60,14 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           tipo={quadro.tipo}
           aoTrocar={(perfilId) => acoes.trocarConta(quadro.id, perfilId)}
         />
+        <button
+          className="botao-ampliar nodrag"
+          title="Ampliar na tela (de novo para voltar)"
+          aria-label={`Ampliar ${rotulo}`}
+          onClick={() => acoes.ampliar(quadro.id)}
+        >
+          ⤢
+        </button>
         <button
           className="botao-fechar nodrag"
           aria-label={`Fechar ${rotulo}`}

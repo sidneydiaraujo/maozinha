@@ -57,7 +57,8 @@ export class ServicoTerminais {
   constructor(
     private readonly spawn: Spawner,
     private readonly ouvintes: Ouvintes,
-    private readonly limiteBuffer = 200_000,
+    // o bastante para a tela remontada mostrar uma sessao longa (T8.4: era 200 KB)
+    private readonly limiteBuffer = 1_000_000,
   ) {}
 
   /** Id ja aberto: devolve o buffer e nao abre outro shell. Id que ja saiu: abre um novo. */

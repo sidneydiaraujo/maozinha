@@ -5,6 +5,7 @@ import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
 import type { AlvoTerminal, AvisoAgente } from '../../../shared/model'
 import '../estilos/terminal.css'
+import { guardarFonte, lerFonte, proximaFonte } from './fonte'
 import { arquivoDeUri, ligarLinks, type AcoesLink } from './links'
 import { ligarTeclas } from './teclas'
 
@@ -30,11 +31,15 @@ function abrirUri(uri: string, acoes: AcoesLink): void {
   else if (acoes.arquivo?.aceita(arquivo)) acoes.arquivo.abrir(arquivo)
 }
 
-function criarXterm(el: HTMLElement, acoes: () => AcoesLink): { term: XTerm; ajustar: FitAddon } {
+/** Linhas que a rolagem guarda (T8.4): uma sessao longa do Claude passa das 1.000 do padrao. */
+const HISTORICO = 10_000
+
+function criarXterm(el: HTMLElement, fonte: number, acoes: () => AcoesLink): { term: XTerm; ajustar: FitAddon } {
   const term = new XTerm({
     cursorBlink: true,
     fontFamily: 'Cascadia Mono, Consolas, monospace',
-    fontSize: 13,
+    fontSize: fonte,
+    scrollback: HISTORICO,
     theme: { background: '#0b0d12' },
     // Necessario para term.unicode (API marcada como "proposta" no xterm).
     allowProposedApi: true,
@@ -51,21 +56,45 @@ function criarXterm(el: HTMLElement, acoes: () => AcoesLink): { term: XTerm; aju
   return { term, ajustar }
 }
 
+/** Ctrl+roda dentro do terminal muda a letra (sem zoom na lousa nem na pagina). */
+function ligarFonte(term: XTerm, chave: string, reajustar: () => void): void {
+  term.attachCustomWheelEventHandler((e) => {
+    if (!e.ctrlKey) return true
+    e.preventDefault()
+    const tamanho = proximaFonte(term.options.fontSize ?? 13, e.deltaY)
+    if (tamanho !== term.options.fontSize) {
+      term.options.fontSize = tamanho
+      guardarFonte(chave, tamanho)
+      reajustar()
+    }
+    return false
+  })
+}
+
 /** Reajusta colunas e linhas quando o quadro muda de tamanho (100 ms depois do ultimo ajuste). */
-function acompanharTamanho(el: HTMLElement, term: XTerm, ajustar: FitAddon, id: () => string | null): () => void {
+function acompanharTamanho(
+  el: HTMLElement,
+  term: XTerm,
+  ajustar: FitAddon,
+  id: () => string | null,
+): { reajustar(): void; parar(): void } {
   let relogio: ReturnType<typeof setTimeout> | undefined
-  const observador = new ResizeObserver(() => {
+  const reajustar = (): void => {
     clearTimeout(relogio)
     relogio = setTimeout(() => {
       ajustar.fit()
       const terminalId = id()
       if (terminalId) void window.lousa.terminais.redimensionar(terminalId, term.cols, term.rows)
     }, 100)
-  })
+  }
+  const observador = new ResizeObserver(reajustar)
   observador.observe(el)
-  return () => {
-    clearTimeout(relogio)
-    observador.disconnect()
+  return {
+    reajustar,
+    parar: () => {
+      clearTimeout(relogio)
+      observador.disconnect()
+    },
   }
 }
 
@@ -83,7 +112,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
     const el = recipiente.current
     if (!el) return
     const acoesLink = (): AcoesLink => ({ abrirUrl, arquivo: atual.current.arquivos })
-    const { term, ajustar } = criarXterm(el, acoesLink)
+    const { term, ajustar } = criarXterm(el, lerFonte(chave), acoesLink)
     let terminalId: string | null = null
     let ativo = true
     const escrever = (dados: string): void => {
@@ -111,11 +140,12 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
     const digitou = term.onData(escrever)
     const desligarTeclas = ligarTeclas(term, el, escrever)
     const links = ligarLinks(term, acoesLink)
-    const pararTamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
+    const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
+    ligarFonte(term, chave, tamanho.reajustar)
 
     return () => {
       ativo = false
-      pararTamanho()
+      tamanho.parar()
       links.dispose()
       desligarTeclas()
       digitou.dispose()

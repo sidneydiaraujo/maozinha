@@ -100,3 +100,18 @@
 .topo-chamadas:hover {
   filter: brightness(1.1);
 }
+
+.botao-ampliar {
+  padding: 0 2px;
+  font: inherit;
+  font-size: 15px;
+  line-height: 1;
+  color: var(--apagado);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.botao-ampliar:hover {
+  color: var(--texto);
+}

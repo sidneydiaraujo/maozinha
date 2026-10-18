@@ -19,6 +19,7 @@ import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
 import { useNovoQuadro } from './useNovoQuadro'
 import { usePanoMeio } from './usePanoMeio'
+import { useAmpliar } from './useAmpliar'
 import { useMapaAtencao } from './useAtencao'
 import { useSalvarLayout } from './useSalvarLayout'
 
@@ -46,7 +47,8 @@ function preservarGeometria(novos: QuadroNo[], atuais: Node[]): QuadroNo[] {
 /** Vista ainda no valor de fabrica: nunca foi movida, entao ajusta para mostrar tudo. */
 const vistaIntocada = (v: Viewport): boolean => v.x === 0 && v.y === 0 && v.zoom === 1
 
-function useEstadoLousa(versao: number, aoAbrirArquivo: Props['aoAbrirArquivo']) {
+function useEstadoLousa(versao: number, extras: Pick<AcoesLousa, 'abrirArquivo' | 'ampliar'>) {
+  const { abrirArquivo, ampliar } = extras
   const [estado, setEstado] = useState<EstadoTela | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   useEffect(() => {
@@ -73,9 +75,10 @@ function useEstadoLousa(versao: number, aoAbrirArquivo: Props['aoAbrirArquivo'])
         const novo = await window.lousa.quadros.trocarConta(quadroId, perfilId)
         setEstado((e) => (e ? { ...e, quadros: e.quadros.map((q) => (q.id === quadroId ? novo : q)) } : e))
       },
-      abrirArquivo: aoAbrirArquivo,
+      abrirArquivo,
+      ampliar,
     }),
-    [falhou, aoAbrirArquivo],
+    [falhou, abrirArquivo, ampliar],
   )
   const tirarPasta = useCallback(async (repoId: string) => {
     await window.lousa.repos.remover(repoId)
@@ -86,6 +89,22 @@ function useEstadoLousa(versao: number, aoAbrirArquivo: Props['aoAbrirArquivo'])
     )
   }, [])
   return { estado, setEstado, erro, falhou, acoes, tirarPasta }
+}
+
+/** Zoom/posicao antigos podem deixar tudo fora da tela: sem nenhum quadro visivel, enquadra. */
+function enquadrarSeSumiu(i: ReactFlowInstance<QuadroNo>, estado: EstadoTela): void {
+  if (estado.quadros.length > 0 && !algumQuadroVisivel(estado.quadros, estado.viewport)) {
+    window.setTimeout(() => void i.fitView({ maxZoom: 1, duration: 300 }), 50)
+  }
+}
+
+/** A lateral (T7.3) acompanha as pastas e os quadros da lousa. */
+function useAvisarPastas(estado: EstadoTela | null, aoMudarPastas: Props['aoMudarPastas']): void {
+  const repos = estado?.repos
+  const quadros = estado?.quadros
+  useEffect(() => {
+    if (repos && quadros) aoMudarPastas(repos, quadros)
+  }, [repos, quadros, aoMudarPastas])
 }
 
 /** Barra de cima ou notificacao do Windows: enquadra o quadro que pede atencao (T8.2). */
@@ -129,14 +148,14 @@ function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React
 }
 
 export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.JSX.Element {
-  const { estado, setEstado, erro, falhou, acoes, tirarPasta } = useEstadoLousa(versao, aoAbrirArquivo)
-  const repos = estado?.repos
-  const quadros = estado?.quadros
-  useEffect(() => {
-    if (repos && quadros) aoMudarPastas(repos, quadros)
-  }, [repos, quadros, aoMudarPastas])
-  const [nos, setNos, aoMudarNos] = useNodesState<QuadroNo>([])
   const instancia = useRef<ReactFlowInstance<QuadroNo> | null>(null)
+  const ampliar = useAmpliar(instancia)
+  const { estado, setEstado, erro, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
+    abrirArquivo: aoAbrirArquivo,
+    ampliar,
+  })
+  useAvisarPastas(estado, aoMudarPastas)
+  const [nos, setNos, aoMudarNos] = useNodesState<QuadroNo>([])
   const area = useRef<HTMLDivElement>(null)
   const novo = useNovoQuadro({ instancia, area, setEstado })
 
@@ -176,10 +195,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
           nodeTypes={nodeTypes}
           onInit={(i) => {
             instancia.current = i
-            // Zoom/posicao antigos podem deixar tudo fora da tela: sem nenhum quadro visivel, enquadra.
-            if (estado.quadros.length > 0 && !algumQuadroVisivel(estado.quadros, estado.viewport)) {
-              window.setTimeout(() => void i.fitView({ maxZoom: 1, duration: 300 }), 50)
-            }
+            enquadrarSeSumiu(i, estado)
           }}
           colorMode="dark"
           minZoom={0.2}
