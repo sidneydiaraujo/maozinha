@@ -42,7 +42,7 @@ const TEXTO = new Set(
 /** Abertos no programa do Windows: documentos e midia. Nada que execute. */
 const DOCUMENTO = new Set(
   (
-    'pdf doc docx xls xlsx xlsm ppt pptx odt ods odp rtf png jpg jpeg gif webp bmp ico tif tiff ' +
+    'pdf doc docx xls xlsx ppt pptx odt ods odp rtf png jpg jpeg gif webp bmp ico tif tiff ' +
     'heic mp4 mov avi mkv webm mp3 wav ogg m4a flac zip'
   ).split(' '),
 )

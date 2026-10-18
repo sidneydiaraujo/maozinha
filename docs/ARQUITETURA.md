@@ -10,12 +10,13 @@ Coordenação entre agentes, worktrees, diff e navegador ficam para depois.
 ```
 ┌──────────────────────── Electron ────────────────────────┐
 │ main (Node)                         tela (React, sandbox) │
-│  perfis/   detectar, ambiente,       Barra lateral: contas │
-│            conta (auth status)       Lousa (React Flow):   │
-│  repos/    sugerir, serviço           quadros soltos (D13) │
-│  terminais/ serviço (node-pty)        + "Novo quadro"      │
-│  estado/   armazém (estado.json)     Terminal (xterm.js)   │
-│  handlers/ um arquivo por grupo                            │
+│  perfis/   detectar, ambiente,       Barra de cima: contas │
+│            conta (auth status)        (ícones + engrenagem)│
+│  repos/    sugerir, serviço          Lateral: pastas (T7)  │
+│  arquivos/ listar, ler, vigia        Leitor: md e código   │
+│  terminais/ serviço (node-pty)       Lousa (React Flow):   │
+│  estado/   armazém (estado.json)      quadros soltos (D13) │
+│  handlers/ um arquivo por grupo      Terminal (xterm.js)   │
 │        ▲  ipcMain.handle (zod)   preload  window.lousa  ▲  │
 │        └──────────────── contextBridge ──────────────────┘ │
 └───────────────────────────────────────────────────────────┘
@@ -26,7 +27,8 @@ Coordenação entre agentes, worktrees, diff e navegador ficam para depois.
 
 - **main** é o dono do estado e de toda decisão: conta, pasta, comando.
 - **preload** só repassa (`src/preload/index.ts`).
-- **tela** desenha e manda intenções ("abrir quadro q1"), nunca caminhos.
+- **tela** desenha e manda intenções ("abrir quadro q1"), nunca caminhos absolutos. Arquivos
+  (T7.1) vão como `repoId` + caminho relativo, e o main confere que ficam dentro da pasta.
 
 ## Pastas
 
@@ -43,9 +45,11 @@ src/main/perfis/           detectar.ts, ambiente.ts, conta.ts
 src/main/estado/           armazem.ts
 src/main/repos/            sugerir.ts, servico.ts
 src/main/terminais/        servico.ts, spawnReal.ts, smokePty.ts
-src/main/handlers/         app.ts, perfis.ts, terminais.ts, repos.ts, lousa.ts
+src/main/quadros/          servico.ts, sessoes.ts
+src/main/arquivos/         regras.ts, servico.ts, vigia.ts, disco.ts (T7.1)
+src/main/handlers/         app, perfis, terminais, repos, quadros, lousa, arquivos
 src/preload/index.ts       ponte
-src/renderer/src/          App.tsx, componentes/, lousa/, estilos
+src/renderer/src/          App.tsx, topo/, explorador/, leitor/, componentes/, lousa/, estilos/
 ```
 
 ## Tipos do domínio (`src/shared/model.ts`, criado na T1.1)
@@ -121,6 +125,14 @@ export interface EstadoTela {
   quadros: Quadro[]
   viewport: Viewport
 }
+
+// Pastas na lateral (T7.1): a tela fala em repoId + caminho relativo com '/'
+export interface ItemArquivo { nome: string; pasta: boolean }
+export interface ConteudoArquivo {
+  tipo: 'texto' | 'binario' | 'grande' // grande = acima de 2 MB
+  texto: string; tamanho: number; podeAbrirFora: boolean
+}
+export type Abertura = { onde: 'fora' } | { onde: 'leitor'; conteudo: ConteudoArquivo }
 ```
 
 ## Canais de IPC (todos em `src/shared/ipc.ts`)
@@ -145,6 +157,14 @@ export interface EstadoTela {
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
+| `arquivos:listar` | `{ repoId, relativo }` | `ItemArquivo[]` (ordem do VSCode, sem `.git` e afins) | T7.1 |
+| `arquivos:abrir` | `{ repoId, relativo }` | `Abertura` (documento abre no Windows; texto volta para o leitor) | T7.1 |
+| `arquivos:ler` | `{ repoId, relativo }` | `ConteudoArquivo` | T7.1 |
+| `arquivos:abrirFora` | `{ repoId, relativo }` | — (só documento/mídia/texto que o programa só mostra) | T7.1 |
+| `arquivos:mostrarNaPasta` | `{ repoId, relativo }` | — | T7.1 |
+| `arquivos:abrirLink` | `{ url }` | — (só `http`/`https`, no navegador) | T7.1 |
+| `arquivos:vigiar` | — | — (vigia as pastas salvas, para as removidas) | T7.1 |
+| evento `arquivos:mudou` | — | `{ repoId, caminhos }` (lote de 75 ms, sem git/dependências/builds) | T7.1 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
 `powershell -NoProfile -Command "claude auth login; exit $LASTEXITCODE"`, sem terminal na tela).
@@ -193,7 +213,10 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
 - CSP no build (`electron.vite.config.ts`); navegação e `window.open` negados;
   pedidos de permissão negados.
 - IPC: origem conferida (`isTrustedUrl`) e entrada validada (zod) em `handle()`.
-- Nenhuma biblioteca de rastreamento; o app não acessa a rede.
+- Arquivos (T7.1): a tela manda `repoId` + caminho relativo; o main monta o caminho a partir
+  do repo salvo e recusa o que sai da pasta. Clicar num arquivo nunca roda nada: script e
+  executável só têm "Mostrar na pasta". O md é formatado com `html: false`.
+- Nenhuma biblioteca de rastreamento; o app não acessa a rede (links do md abrem no navegador).
 
 ## Testes
 

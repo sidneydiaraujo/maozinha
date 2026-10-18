@@ -67,6 +67,7 @@ describe('comoAbrir e podeAbrirFora', () => {
 
   it('nunca manda para fora o que pode rodar', () => {
     for (const nome of [
+      'planilha.xlsm',
       'setup.exe',
       'rodar.bat',
       'x.cmd',

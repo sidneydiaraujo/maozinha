@@ -4,7 +4,7 @@ Quem executa: Sidney. Marque cada item e anote o que falhou. O que falhar vira t
 Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 
 - [ ] 1. Instalar `release/Lousa.ia Setup 0.0.1.exe` e abrir pelo Menu Iniciar. (Windows pode avisar "editor desconhecido": não há assinatura.)
-- [ ] 2. A barra mostra as contas do PC com e-mail. Renomear "Principal" para "Empresa" (duplo clique no nome).
+- [ ] 2. A barra de cima mostra um ícone por conta (bolinha verde = logada). Clique no ícone: aparece o cartão com o e-mail. Renomear "Principal" para "Empresa" (duplo clique no nome).
 - [ ] 3. "Entrar"/"Trocar login": a janela não mostra terminal; anima "Abrindo o navegador" → "Autorize no navegador" → ✓ com o e-mail e fecha sozinha. Para outro e-mail: "Copiar link", janela anônima e, se pedir, colar o código.
 - [ ] 4. "+ Novo quadro" (ou arrastar o cartão "Pessoal" para a lousa) → "Outra pasta…" → uma pasta em `C:\Users\sidne\pessoal\` → "Abrir agente": o cabeçalho mostra 📁 a pasta e o selo da conta.
 - [ ] 5. Duplo clique no vazio → marcar "Empresa" → pasta da empresa → Enter.
@@ -19,3 +19,9 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 - [ ] 14. Num agente com conversa: selo da conta → outra conta → "Trocar": o Claude reinicia na mesma pasta e continua a mesma conversa (pergunte algo que só a conversa sabe).
 - [ ] 15. Fechar e abrir a Lousa: cada agente retoma a sua conversa.
 - [ ] 16. Uma resposta do Claude com tabela e emoji (❌ 🟡 ✅): nenhuma palavra quebrada ou misturada.
+- [ ] 17. Engrenagem (canto de cima, à esquerda): painel com todas as contas. "+ Nova conta" → Claude → "Teste" cria o ícone e o cartão "Teste" (sem login); "Entrar" nele abre o login. (Para apagar depois: a pasta `C:\Users\sidne\.claude-teste`.)
+- [ ] 18. Arrastar o ícone de uma conta (no alto) para a lousa abre a janela "Novo quadro" com essa conta.
+- [ ] 19. Lateral "Pastas": cada pasta em uso aparece com bolinhas das contas dos quadros dela; clicar abre e fecha em cascata; `.git` não aparece.
+- [ ] 20. Peça a um agente para criar ou mudar um `.md`: o arquivo aparece em "Alterados agora", fica amarelo na árvore (a marca sobe pelas pastas) e, se estiver aberto no leitor, recarrega com "atualizado agora".
+- [ ] 21. Clicar num `.md` abre o leitor ao lado, formatado ("Ver código" mostra o texto puro); clicar num `.ts`/`.json` mostra o código com número de linha; a borda direita do leitor muda a largura.
+- [ ] 22. Clicar num `.pdf`/`.docx`/`.xlsx` abre no programa do Windows; um `.exe` ou `.bat` nunca abre (só "Mostrar na pasta").
