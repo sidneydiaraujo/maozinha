@@ -3,12 +3,14 @@ import { Unicode11Addon } from '@xterm/addon-unicode11'
 import { Terminal as XTerm } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef } from 'react'
-import type { AlvoTerminal } from '../../../shared/model'
+import type { AlvoTerminal, AvisoAgente } from '../../../shared/model'
 import '../estilos/terminal.css'
 
 interface Props {
   alvo: AlvoTerminal
   aoSair?: (codigo: number) => void
+  /** Ultimo estado do agente, que o main guardou enquanto a tela nao estava montada (T8.2). */
+  aoAviso?: (aviso: AvisoAgente) => void
 }
 
 const chaveDoAlvo = (alvo: AlvoTerminal): string =>
@@ -18,12 +20,14 @@ const chaveDoAlvo = (alvo: AlvoTerminal): string =>
  * Terminal xterm.js ligado a um terminal que vive no main (D8): desmontar
  * este componente NAO fecha o terminal, so para de mostrá-lo.
  */
-export function Terminal({ alvo, aoSair }: Props): React.JSX.Element {
+export function Terminal({ alvo, aoSair, aoAviso }: Props): React.JSX.Element {
   const recipiente = useRef<HTMLDivElement>(null)
   const alvoAtual = useRef(alvo)
   const aoSairAtual = useRef(aoSair)
+  const aoAvisoAtual = useRef(aoAviso)
   alvoAtual.current = alvo
   aoSairAtual.current = aoSair
+  aoAvisoAtual.current = aoAviso
   const chave = chaveDoAlvo(alvo)
 
   useEffect(() => {
@@ -61,6 +65,7 @@ export function Terminal({ alvo, aoSair }: Props): React.JSX.Element {
         if (!ativo) return
         terminalId = r.terminalId
         term.write(r.bufferInicial)
+        if (r.aviso) aoAvisoAtual.current?.(r.aviso)
       })
       .catch((e: unknown) => {
         term.write(`\r\n[erro] ${e instanceof Error ? e.message : String(e)}\r\n`)

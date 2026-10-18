@@ -12,11 +12,14 @@ import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
+import { chamaAtencao } from './atencao'
+import { aoPedirFoco } from './foco'
 import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from './nos'
 import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
 import { useNovoQuadro } from './useNovoQuadro'
 import { usePanoMeio } from './usePanoMeio'
+import { useMapaAtencao } from './useAtencao'
 import { useSalvarLayout } from './useSalvarLayout'
 
 // Fora do componente: dentro dele o React Flow recriaria todos os nos a cada render.
@@ -82,6 +85,29 @@ function useEstadoLousa(versao: number) {
   return { estado, setEstado, erro, falhou, acoes, tirarPasta }
 }
 
+/** Barra de cima ou notificacao do Windows: enquadra o quadro que pede atencao (T8.2). */
+function useFocoPedido(instancia: React.RefObject<ReactFlowInstance<QuadroNo> | null>): void {
+  useEffect(
+    () =>
+      aoPedirFoco((quadroId) => {
+        void instancia.current?.fitView({ nodes: [{ id: quadroId }], padding: 0.2, maxZoom: 1, duration: 400 })
+      }),
+    [instancia],
+  )
+}
+
+/** Minimapa com a cor da conta; quadro que pede atencao fica ambar. */
+function Minimapa(): React.JSX.Element {
+  const mapa = useMapaAtencao()
+  return (
+    <MiniMap<QuadroNo>
+      pannable
+      zoomable
+      nodeColor={(no) => (chamaAtencao(mapa.get(no.id)) ? '#f5a524' : (no.data.perfil?.cor ?? '#555'))}
+    />
+  )
+}
+
 function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React.JSX.Element {
   return (
     <>
@@ -118,6 +144,7 @@ export function Lousa({ versao, aoMudarPastas }: Props): React.JSX.Element {
     aoFalhar: falhou,
   })
   const aoApertarMeio = usePanoMeio(instancia, aoMoverVista)
+  useFocoPedido(instancia)
 
   useEffect(() => {
     if (estado) setNos((atuais) => preservarGeometria(montarNos(estado, acoes), atuais))
@@ -163,7 +190,7 @@ export function Lousa({ versao, aoMudarPastas }: Props): React.JSX.Element {
         >
           <Background gap={24} />
           <Controls showInteractive={false} />
-          <MiniMap pannable zoomable />
+          <Minimapa />
         </ReactFlow>
       )}
       {estado && novo.novo && (

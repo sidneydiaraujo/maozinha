@@ -1,0 +1,102 @@
+/* Quadro (Fatia 8): aviso do agente, ampliar, letra e terminal encerrado. */
+:root {
+  --ambar: #f5a524;
+}
+
+.quadro-chamando {
+  border-color: var(--ambar);
+  animation: quadro-chamar 1.6s ease-in-out infinite;
+}
+
+@keyframes quadro-chamar {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px rgb(245 165 36 / 75%),
+      0 0 22px 6px rgb(245 165 36 / 38%);
+  }
+  50% {
+    box-shadow:
+      0 0 0 2px rgb(245 165 36 / 30%),
+      0 0 6px 1px rgb(245 165 36 / 12%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quadro-chamando {
+    animation: none;
+    box-shadow:
+      0 0 0 2px var(--ambar),
+      0 0 16px 4px rgb(245 165 36 / 40%);
+  }
+}
+
+.selo-agente {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 1px 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  border: 1px solid;
+  border-radius: 999px;
+}
+
+.selo-trabalhando {
+  color: #8fb8ff;
+  border-color: #35538a;
+}
+
+.selo-trabalhando::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: currentcolor;
+  border-radius: 50%;
+  animation: selo-piscar 1s ease-in-out infinite;
+}
+
+@keyframes selo-piscar {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.selo-esperando {
+  font-weight: 600;
+  color: #1a1306;
+  background: var(--ambar);
+  border-color: var(--ambar);
+}
+
+.selo-terminou {
+  color: #7ee2a8;
+  border-color: #2f7a52;
+}
+
+.selo-erro {
+  color: #ff9b9b;
+  border-color: #8a3535;
+}
+
+/* Barra de cima: "● 2 esperando você" (clique enquadra o proximo) */
+.topo-chamadas {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 8px;
+  padding: 3px 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a1306;
+  background: var(--ambar);
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.topo-chamadas:hover {
+  filter: brightness(1.1);
+}

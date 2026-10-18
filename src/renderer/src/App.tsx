@@ -5,6 +5,7 @@ import { mensagemDe } from './componentes/erro'
 import { Explorador } from './explorador/Explorador'
 import { Leitor } from './leitor/Leitor'
 import { useArquivoAberto } from './leitor/useArquivoAberto'
+import { pedirFoco } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
 import { BarraTopo } from './topo/BarraTopo'
 import { useContas } from './topo/useContas'
@@ -30,6 +31,9 @@ export function App(): React.JSX.Element {
       .catch((e: unknown) => setErro(mensagemDe(e)))
   }, [])
 
+  // clique na notificacao do Windows (T8.1): a lousa enquadra o quadro
+  useEffect(() => window.lousa.quadros.aoFocar(pedirFoco), [])
+
   // o main vigia exatamente as pastas salvas; muda quando uma pasta entra ou sai
   const idsDasPastas = pastas.repos.map((r) => r.id).join(',')
   useEffect(() => {
@@ -48,7 +52,7 @@ export function App(): React.JSX.Element {
   const versao = info ? `v${info.version} · Electron ${info.electron}` : ''
   return (
     <div className="app">
-      <BarraTopo contas={contas} versao={versao} />
+      <BarraTopo contas={contas} versao={versao} quadros={pastas.quadros} />
       <div className="app-corpo">
         <Explorador
           repos={pastas.repos}
