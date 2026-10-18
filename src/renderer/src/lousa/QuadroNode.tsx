@@ -1,10 +1,12 @@
 import { NodeResizer, type NodeProps } from '@xyflow/react'
+import { useState } from 'react'
+import type { Quadro, Repo } from '../../../shared/model'
 import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import { chamaAtencao, seloDoAviso } from './atencao'
 import { ContaDoQuadro } from './ContaDoQuadro'
-import type { QuadroNo } from './nos'
+import type { AcoesLousa, QuadroNo } from './nos'
 import { atencao, useAtencao } from './useAtencao'
 
 /** "esperando você", "terminou"... no cabecalho (T8.2); a frase do Claude aparece ao parar o mouse. */
@@ -20,12 +22,14 @@ function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | nul
 }
 
 /**
- * Quadro solto na lousa (D13, D14): a pasta da o nome (onde o trabalho fica) e o selo
- * diz a conta (quem paga). Trocar a conta remonta o terminal, que retoma a conversa.
+ * O terminal do quadro. Se o processo sair (T8.5), aparece "Terminal encerrado · Reabrir":
+ * reabrir remonta o terminal e o main abre um novo (o agente retoma a conversa, T6.1).
  */
-export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.Element {
-  const { quadro, perfil, repo, rotulo, contas, acoes } = data
-  const chamando = chamaAtencao(useAtencao(quadro.id))
+function CorpoQuadro({ quadro, repo, acoes }: { quadro: Quadro; repo: Repo; acoes: AcoesLousa }): React.JSX.Element {
+  const [geracao, setGeracao] = useState(0)
+  const [saida, setSaida] = useState<{ chave: string; codigo: number } | null>(null)
+  // trocar a conta tambem remonta: a saida de um terminal antigo nao vale para o novo
+  const chave = `${quadro.perfilId}:${geracao}`
   // caminho citado no terminal: so os de dentro da pasta do quadro viram link (T8.3)
   const arquivos = {
     aceita: (texto: string) => caminhoNoRepo(repo.caminho, texto) !== null,
@@ -34,6 +38,34 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
       if (relativo) acoes.abrirArquivo(repo.id, relativo)
     },
   }
+  return (
+    <div className="quadro-corpo">
+      <Terminal
+        key={chave}
+        alvo={{ tipo: 'quadro', quadroId: quadro.id }}
+        aoSair={(codigo) => setSaida({ chave, codigo })}
+        aoAviso={(aviso) => atencao.aplicar(quadro.id, aviso)}
+        arquivos={arquivos}
+      />
+      {saida?.chave === chave && (
+        <div className="quadro-encerrado nodrag" role="status">
+          <span>Terminal encerrado (código {saida.codigo})</span>
+          <button className="botao-pequeno botao-principal" onClick={() => setGeracao((g) => g + 1)}>
+            Reabrir
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Quadro solto na lousa (D13, D14): a pasta da o nome (onde o trabalho fica) e o selo
+ * diz a conta (quem paga). Trocar a conta remonta o terminal, que retoma a conversa.
+ */
+export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.Element {
+  const { quadro, perfil, repo, rotulo, contas, acoes } = data
+  const chamando = chamaAtencao(useAtencao(quadro.id))
   return (
     <div
       className={chamando ? 'quadro quadro-chamando' : 'quadro'}
@@ -76,14 +108,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           ×
         </button>
       </header>
-      <div className="quadro-corpo">
-        <Terminal
-          key={quadro.perfilId}
-          alvo={{ tipo: 'quadro', quadroId: quadro.id }}
-          aoAviso={(aviso) => atencao.aplicar(quadro.id, aviso)}
-          arquivos={arquivos}
-        />
-      </div>
+      <CorpoQuadro quadro={quadro} repo={repo} acoes={acoes} />
     </div>
   )
 }
