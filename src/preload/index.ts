@@ -18,6 +18,8 @@ const api: LousaApi = {
   app: {
     copiar: (texto) => ipcRenderer.invoke(IPC.appCopiar, { texto }),
     colar: () => ipcRenderer.invoke(IPC.appColar),
+    erroDaTela: (mensagem) => ipcRenderer.invoke(IPC.appErroDaTela, { mensagem }),
+    abrirRegistros: () => ipcRenderer.invoke(IPC.appAbrirRegistros),
   },
   perfis: {
     listar: () => ipcRenderer.invoke(IPC.perfisListar),

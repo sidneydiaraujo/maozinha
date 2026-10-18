@@ -25,6 +25,8 @@ export const IPC = {
   appInfo: 'app:info',
   appCopiar: 'app:copiar',
   appColar: 'app:colar',
+  appErroDaTela: 'app:erroDaTela',
+  appAbrirRegistros: 'app:abrirRegistros',
   perfisListar: 'perfis:listar',
   perfisRenomear: 'perfis:renomear',
   perfisAtualizarConta: 'perfis:atualizarConta',
@@ -74,6 +76,10 @@ export interface LousaApi {
   app: {
     copiar(texto: string): Promise<void>
     colar(): Promise<string>
+    /** Erro nao tratado na tela vai para o arquivo de registros (T8.6). */
+    erroDaTela(mensagem: string): Promise<void>
+    /** Abre a pasta dos registros no Explorador do Windows. */
+    abrirRegistros(): Promise<void>
   }
   perfis: {
     listar(): Promise<PerfilComConta[]>

@@ -1,6 +1,7 @@
 // Painel da engrenagem (T7.2): todos os cartoes de conta e "+ Nova conta" (T1.8).
 import { useRef, useState } from 'react'
 import { CartaoConta } from '../componentes/CartaoConta'
+import { mensagemDe } from '../componentes/erro'
 import { NovaConta } from '../componentes/NovaConta'
 import { useFecharFora } from '../componentes/useFecharFora'
 import { avisoDeEmail, type Contas } from './useContas'
@@ -26,6 +27,27 @@ function ListaCartoes({ contas }: { contas: Contas }): React.JSX.Element {
         />
       ))}
     </>
+  )
+}
+
+/** Pasta dos registros (T8.6): se algo falhar, o arquivo do dia diz o motivo. */
+function Registros(): React.JSX.Element {
+  const [erro, setErro] = useState<string | null>(null)
+  return (
+    <footer className="painel-contas-rodape">
+      <button
+        className="botao-pequeno"
+        onClick={() => window.lousa.app.abrirRegistros().catch((e: unknown) => setErro(mensagemDe(e)))}
+      >
+        Abrir pasta de registros
+      </button>
+      <span className="apagado">Se algo falhar, o arquivo do dia diz o motivo.</span>
+      {erro && (
+        <p className="erro" role="alert">
+          {erro}
+        </p>
+      )}
+    </footer>
   )
 }
 
@@ -68,6 +90,7 @@ export function PainelContas({ contas, aoFechar }: Props): React.JSX.Element {
           </button>
         )}
       </div>
+      <Registros />
     </div>
   )
 }
