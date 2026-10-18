@@ -37,9 +37,11 @@ Regras de lint em `eslint-rules/`: cópia do
    confira o hash em `release/SHA256.txt`). Instalar não pede administrador.
 2. Abra pelo Menu Iniciar. A barra da esquerda mostra as contas do Claude do PC.
    "Entrar" / "Trocar login" abre o login de cada conta.
-3. Para abrir um quadro: arraste o cartão de uma conta para a lousa, dê duplo
-   clique no vazio ou use "+ Agente" no cartão. Escolha a pasta (recentes ou
-   "Outra pasta…") e clique em "Abrir agente" (Claude Code) ou "Abrir terminal".
-4. Cada quadro tem a sua conta, mesmo na mesma pasta; o cabeçalho mostra conta e pasta.
-5. Posição, tamanho e zoom ficam salvos. Em "Pastas", o "×" tira uma pasta e
-   fecha os quadros dela (nunca apaga arquivos).
+3. Para abrir um quadro: "+ Novo quadro", duplo clique no vazio ou arraste o
+   cartão de uma conta para a lousa. Escolha a conta (quem paga) e a pasta (onde
+   o trabalho fica) e clique em "Abrir agente" (Claude Code) ou "Abrir terminal".
+4. O cabeçalho do quadro mostra 📁 a pasta e o selo da conta. Clique no selo para
+   trocar quem paga: o Claude reinicia na mesma pasta e continua a mesma conversa.
+5. Posição, tamanho, zoom e a conversa de cada agente ficam salvos. Na janela
+   "Novo quadro", o "×" tira uma pasta e fecha os quadros dela (nunca apaga
+   arquivos). Botão do meio do mouse arrasta a lousa até por cima dos quadros.

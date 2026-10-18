@@ -44,7 +44,7 @@ export interface Quadro {
   repoId: string
   perfilId: PerfilId  // conta DESTE quadro (quem paga); trocar = quadros:trocarConta, a conversa vai junto (D14)
   tipo: TipoQuadro
-  titulo: string
+  titulo: string      // nome interno; a tela mostra a pasta (D14)
   caixa: Caixa        // posição e tamanho na lousa
   sessaoId?: string   // conversa do Claude neste quadro (agente): o Lousa escolhe e retoma com --resume
 }

@@ -92,10 +92,11 @@ export type TipoQuadro = 'terminal' | 'agente' // 'agente' digita o CLI do prove
 export interface Quadro {
   id: string
   repoId: string
-  perfilId: PerfilId  // conta DESTE quadro; fixa. Trocar de conta = remover e criar outro
+  perfilId: PerfilId  // conta DESTE quadro (quem paga); trocar = quadros:trocarConta, a conversa vai junto (D14)
   tipo: TipoQuadro
-  titulo: string
+  titulo: string      // nome interno; a tela mostra a pasta (D14)
   caixa: Caixa        // posição e tamanho na lousa
+  sessaoId?: string   // conversa do Claude neste quadro (agente): o Lousa escolhe e retoma com --resume
 }
 
 export interface Viewport { x: number; y: number; zoom: number }
@@ -141,10 +142,12 @@ export interface EstadoTela {
 | `repos:remover` | `{ repoId }` | — | T3.6 |
 | `quadros:criar` | `{ repoId, tipo, perfilId, posicao? }` | `Quadro` | T3.4, T5.1 |
 | `quadros:remover` | `{ quadroId }` | — | T3.4 |
+| `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 
-`terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login.
+`terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
+`powershell -NoProfile -Command "claude auth login; exit $LASTEXITCODE"`, sem terminal na tela).
 
 ## Ambiente de cada terminal (`montarAmbiente`, T1.3)
 
