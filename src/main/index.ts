@@ -58,7 +58,7 @@ async function iniciar(): Promise<void> {
     responder(false),
   )
   registrarCanais()
-  criarJanelaPrincipal({ mostrar: true })
+  criarJanelaPrincipal({ mostrar: true, lembrarEm: join(app.getPath('userData'), 'janela.json') })
 }
 
 function focarJanelaExistente(): void {
