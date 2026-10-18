@@ -1,10 +1,13 @@
 // Cria uma vez, no inicio do app, os servicos que os canais de IPC usam.
 import { app, BrowserWindow } from 'electron'
 import { randomUUID } from 'node:crypto'
-import { existsSync, statSync } from 'node:fs'
+import { existsSync, mkdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
+import { discoReal, observarReal } from './arquivos/disco'
+import { ServicoArquivos } from './arquivos/servico'
+import { VigiaArquivos } from './arquivos/vigia'
 import { criarArmazem, type Armazem } from './estado/armazem'
 import { montarAmbiente } from './perfis/ambiente'
 import { executarReal, lerStatusConta, localizarClaude } from './perfis/conta'
@@ -22,6 +25,8 @@ export interface Contexto {
   quadros: ServicoQuadros
   armazem: Armazem
   terminais: ServicoTerminais
+  arquivos: ServicoArquivos
+  vigia: VigiaArquivos
 }
 
 /** Entrega um evento a todas as janelas abertas. */
@@ -60,6 +65,8 @@ export function criarContexto(): Contexto {
     armazem,
     detectar: (ajustes) => detectarPerfis(depsReais(home), ajustes),
     lerConta: (perfil) => lerContaReal(perfil, home),
+    home,
+    criarPasta: (caminho) => mkdirSync(caminho, { recursive: true }),
   })
   const terminais = new ServicoTerminais(spawnReal, {
     aoDados: (terminalId, dados) => enviarParaJanelas(IPC.terminaisDados, { terminalId, dados }),
@@ -81,5 +88,9 @@ export function criarContexto(): Contexto {
     copiarSessao,
     esperar: (ms) => new Promise((r) => setTimeout(r, ms)),
   })
-  return { perfis, repos, quadros, armazem, terminais }
+  const arquivos = new ServicoArquivos({ repos, ...discoReal })
+  const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
+    enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
+  )
+  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia }
 }

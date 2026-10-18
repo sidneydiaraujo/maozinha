@@ -18,6 +18,7 @@ const api: LousaApi = {
     listar: () => ipcRenderer.invoke(IPC.perfisListar),
     renomear: (perfilId, nome) => ipcRenderer.invoke(IPC.perfisRenomear, { perfilId, nome }),
     atualizarConta: (perfilId) => ipcRenderer.invoke(IPC.perfisAtualizarConta, { perfilId }),
+    criar: (provedor, nome) => ipcRenderer.invoke(IPC.perfisCriar, { provedor, nome }),
   },
   repos: {
     escolherPasta: () => ipcRenderer.invoke(IPC.reposEscolherPasta),
@@ -42,6 +43,16 @@ const api: LousaApi = {
       ipcRenderer.invoke(IPC.terminaisRedimensionar, { terminalId, cols, rows }),
     aoDados: (cb) => inscrever<{ terminalId: string; dados: string }>(IPC.terminaisDados, (p) => cb(p.terminalId, p.dados)),
     aoSair: (cb) => inscrever<{ terminalId: string; codigo: number }>(IPC.terminaisSaiu, (p) => cb(p.terminalId, p.codigo)),
+  },
+  arquivos: {
+    listar: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosListar, { repoId, relativo }),
+    abrir: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosAbrir, { repoId, relativo }),
+    ler: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosLer, { repoId, relativo }),
+    abrirFora: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosAbrirFora, { repoId, relativo }),
+    mostrarNaPasta: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosMostrarNaPasta, { repoId, relativo }),
+    abrirLink: (url) => ipcRenderer.invoke(IPC.arquivosAbrirLink, { url }),
+    vigiar: () => ipcRenderer.invoke(IPC.arquivosVigiar),
+    aoMudar: (cb) => inscrever<{ repoId: string; caminhos: string[] }>(IPC.arquivosMudou, (p) => cb(p.repoId, p.caminhos)),
   },
 }
 

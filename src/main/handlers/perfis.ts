@@ -5,9 +5,11 @@ import type { ServicoPerfis } from '../perfis/servico'
 
 const PerfilAlvo = z.object({ perfilId: z.string().min(1) })
 const Renomear = PerfilAlvo.extend({ nome: z.string().trim().min(1).max(40) })
+const Criar = z.object({ provedor: z.enum(['claude', 'codex']), nome: z.string().trim().min(1).max(40) })
 
 export function registrarHandlersPerfis(perfis: ServicoPerfis): void {
   handle(IPC.perfisListar, z.undefined(), () => perfis.listar())
   handle(IPC.perfisRenomear, Renomear, ({ perfilId, nome }) => perfis.renomear(perfilId, nome))
   handle(IPC.perfisAtualizarConta, PerfilAlvo, ({ perfilId }) => perfis.atualizarConta(perfilId))
+  handle(IPC.perfisCriar, Criar, ({ provedor, nome }) => perfis.criar(provedor, nome))
 }

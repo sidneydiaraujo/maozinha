@@ -51,6 +51,20 @@ export interface Quadro {
 
 export interface Viewport { x: number; y: number; zoom: number }
 
+// Pastas na lateral (T7.1). A tela sempre fala em repoId + caminho relativo com '/' ('' = a pasta do repo).
+export interface ItemArquivo { nome: string; pasta: boolean }
+
+export type ComoAbrir = 'leitor' | 'fora' | 'descobrir' // descobrir = o main olha os primeiros bytes
+
+export interface ConteudoArquivo {
+  tipo: 'texto' | 'binario' | 'grande' // grande = acima de 2 MB, não carrega
+  texto: string        // '' quando não é texto
+  tamanho: number      // bytes
+  podeAbrirFora: boolean // documento ou mídia; script e executável nunca
+}
+
+export type Abertura = { onde: 'fora' } | { onde: 'leitor'; conteudo: ConteudoArquivo }
+
 export type AlvoTerminal =
   | { tipo: 'quadro'; quadroId: string }
   | { tipo: 'login'; perfilId: PerfilId }

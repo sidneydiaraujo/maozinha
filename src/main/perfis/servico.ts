@@ -1,13 +1,21 @@
 // Regra das contas: junta o que foi detectado no PC com o que o usuario ajustou
 // (nome) e com o status de login lido de cada uma (T1.6).
-import type { EstadoSalvo, Perfil, PerfilComConta, PerfilId, StatusConta } from '../../shared/model'
+import { join } from 'node:path'
+import type { EstadoSalvo, Perfil, PerfilComConta, PerfilId, Provedor, StatusConta } from '../../shared/model'
 import type { Armazem } from '../estado/armazem'
+import { slugConta } from './slug'
 
 export interface DepsServicoPerfis {
   detectar(ajustes: EstadoSalvo['perfis']): Perfil[]
   armazem: Armazem
   lerConta(perfil: Perfil): Promise<StatusConta>
+  home: string // USERPROFILE: as contas novas nascem em <home>/.claude-<slug> ou .codex-<slug>
+  /** mkdir recursivo; a unica escrita da Lousa perto das pastas de conta (CLAUDE.md). */
+  criarPasta(caminho: string): void
 }
+
+/** Sufixos que ja tem dono: a conta padrao de cada provedor. */
+const RESERVADOS: Record<Provedor, string> = { claude: 'principal', codex: 'padrao' }
 
 const NAO_ENCONTRADA = 'Conta não encontrada'
 
@@ -54,6 +62,21 @@ export class ServicoPerfis {
     estado.perfis[perfilId] = { ...estado.perfis[perfilId], nome: nome.trim() }
     this.deps.armazem.salvar(estado)
     const perfil = this.obter(perfilId)
+    return { ...perfil, conta: await this.conta(perfil) }
+  }
+
+  /** T1.8: cria a pasta vazia da conta e marca `criada`, para ela ser detectada antes do login. */
+  async criar(provedor: Provedor, nome: string): Promise<PerfilComConta> {
+    const slug = slugConta(nome)
+    if (slug === '') throw new Error('Nome inválido')
+    if (slug === RESERVADOS[provedor]) throw new Error('Nome reservado')
+    const id = provedor === 'claude' ? slug : `cx:${slug}`
+    if (this.perfis().some((p) => p.id === id)) throw new Error('Já existe uma conta com esse nome')
+    this.deps.criarPasta(join(this.deps.home, provedor === 'claude' ? `.claude-${slug}` : `.codex-${slug}`))
+    const estado = this.deps.armazem.carregar()
+    estado.perfis[id] = { ...estado.perfis[id], nome: nome.trim(), provedor, criada: true }
+    this.deps.armazem.salvar(estado)
+    const perfil = this.obter(id)
     return { ...perfil, conta: await this.conta(perfil) }
   }
 

@@ -1,6 +1,7 @@
 import { app, BrowserWindow, session } from 'electron'
 import { criarContexto, type Contexto } from './contexto'
 import { registrarHandlersApp } from './handlers/app'
+import { registrarHandlersArquivos } from './handlers/arquivos'
 import { registrarHandlersLousa } from './handlers/lousa'
 import { registrarHandlersPerfis } from './handlers/perfis'
 import { registrarHandlersQuadros } from './handlers/quadros'
@@ -19,7 +20,11 @@ function registrarCanais(): void {
   registrarHandlersQuadros(contexto.quadros)
   registrarHandlersLousa(contexto)
   registrarHandlersTerminais(contexto.terminais, contexto.perfis, contexto.quadros, contexto.repos)
-  app.on('before-quit', () => contexto.terminais.fecharTodos())
+  registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)
+  app.on('before-quit', () => {
+    contexto.terminais.fecharTodos()
+    contexto.vigia.fecharTodos()
+  })
 }
 
 async function iniciar(): Promise<void> {

@@ -4,11 +4,15 @@
 // Regra: este arquivo nao importa nada (nem electron, nem node), so tipos de ./model.
 
 import type {
+  Abertura,
   AlvoTerminal,
   Caixa,
+  ConteudoArquivo,
   EstadoTela,
+  ItemArquivo,
   PerfilComConta,
   Posicao,
+  Provedor,
   Quadro,
   Repo,
   StatusConta,
@@ -21,6 +25,7 @@ export const IPC = {
   perfisListar: 'perfis:listar',
   perfisRenomear: 'perfis:renomear',
   perfisAtualizarConta: 'perfis:atualizarConta',
+  perfisCriar: 'perfis:criar',
   reposEscolherPasta: 'repos:escolherPasta',
   reposAdicionar: 'repos:adicionar',
   reposRemover: 'repos:remover',
@@ -35,6 +40,14 @@ export const IPC = {
   terminaisFecharLogin: 'terminais:fecharLogin',
   terminaisDados: 'terminais:dados', // evento main -> tela
   terminaisSaiu: 'terminais:saiu', // evento main -> tela
+  arquivosListar: 'arquivos:listar',
+  arquivosAbrir: 'arquivos:abrir',
+  arquivosLer: 'arquivos:ler',
+  arquivosAbrirFora: 'arquivos:abrirFora',
+  arquivosMostrarNaPasta: 'arquivos:mostrarNaPasta',
+  arquivosAbrirLink: 'arquivos:abrirLink',
+  arquivosVigiar: 'arquivos:vigiar',
+  arquivosMudou: 'arquivos:mudou', // evento main -> tela
 } as const
 
 /** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
@@ -56,6 +69,8 @@ export interface LousaApi {
     listar(): Promise<PerfilComConta[]>
     renomear(perfilId: string, nome: string): Promise<PerfilComConta>
     atualizarConta(perfilId: string): Promise<StatusConta>
+    /** Cria a pasta vazia da conta nova (T1.8); o login vem depois, pelo cartao. */
+    criar(provedor: Provedor, nome: string): Promise<PerfilComConta>
   }
   repos: {
     /** Abre o seletor de pasta do Windows; null se o usuario cancelar. */
@@ -83,5 +98,19 @@ export interface LousaApi {
     /** Devolvem a funcao que cancela a inscricao. */
     aoDados(cb: (terminalId: string, dados: string) => void): () => void
     aoSair(cb: (terminalId: string, codigo: number) => void): () => void
+  }
+  /** Pastas na lateral (T7.1): sempre repoId + caminho relativo com '/'; o main confere que fica dentro. */
+  arquivos: {
+    listar(repoId: string, relativo: string): Promise<ItemArquivo[]>
+    /** Clique: documento abre no programa do Windows; texto volta para o leitor. */
+    abrir(repoId: string, relativo: string): Promise<Abertura>
+    ler(repoId: string, relativo: string): Promise<ConteudoArquivo>
+    abrirFora(repoId: string, relativo: string): Promise<void>
+    mostrarNaPasta(repoId: string, relativo: string): Promise<void>
+    /** So http(s), no navegador. */
+    abrirLink(url: string): Promise<void>
+    /** Passa a vigiar as pastas salvas (e para as removidas). */
+    vigiar(): Promise<void>
+    aoMudar(cb: (repoId: string, caminhos: string[]) => void): () => void
   }
 }
