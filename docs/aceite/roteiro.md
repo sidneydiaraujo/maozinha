@@ -52,3 +52,7 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 - [ ] 37. Ctrl+K (até com o cursor dentro de um terminal): abre a caixa "Quadro, pasta ou arquivo…". Digite parte do nome de uma pasta: aparecem os quadros dela e "Novo quadro em <pasta>". Enter num quadro leva a lousa até ele; Enter em "Novo quadro em…" abre a janelinha com a pasta já marcada (e não cria nada sozinho).
 - [ ] 38. Ctrl+K e digite parte do nome de um arquivo (ex.: `estado`): aparece `ESTADO.md` com a pasta embaixo; Enter abre no leitor. Nada de dentro de `node_modules` aparece.
 - [ ] 39. Num terminal com bastante texto, Ctrl+F: digite uma palavra; aparece "N de M" e a palavra fica selecionada; Enter vai para a próxima, Shift+Enter volta, Esc fecha e o cursor volta ao terminal.
+
+## Fatia 13 — a mesma mensagem para vários quadros
+
+- [ ] 40. Com dois ou três agentes abertos, segure Ctrl e clique no cabeçalho de dois deles (ou Shift+arrastar no vazio em volta): aparece no pé da lousa "Para 2 quadros". Escreva "diga oi" e Enter: os dois agentes recebem e respondem; o terceiro não. Shift+Enter quebra a linha sem enviar.

@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T13.1** — mensagem para vários quadros (`docs/plano/fatia-13-varios-quadros.md`). Sidney pediu as Fatias 11 a 14 antes de instalar de novo.
+**Próxima tarefa: T14.1** — ícone próprio e versão 0.1.0 (`docs/plano/fatia-14-acabamento.md`). Sidney pediu as Fatias 11 a 14 antes de instalar de novo.
 Depois, com o Sidney: **T7.6 + T8.8 + T10.5 + aceites das Fatias 11 a 14** — testar com o instalador novo os itens 17 em diante do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 
@@ -70,6 +70,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T12.1 | Ctrl+K: quadro, pasta e arquivo | ✅ 19/10/2026 |
 | T12.2 | Ctrl+F no terminal | ✅ 19/10/2026 |
 | T12.3 | Aceite | ⬜ |
+| T13.1 | Barra "Para N quadros" | ✅ 19/10/2026 |
+| T13.2 | Aceite | ⬜ |
 
 ## Bloqueios
 
@@ -172,3 +174,6 @@ Nenhum.
   - **Código:** `shared/pontuar.ts` (+5 testes), `arquivos/busca.ts` (+5) e canal `arquivos:buscar`, `paleta/` (+3), `componentes/procurar.ts` (+3), `BuscaTerminal.tsx`, atalho `buscar` em `teclas.ts` (+2 asserções). 277 testes, lint zerado, smoke ok.
   - **Provado na janela real** (duas pastas git de exemplo, um terminal em cada, um deles fora da tela; teclas de verdade): Ctrl+K com o terminal em foco abre a paleta; "api" lista só o quadro e a pasta de api e Enter enquadra o quadro; "fatia" acha `docs/plano/fatia-12.md` (a cópia dentro de `node_modules` fica de fora) e abre no leitor; "Novo quadro em api" abre a janelinha com api marcada; Ctrl+F no terminal: "linha 1" → "11 de 11", Enter → "1 de 11", Esc fecha.
   - **Bugs achados na prova e corrigidos:** (1) o Enter da paleta chegava à janelinha recém-aberta, que criava um agente sozinha; (2) letras soltas demais ("api" achava "app · Terminal 1"); (3) o teto da busca só valia entre pastas (uma pasta enorme era lida inteira); (4) item escolhido no `mousedown` (agora no clique).
+- **19/10/2026 (Fatia 13, D21):** `lousa/envio.ts` (+4 testes), `BarraEnvio.tsx`, dica "Ctrl+clique seleciona vários" no cabeçalho. 281 testes, lint zerado.
+  - **Provado na janela real** (três terminais comuns; Ctrl de verdade segurado e cliques de mouse): um selecionado não mostra a barra; Ctrl+clique no segundo mostra "Para 2 quadros"; `'enviado-' + (2 * 21)` + Enter → "Enviado para 2 quadros"; os dois selecionados escreveram `enviado-42` e o terceiro nada.
+  - **Não provado:** um Claude de verdade recebendo (a pausa de 150 ms antes do Enter vem de como o Claude Code trata colagem; confirmar no aceite, item 40).

@@ -89,3 +89,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Ctrl+F dentro do terminal** abre a busca da Lousa (o PowerShell e o Claude Code não usam Ctrl+F por padrão). Ctrl+Shift+F continua indo para o programa.
   - **Sem dependência nova:** a busca no terminal lê o histórico pela API do xterm (`buffer.active`), em vez do `@xterm/addon-search`; a pontuação do Ctrl+K é nossa (`shared/pontuar.ts`), usada pela tela e pelo main.
   - **Busca de arquivo pelo main**, com teto de 20 mil itens e sem entrar em git, dependências, builds e `AppData`: a pasta do usuário inteira na lista não trava o app (lição da D17).
+- **D21 (19/10/2026, Sidney):** a mesma mensagem para vários quadros (Fatia 13).
+  - **Seleção do próprio React Flow** (Ctrl+clique, Shift+arrastar); a barra só aparece com 2 ou mais. Sem modo novo nem botão a mais na tela.
+  - **Texto e Enter separados por 150 ms:** texto e Enter chegando juntos parecem uma colagem para o Claude Code, e o Enter pode virar quebra de linha. Várias linhas vão como colagem (bracketed paste).
+  - **Nenhum canal novo:** usa `terminais:escrever`, que a tela já tinha para o teclado.

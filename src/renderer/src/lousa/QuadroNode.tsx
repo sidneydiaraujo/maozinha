@@ -78,7 +78,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
       <NodeResizer minWidth={360} minHeight={220} isVisible={selected} />
       <header
         className="cabecalho-quadro"
-        title="Duplo clique amplia o quadro na tela"
+        title="Duplo clique amplia o quadro na tela · Ctrl+clique seleciona vários (para mandar a mesma mensagem)"
         onDoubleClick={(e) => {
           if (!(e.target as Element).closest('button')) acoes.ampliar(quadro.id)
         }}

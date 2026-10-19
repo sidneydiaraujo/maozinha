@@ -14,6 +14,7 @@ import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
 import { chamaAtencao } from './atencao'
 import { semQuadro, textoDoFim } from './copia'
+import { BarraEnvio } from './BarraEnvio'
 import { aoPedirFoco, aoPedirNovoQuadro } from './foco'
 import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from './nos'
 import { NovoQuadro } from './NovoQuadro'
@@ -215,6 +216,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
       onDrop={novo.aoSoltar}
     >
       <Avisos erro={erro} aviso={aviso} vazia={estado?.quadros.length === 0} />
+      <BarraEnvio quadroIds={nos.filter((n) => n.selected).map((n) => n.id)} />
       {estado && (
         <button className="botao-novo-quadro" onClick={() => novo.abrirNoCentro()}>
           + Novo quadro
