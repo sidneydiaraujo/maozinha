@@ -1,6 +1,7 @@
 // Abre, alimenta e fecha terminais no main, sem duplicar (T2.1, D8).
 // O processo vive aqui; a tela (React, StrictMode, remontagem) so se inscreve nele.
 import type { AvisoAgente } from '../../shared/model'
+import { Historico } from './historico'
 import { LeitorStatus, mesmoAviso, respostaEmTeclas } from './status'
 
 export interface Descartavel {
@@ -41,7 +42,7 @@ export interface Ouvintes {
 
 interface Terminal {
   pty: PtyLike
-  buffer: string
+  historico: Historico
   saiu: boolean
   ouvintes: Descartavel[]
   leitor: LeitorStatus | null
@@ -64,7 +65,7 @@ export class ServicoTerminais {
   /** Id ja aberto: devolve o buffer e nao abre outro shell. Id que ja saiu: abre um novo. */
   abrir(p: PedidoAbrir): { bufferInicial: string; jaEstavaAberto: boolean } {
     const existente = this.terminais.get(p.terminalId)
-    if (existente && !existente.saiu) return { bufferInicial: existente.buffer, jaEstavaAberto: true }
+    if (existente && !existente.saiu) return { bufferInicial: existente.historico.texto(), jaEstavaAberto: true }
     if (existente) this.fechar(p.terminalId)
 
     const shell = p.shell ?? SHELL_PADRAO
@@ -76,7 +77,7 @@ export class ServicoTerminais {
     })
     const terminal: Terminal = {
       pty,
-      buffer: '',
+      historico: new Historico(this.limiteBuffer),
       saiu: false,
       ouvintes: [],
       leitor: p.status ? new LeitorStatus() : null,
@@ -84,7 +85,7 @@ export class ServicoTerminais {
     }
     terminal.ouvintes.push(
       pty.onData((dados) => {
-        terminal.buffer = (terminal.buffer + dados).slice(-this.limiteBuffer)
+        terminal.historico.anotar(dados)
         this.ouvintes.aoDados(p.terminalId, dados)
         this.lerStatus(p.terminalId, terminal, dados)
       }),
