@@ -13,6 +13,7 @@ function montar(pastas: string[] = ['C:\\Users\\x\\pessoal\\app', 'C:\\empresa\\
   const armazem: Armazem = { carregar: () => structuredClone(estado), salvar: (e) => void (estado = structuredClone(e)) }
   let n = 0
   const fechados: string[] = []
+  const limpezas: string[] = []
   const servico = new ServicoRepos({
     armazem,
     perfis: {
@@ -26,8 +27,14 @@ function montar(pastas: string[] = ['C:\\Users\\x\\pessoal\\app', 'C:\\empresa\\
     ehPasta: (c) => pastas.includes(c),
     fecharTerminal: (id) => void fechados.push(id),
     novoId: () => `r${++n}`,
+    copias: {
+      limpar: async (repo, caminhoOrigem) => {
+        limpezas.push(`${repo.id} (${caminhoOrigem ?? '?'})`)
+        return { copia: 'apagada' }
+      },
+    },
   })
-  return { servico, armazem, fechados, estado: () => estado }
+  return { servico, armazem, fechados, limpezas, estado: () => estado }
 }
 
 describe('ServicoRepos', () => {
@@ -59,8 +66,8 @@ describe('ServicoRepos', () => {
     expect(servico.sugerir('D:\\qualquer')).toBe('principal')
   })
 
-  it('remover leva os quadros do repo e so os dele', () => {
-    const { servico, armazem, fechados, estado } = montar()
+  it('remover leva os quadros do repo e so os dele', async () => {
+    const { servico, armazem, fechados, limpezas, estado } = montar()
     const a = servico.adicionar('C:\\Users\\x\\pessoal\\app', 'pessoal')
     const b = servico.adicionar('C:\\empresa\\api', 'principal')
     const e = estado()
@@ -70,10 +77,23 @@ describe('ServicoRepos', () => {
       { id: 'q2', repoId: b.id, perfilId: 'principal', tipo: 'terminal', titulo: 'Terminal 1', caixa },
     ]
     armazem.salvar(e)
-    servico.remover(a.id)
+    expect(await servico.remover(a.id)).toEqual({ copia: 'nenhuma' })
     expect(estado().repos.map((r) => r.id)).toEqual([b.id])
     expect(estado().quadros.map((q) => q.id)).toEqual(['q2'])
     expect(fechados).toEqual(['q1'])
-    expect(() => servico.remover(a.id)).toThrow('Repositório não encontrado')
+    expect(limpezas).toEqual([])
+    await expect(servico.remover(a.id)).rejects.toThrow('Repositório não encontrado')
+  })
+
+  it('tirar uma copia separada da lista tenta limpa-la', async () => {
+    const { servico, armazem, limpezas, estado } = montar()
+    const origem = servico.adicionar('C:\\empresa\\api', 'principal')
+    const e = estado()
+    const copia = { origemId: origem.id, branch: 'lousa/claude-1', apelido: 'claude-1' }
+    e.repos.push({ id: 'c1', nome: 'api ⑂ claude-1', caminho: 'C:\\empresa\\api.copias\\claude-1', perfilPadraoId: 'principal', copia })
+    armazem.salvar(e)
+    expect(await servico.remover('c1')).toEqual({ copia: 'apagada' })
+    expect(limpezas).toEqual(['c1 (C:\\empresa\\api)'])
+    expect(estado().repos.map((r) => r.id)).toEqual([origem.id])
   })
 })

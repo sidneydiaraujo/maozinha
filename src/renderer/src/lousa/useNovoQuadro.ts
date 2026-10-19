@@ -1,6 +1,6 @@
 import type { ReactFlowInstance } from '@xyflow/react'
 import { useCallback, useState, type Dispatch, type RefObject, type SetStateAction } from 'react'
-import type { EstadoTela, Posicao, Repo, TipoQuadro } from '../../../shared/model'
+import type { EstadoTela, Posicao, Quadro, Repo, TipoQuadro } from '../../../shared/model'
 import { TIPO_ARRASTE_CONTA, type QuadroNo } from './nos'
 
 /** Tamanho do quadro novo (igual ao do main): o "+ Novo quadro" centraliza o quadro na vista. */
@@ -13,6 +13,12 @@ export interface PedidoNovo {
   tela: Posicao
   /** Onde o quadro nasce (coordenadas da lousa). */
   lousa: Posicao
+}
+
+/** Quadro novo na lousa; a conta dele vira a sugestao da pasta, e a copia separada (D18) entra na lista. */
+function comQuadroNovo(e: EstadoTela, quadro: Quadro, copia: Repo | null): EstadoTela {
+  const repos = e.repos.map((r) => (r.id === quadro.repoId ? { ...r, perfilPadraoId: quadro.perfilId } : r))
+  return { ...e, quadros: [...e.quadros, quadro], repos: copia ? [...repos, copia] : repos }
 }
 
 interface Opcoes {
@@ -76,18 +82,14 @@ export function useNovoQuadro({ instancia, area, setEstado }: Opcoes) {
   )
 
   const criar = useCallback(
-    async (repoId: string, tipo: TipoQuadro, perfilId: string) => {
+    async (repoId: string, tipo: TipoQuadro, perfilId: string, separado = false) => {
       if (!novo) return
-      const quadro = await window.lousa.quadros.criar(repoId, tipo, perfilId, novo.lousa)
-      setEstado((e) =>
-        e
-          ? {
-              ...e,
-              quadros: [...e.quadros, quadro],
-              repos: e.repos.map((r) => (r.id === repoId ? { ...r, perfilPadraoId: perfilId } : r)),
-            }
-          : e,
-      )
+      // separado: o main cria a copia (D18) e o quadro nasce nela; `copia` e a pasta nova
+      const { quadro, repo: copia } = await window.lousa.quadros.criar(repoId, tipo, perfilId, {
+        posicao: novo.lousa,
+        separado,
+      })
+      setEstado((e) => e && comQuadroNovo(e, quadro, copia))
       setNovo(null)
     },
     [novo, setEstado],

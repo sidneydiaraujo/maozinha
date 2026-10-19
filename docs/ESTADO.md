@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T10.3** — quadros e canais da cópia separada (`docs/plano/fatia-10-copias-separadas.md`).
+**Próxima tarefa: T10.4** — tela da cópia separada (`docs/plano/fatia-10-copias-separadas.md`).
 Em paralelo, com o Sidney: **T7.6 + T8.8** — testar com o instalador novo os itens 17 a 30 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 
@@ -61,7 +61,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T8.8 | Aceite | ⬜ |
 | T10.1 | Cópia separada: modelo e regras puras | ✅ 19/10/2026 |
 | T10.2 | Git de verdade e serviço de cópias | ✅ 19/10/2026 |
-| T10.3 | Quadros e canais | ⬜ |
+| T10.3 | Quadros e canais | ✅ 19/10/2026 |
 | T10.4 | Tela: opção na janelinha, selo da branch, aviso ao fechar | ⬜ |
 | T10.5 | Aceite | ⬜ |
 
@@ -155,3 +155,4 @@ Nenhum.
 - **19/10/2026 (Etapa 0 e Fatia 10, D18):** Sidney pediu as etapas 0 e 2 do plano de retomada. Push dos 16 commits das Fatias 7 e 8; instalador `release/Lousa.ia Setup 0.0.1.exe` gerado para o aceite T7.6 + T8.8. Fatia 10 (cópia separada por agente, item D1) planejada em `docs/plano/fatia-10-copias-separadas.md`, depois de provar o `git worktree` numa pasta temporária.
   - **T10.1 + T10.2:** `Repo.copia`, `FimDaCopia`; `copias/regras.ts` (+6 testes), `copias/git.ts`, `copias/servico.ts` (+12 testes com git falso) e `copias/real.test.ts` (5 casos com git de verdade: criar, arquivo novo mantém, só ignorado apaga pasta e branch, commit guarda a branch, subpasta recusada); `ambienteBase` em `perfis/ambiente.ts`.
   - **Armadilha de novo:** heredoc do Bash transformou barra invertida dupla em simples em `regras.ts`; arquivos com barra invertida só pelo Write/Edit.
+  - **T10.3:** `ServicoQuadros.criarEmCopia` (a cópia vira pasta da lista, nome `app ⑂ claude-1`; cópia de cópia usa a original) e `remover` assíncrono que limpa a cópia ao fechar o último quadro dela (mantida = continua na lista); `ServicoRepos.remover` limpa a cópia tirada da lista. Canais: `quadros:criar` com `separado` devolve `{ quadro, repo }`; `quadros:remover` e `repos:remover` devolvem `FimDaCopia`. +6 testes (250), lint zerado, smoke ok.

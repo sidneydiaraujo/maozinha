@@ -10,6 +10,7 @@ import type {
   Caixa,
   ConteudoArquivo,
   EstadoTela,
+  FimDaCopia,
   ItemArquivo,
   PerfilComConta,
   Posicao,
@@ -92,12 +93,22 @@ export interface LousaApi {
     /** Abre o seletor de pasta do Windows; null se o usuario cancelar. */
     escolherPasta(): Promise<{ caminho: string; sugestaoPerfilId: string | null } | null>
     adicionar(caminho: string, perfilId: string): Promise<Repo>
-    remover(repoId: string): Promise<void>
+    /** Numa copia separada (D18), diz se a copia foi apagada ou mantida. */
+    remover(repoId: string): Promise<FimDaCopia>
   }
   quadros: {
-    /** `posicao` ausente = ao lado dos outros quadros. */
-    criar(repoId: string, tipo: TipoQuadro, perfilId: string, posicao?: Posicao): Promise<Quadro>
-    remover(quadroId: string): Promise<void>
+    /**
+     * `posicao` ausente = ao lado dos outros quadros. `separado` = numa copia separada da pasta
+     * (git worktree com branch propria, D18): `repo` traz a copia nova; sem copia, null.
+     */
+    criar(
+      repoId: string,
+      tipo: TipoQuadro,
+      perfilId: string,
+      opcoes?: { posicao?: Posicao; separado?: boolean },
+    ): Promise<{ quadro: Quadro; repo: Repo | null }>
+    /** Fechar o ultimo quadro de uma copia tenta limpa-la sem perder trabalho. */
+    remover(quadroId: string): Promise<FimDaCopia>
     /** Mesmo quadro e pasta, outra conta: reinicia o terminal e a conversa vai junto (D14). */
     trocarConta(quadroId: string, perfilId: string): Promise<Quadro>
     /** Clique na notificacao do Windows: a lousa enquadra este quadro. */

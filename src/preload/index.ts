@@ -33,8 +33,8 @@ const api: LousaApi = {
     remover: (repoId) => ipcRenderer.invoke(IPC.reposRemover, { repoId }),
   },
   quadros: {
-    criar: (repoId, tipo, perfilId, posicao) =>
-      ipcRenderer.invoke(IPC.quadrosCriar, { repoId, tipo, perfilId, posicao }),
+    criar: (repoId, tipo, perfilId, opcoes) =>
+      ipcRenderer.invoke(IPC.quadrosCriar, { repoId, tipo, perfilId, ...opcoes }),
     remover: (quadroId) => ipcRenderer.invoke(IPC.quadrosRemover, { quadroId }),
     trocarConta: (quadroId, perfilId) => ipcRenderer.invoke(IPC.quadrosTrocarConta, { quadroId, perfilId }),
     aoFocar: (cb) => inscrever<{ quadroId: string }>(IPC.quadrosFocar, (p) => cb(p.quadroId)),

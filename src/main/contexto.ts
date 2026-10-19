@@ -6,6 +6,8 @@ import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
 import { discoReal, observarReal } from './arquivos/disco'
+import { rodarGitReal } from './copias/git'
+import { ServicoCopias } from './copias/servico'
 import { AvisosDoWindows } from './avisos/notificar'
 import { ServicoArquivos } from './arquivos/servico'
 import { VigiaArquivos } from './arquivos/vigia'
@@ -97,12 +99,15 @@ export function criarContexto(): Contexto {
       avisos.aoEstado(terminalId, aviso)
     },
   })
+  const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
+  const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
   const repos = new ServicoRepos({
     armazem,
     perfis,
     ehPasta,
     fecharTerminal: (id) => terminais.fechar(id),
     novoId: randomUUID,
+    copias,
   })
   const quadros = new ServicoQuadros({
     armazem,
@@ -111,7 +116,8 @@ export function criarContexto(): Contexto {
     novoId: randomUUID,
     novaSessao: randomUUID,
     copiarSessao,
-    esperar: (ms) => new Promise((r) => setTimeout(r, ms)),
+    esperar,
+    copias,
   })
   const arquivos = new ServicoArquivos({ repos, ...discoReal })
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>

@@ -8,13 +8,16 @@ const Criar = z.object({
   tipo: z.enum(['terminal', 'agente']),
   perfilId: z.string().min(1),
   posicao: z.object({ x: z.number().finite(), y: z.number().finite() }).optional(),
+  separado: z.boolean().optional(),
 })
 const Remover = z.object({ quadroId: z.string().min(1) })
 const TrocarConta = z.object({ quadroId: z.string().min(1), perfilId: z.string().min(1) })
 
 export function registrarHandlersQuadros(quadros: ServicoQuadros): void {
-  handle(IPC.quadrosCriar, Criar, ({ repoId, tipo, perfilId, posicao }) =>
-    quadros.criar(repoId, tipo, perfilId, posicao),
+  handle(IPC.quadrosCriar, Criar, async ({ repoId, tipo, perfilId, posicao, separado }) =>
+    separado
+      ? quadros.criarEmCopia(repoId, tipo, perfilId, posicao)
+      : { quadro: quadros.criar(repoId, tipo, perfilId, posicao), repo: null },
   )
   handle(IPC.quadrosRemover, Remover, ({ quadroId }) => quadros.remover(quadroId))
   handle(IPC.quadrosTrocarConta, TrocarConta, ({ quadroId, perfilId }) => quadros.trocarConta(quadroId, perfilId))

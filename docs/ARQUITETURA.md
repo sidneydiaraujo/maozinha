@@ -3,7 +3,7 @@
 Escopo: a jornada da seção 1.1 de `FUNCIONALIDADES.md` (contas Claude e Codex
 detectadas ou criadas, adicionar repo com conta sugerida, terminais na lousa com
 qualquer conta, no mesmo repo ou em repos diferentes, reabrir de onde parou).
-Coordenação entre agentes, worktrees, diff e navegador ficam para depois.
+Coordenação entre agentes, diff e navegador ficam para depois. Cópia separada por agente (git worktree): Fatia 10, D18.
 
 ## Partes
 
@@ -46,6 +46,7 @@ src/main/estado/           armazem.ts
 src/main/repos/            sugerir.ts, servico.ts
 src/main/terminais/        servico.ts, spawnReal.ts, smokePty.ts
 src/main/quadros/          servico.ts, sessoes.ts
+src/main/copias/           regras.ts, git.ts, servico.ts (cópia separada, T10)
 src/main/arquivos/         regras.ts, servico.ts, vigia.ts, disco.ts (T7.1)
 src/main/handlers/         app, perfis, terminais, repos, quadros, lousa, arquivos
 src/preload/index.ts       ponte
@@ -89,7 +90,13 @@ export interface Repo {
   nome: string        // nome da pasta
   caminho: string     // absoluto, como o usuário escolheu
   perfilPadraoId: PerfilId // última conta usada nesta pasta: só sugestão, cada quadro tem a sua
+  copia?: Copia       // pasta que é cópia separada (git worktree) de outra (T10, D18)
 }
+
+export interface Copia { origemId: string; branch: string; apelido: string } // 'lousa/claude-3', 'claude-3'
+export type FimDaCopia = // o que aconteceu com a cópia ao fechar o último quadro dela
+  | { copia: 'nenhuma' } | { copia: 'apagada' } | { copia: 'branchGuardada'; branch: string }
+  | { copia: 'mantida'; caminho: string; motivo: string }
 
 export type TipoQuadro = 'terminal' | 'agente' // 'agente' digita o CLI do provedor da conta (claude ou codex)
 
@@ -161,9 +168,9 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | evento `terminais:estado` | — | `{ terminalId, aviso: AvisoAgente }` (OSC 7501, só quando muda) | T8.1 |
 | `repos:escolherPasta` | — | `{ caminho, sugestaoPerfilId } \| null` | T3.2 |
 | `repos:adicionar` | `{ caminho, perfilId }` | `Repo` (a existente, se a pasta já estava cadastrada) | T3.2, T5.1 |
-| `repos:remover` | `{ repoId }` | — | T3.6 |
-| `quadros:criar` | `{ repoId, tipo, perfilId, posicao? }` | `Quadro` | T3.4, T5.1 |
-| `quadros:remover` | `{ quadroId }` | — | T3.4 |
+| `repos:remover` | `{ repoId }` | `FimDaCopia` (cópia separada: tenta limpar) | T3.6, T10.3 |
+| `quadros:criar` | `{ repoId, tipo, perfilId, posicao?, separado? }` | `{ quadro, repo }` (repo = cópia nova ou null) | T3.4, T5.1, T10.3 |
+| `quadros:remover` | `{ quadroId }` | `FimDaCopia` (último quadro de uma cópia: tenta limpar) | T3.4, T10.3 |
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
 | evento `quadros:focar` | — | `{ quadroId }` (clique na notificação do Windows) | T8.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
@@ -214,6 +221,14 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
 - A conta é do **quadro**, não do repo: dois quadros do mesmo repo podem estar
   em contas diferentes (mesmo provedor ou não), lado a lado.
 - Fechar só quando o quadro é removido, o repo muda de conta ou o app fecha.
+
+## Cópia separada (Fatia 10, D18)
+
+- `git worktree add -b lousa/<apelido> <repo>.copias\<apelido> HEAD`, rodado pelo main
+  (`copias/git.ts`: `execFile` sem shell, `ambienteBase` + `GIT_TERMINAL_PROMPT=0`).
+- Só na pasta raiz de um repositório git. A cópia vira um `Repo` com `copia`; o quadro nasce nela.
+- Limpar: alteração não salva → mantém; limpa → `worktree remove` (uma nova tentativa depois de
+  500 ms, se a pasta estiver presa) e `branch -d`. Nunca `--force` nem `-D`.
 
 ## Estado salvo (T1.5)
 

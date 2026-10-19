@@ -1,6 +1,7 @@
 // Quadros da lousa (T3.4a, D13): cada quadro e um terminal ou agente solto na lousa,
 // trabalhando numa pasta, com a sua propria conta (D11). Trocar a conta leva a conversa junto (D14).
-import type { Posicao, Quadro, TipoQuadro } from '../../shared/model'
+import type { FimDaCopia, Posicao, Provedor, Quadro, Repo, TipoQuadro } from '../../shared/model'
+import type { ServicoCopias } from '../copias/servico'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoPerfis } from '../perfis/servico'
 
@@ -15,6 +16,8 @@ export interface DepsServicoQuadros {
   /** Copia a conversa entre as pastas de duas contas (sessoes.ts). */
   copiarSessao(de: string, para: string, sessaoId: string): boolean
   esperar(ms: number): Promise<void>
+  /** Copias separadas (git worktree) de uma pasta (T10, D18). */
+  copias: Pick<ServicoCopias, 'criar' | 'limpar'>
 }
 
 const LARGURA = 640
@@ -33,6 +36,16 @@ function proximaPosicao(quadros: Quadro[]): Posicao {
 }
 
 const NOME_DO_PROVEDOR = { claude: 'Claude', codex: 'Codex' } as const
+
+/** 'Claude 3', 'Terminal 2'...: o maior numero do prefixo mais um. */
+function proximoTitulo(quadros: Quadro[], tipo: TipoQuadro, provedor: Provedor): string {
+  const prefixo = tipo === 'terminal' ? 'Terminal' : NOME_DO_PROVEDOR[provedor]
+  const maior = quadros.reduce((m, q) => {
+    const achou = new RegExp(`^${prefixo} (\\d+)$`).exec(q.titulo)
+    return achou ? Math.max(m, Number(achou[1])) : m
+  }, 0)
+  return `${prefixo} ${maior + 1}`
+}
 
 export class ServicoQuadros {
   constructor(private readonly deps: DepsServicoQuadros) {}
@@ -55,17 +68,12 @@ export class ServicoQuadros {
     if (!repo) throw new Error('Repositório não encontrado')
     const perfil = this.deps.perfis.obter(perfilId)
 
-    const prefixo = tipo === 'terminal' ? 'Terminal' : NOME_DO_PROVEDOR[perfil.provedor]
-    const maior = estado.quadros.reduce((m, q) => {
-      const achou = new RegExp(`^${prefixo} (\\d+)$`).exec(q.titulo)
-      return achou ? Math.max(m, Number(achou[1])) : m
-    }, 0)
     const quadro: Quadro = {
       id: this.deps.novoId(),
       repoId,
       perfilId: perfil.id,
       tipo,
-      titulo: `${prefixo} ${maior + 1}`,
+      titulo: proximoTitulo(estado.quadros, tipo, perfil.provedor),
       caixa: { ...(posicao ?? proximaPosicao(estado.quadros)), largura: LARGURA, altura: ALTURA },
       ...(tipo === 'agente' && perfil.provedor === 'claude' ? { sessaoId: this.deps.novaSessao() } : {}),
     }
@@ -74,6 +82,35 @@ export class ServicoQuadros {
     estado.ultimoPerfilId = perfil.id
     this.deps.armazem.salvar(estado)
     return quadro
+  }
+
+  /**
+   * Quadro numa copia separada da pasta (git worktree, branch propria; T10.3, D18). A copia vira
+   * uma pasta da lista. Pedir copia de uma copia copia a pasta original.
+   */
+  async criarEmCopia(
+    repoId: string,
+    tipo: TipoQuadro,
+    perfilId: string,
+    posicao?: Posicao,
+  ): Promise<{ quadro: Quadro; repo: Repo }> {
+    const antes = this.deps.armazem.carregar()
+    const escolhida = antes.repos.find((r) => r.id === repoId)
+    if (!escolhida) throw new Error('Repositório não encontrado')
+    const origemId = escolhida.copia?.origemId ?? escolhida.id
+    const origem = antes.repos.find((r) => r.id === origemId)
+    if (!origem) throw new Error('A pasta original desta cópia saiu da lista')
+    const perfil = this.deps.perfis.obter(perfilId)
+    const titulo = proximoTitulo(antes.quadros, tipo, perfil.provedor)
+    const usados = antes.repos.flatMap((r) => (r.copia ? [r.copia.apelido] : []))
+    const { caminho, copia } = await this.deps.copias.criar(origem, titulo, usados)
+
+    const estado = this.deps.armazem.carregar()
+    const nome = `${origem.nome} ⑂ ${copia.apelido}`
+    const repo: Repo = { id: this.deps.novoId(), nome, caminho, perfilPadraoId: perfil.id, copia }
+    estado.repos.push(repo)
+    this.deps.armazem.salvar(estado)
+    return { quadro: this.criar(repo.id, tipo, perfil.id, posicao), repo }
   }
 
   /** O quadro, com conversa garantida se for agente do Claude (quadros de antes da T6.1 nao tinham). */
@@ -113,11 +150,23 @@ export class ServicoQuadros {
     return quadro
   }
 
-  remover(quadroId: string): void {
-    this.obter(quadroId)
+  /** Ultimo quadro de uma copia: a copia e limpa sem perder trabalho e, se saiu, deixa a lista (D18). */
+  async remover(quadroId: string): Promise<FimDaCopia> {
+    const { repoId } = this.obter(quadroId)
     this.deps.fecharTerminal(quadroId)
     const estado = this.deps.armazem.carregar()
     estado.quadros = estado.quadros.filter((q) => q.id !== quadroId)
     this.deps.armazem.salvar(estado)
+
+    const repo = estado.repos.find((r) => r.id === repoId)
+    if (!repo?.copia || estado.quadros.some((q) => q.repoId === repoId)) return { copia: 'nenhuma' }
+    const origem = estado.repos.find((r) => r.id === repo.copia?.origemId)
+    const fim = await this.deps.copias.limpar(repo, origem?.caminho)
+    if (fim.copia !== 'mantida') {
+      const depois = this.deps.armazem.carregar()
+      depois.repos = depois.repos.filter((r) => r.id !== repoId)
+      this.deps.armazem.salvar(depois)
+    }
+    return fim
   }
 }

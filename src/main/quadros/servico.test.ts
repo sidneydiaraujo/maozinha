@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { EstadoSalvo, Perfil } from '../../shared/model'
+import type { EstadoSalvo, FimDaCopia, Perfil, Repo } from '../../shared/model'
 import { ESTADO_PADRAO, type Armazem } from '../estado/armazem'
 import { ServicoQuadros } from './servico'
 
@@ -19,6 +19,8 @@ function montar() {
   const armazem: Armazem = { carregar: () => structuredClone(estado), salvar: (e) => void (estado = structuredClone(e)) }
   const fechados: string[] = []
   const copias: string[] = []
+  const limpezas: string[] = []
+  const fim: { atual: FimDaCopia } = { atual: { copia: 'apagada' } }
   let n = 0
   let s = 0
   const servico = new ServicoQuadros({
@@ -35,8 +37,21 @@ function montar() {
     novaSessao: () => `s${++s}`,
     copiarSessao: (de, para, id) => copias.push(`${de} -> ${para}: ${id}`) > 0,
     esperar: async () => {},
+    copias: {
+      criar: async (origem: Repo, titulo: string, usados: string[]) => {
+        const apelido = `${titulo.toLowerCase().replace(' ', '-')}${usados.length ? `-${usados.length + 1}` : ''}`
+        return {
+          caminho: `${origem.caminho}.copias\\${apelido}`,
+          copia: { origemId: origem.id, branch: `lousa/${apelido}`, apelido },
+        }
+      },
+      limpar: async (repo: Repo, caminhoOrigem?: string) => {
+        limpezas.push(`${repo.id} (${caminhoOrigem ?? '?'})`)
+        return fim.atual
+      },
+    },
   })
-  return { servico, fechados, copias, estado: () => estado }
+  return { servico, fechados, copias, limpezas, fim, estado: () => estado }
 }
 
 describe('ServicoQuadros', () => {
@@ -64,11 +79,11 @@ describe('ServicoQuadros', () => {
     expect(servico.criar('r2', 'terminal', 'pessoal').titulo).toBe('Terminal 2')
   })
 
-  it('apagar um quadro nao repete titulo no proximo', () => {
+  it('apagar um quadro nao repete titulo no proximo', async () => {
     const { servico } = montar()
     const um = servico.criar('r1', 'agente', 'principal')
     servico.criar('r1', 'agente', 'principal')
-    servico.remover(um.id)
+    await servico.remover(um.id)
     expect(servico.criar('r1', 'agente', 'principal').titulo).toBe('Claude 3')
   })
 
@@ -90,14 +105,15 @@ describe('ServicoQuadros', () => {
     expect(() => servico.criar('r1', 'terminal', 'nada')).toThrow('Conta não encontrada')
   })
 
-  it('remover fecha o terminal do quadro e apaga so ele', () => {
-    const { servico, fechados, estado } = montar()
+  it('remover fecha o terminal do quadro e apaga so ele', async () => {
+    const { servico, fechados, estado, limpezas } = montar()
     const a = servico.criar('r1', 'terminal', 'principal')
     const b = servico.criar('r1', 'terminal', 'principal')
-    servico.remover(a.id)
+    expect(await servico.remover(a.id)).toEqual({ copia: 'nenhuma' })
     expect(fechados).toEqual([a.id])
     expect(estado().quadros.map((q) => q.id)).toEqual([b.id])
-    expect(() => servico.remover(a.id)).toThrow('Quadro não encontrado')
+    expect(limpezas).toEqual([])
+    await expect(servico.remover(a.id)).rejects.toThrow('Quadro não encontrado')
   })
 
   it('agente do Claude nasce com conversa propria; terminal e Codex nao', () => {
@@ -143,5 +159,52 @@ describe('ServicoQuadros', () => {
     const c = servico.criar('r1', 'agente', 'cx:x')
     await servico.trocarConta(c.id, 'pessoal')
     expect(copias).toEqual([])
+  })
+})
+
+describe('ServicoQuadros com copia separada (D18)', () => {
+  it('criarEmCopia: a copia vira pasta da lista e o quadro nasce nela', async () => {
+    const { servico, estado } = montar()
+    const { quadro, repo } = await servico.criarEmCopia('r1', 'agente', 'pessoal', { x: 1, y: 2 })
+    expect(repo).toMatchObject({
+      nome: 'app ⑂ claude-1',
+      caminho: 'C:\\app.copias\\claude-1',
+      perfilPadraoId: 'pessoal',
+      copia: { origemId: 'r1', branch: 'lousa/claude-1', apelido: 'claude-1' },
+    })
+    expect(quadro).toMatchObject({ repoId: repo.id, perfilId: 'pessoal', titulo: 'Claude 1', sessaoId: 's1' })
+    expect(estado().repos.map((r) => r.id)).toEqual(['r1', 'r2', repo.id])
+  })
+
+  it('copia de uma copia copia a pasta original', async () => {
+    const { servico } = montar()
+    const primeira = await servico.criarEmCopia('r1', 'agente', 'pessoal')
+    const segunda = await servico.criarEmCopia(primeira.repo.id, 'agente', 'pessoal')
+    expect(segunda.repo.copia?.origemId).toBe('r1')
+    expect(segunda.repo.caminho).toBe('C:\\app.copias\\claude-2-2')
+  })
+
+  it('fechar o ultimo quadro da copia limpa e tira a pasta da lista', async () => {
+    const { servico, estado, limpezas } = montar()
+    const { quadro, repo } = await servico.criarEmCopia('r1', 'agente', 'pessoal')
+    expect(await servico.remover(quadro.id)).toEqual({ copia: 'apagada' })
+    expect(limpezas).toEqual([`${repo.id} (C:\\app)`])
+    expect(estado().repos.some((r) => r.id === repo.id)).toBe(false)
+  })
+
+  it('com outro quadro na copia, nao limpa', async () => {
+    const { servico, limpezas } = montar()
+    const { quadro, repo } = await servico.criarEmCopia('r1', 'agente', 'pessoal')
+    servico.criar(repo.id, 'terminal', 'pessoal')
+    expect(await servico.remover(quadro.id)).toEqual({ copia: 'nenhuma' })
+    expect(limpezas).toEqual([])
+  })
+
+  it('copia mantida (alteracao nao salva) continua na lista', async () => {
+    const { servico, estado, fim } = montar()
+    const { quadro, repo } = await servico.criarEmCopia('r1', 'agente', 'pessoal')
+    fim.atual = { copia: 'mantida', caminho: repo.caminho, motivo: 'x' }
+    expect((await servico.remover(quadro.id)).copia).toBe('mantida')
+    expect(estado().repos.some((r) => r.id === repo.id)).toBe(true)
   })
 })

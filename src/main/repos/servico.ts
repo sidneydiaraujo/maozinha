@@ -1,6 +1,7 @@
 // Pastas onde os quadros trabalham (T3.2, D13). Cada quadro tem a sua conta (D11);
 // a pasta so guarda a ultima conta usada, como sugestao.
-import type { Repo } from '../../shared/model'
+import type { FimDaCopia, Repo } from '../../shared/model'
+import type { ServicoCopias } from '../copias/servico'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoPerfis } from '../perfis/servico'
 import { normalizarCaminho, sugerirPerfil } from './sugerir'
@@ -12,6 +13,7 @@ export interface DepsServicoRepos {
   /** Fecha o terminal que vive no main (id do terminal = id do quadro). */
   fecharTerminal(terminalId: string): void
   novoId(): string
+  copias: Pick<ServicoCopias, 'limpar'>
 }
 
 const NAO_ENCONTRADO = 'Repositório não encontrado'
@@ -55,13 +57,20 @@ export class ServicoRepos {
     return repo
   }
 
-  /** Fecha os terminais, apaga o repo da lousa e os quadros dele. Os arquivos da pasta nunca sao tocados. */
-  remover(repoId: string): void {
+  /**
+   * Fecha os terminais, apaga o repo da lousa e os quadros dele. Os arquivos de uma pasta comum nunca
+   * sao tocados; a copia separada (D18) e limpa so se nada se perde, e sai da lista de qualquer jeito.
+   */
+  async remover(repoId: string): Promise<FimDaCopia> {
     const estado = this.deps.armazem.carregar()
-    if (!estado.repos.some((r) => r.id === repoId)) throw new Error(NAO_ENCONTRADO)
+    const repo = estado.repos.find((r) => r.id === repoId)
+    if (!repo) throw new Error(NAO_ENCONTRADO)
     for (const q of estado.quadros) if (q.repoId === repoId) this.deps.fecharTerminal(q.id)
     estado.repos = estado.repos.filter((r) => r.id !== repoId)
     estado.quadros = estado.quadros.filter((q) => q.repoId !== repoId)
     this.deps.armazem.salvar(estado)
+    if (!repo.copia) return { copia: 'nenhuma' }
+    const origem = estado.repos.find((r) => r.id === repo.copia?.origemId)
+    return this.deps.copias.limpar(repo, origem?.caminho)
   }
 }

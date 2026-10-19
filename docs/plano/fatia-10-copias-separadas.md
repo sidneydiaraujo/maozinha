@@ -113,7 +113,11 @@ limpo apaga pasta e branch, commit na cópia guarda a branch.
 **Regras:** `separado` numa cópia não cria cópia da cópia: usa a origem. A conta
 do quadro vira a sugestão da cópia e da origem. Removido o último quadro de uma
 cópia: fecha o terminal, espera 500 ms, `limpar`; `mantida` deixa a pasta na
-lista, os outros casos tiram. Tirar a pasta original não mexe nas cópias.
+lista, os outros casos tiram. Tirar uma cópia da lista ("×" na janelinha) tenta
+limpá-la e ela sai da lista de qualquer jeito (se tinha alteração, os arquivos
+ficam no disco e o aviso diz onde). Tirar a pasta original não mexe nas cópias.
+Para `criar` não passar de 4 parâmetros (lint), a tela manda `{ posicao, separado }`
+como opções.
 
 **Testes:** criar separado gera repo com `copia` e quadro nele; separado numa
 cópia usa a origem; remover o último quadro da cópia chama `limpar` e tira a
