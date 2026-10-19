@@ -2,10 +2,11 @@ import { FitAddon } from '@xterm/addon-fit'
 import { Unicode11Addon } from '@xterm/addon-unicode11'
 import { Terminal as XTerm } from '@xterm/xterm'
 import '@xterm/xterm/css/xterm.css'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { AlvoTerminal, AvisoAgente } from '../../../shared/model'
 import '../estilos/terminal.css'
 import { guardarFonte, lerFonte, proximaFonte } from './fonte'
+import { BuscaTerminal } from './BuscaTerminal'
 import { arquivoDeUri, ligarLinks, type AcoesLink } from './links'
 import { ligarTeclas } from './teclas'
 
@@ -104,6 +105,8 @@ function acompanharTamanho(
  */
 export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.Element {
   const recipiente = useRef<HTMLDivElement>(null)
+  // Ctrl+F (T12.2): o xterm vivo fica aqui para a busca ler o historico
+  const [busca, setBusca] = useState<XTerm | null>(null)
   const atual = useRef({ alvo, aoSair, aoAviso, arquivos })
   atual.current = { alvo, aoSair, aoAviso, arquivos }
   const chave = chaveDoAlvo(alvo)
@@ -138,7 +141,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
       })
 
     const digitou = term.onData(escrever)
-    const desligarTeclas = ligarTeclas(term, el, escrever)
+    const desligarTeclas = ligarTeclas(term, el, escrever, () => setBusca(term))
     const links = ligarLinks(term, acoesLink)
     const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
     ligarFonte(term, chave, tamanho.reajustar)
@@ -151,9 +154,15 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
       digitou.dispose()
       cancelarDados()
       cancelarSaida()
+      setBusca(null)
       term.dispose()
     }
   }, [chave])
 
-  return <div ref={recipiente} className="terminal nodrag nowheel" />
+  return (
+    <div className="terminal-moldura">
+      <div ref={recipiente} className="terminal nodrag nowheel" />
+      {busca && <BuscaTerminal term={busca} aoFechar={() => setBusca(null)} />}
+    </div>
+  )
 }

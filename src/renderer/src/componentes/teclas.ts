@@ -5,8 +5,9 @@ import type { Terminal } from '@xterm/xterm'
 /**
  * copiarOuInterromper = Ctrl+C (com selecao copia; sem selecao segue como ^C para o programa).
  * colarOuSeguir = Ctrl+V (sem texto na area de transferencia segue como ^V: o Claude cola imagem).
+ * buscar = Ctrl+F (T12.2): procura no historico do terminal.
  */
-export type Atalho = 'copiar' | 'copiarOuInterromper' | 'colar' | 'colarOuSeguir'
+export type Atalho = 'copiar' | 'copiarOuInterromper' | 'colar' | 'colarOuSeguir' | 'buscar'
 
 interface Tecla {
   key: string
@@ -22,6 +23,7 @@ export function atalhoDe(e: Tecla): Atalho | null {
   const letra = e.key.toLowerCase()
   if (letra === 'c') return e.shiftKey ? 'copiar' : 'copiarOuInterromper'
   if (letra === 'v') return e.shiftKey ? 'colar' : 'colarOuSeguir'
+  if (letra === 'f' && !e.shiftKey) return 'buscar'
   return null
 }
 
@@ -38,7 +40,12 @@ async function colar(term: Terminal, seguir: (() => void) | null): Promise<void>
 }
 
 /** Liga as teclas e o botao direito (selecao = copia; sem selecao = cola). Devolve o desligar. */
-export function ligarTeclas(term: Terminal, el: HTMLElement, escrever: (dados: string) => void): () => void {
+export function ligarTeclas(
+  term: Terminal,
+  el: HTMLElement,
+  escrever: (dados: string) => void,
+  aoBuscar: () => void,
+): () => void {
   const falhou = (): void => undefined // area de transferencia ocupada por outro programa: so nao faz nada
   term.attachCustomKeyEventHandler((e) => {
     const atalho = atalhoDe(e)
@@ -46,7 +53,8 @@ export function ligarTeclas(term: Terminal, el: HTMLElement, escrever: (dados: s
     if (atalho === 'copiarOuInterromper' && !term.hasSelection()) return true
     if (e.type !== 'keydown') return false
     e.preventDefault()
-    if (atalho === 'colar') colar(term, null).catch(falhou)
+    if (atalho === 'buscar') aoBuscar()
+    else if (atalho === 'colar') colar(term, null).catch(falhou)
     else if (atalho === 'colarOuSeguir') colar(term, () => escrever('\x16')).catch(falhou)
     else copiar(term).catch(falhou)
     return false

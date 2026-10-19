@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T12.1** — Ctrl+K (`docs/plano/fatia-12-achar-rapido.md`). Sidney pediu as Fatias 11 a 14 antes de instalar de novo.
+**Próxima tarefa: T13.1** — mensagem para vários quadros (`docs/plano/fatia-13-varios-quadros.md`). Sidney pediu as Fatias 11 a 14 antes de instalar de novo.
 Depois, com o Sidney: **T7.6 + T8.8 + T10.5 + aceites das Fatias 11 a 14** — testar com o instalador novo os itens 17 em diante do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 
@@ -67,6 +67,9 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T11.1 | Juntar: resumo e merge no main | ✅ 19/10/2026 |
 | T11.2 | Juntar: botão e janela | ✅ 19/10/2026 |
 | T11.3 | Aceite | ⬜ |
+| T12.1 | Ctrl+K: quadro, pasta e arquivo | ✅ 19/10/2026 |
+| T12.2 | Ctrl+F no terminal | ✅ 19/10/2026 |
+| T12.3 | Aceite | ⬜ |
 
 ## Bloqueios
 
@@ -165,3 +168,7 @@ Nenhum.
 - **19/10/2026 (Fatia 11, D19):** Sidney pediu mais 4 etapas antes de instalar ("faça as 4"): Fatias 11 (juntar), 12 (Ctrl+K e busca), 13 (mensagem para vários) e 14 (ícone e versão).
   - **T11.1 + T11.2:** `copias/juntar.ts` (`resumirCopia`, `juntarCopia`, `acharPrincipal`, `lerNumstat`), canais `copias:resumo` e `copias:juntar`, `JanelaJuntar.tsx`, botão "Juntar" no quadro de cópia, `frasesDoResumo` (+2 testes). `juntar.test.ts` com git real (+5: resumo, junta e depois apaga, conflito desfaz, pendência recusa). 261 testes, lint zerado.
   - **Provado na janela real** (repositório de exemplo, terminais comuns fazendo os commits como um agente faria): "1 commit da branch lousa/terminal-2, 1 arquivo (+1 −0), para juntar em main" com `novo.txt +1 −0`; "Juntar em main" → `novo.txt` na original; "Fechar o quadro e apagar a cópia" → pasta e branch sumiram; conflito em `leia.md` → mensagem, original intacta e `git status` limpo. Texto do aviso de cópia apagada trocado ("todo o trabalho dela já estava na pasta original"), porque depois de juntar "não tinha trabalho novo" enganava.
+- **19/10/2026 (Fatia 12, D20):** Ctrl+K e Ctrl+F.
+  - **Código:** `shared/pontuar.ts` (+5 testes), `arquivos/busca.ts` (+5) e canal `arquivos:buscar`, `paleta/` (+3), `componentes/procurar.ts` (+3), `BuscaTerminal.tsx`, atalho `buscar` em `teclas.ts` (+2 asserções). 277 testes, lint zerado, smoke ok.
+  - **Provado na janela real** (duas pastas git de exemplo, um terminal em cada, um deles fora da tela; teclas de verdade): Ctrl+K com o terminal em foco abre a paleta; "api" lista só o quadro e a pasta de api e Enter enquadra o quadro; "fatia" acha `docs/plano/fatia-12.md` (a cópia dentro de `node_modules` fica de fora) e abre no leitor; "Novo quadro em api" abre a janelinha com api marcada; Ctrl+F no terminal: "linha 1" → "11 de 11", Enter → "1 de 11", Esc fecha.
+  - **Bugs achados na prova e corrigidos:** (1) o Enter da paleta chegava à janelinha recém-aberta, que criava um agente sozinha; (2) letras soltas demais ("api" achava "app · Terminal 1"); (3) o teto da busca só valia entre pastas (uma pasta enorme era lida inteira); (4) item escolhido no `mousedown` (agora no clique).

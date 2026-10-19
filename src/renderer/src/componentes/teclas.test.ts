@@ -19,6 +19,8 @@ describe('atalhoDe', () => {
     expect(atalhoDe(tecla('v', { ctrl: true }))).toBe('colarOuSeguir')
     expect(atalhoDe(tecla('V', { ctrl: true, shift: true }))).toBe('colar')
     expect(atalhoDe(tecla('Insert', { shift: true }))).toBe('colar')
+    expect(atalhoDe(tecla('f', { ctrl: true }))).toBe('buscar')
+    expect(atalhoDe(tecla('F', { ctrl: true, shift: true }))).toBeNull()
   })
 
   it('o resto segue para o terminal (Alt+V do Claude, letras, Ctrl+D)', () => {
