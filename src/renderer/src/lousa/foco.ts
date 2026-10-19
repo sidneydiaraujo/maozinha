@@ -10,3 +10,15 @@ export function aoPedirFoco(cb: (quadroId: string) => void): () => void {
   ouvintes.add(cb)
   return () => ouvintes.delete(cb)
 }
+
+// Ctrl+K "Novo quadro em <pasta>" (T12.1): a lousa abre a janelinha com a pasta marcada.
+const ouvintesNovo = new Set<(repoId: string) => void>()
+
+export function pedirNovoQuadro(repoId: string): void {
+  for (const ouvinte of ouvintesNovo) ouvinte(repoId)
+}
+
+export function aoPedirNovoQuadro(cb: (repoId: string) => void): () => void {
+  ouvintesNovo.add(cb)
+  return () => ouvintesNovo.delete(cb)
+}

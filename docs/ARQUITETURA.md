@@ -188,6 +188,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `arquivos:mostrarNaPasta` | `{ repoId, relativo }` | — | T7.1 |
 | `arquivos:abrirLink` | `{ url }` | — (só `http`/`https`, no navegador) | T7.1 |
 | `arquivos:vigiar` | `{ pastas: { repoId, relativo }[] }` (máx. 500) | — (vigia só essas pastas, sem subpastas, e para as outras) | T7.1, D17 |
+| `arquivos:buscar` | `{ texto }` | `{ repoId, relativo }[]` (Ctrl+K: até 30, teto de 20 mil itens) | T12.1 |
 | evento `arquivos:mudou` | — | `{ repoId, caminhos }` (lote de 75 ms, sem git/dependências/builds) | T7.1 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como

@@ -10,6 +10,8 @@ interface Props {
   quadros: Quadro[]
   /** Veio de arrastar o cartao da conta: ja vem marcada. */
   perfilInicial?: string
+  /** Veio do Ctrl+K "Novo quadro em <pasta>" (T12.1): ja vem marcada. */
+  repoInicial?: string
   /** Onde a janelinha aparece, em pixels da tela. */
   tela: { x: number; y: number }
   aoCriar(repoId: string, tipo: TipoQuadro, perfilId: string, separado: boolean): Promise<void>
@@ -77,12 +79,13 @@ function BotoesAbrir(p: { desligado: boolean; aoAbrir(tipo: TipoQuadro): void })
  * chega pelo botao "+ Novo quadro", duplo clique na lousa ou arrastando o cartao da conta.
  */
 /** Conta, pasta e copia marcadas na janelinha, com as sugestoes de cada uma. */
-function useEscolhas({ perfis, repos, quadros, perfilInicial }: Props) {
-  // Sem conta marcada: a ultima usada na pasta mais recente.
+function useEscolhas({ perfis, repos, quadros, perfilInicial, repoInicial }: Props) {
+  const inicial = repos.find((r) => r.id === repoInicial)
+  // Sem conta marcada: a ultima usada na pasta pedida, ou na pasta mais recente.
   const [perfilId, setPerfilId] = useState(
-    perfilInicial ?? repos[repos.length - 1]?.perfilPadraoId ?? perfis[0]?.id ?? '',
+    perfilInicial ?? (inicial ?? repos[repos.length - 1])?.perfilPadraoId ?? perfis[0]?.id ?? '',
   )
-  const [escolhida, setRepoId] = useState<string | null>(() => pastaSugerida(repos, perfilId))
+  const [escolhida, setRepoId] = useState<string | null>(() => inicial?.id ?? pastaSugerida(repos, perfilId))
   // A pasta marcada pode ter sido tirada da lista: volta para a sugerida.
   const repoId = repos.some((r) => r.id === escolhida) ? escolhida : pastaSugerida(repos, perfilId)
   // null = segue a sugestao da pasta marcada; trocar de pasta volta para a sugestao

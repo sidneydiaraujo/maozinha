@@ -9,6 +9,8 @@ const METADE_JANELA = { x: 170, y: 200 }
 
 export interface PedidoNovo {
   perfilId?: string
+  /** Ctrl+K "Novo quadro em <pasta>" (T12.1): a pasta ja vem marcada. */
+  repoId?: string
   /** Onde a janelinha aparece (pixels da tela). */
   tela: Posicao
   /** Onde o quadro nasce (coordenadas da lousa). */
@@ -41,12 +43,13 @@ export function useNovoQuadro({ instancia, area, setEstado }: Opcoes) {
 
   /** Botao "+ Novo quadro": sem conta marcada, a janelinha sugere a ultima usada na pasta. */
   const abrirNoCentro = useCallback(
-    (perfilId?: string) => {
+    (perfilId?: string, repoId?: string) => {
       const r = area.current?.getBoundingClientRect()
       const centro = r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: 600, y: 400 }
       const lousa = naLousa(centro)
       setNovo({
         perfilId,
+        repoId,
         tela: { x: centro.x - METADE_JANELA.x, y: centro.y - METADE_JANELA.y },
         lousa: { x: lousa.x - METADE_QUADRO.x, y: lousa.y - METADE_QUADRO.y },
       })

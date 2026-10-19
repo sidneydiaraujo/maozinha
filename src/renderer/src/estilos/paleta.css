@@ -1,0 +1,76 @@
+/* Ctrl+K (T12.1) */
+.paleta-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 12vh;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.paleta {
+  width: min(620px, 92vw);
+  overflow: hidden;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 10px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+}
+
+.paleta-campo {
+  width: 100%;
+  padding: 12px 14px;
+  font: inherit;
+  font-size: 15px;
+  color: var(--texto);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--borda);
+  outline: none;
+}
+
+.paleta-lista {
+  max-height: 55vh;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+  list-style: none;
+}
+
+.paleta-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 7px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.paleta-item.marcado {
+  background: rgba(59, 130, 246, 0.25);
+}
+
+.paleta-icone {
+  width: 16px;
+  color: var(--apagado);
+  text-align: center;
+}
+
+.paleta-titulo {
+  white-space: nowrap;
+}
+
+.paleta-detalhe {
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--apagado);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.paleta-vazia {
+  padding: 10px;
+  color: var(--apagado);
+}

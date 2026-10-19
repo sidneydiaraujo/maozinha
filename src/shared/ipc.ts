@@ -58,6 +58,7 @@ export const IPC = {
   arquivosMostrarNaPasta: 'arquivos:mostrarNaPasta',
   arquivosAbrirLink: 'arquivos:abrirLink',
   arquivosVigiar: 'arquivos:vigiar',
+  arquivosBuscar: 'arquivos:buscar',
   arquivosMudou: 'arquivos:mudou', // evento main -> tela
 } as const
 
@@ -156,6 +157,8 @@ export interface LousaApi {
     abrirLink(url: string): Promise<void>
     /** Vigia so estas pastas, sem subpastas (D17), e para as outras. */
     vigiar(pastas: Array<{ repoId: string; relativo: string }>): Promise<void>
+    /** Ctrl+K (T12.1): arquivos das pastas da lista cujo nome combina (ate 30). */
+    buscar(texto: string): Promise<Array<{ repoId: string; relativo: string }>>
     aoMudar(cb: (repoId: string, caminhos: string[]) => void): () => void
   }
 }

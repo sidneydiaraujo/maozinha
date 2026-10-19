@@ -14,7 +14,7 @@ import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
 import { chamaAtencao } from './atencao'
 import { semQuadro, textoDoFim } from './copia'
-import { aoPedirFoco } from './foco'
+import { aoPedirFoco, aoPedirNovoQuadro } from './foco'
 import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from './nos'
 import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
@@ -127,8 +127,14 @@ function useAvisarPastas(estado: EstadoTela | null, aoMudarPastas: Props['aoMuda
   }, [repos, quadros, aoMudarPastas])
 }
 
-/** Barra de cima ou notificacao do Windows: enquadra o quadro que pede atencao (T8.2). */
-function useFocoPedido(instancia: React.RefObject<ReactFlowInstance<QuadroNo> | null>): void {
+/**
+ * Pedidos de fora da lousa: barra de cima, notificacao do Windows ou Ctrl+K enquadram um quadro
+ * (T8.2); "Novo quadro em <pasta>" do Ctrl+K abre a janelinha com a pasta marcada (T12.1).
+ */
+function usePedidos(
+  instancia: React.RefObject<ReactFlowInstance<QuadroNo> | null>,
+  abrirNoCentro: (perfilId?: string, repoId?: string) => void,
+): void {
   useEffect(
     () =>
       aoPedirFoco((quadroId) => {
@@ -136,6 +142,7 @@ function useFocoPedido(instancia: React.RefObject<ReactFlowInstance<QuadroNo> | 
       }),
     [instancia],
   )
+  useEffect(() => aoPedirNovoQuadro((repoId) => abrirNoCentro(undefined, repoId)), [abrirNoCentro])
 }
 
 /** Minimapa com a cor da conta; quadro que pede atencao fica ambar. */
@@ -192,7 +199,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
     aoFalhar: falhou,
   })
   const aoApertarMeio = usePanoMeio(instancia, aoMoverVista)
-  useFocoPedido(instancia)
+  usePedidos(instancia, novo.abrirNoCentro)
 
   useEffect(() => {
     if (estado) setNos((atuais) => preservarGeometria(montarNos(estado, acoes), atuais))
@@ -244,6 +251,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
           repos={estado.repos}
           quadros={estado.quadros}
           perfilInicial={novo.novo.perfilId}
+          repoInicial={novo.novo.repoId}
           tela={novo.novo.tela}
           aoCriar={novo.criar}
           aoNovaPasta={novo.pastaNova}

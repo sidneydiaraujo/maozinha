@@ -1,6 +1,7 @@
 import { shell } from 'electron'
 import { z } from 'zod'
 import { IPC } from '../../shared/ipc'
+import { buscarArquivos } from '../arquivos/busca'
 import { linkPermitido } from '../arquivos/regras'
 import type { ServicoArquivos } from '../arquivos/servico'
 import type { VigiaArquivos } from '../arquivos/vigia'
@@ -12,6 +13,7 @@ const Alvo = z.object({ repoId: z.string().min(1), relativo: z.string().max(1024
 const Link = z.object({ url: z.string().min(1).max(2048) })
 // Pastas abertas na arvore + a do leitor (D17); o teto so protege de um pedido absurdo.
 const Vigiar = z.object({ pastas: z.array(Alvo).max(500) })
+const Buscar = z.object({ texto: z.string().max(200) })
 
 export function registrarHandlersArquivos(arquivos: ServicoArquivos, vigia: VigiaArquivos, repos: ServicoRepos): void {
   handle(IPC.arquivosListar, Alvo, ({ repoId, relativo }) => arquivos.listar(repoId, relativo))
@@ -25,4 +27,7 @@ export function registrarHandlersArquivos(arquivos: ServicoArquivos, vigia: Vigi
     await shell.openExternal(permitido)
   })
   handle(IPC.arquivosVigiar, Vigiar, ({ pastas }) => vigia.sincronizar(pastas, repos.listar()))
+  handle(IPC.arquivosBuscar, Buscar, ({ texto }) =>
+    buscarArquivos(repos.listar(), texto, (repoId, relativo) => arquivos.listar(repoId, relativo)),
+  )
 }

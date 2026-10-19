@@ -84,3 +84,8 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Merge simples** (`git merge --no-edit`) na branch atual da pasta original, rodado pelo main como na D18. Sem rebase nem squash: o histórico do agente fica como ele fez.
   - **Só com as duas pastas limpas:** alteração sem commit na cópia ou na original recusa antes de mexer. Conflito: `merge --abort`, a original fica como estava, e a mensagem pede a um agente para resolver.
   - Depois de juntar, fechar o quadro apaga cópia e branch pelo caminho normal da D18 (`branch -d` aceita porque o trabalho já está na original).
+- **D20 (19/10/2026, Sidney):** achar rápido (Fatia 12).
+  - **Ctrl+K vale em toda a janela**, inclusive com um terminal em foco: a Lousa pega a tecla antes do xterm. Quem usava Ctrl+K no PowerShell (apagar até o fim da linha) perde esse atalho dentro da Lousa.
+  - **Ctrl+F dentro do terminal** abre a busca da Lousa (o PowerShell e o Claude Code não usam Ctrl+F por padrão). Ctrl+Shift+F continua indo para o programa.
+  - **Sem dependência nova:** a busca no terminal lê o histórico pela API do xterm (`buffer.active`), em vez do `@xterm/addon-search`; a pontuação do Ctrl+K é nossa (`shared/pontuar.ts`), usada pela tela e pelo main.
+  - **Busca de arquivo pelo main**, com teto de 20 mil itens e sem entrar em git, dependências, builds e `AppData`: a pasta do usuário inteira na lista não trava o app (lição da D17).

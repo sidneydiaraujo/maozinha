@@ -5,8 +5,10 @@ import { mensagemDe } from './componentes/erro'
 import { Explorador } from './explorador/Explorador'
 import { Leitor } from './leitor/Leitor'
 import { useArquivoAberto } from './leitor/useArquivoAberto'
-import { pedirFoco } from './lousa/foco'
+import { pedirFoco, pedirNovoQuadro } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
+import { Paleta } from './paleta/Paleta'
+import { usePaleta } from './paleta/usePaleta'
 import { BarraTopo } from './topo/BarraTopo'
 import { useContas } from './topo/useContas'
 
@@ -23,6 +25,7 @@ export function App(): React.JSX.Element {
   const contas = useContas(useCallback(() => setVersaoLousa((v) => v + 1), []))
   const arquivo = useArquivoAberto()
   const { aberto, fechar, abrir: abrirArquivo, avisar } = arquivo
+  const paleta = usePaleta()
 
   useEffect(() => {
     window.lousa
@@ -71,6 +74,20 @@ export function App(): React.JSX.Element {
           <Lousa versao={versaoLousa} aoMudarPastas={aoMudarPastas} aoAbrirArquivo={abrir} />
         </main>
       </div>
+      {paleta.aberta && (
+        <Paleta
+          repos={pastas.repos}
+          quadros={pastas.quadros}
+          perfis={contas.perfis ?? []}
+          aoFechar={paleta.fechar}
+          aoEscolher={(item) => {
+            paleta.fechar()
+            if (item.tipo === 'quadro') pedirFoco(item.quadroId)
+            else if (item.tipo === 'pasta') pedirNovoQuadro(item.repoId)
+            else abrir(item.repoId, item.relativo)
+          }}
+        />
+      )}
     </div>
   )
 }

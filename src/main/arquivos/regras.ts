@@ -67,6 +67,11 @@ export function visivel(nome: string): boolean {
   return !ESCONDIDOS.has(nome)
 }
 
+/** Pasta onde a busca do Ctrl+K entra: nem git, nem dependencias, nem builds, nem AppData. */
+export function entraNaBusca(nomeDaPasta: string): boolean {
+  return !ESCONDIDOS.has(nomeDaPasta) && !SEM_VIGIA.has(nomeDaPasta) && nomeDaPasta !== 'AppData'
+}
+
 /**
  * Caminho absoluto de `relativo` dentro de `raiz`, ou null se sair dela.
  * A tela so manda caminho relativo (com / ou \); absoluto, `..` para fora ou outra unidade = null.
