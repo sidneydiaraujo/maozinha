@@ -93,3 +93,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Seleção do próprio React Flow** (Ctrl+clique, Shift+arrastar); a barra só aparece com 2 ou mais. Sem modo novo nem botão a mais na tela.
   - **Texto e Enter separados por 150 ms:** texto e Enter chegando juntos parecem uma colagem para o Claude Code, e o Enter pode virar quebra de linha. Várias linhas vão como colagem (bracketed paste).
   - **Nenhum canal novo:** usa `terminais:escrever`, que a tela já tinha para o teclado.
+- **D22 (19/10/2026, Sidney):** acabamento do instalador (Fatia 14).
+  - **Ícone gerado por script nosso** (`scripts/gerar-icone.mjs`, PNG e ICO montados com o `zlib` do Node): sem dependência e fácil de refazer.
+  - **`signAndEditExecutable: true`** (antes `false`, D12): só assim o electron-builder grava ícone e versão dentro do `.exe`. Sem certificado configurado ele não assina nada (conferido: `NotSigned`); a integridade continua pelo `release/SHA256.txt`. O build passou sem baixar nada novo.
+  - **Versão 0.1.0:** primeira versão com as Fatias 7 a 14 juntas. Daqui em diante, cada instalador para teste sobe a versão.

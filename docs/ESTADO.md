@@ -1,7 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T14.1** — ícone próprio e versão 0.1.0 (`docs/plano/fatia-14-acabamento.md`). Sidney pediu as Fatias 11 a 14 antes de instalar de novo.
-Depois, com o Sidney: **T7.6 + T8.8 + T10.5 + aceites das Fatias 11 a 14** — testar com o instalador novo os itens 17 em diante do `docs/aceite/roteiro.md`.
+**Próxima tarefa: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2)** — o Sidney instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
@@ -72,6 +71,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T12.3 | Aceite | ⬜ |
 | T13.1 | Barra "Para N quadros" | ✅ 19/10/2026 |
 | T13.2 | Aceite | ⬜ |
+| T14.1 | Ícone próprio e versão 0.1.0 | ✅ 19/10/2026 |
+| T14.2 | Aceite | ⬜ |
 
 ## Bloqueios
 
@@ -177,3 +178,4 @@ Nenhum.
 - **19/10/2026 (Fatia 13, D21):** `lousa/envio.ts` (+4 testes), `BarraEnvio.tsx`, dica "Ctrl+clique seleciona vários" no cabeçalho. 281 testes, lint zerado.
   - **Provado na janela real** (três terminais comuns; Ctrl de verdade segurado e cliques de mouse): um selecionado não mostra a barra; Ctrl+clique no segundo mostra "Para 2 quadros"; `'enviado-' + (2 * 21)` + Enter → "Enviado para 2 quadros"; os dois selecionados escreveram `enviado-42` e o terceiro nada.
   - **Não provado:** um Claude de verdade recebendo (a pausa de 150 ms antes do Enter vem de como o Claude Code trata colagem; confirmar no aceite, item 40).
+- **19/10/2026 (Fatia 14, D22):** `scripts/gerar-icone.mjs` → `build/icon.png` e `build/icon.ico`; `electron-builder.yml` com o ícone e `signAndEditExecutable: true`; versão 0.1.0. `npm run dist` gerou `release/Lousa.ia Setup 0.1.0.exe` (hash em `release/SHA256.txt`). **Conferido:** ícone extraído do `.exe` e do instalador é o novo; versão do arquivo 0.1.0; `NotSigned` nos dois (nada foi assinado); `win-unpacked\Lousa.ia.exe --smoke` → código 0. **Não provado:** instalar de verdade e ver o atalho do Menu Iniciar (fica no aceite, item 41).

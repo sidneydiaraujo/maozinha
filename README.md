@@ -33,7 +33,7 @@ Regras de lint em `eslint-rules/`: cópia do
 
 ## Instalar e usar
 
-1. `npm run dist` gera `release/Lousa.ia Setup 0.0.1.exe` (sem assinatura digital;
+1. `npm run dist` gera `release/Lousa.ia Setup <versão>.exe` (sem assinatura digital;
    confira o hash em `release/SHA256.txt`). Instalar não pede administrador.
 2. Abra pelo Menu Iniciar. A barra de cima mostra um ícone por conta (clique para
    ver o cartão, "Entrar" / "Trocar login"); a engrenagem abre todas as contas e

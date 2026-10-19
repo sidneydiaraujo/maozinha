@@ -10,10 +10,14 @@ asarUnpack:
   - node_modules/node-pty/**
 win:
   target: nsis
-  # sem assinatura digital por enquanto: o hash do instalador vai em release/SHA256.txt
-  signAndEditExecutable: false
+  icon: build/icon.ico
+  # sem assinatura digital por enquanto (sem certificado, o electron-builder pula a assinatura):
+  # o hash do instalador vai em release/SHA256.txt. Ligado so para gravar icone e versao no .exe (D22).
+  signAndEditExecutable: true
 nsis:
   oneClick: true
   perMachine: false
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
 # node-pty ja traz binarios prontos (prebuilds); nao ha compilador C++ no PC
 npmRebuild: false

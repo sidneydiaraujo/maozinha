@@ -56,3 +56,7 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 ## Fatia 13 — a mesma mensagem para vários quadros
 
 - [ ] 40. Com dois ou três agentes abertos, segure Ctrl e clique no cabeçalho de dois deles (ou Shift+arrastar no vazio em volta): aparece no pé da lousa "Para 2 quadros". Escreva "diga oi" e Enter: os dois agentes recebem e respondem; o terceiro não. Shift+Enter quebra a linha sem enviar.
+
+## Fatia 14 — acabamento
+
+- [ ] 41. O instalador se chama `Lousa.ia Setup 0.1.0.exe` e já mostra o ícone novo (lousa escura com quadros azul, verde e âmbar). Depois de instalar, o atalho do Menu Iniciar e a barra de tarefas mostram o mesmo ícone, e o canto de cima da Lousa diz `v0.1.0`.
