@@ -11,7 +11,16 @@ const caixa = { x: 1, y: 2, largura: 300, altura: 200 }
 const estado: EstadoSalvo = {
   versao: 2,
   perfis: { principal: { nome: 'Empresa' }, 'cx:novo': { provedor: 'codex', criada: true } },
-  repos: [{ id: 'r1', nome: 'app', caminho: 'C:\\app', perfilPadraoId: 'principal' }],
+  repos: [
+    { id: 'r1', nome: 'app', caminho: 'C:\\app', perfilPadraoId: 'principal' },
+    {
+      id: 'r2',
+      nome: 'app',
+      caminho: 'C:\\app.copias\\claude-2',
+      perfilPadraoId: 'pessoal',
+      copia: { origemId: 'r1', branch: 'lousa/claude-2', apelido: 'claude-2' },
+    },
+  ],
   quadros: [{ id: 'q1', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'Claude 1', caixa }],
   viewport: { x: 10, y: 20, zoom: 0.5 },
   ultimoPerfilId: 'principal',

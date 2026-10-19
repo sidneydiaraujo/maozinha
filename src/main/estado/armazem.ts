@@ -27,6 +27,7 @@ const SchemaEstado = z.object({
       nome: z.string(),
       caminho: z.string(),
       perfilPadraoId: z.string(),
+      copia: z.object({ origemId: z.string(), branch: z.string(), apelido: z.string() }).optional(),
     }),
   ),
   quadros: z.array(

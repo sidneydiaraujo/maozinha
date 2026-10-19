@@ -35,7 +35,22 @@ export interface Repo {
   nome: string        // nome da pasta
   caminho: string     // absoluto, como o usuário escolheu
   perfilPadraoId: PerfilId // última conta usada nesta pasta: só sugestão, cada quadro tem a sua
+  copia?: Copia       // pasta que é cópia separada (worktree) de outra (T10, D18)
 }
+
+// Cópia separada de um repositório (git worktree) com branch própria (T10, D18).
+export interface Copia {
+  origemId: string    // pasta original
+  branch: string      // 'lousa/<apelido>'
+  apelido: string     // 'claude-3': nome da pasta da cópia
+}
+
+// O que aconteceu com a cópia ao fechar o último quadro dela (ou tirá-la da lista).
+export type FimDaCopia =
+  | { copia: 'nenhuma' }                                  // a pasta não era cópia, ou ainda tem quadros
+  | { copia: 'apagada' }
+  | { copia: 'branchGuardada'; branch: string }           // pasta apagada; commits ficaram na branch
+  | { copia: 'mantida'; caminho: string; motivo: string } // tinha alteração não salva: nada apagado
 
 export type TipoQuadro = 'terminal' | 'agente' // 'agente' digita o CLI do provedor da conta (claude ou codex)
 
