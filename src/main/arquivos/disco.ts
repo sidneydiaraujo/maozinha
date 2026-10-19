@@ -3,12 +3,15 @@ import { shell } from 'electron'
 import { readdirSync, readFileSync, statSync, watch } from 'node:fs'
 import { join } from 'node:path'
 import type { ItemArquivo } from '../../shared/model'
-import { mudancaRelevante } from './regras'
 import type { DepsArquivos } from './servico'
 import type { Observar } from './vigia'
 
 function ehPasta(caminho: string): boolean {
-  return statSync(caminho, { throwIfNoEntry: false })?.isDirectory() === true
+  try {
+    return statSync(caminho, { throwIfNoEntry: false })?.isDirectory() === true
+  } catch {
+    return false // atalho para algo que o Windows nao deixa ler (EPERM)
+  }
 }
 
 function listarPasta(caminho: string): ItemArquivo[] {
@@ -36,14 +39,14 @@ export const discoReal: Omit<DepsArquivos, 'repos'> = {
 }
 
 /**
- * fs.watch recursivo: no Windows usa a mesma API do sistema que o VSCode (ReadDirectoryChangesW).
- * O Windows tambem avisa quando uma pasta muda (porque algo dentro mudou): so arquivos seguem.
+ * fs.watch de uma pasta so (sem subpastas, D17). Nada de stat aqui: o Windows nega stat
+ * em arquivos de alguns apps (EPERM) e um erro neste retorno derrubava o main.
  */
 export const observarReal: Observar = (caminho, aoMudar, aoFalhar) => {
   try {
-    const vigia = watch(caminho, { recursive: true }, (_tipo, nome) => {
+    const vigia = watch(caminho, (_tipo, nome) => {
       const texto = nome?.toString()
-      if (texto && mudancaRelevante(texto) !== null && !ehPasta(join(caminho, texto))) aoMudar(texto)
+      if (texto) aoMudar(texto)
     })
     vigia.on('error', aoFalhar)
     return { fechar: () => vigia.close() }

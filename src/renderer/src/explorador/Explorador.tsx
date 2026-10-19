@@ -1,14 +1,13 @@
 // Lateral com as pastas em uso (T7.3), em cascata como o Explorer do VSCode.
-// Arquivo que um terminal mexeu fica marcado (e a marca sobe para as pastas);
-// "Alterados agora" lista os mais recentes.
+// Sem marca de "alterado" (D17): o main so vigia as pastas abertas aqui, para a arvore
+// mostrar arquivo novo ou apagado.
 import { useEffect, useMemo, type CSSProperties } from 'react'
 import type { PerfilComConta, Quadro, Repo } from '../../../shared/model'
 import '../estilos/explorador.css'
 import { SimboloArquivo, SimboloPasta } from '../topo/Simbolos'
-import { haQuanto, marcaDaPasta, marcaDoArquivo, recentes, type Marca, type Recente } from './alterados'
-import { pastaDe, type Linha } from './arvore'
-import { useAlterados } from './useAlterados'
+import type { Linha } from './arvore'
 import { useArvore } from './useArvore'
+import { vigiarPastas } from './vigiar'
 
 export interface Selecao {
   repoId: string
@@ -22,17 +21,6 @@ interface Props {
   selecionado: Selecao | null
   aviso: string | null
   aoAbrir(repoId: string, relativo: string): void
-}
-
-const TEXTO_MARCA: Record<Exclude<Marca, null>, string> = {
-  escrevendo: 'Um terminal está escrevendo aqui agora',
-  alterado: 'Mexido por um terminal há pouco',
-}
-
-const nomeDe = (relativo: string): string => relativo.slice(relativo.lastIndexOf('/') + 1)
-
-function Bolinha({ marca }: { marca: Marca }): React.JSX.Element | null {
-  return marca ? <span className={`marca marca-${marca}`} title={TEXTO_MARCA[marca]} /> : null
 }
 
 /** Uma bolinha na cor da conta de cada quadro aberto nesta pasta. */
@@ -54,7 +42,6 @@ function ContasDaPasta({ quadros, perfis }: { quadros: Quadro[]; perfis: PerfilC
 
 interface LinhaProps {
   linha: Linha
-  marca: Marca
   selecionada: boolean
   extra?: React.ReactNode
   aoClicar(): void
@@ -72,7 +59,7 @@ function AvisoArvore({ linha }: { linha: Linha }): React.JSX.Element {
   )
 }
 
-function LinhaArvore({ linha, marca, selecionada, extra, aoClicar }: LinhaProps): React.JSX.Element {
+function LinhaArvore({ linha, selecionada, extra, aoClicar }: LinhaProps): React.JSX.Element {
   if (linha.estado) return <AvisoArvore linha={linha} />
   const classes = ['arvore-linha', linha.nivel === 0 && 'arvore-raiz', selecionada && 'arvore-selecionada']
   return (
@@ -87,66 +74,25 @@ function LinhaArvore({ linha, marca, selecionada, extra, aoClicar }: LinhaProps)
     >
       <span className={`seta${linha.pasta ? '' : ' seta-vazia'}${linha.aberta ? ' seta-aberta' : ''}`}>›</span>
       {linha.pasta ? <SimboloPasta aberta={linha.aberta} /> : <SimboloArquivo />}
-      <span className={`arvore-nome${marca && !linha.pasta ? ' arvore-nome-alterado' : ''}`}>{linha.nome}</span>
+      <span className="arvore-nome">{linha.nome}</span>
       {extra}
-      <Bolinha marca={marca} />
     </button>
-  )
-}
-
-interface RecentesProps {
-  itens: Recente[]
-  repos: Repo[]
-  agora: number
-  marca(r: Recente): Marca
-  aoAbrir(repoId: string, relativo: string): void
-}
-
-function Recentes({ itens, repos, agora, marca, aoAbrir }: RecentesProps): React.JSX.Element | null {
-  if (itens.length === 0) return null
-  return (
-    <section className="recentes" aria-label="Alterados agora">
-      <h3 className="explorador-secao">Alterados agora</h3>
-      {itens.map((r) => {
-        const repo = repos.find((x) => x.id === r.repoId)
-        const onde = [repo?.nome, pastaDe(r.relativo)].filter(Boolean).join('/')
-        return (
-          <button
-            key={`${r.repoId}|${r.relativo}`}
-            className="recente"
-            title={`${onde}/${nomeDe(r.relativo)}`}
-            onClick={() => aoAbrir(r.repoId, r.relativo)}
-          >
-            <Bolinha marca={marca(r)} />
-            <span className="recente-nome">{nomeDe(r.relativo)}</span>
-            <span className="recente-onde">
-              {onde} · {haQuanto(r.quando, agora)}
-            </span>
-          </button>
-        )
-      })}
-    </section>
   )
 }
 
 export function Explorador({ repos, quadros, perfis, selecionado, aviso, aoAbrir }: Props): React.JSX.Element {
   const { linhas, alternar, recolherTudo, aoMudarArquivos } = useArvore(repos)
-  const { alterados, agora, anotarMudancas } = useAlterados()
 
-  useEffect(
-    () =>
-      window.lousa.arquivos.aoMudar((repoId, caminhos) => {
-        anotarMudancas(repoId, caminhos)
-        aoMudarArquivos(repoId, caminhos)
-      }),
-    [anotarMudancas, aoMudarArquivos],
+  useEffect(() => window.lousa.arquivos.aoMudar(aoMudarArquivos), [aoMudarArquivos])
+
+  // o main vigia so as pastas abertas que aparecem na arvore
+  // (o vigiarPastas ja ignora pedido igual ao anterior)
+  const abertas = useMemo(
+    () => linhas.filter((l) => l.pasta && l.aberta).map((l) => ({ repoId: l.repoId, relativo: l.relativo })),
+    [linhas],
   )
-
-  const ultimos = useMemo(() => recentes(alterados, agora), [alterados, agora])
-  const marcaDe = (l: Linha): Marca =>
-    l.pasta
-      ? marcaDaPasta(alterados, l.repoId, l.relativo, agora)
-      : marcaDoArquivo(alterados, l.repoId, l.relativo, agora)
+  useEffect(() => vigiarPastas('arvore', abertas), [abertas])
+  useEffect(() => () => vigiarPastas('arvore', []), [])
 
   return (
     <aside className="explorador" aria-label="Pastas">
@@ -158,13 +104,6 @@ export function Explorador({ repos, quadros, perfis, selecionado, aviso, aoAbrir
           </button>
         )}
       </header>
-      <Recentes
-        itens={ultimos}
-        repos={repos}
-        agora={agora}
-        marca={(r) => marcaDoArquivo(alterados, r.repoId, r.relativo, agora)}
-        aoAbrir={aoAbrir}
-      />
       <div className="arvore" role="tree">
         {repos.length === 0 && (
           <p className="apagado explorador-vazio">
@@ -175,7 +114,6 @@ export function Explorador({ repos, quadros, perfis, selecionado, aviso, aoAbrir
           <LinhaArvore
             key={`${l.repoId}|${l.relativo}|${l.estado ?? ''}`}
             linha={l}
-            marca={l.estado ? null : marcaDe(l)}
             selecionada={selecionado?.repoId === l.repoId && selecionado.relativo === l.relativo}
             extra={
               l.nivel === 0 ? (

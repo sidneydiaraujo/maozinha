@@ -1,6 +1,6 @@
 // Estado da arvore (T7.3): quais pastas estao abertas e o que ja foi lido do disco.
 // Como o VSCode, uma pasta so e lida quando abre; quando algo muda dentro de uma pasta
-// ja lida, ela e relida.
+// aberta (o main vigia so essas, D17), ela e relida.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ItemArquivo, Repo } from '../../../shared/model'
 import { mensagemDe } from '../componentes/erro'
@@ -28,17 +28,6 @@ function guardar(g: Guardado): void {
     localStorage.setItem(GUARDA, JSON.stringify(g))
   } catch {
     // sem localStorage a arvore so nao lembra o que estava aberto
-  }
-}
-
-/** A pasta e todas as de cima dela: um arquivo novo em pasta nova aparece na pasta de cima. */
-function pastasAcima(relativo: string): string[] {
-  const pastas: string[] = []
-  let atual = pastaDe(relativo)
-  for (;;) {
-    pastas.push(atual)
-    if (atual === '') return pastas
-    atual = pastaDe(atual)
   }
 }
 
@@ -102,10 +91,10 @@ export function useArvore(repos: Repo[]) {
 
   const recolherTudo = useCallback(() => mudarGuardado((g) => ({ ...g, abertas: [] })), [mudarGuardado])
 
-  /** Junta por 150 ms e rele so as pastas ja lidas que ficam acima do que mudou. */
+  /** Junta por 150 ms e rele a pasta (ja lida) de cada coisa que mudou. */
   const aoMudarArquivos = useCallback(
     (repoId: string, caminhos: string[]) => {
-      for (const c of caminhos) for (const p of pastasAcima(c)) pendentes.current.add(chavePasta(repoId, p))
+      for (const c of caminhos) pendentes.current.add(chavePasta(repoId, pastaDe(c)))
       relogio.current ??= window.setTimeout(() => {
         relogio.current = null
         const lote = [...pendentes.current]

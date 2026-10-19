@@ -34,12 +34,6 @@ export function App(): React.JSX.Element {
   // clique na notificacao do Windows (T8.1): a lousa enquadra o quadro
   useEffect(() => window.lousa.quadros.aoFocar(pedirFoco), [])
 
-  // o main vigia exatamente as pastas salvas; muda quando uma pasta entra ou sai
-  const idsDasPastas = pastas.repos.map((r) => r.id).join(',')
-  useEffect(() => {
-    window.lousa.arquivos.vigiar().catch((e: unknown) => setErro(mensagemDe(e)))
-  }, [idsDasPastas])
-
   // pasta tirada da lista: o leitor de um arquivo dela fecha
   useEffect(() => {
     if (aberto && !pastas.repos.some((r) => r.id === aberto.repoId)) fechar()

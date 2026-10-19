@@ -134,8 +134,8 @@ export interface LousaApi {
     mostrarNaPasta(repoId: string, relativo: string): Promise<void>
     /** So http(s), no navegador. */
     abrirLink(url: string): Promise<void>
-    /** Passa a vigiar as pastas salvas (e para as removidas). */
-    vigiar(): Promise<void>
+    /** Vigia so estas pastas, sem subpastas (D17), e para as outras. */
+    vigiar(pastas: Array<{ repoId: string; relativo: string }>): Promise<void>
     aoMudar(cb: (repoId: string, caminhos: string[]) => void): () => void
   }
 }

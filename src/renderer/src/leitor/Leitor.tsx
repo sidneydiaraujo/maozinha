@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ConteudoArquivo } from '../../../shared/model'
 import { mensagemDe } from '../componentes/erro'
 import '../estilos/leitor.css'
+import { pastaDe } from '../explorador/arvore'
+import { vigiarPastas } from '../explorador/vigiar'
 import { renderizarMarkdown, resolverLink } from './markdown'
 import type { ArquivoAberto } from './useArquivoAberto'
 import { useLargura } from './useLargura'
@@ -31,6 +33,12 @@ function useConteudo(arquivo: ArquivoAberto) {
   const [erro, setErro] = useState<string | null>(null)
   const [atualizado, setAtualizado] = useState(false)
   const { repoId, relativo } = arquivo
+
+  // a pasta do arquivo e vigiada mesmo fechada na arvore (D17)
+  useEffect(() => {
+    vigiarPastas('leitor', [{ repoId, relativo: pastaDe(relativo) }])
+    return () => vigiarPastas('leitor', [])
+  }, [repoId, relativo])
 
   useEffect(
     () =>

@@ -10,6 +10,8 @@ import type { ServicoRepos } from '../repos/servico'
 // Caminho sempre relativo ao repo; o ServicoArquivos confere que fica dentro dele.
 const Alvo = z.object({ repoId: z.string().min(1), relativo: z.string().max(1024) })
 const Link = z.object({ url: z.string().min(1).max(2048) })
+// Pastas abertas na arvore + a do leitor (D17); o teto so protege de um pedido absurdo.
+const Vigiar = z.object({ pastas: z.array(Alvo).max(500) })
 
 export function registrarHandlersArquivos(arquivos: ServicoArquivos, vigia: VigiaArquivos, repos: ServicoRepos): void {
   handle(IPC.arquivosListar, Alvo, ({ repoId, relativo }) => arquivos.listar(repoId, relativo))
@@ -22,5 +24,5 @@ export function registrarHandlersArquivos(arquivos: ServicoArquivos, vigia: Vigi
     if (!permitido) throw new Error('Só links http ou https abrem no navegador')
     await shell.openExternal(permitido)
   })
-  handle(IPC.arquivosVigiar, z.undefined(), () => vigia.sincronizar(repos.listar()))
+  handle(IPC.arquivosVigiar, Vigiar, ({ pastas }) => vigia.sincronizar(pastas, repos.listar()))
 }

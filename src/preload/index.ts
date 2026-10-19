@@ -61,7 +61,7 @@ const api: LousaApi = {
     abrirFora: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosAbrirFora, { repoId, relativo }),
     mostrarNaPasta: (repoId, relativo) => ipcRenderer.invoke(IPC.arquivosMostrarNaPasta, { repoId, relativo }),
     abrirLink: (url) => ipcRenderer.invoke(IPC.arquivosAbrirLink, { url }),
-    vigiar: () => ipcRenderer.invoke(IPC.arquivosVigiar),
+    vigiar: (pastas) => ipcRenderer.invoke(IPC.arquivosVigiar, { pastas }),
     aoMudar: (cb) => inscrever<{ repoId: string; caminhos: string[] }>(IPC.arquivosMudou, (p) => cb(p.repoId, p.caminhos)),
   },
 }
