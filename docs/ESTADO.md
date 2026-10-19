@@ -1,6 +1,7 @@
 # Estado da construção
 
-**Próxima tarefa: T7.6 + T8.8 + T10.5** — o Sidney testa com o instalador novo os itens 17 a 34 (com o 20b) do `docs/aceite/roteiro.md` (Fatias 7, 8 e 10 juntas).
+**Próxima tarefa: T12.1** — Ctrl+K (`docs/plano/fatia-12-achar-rapido.md`). Sidney pediu as Fatias 11 a 14 antes de instalar de novo.
+Depois, com o Sidney: **T7.6 + T8.8 + T10.5 + aceites das Fatias 11 a 14** — testar com o instalador novo os itens 17 em diante do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
@@ -63,6 +64,9 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T10.3 | Quadros e canais | ✅ 19/10/2026 |
 | T10.4 | Tela: opção na janelinha, selo da branch, aviso ao fechar | ✅ 19/10/2026 |
 | T10.5 | Aceite | ⬜ |
+| T11.1 | Juntar: resumo e merge no main | ✅ 19/10/2026 |
+| T11.2 | Juntar: botão e janela | ✅ 19/10/2026 |
+| T11.3 | Aceite | ⬜ |
 
 ## Bloqueios
 
@@ -158,3 +162,6 @@ Nenhum.
   - **T10.4:** caixa "Cópia separada (branch própria)" no "Novo quadro", marcada sozinha quando a pasta já tem quadro (`lousa/copia.ts`, +4 testes; `useEscolhas` tirado do componente para caber na régua); cabeçalho mostra `app ⑂ apelido` e a branch ao passar o mouse; aviso no alto que some em 10 s. 254 testes, lint zerado, smoke ok.
   - **Provado na janela real** (dados de teste com um repositório git de exemplo e um terminal aberto nele, conduzido por script): caixa marcada com a frase; "Abrir terminal" criou `app.copias\terminal-2` na branch `lousa/terminal-2`; um terminal escreveu `novo.txt` noutra cópia; fechar a cópia limpa → "Cópia separada apagada", pasta e branch sumiram (o terminal recém-fechado não prendeu a pasta); fechar a cópia com `novo.txt` → "Cópia mantida em …", pasta e arquivo ficaram, e ela segue na lista e na lateral.
   - **Não provado:** agente Claude de verdade numa cópia (a primeira abertura numa pasta nova pede para confiar na pasta) e o caminho "commit na cópia → branch guardada" pela tela (provado no teste com git real).
+- **19/10/2026 (Fatia 11, D19):** Sidney pediu mais 4 etapas antes de instalar ("faça as 4"): Fatias 11 (juntar), 12 (Ctrl+K e busca), 13 (mensagem para vários) e 14 (ícone e versão).
+  - **T11.1 + T11.2:** `copias/juntar.ts` (`resumirCopia`, `juntarCopia`, `acharPrincipal`, `lerNumstat`), canais `copias:resumo` e `copias:juntar`, `JanelaJuntar.tsx`, botão "Juntar" no quadro de cópia, `frasesDoResumo` (+2 testes). `juntar.test.ts` com git real (+5: resumo, junta e depois apaga, conflito desfaz, pendência recusa). 261 testes, lint zerado.
+  - **Provado na janela real** (repositório de exemplo, terminais comuns fazendo os commits como um agente faria): "1 commit da branch lousa/terminal-2, 1 arquivo (+1 −0), para juntar em main" com `novo.txt +1 −0`; "Juntar em main" → `novo.txt` na original; "Fechar o quadro e apagar a cópia" → pasta e branch sumiram; conflito em `leia.md` → mensagem, original intacta e `git status` limpo. Texto do aviso de cópia apagada trocado ("todo o trabalho dela já estava na pasta original"), porque depois de juntar "não tinha trabalho novo" enganava.

@@ -40,4 +40,9 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 - [ ] 31. Com um agente já aberto numa pasta que é repositório git (ex.: `lousa-ia`), "+ Novo quadro" na mesma pasta: a caixa "Cópia separada (branch própria)" já vem marcada, com a frase "Já tem um quadro nesta pasta". "Abrir agente": o quadro novo mostra 📁 `lousa-ia ⑂ claude-N`; passando o mouse no nome aparece a pasta `...\lousa-ia.copias\claude-N` e a branch `lousa/claude-N`. No agente, `git branch --show-current` confirma.
 - [ ] 32. Peça ao agente da cópia para mudar um arquivo: o agente da pasta original não vê a mudança (`git status` limpo lá). Feche o quadro da cópia sem commit: aparece "Cópia mantida em …: tem alterações…" e a pasta continua na lista e no disco.
 - [ ] 33. Abra um quadro nessa cópia de novo (ela aparece na lista de pastas), peça um commit e feche: aparece "Cópia apagada; os commits ficaram na branch lousa/claude-N". Na pasta original, `git log lousa/claude-N` mostra o commit e `git merge lousa/claude-N` junta o trabalho.
-- [ ] 34. Abra uma cópia e feche sem mexer em nada: "Cópia separada apagada: não tinha trabalho novo." A pasta `...\lousa-ia.copias\claude-N` sumiu e `git branch` não lista a branch.
+- [ ] 34. Abra uma cópia e feche sem mexer em nada: "Cópia separada apagada: todo o trabalho dela já estava na pasta original." A pasta `...\lousa-ia.copias\claude-N` sumiu e `git branch` não lista a branch.
+
+## Fatia 11 — juntar a cópia
+
+- [ ] 35. Numa cópia separada, peça ao agente para mudar algo e fazer commit. "Juntar" no cabeçalho do quadro: a janela diz quantos commits e arquivos (+/−) e "para juntar em main" (ou a branch em que a pasta original estiver). "Juntar em main" → ✓; o arquivo aparece na pasta original. "Fechar o quadro e apagar a cópia" → a cópia e a branch somem.
+- [ ] 36. Conflito: mude a mesma linha do mesmo arquivo na cópia e na original (com commit nos dois). "Juntar" mostra "Conflito: os dois lados mudaram …" e a pasta original fica igual (`git status` limpo). Com alteração sem commit na cópia, a janela avisa e não junta.

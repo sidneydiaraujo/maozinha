@@ -6,6 +6,7 @@ import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import { chamaAtencao, seloDoAviso } from './atencao'
 import { ContaDoQuadro } from './ContaDoQuadro'
+import { JanelaJuntar } from './JanelaJuntar'
 import type { AcoesLousa, QuadroNo } from './nos'
 import { atencao, useAtencao } from './useAtencao'
 
@@ -66,6 +67,7 @@ function CorpoQuadro({ quadro, repo, acoes }: { quadro: Quadro; repo: Repo; acoe
 export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.Element {
   const { quadro, perfil, repo, rotulo, contas, acoes } = data
   const chamando = chamaAtencao(useAtencao(quadro.id))
+  const [juntando, setJuntando] = useState(false)
   return (
     <div
       className={chamando ? 'quadro quadro-chamando' : 'quadro'}
@@ -95,6 +97,15 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           tipo={quadro.tipo}
           aoTrocar={(perfilId) => acoes.trocarConta(quadro.id, perfilId)}
         />
+        {repo.copia && (
+          <button
+            className="botao-pequeno botao-juntar nodrag"
+            title={`Juntar o trabalho da branch ${repo.copia.branch} na pasta original`}
+            onClick={() => setJuntando(true)}
+          >
+            Juntar
+          </button>
+        )}
         <button
           className="botao-ampliar nodrag"
           title="Ampliar na tela (de novo para voltar)"
@@ -112,6 +123,17 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
         </button>
       </header>
       <CorpoQuadro quadro={quadro} repo={repo} acoes={acoes} />
+      {juntando && (
+        <JanelaJuntar
+          repo={repo}
+          cor={perfil?.cor ?? '#555'}
+          aoFechar={() => setJuntando(false)}
+          aoFecharQuadro={() => {
+            setJuntando(false)
+            acoes.removerQuadro(quadro.id)
+          }}
+        />
+      )}
     </div>
   )
 }
