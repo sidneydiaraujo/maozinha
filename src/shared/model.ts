@@ -45,6 +45,16 @@ export interface Copia {
   apelido: string     // 'claude-3': nome da pasta da cópia
 }
 
+// O que a cópia tem para juntar na pasta original (T11, D19)
+export interface ResumoCopia {
+  branch: string        // 'lousa/claude-3'
+  branchAlvo: string    // branch atual da pasta original (onde o merge cai)
+  commits: number       // commits da cópia que a original ainda não tem
+  arquivos: Array<{ caminho: string; mais: number; menos: number }> // até 200
+  totalArquivos: number
+  pendente: boolean     // a cópia tem alteração sem commit (não entra no merge)
+}
+
 // O que aconteceu com a cópia ao fechar o último quadro dela (ou tirá-la da lista).
 export type FimDaCopia =
   | { copia: 'nenhuma' }                                  // a pasta não era cópia, ou ainda tem quadros

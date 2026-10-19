@@ -17,6 +17,7 @@ import type {
   Provedor,
   Quadro,
   Repo,
+  ResumoCopia,
   StatusConta,
   TipoQuadro,
   Viewport,
@@ -39,6 +40,8 @@ export const IPC = {
   quadrosRemover: 'quadros:remover',
   quadrosTrocarConta: 'quadros:trocarConta',
   quadrosFocar: 'quadros:focar', // evento main -> tela (clique na notificacao)
+  copiasResumo: 'copias:resumo',
+  copiasJuntar: 'copias:juntar',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -113,6 +116,12 @@ export interface LousaApi {
     trocarConta(quadroId: string, perfilId: string): Promise<Quadro>
     /** Clique na notificacao do Windows: a lousa enquadra este quadro. */
     aoFocar(cb: (quadroId: string) => void): () => void
+  }
+  /** Copia separada (D18, D19): o que ela tem e juntar na pasta original. */
+  copias: {
+    resumo(repoId: string): Promise<ResumoCopia>
+    /** Merge da branch da copia na branch atual da original; conflito nao muda nada e lanca. */
+    juntar(repoId: string): Promise<{ branchAlvo: string }>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

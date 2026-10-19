@@ -46,7 +46,7 @@ src/main/estado/           armazem.ts
 src/main/repos/            sugerir.ts, servico.ts
 src/main/terminais/        servico.ts, spawnReal.ts, smokePty.ts
 src/main/quadros/          servico.ts, sessoes.ts
-src/main/copias/           regras.ts, git.ts, servico.ts (cópia separada, T10)
+src/main/copias/           regras.ts, git.ts, servico.ts, juntar.ts (cópia separada, T10 e T11)
 src/main/arquivos/         regras.ts, servico.ts, vigia.ts, disco.ts (T7.1)
 src/main/handlers/         app, perfis, terminais, repos, quadros, lousa, arquivos
 src/preload/index.ts       ponte
@@ -94,6 +94,10 @@ export interface Repo {
 }
 
 export interface Copia { origemId: string; branch: string; apelido: string } // 'lousa/claude-3', 'claude-3'
+export interface ResumoCopia { // o que a cópia tem para juntar (T11)
+  branch: string; branchAlvo: string; commits: number
+  arquivos: Array<{ caminho: string; mais: number; menos: number }>; totalArquivos: number; pendente: boolean
+}
 export type FimDaCopia = // o que aconteceu com a cópia ao fechar o último quadro dela
   | { copia: 'nenhuma' } | { copia: 'apagada' } | { copia: 'branchGuardada'; branch: string }
   | { copia: 'mantida'; caminho: string; motivo: string }
@@ -173,6 +177,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `quadros:remover` | `{ quadroId }` | `FimDaCopia` (último quadro de uma cópia: tenta limpar) | T3.4, T10.3 |
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
 | evento `quadros:focar` | — | `{ quadroId }` (clique na notificação do Windows) | T8.1 |
+| `copias:resumo` | `{ repoId }` | `ResumoCopia` (commits e arquivos para juntar) | T11.1 |
+| `copias:juntar` | `{ repoId }` | `{ branchAlvo }` (merge; conflito desfaz e lança) | T11.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 | `arquivos:listar` | `{ repoId, relativo }` | `ItemArquivo[]` (ordem do VSCode, sem `.git` e afins) | T7.1 |

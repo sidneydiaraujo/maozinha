@@ -39,6 +39,10 @@ const api: LousaApi = {
     trocarConta: (quadroId, perfilId) => ipcRenderer.invoke(IPC.quadrosTrocarConta, { quadroId, perfilId }),
     aoFocar: (cb) => inscrever<{ quadroId: string }>(IPC.quadrosFocar, (p) => cb(p.quadroId)),
   },
+  copias: {
+    resumo: (repoId) => ipcRenderer.invoke(IPC.copiasResumo, { repoId }),
+    juntar: (repoId) => ipcRenderer.invoke(IPC.copiasJuntar, { repoId }),
+  },
   lousa: {
     carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),
     salvarLayout: (layout) => ipcRenderer.invoke(IPC.lousaSalvarLayout, layout),

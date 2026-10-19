@@ -80,3 +80,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Git pelo main**, com `execFile` sem shell, argumentos fixos e o ambiente da lista permitida (`ambienteBase`), `GIT_TERMINAL_PROMPT=0`. Sem dependência nova.
   - **Nunca perde trabalho:** ao fechar o último quadro da cópia, alteração não salva mantém tudo; limpa, a pasta sai com `worktree remove` e a branch só com `branch -d` (recusa se o trabalho não foi juntado). Nunca `--force` nem `-D`. Provado com git 2.54 em pasta temporária.
   - **Fora desta fatia:** juntar a branch de volta (merge) e ver o diff; o Sidney ou um agente fazem `git merge lousa/<apelido>` na pasta original.
+- **D19 (19/10/2026, Sidney):** juntar a cópia separada (Fatia 11). Pedido: "faça as 4" (Fatias 11 a 14, antes de instalar de novo).
+  - **Merge simples** (`git merge --no-edit`) na branch atual da pasta original, rodado pelo main como na D18. Sem rebase nem squash: o histórico do agente fica como ele fez.
+  - **Só com as duas pastas limpas:** alteração sem commit na cópia ou na original recusa antes de mexer. Conflito: `merge --abort`, a original fica como estava, e a mensagem pede a um agente para resolver.
+  - Depois de juntar, fechar o quadro apaga cópia e branch pelo caminho normal da D18 (`branch -d` aceita porque o trabalho já está na original).

@@ -1,9 +1,9 @@
 // Copias separadas (git worktree) para dois agentes nao pisarem um no outro (T10.2, D18).
 // Regra de ouro: so apaga o que nao perde trabalho. Nunca usa --force nem `branch -D`.
-import { dirname } from 'node:path'
 import type { Copia, FimDaCopia, Repo } from '../../shared/model'
 import { normalizarCaminho } from '../repos/sugerir'
 import type { RodarGit } from './git'
+import { acharPrincipal } from './juntar'
 import { planejarCopia } from './regras'
 
 export interface DepsCopias {
@@ -56,9 +56,8 @@ export class ServicoCopias {
     if (status.codigo !== 0) return manter('O git não conseguiu ler a cópia')
     if (status.saida.trim() !== '') return manter('Tem alterações que ainda não viraram commit')
 
-    const comum = await git(repo.caminho, ['rev-parse', '--path-format=absolute', '--git-common-dir'])
-    if (comum.codigo !== 0) return manter('O git não achou o repositório original')
-    const principal = dirname(comum.saida.trim())
+    const principal = await acharPrincipal(git, repo.caminho)
+    if (!principal) return manter('O git não achou o repositório original')
 
     const remover = (): ReturnType<RodarGit> => git(principal, ['worktree', 'remove', repo.caminho])
     let removido = await remover()

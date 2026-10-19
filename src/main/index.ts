@@ -2,8 +2,10 @@ import { app, BrowserWindow, session } from 'electron'
 import { join } from 'node:path'
 import { AvisosDoWindows } from './avisos/notificar'
 import { criarContexto, type Contexto } from './contexto'
+import { rodarGitReal } from './copias/git'
 import { registrarHandlersApp } from './handlers/app'
 import { registrarHandlersArquivos } from './handlers/arquivos'
+import { registrarHandlersCopias } from './handlers/copias'
 import { registrarHandlersLousa } from './handlers/lousa'
 import { registrarHandlersPerfis } from './handlers/perfis'
 import { registrarHandlersQuadros } from './handlers/quadros'
@@ -39,6 +41,7 @@ function registrarCanais(): void {
   registrarHandlersPerfis(contexto.perfis)
   registrarHandlersRepos(contexto.repos)
   registrarHandlersQuadros(contexto.quadros)
+  registrarHandlersCopias(contexto.repos, rodarGitReal)
   registrarHandlersLousa(contexto)
   registrarHandlersTerminais(contexto.terminais, contexto.perfis, contexto.quadros, contexto.repos)
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)
