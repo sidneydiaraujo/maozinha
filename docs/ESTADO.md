@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T7.6 + T8.8** — o Sidney testa com o instalador novo os itens 17 a 30 do `docs/aceite/roteiro.md` (Fatias 7 e 8 juntas).
+**Próxima tarefa: T7.6 + T8.8** — o Sidney testa com o instalador novo os itens 17 a 30 (com o 20b) do `docs/aceite/roteiro.md` (Fatias 7 e 8 juntas).
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -55,6 +55,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T8.5 | Reabrir terminal encerrado | ✅ 18/10/2026 |
 | T8.6 | Registros em arquivo | ✅ 18/10/2026 |
 | T8.7 | Janela lembra tamanho e posição | ✅ 18/10/2026 |
+| T8.9 | Digitação lenta e erro EPERM: vigia só das pastas abertas, histórico em pedaços (D17) | ✅ 19/10/2026 |
 | T8.8 | Aceite | ⬜ |
 
 ## Bloqueios
@@ -135,3 +136,12 @@ Nenhum.
     - o clique nela;
     - um Claude real mandando OSC 7501 (o "falso" copia o formato lido no executável);
     - o botão direito com o mouse físico (provado com o evento da tela).
+- **19/10/2026 (T8.9, D17):** Sidney, usando o instalador da Fatia 8: digitação lenta e o erro "EPERM … stat … MSTeams … model.cat" no main. A pasta `C:\Users\sidne` estava salva, e o registro do dia tinha o erro inteiro.
+  - **Medido:** vigia recursivo em `C:\Users\sidne` = 41 avisos/s parado e 1.055 arquivos diferentes em 2 min (AppData). O histórico de 1 MB por terminal custava 0,9 ms por pedaço de saída (0,2 ms com 200 KB).
+  - **Código:** `terminais/historico.ts` (+5 testes); `arquivos/vigia.ts` por pasta e sem subpastas (8 testes), `disco.ts` sem `stat` no vigia; `arquivos:vigiar { pastas }`; tela `explorador/vigiar.ts` (+2) junta os pedidos da árvore e do leitor; saem `alterados.ts`, `useAlterados.ts` e "Alterados agora". 221 testes, lint zerado.
+  - **Provado na janela** (estado de teste com `C:\Users\sidne` aberta, 1,6 MB num terminal pingando saída e 10 mil arquivos acumulados como 30 min):
+    - versão anterior: eco mediana 86 ms (pior 245), 229 travadas somando 20,9 s em ~35 s;
+    - versão nova: eco 20 ms (pior 33), nenhuma travada;
+    - sem o acúmulo: mediana 21 → 21 ms e pior 116 → 33 ms;
+    - a árvore mostrou arquivo criado e apagado pelo terminal (raiz e subpasta), e o leitor recarregou com a pasta fechada na árvore.
+  - **Não provado:** o erro EPERM não foi reproduzido (depende do Teams escrever naquele arquivo); ele some por construção, porque o vigia não faz mais `stat`.

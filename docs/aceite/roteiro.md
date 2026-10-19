@@ -22,7 +22,8 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 - [ ] 17. Engrenagem (canto de cima, à esquerda): painel com todas as contas. "+ Nova conta" → Claude → "Teste" cria o ícone e o cartão "Teste" (sem login); "Entrar" nele abre o login. (Para apagar depois: a pasta `C:\Users\sidne\.claude-teste`.)
 - [ ] 18. Arrastar o ícone de uma conta (no alto) para a lousa abre a janela "Novo quadro" com essa conta.
 - [ ] 19. Lateral "Pastas": cada pasta em uso aparece com bolinhas das contas dos quadros dela; clicar abre e fecha em cascata; `.git` não aparece.
-- [ ] 20. Peça a um agente para criar ou mudar um `.md`: o arquivo aparece em "Alterados agora", fica amarelo na árvore (a marca sobe pelas pastas) e, se estiver aberto no leitor, recarrega com "atualizado agora".
+- [ ] 20. Peça a um agente para criar um `.md` numa pasta aberta na árvore: ele aparece sozinho. Abra esse `.md` no leitor, feche a pasta na árvore e peça para mudar o arquivo: o leitor recarrega com "atualizado agora". (Não existe mais "Alterados agora" nem marca amarela, D17.)
+- [ ] 20b. Com a pasta `C:\Users\sidne` na lateral e um agente trabalhando por alguns minutos, digitar em outro terminal responde na hora, e nenhum erro "A JavaScript error occurred in the main process" aparece.
 - [ ] 21. Clicar num `.md` abre o leitor ao lado, formatado ("Ver código" mostra o texto puro); clicar num `.ts`/`.json` mostra o código com número de linha; a borda direita do leitor muda a largura.
 - [ ] 22. Clicar num `.pdf`/`.docx`/`.xlsx` abre no programa do Windows; um `.exe` ou `.bat` nunca abre (só "Mostrar na pasta").
 - [ ] 23. Num agente, peça algo que precise de permissão (ex.: "crie um arquivo teste.md"). Quando o Claude perguntar, o quadro fica com borda âmbar, o selo diz "pedindo permissão" e aparece "● 1 esperando você" no alto. Com a Lousa minimizada, aparece uma notificação do Windows e a barra de tarefas pisca; clicar na notificação traz a Lousa e mostra o quadro.

@@ -46,9 +46,10 @@ Regras de lint em `eslint-rules/`: cópia do
 5. Posição, tamanho, zoom e a conversa de cada agente ficam salvos. Na janela
    "Novo quadro", o "×" tira uma pasta e fecha os quadros dela (nunca apaga
    arquivos). Botão do meio do mouse arrasta a lousa até por cima dos quadros.
-6. A lateral "Pastas" mostra as pastas em uso, em cascata. O que os terminais
-   mexem fica marcado (e aparece em "Alterados agora"). Clique num md ou código
-   para ler ao lado; pdf, Word, Excel e imagens abrem no programa do Windows.
+6. A lateral "Pastas" mostra as pastas em uso, em cascata, e se atualiza quando
+   um terminal cria ou apaga arquivos nas pastas abertas. Clique num md ou código
+   para ler ao lado (recarrega sozinho); pdf, Word, Excel e imagens abrem no
+   programa do Windows.
 7. Quando um agente para (pedindo permissão, com pergunta ou terminou), o quadro
    brilha em âmbar e o alto mostra "● N esperando você" (clique para ir até ele);
    com a Lousa minimizada, vem uma notificação do Windows. No terminal: Ctrl+C

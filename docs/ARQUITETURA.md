@@ -174,7 +174,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `arquivos:abrirFora` | `{ repoId, relativo }` | — (só documento/mídia/texto que o programa só mostra) | T7.1 |
 | `arquivos:mostrarNaPasta` | `{ repoId, relativo }` | — | T7.1 |
 | `arquivos:abrirLink` | `{ url }` | — (só `http`/`https`, no navegador) | T7.1 |
-| `arquivos:vigiar` | — | — (vigia as pastas salvas, para as removidas) | T7.1 |
+| `arquivos:vigiar` | `{ pastas: { repoId, relativo }[] }` (máx. 500) | — (vigia só essas pastas, sem subpastas, e para as outras) | T7.1, D17 |
 | evento `arquivos:mudou` | — | `{ repoId, caminhos }` (lote de 75 ms, sem git/dependências/builds) | T7.1 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
@@ -203,7 +203,8 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
 
 - Um terminal por `terminalId`, vivo no main. `abrir` é idempotente: se já
   existe, devolve o buffer guardado e não abre outro shell.
-- Guarda as últimas 1 milhão de letras de saída para a tela redesenhar ao remontar (T8.4).
+- Guarda as últimas 1 milhão de letras de saída para a tela redesenhar ao remontar (T8.4),
+  em pedaços (`terminais/historico.ts`): copiar tudo a cada pedaço atrasava a digitação (D17).
 - Terminal de quadro lê o OSC 7501 da saída (`terminais/status.ts`): responde à pergunta do
   Claude com texto fixo em teclas `win32-input-mode` e avisa quando o estado do agente muda (T8.1).
 - Shell: `powershell.exe -NoLogo`, `cwd` = pasta do repo (login: `USERPROFILE`).
