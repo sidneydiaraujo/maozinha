@@ -61,14 +61,20 @@ function garantirLocalBin(env: Record<string, string>): void {
   env[chavePath] = atual ? `${localBin};${atual}` : localBin
 }
 
-export function montarAmbiente(
-  perfil: Pick<Perfil, 'id' | 'provedor' | 'configDir' | 'ehPadrao'>,
-  base: Record<string, string | undefined>,
-): Record<string, string> {
+/** So a lista permitida, sem conta nenhuma: para o git que o main roda (T10.2). */
+export function ambienteBase(base: Record<string, string | undefined>): Record<string, string> {
   const env: Record<string, string> = {}
   for (const [nome, valor] of Object.entries(base)) {
     if (valor !== undefined && PERMITIDAS.has(nome.toUpperCase())) env[nome] = valor
   }
+  return env
+}
+
+export function montarAmbiente(
+  perfil: Pick<Perfil, 'id' | 'provedor' | 'configDir' | 'ehPadrao'>,
+  base: Record<string, string | undefined>,
+): Record<string, string> {
+  const env = ambienteBase(base)
   // Conta padrao roda SEM variavel, igual ao terminal normal (D6).
   if (!perfil.ehPadrao) env[VARIAVEL_DA_CONTA[perfil.provedor]] = perfil.configDir
   env.TERM = 'xterm-256color'
