@@ -23,33 +23,34 @@ function dentro([x, y, w, h, r], px, py) {
   return (px - cx) ** 2 + (py - cy) ** 2 <= r * r
 }
 
+const AMOSTRAS = 4 // por lado do pixel: 4x4 = 16
+
+/** Cor da forma de cima naquele ponto (0..1), ou null fora de todas. */
+function corEm(px, py) {
+  let cor = null
+  for (const f of FORMAS) if (dentro(f, px, py)) cor = f[5]
+  return cor
+}
+
+/** [r, g, b, a] de um pixel: media das amostras que caem numa forma; a = quanto do pixel e coberto. */
+function pixel(x, y, lado) {
+  const soma = [0, 0, 0]
+  let cobertas = 0
+  for (let i = 0; i < AMOSTRAS * AMOSTRAS; i++) {
+    const cor = corEm((x + ((i % AMOSTRAS) + 0.5) / AMOSTRAS) / lado, (y + (Math.floor(i / AMOSTRAS) + 0.5) / AMOSTRAS) / lado)
+    if (!cor) continue
+    cor.forEach((c, k) => (soma[k] += c))
+    cobertas++
+  }
+  const media = soma.map((c) => (cobertas ? Math.round(c / cobertas) : 0))
+  return [...media, Math.round((cobertas / (AMOSTRAS * AMOSTRAS)) * 255)]
+}
+
 /** RGBA de um icone `lado` x `lado`. */
 function desenhar(lado) {
   const rgba = Buffer.alloc(lado * lado * 4)
-  const N = 4
   for (let y = 0; y < lado; y++) {
-    for (let x = 0; x < lado; x++) {
-      let [r, g, b, a] = [0, 0, 0, 0]
-      for (let sy = 0; sy < N; sy++) {
-        for (let sx = 0; sx < N; sx++) {
-          const px = (x + (sx + 0.5) / N) / lado
-          const py = (y + (sy + 0.5) / N) / lado
-          let cor = null
-          for (const f of FORMAS) if (dentro(f, px, py)) cor = f[5]
-          if (cor) {
-            r += cor[0]
-            g += cor[1]
-            b += cor[2]
-            a += 1
-          }
-        }
-      }
-      const i = (y * lado + x) * 4
-      rgba[i] = a ? Math.round(r / a) : 0
-      rgba[i + 1] = a ? Math.round(g / a) : 0
-      rgba[i + 2] = a ? Math.round(b / a) : 0
-      rgba[i + 3] = Math.round((a / (N * N)) * 255)
-    }
+    for (let x = 0; x < lado; x++) rgba.set(pixel(x, y, lado), (y * lado + x) * 4)
   }
   return rgba
 }
