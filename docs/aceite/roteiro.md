@@ -34,3 +34,10 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 - [ ] 28. Rolar para cima num agente com uma conversa longa mostra bem mais que antes (até 10 mil linhas).
 - [ ] 29. Num quadro de terminal, digite `exit`: aparece "Terminal encerrado · Reabrir"; "Reabrir" volta com um terminal novo (num agente, o Claude retoma a conversa).
 - [ ] 30. Feche a Lousa maximizada e abra de novo: volta maximizada. Engrenagem → "Abrir pasta de registros" abre a pasta com o arquivo do dia.
+
+## Fatia 10 — cópia separada (git worktree)
+
+- [ ] 31. Com um agente já aberto numa pasta que é repositório git (ex.: `lousa-ia`), "+ Novo quadro" na mesma pasta: a caixa "Cópia separada (branch própria)" já vem marcada, com a frase "Já tem um quadro nesta pasta". "Abrir agente": o quadro novo mostra 📁 `lousa-ia ⑂ claude-N`; passando o mouse no nome aparece a pasta `...\lousa-ia.copias\claude-N` e a branch `lousa/claude-N`. No agente, `git branch --show-current` confirma.
+- [ ] 32. Peça ao agente da cópia para mudar um arquivo: o agente da pasta original não vê a mudança (`git status` limpo lá). Feche o quadro da cópia sem commit: aparece "Cópia mantida em …: tem alterações…" e a pasta continua na lista e no disco.
+- [ ] 33. Abra um quadro nessa cópia de novo (ela aparece na lista de pastas), peça um commit e feche: aparece "Cópia apagada; os commits ficaram na branch lousa/claude-N". Na pasta original, `git log lousa/claude-N` mostra o commit e `git merge lousa/claude-N` junta o trabalho.
+- [ ] 34. Abra uma cópia e feche sem mexer em nada: "Cópia separada apagada: não tinha trabalho novo." A pasta `...\lousa-ia.copias\claude-N` sumiu e `git branch` não lista a branch.

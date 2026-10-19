@@ -81,7 +81,10 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           if (!(e.target as Element).closest('button')) acoes.ampliar(quadro.id)
         }}
       >
-        <span className="quadro-pasta" title={repo.caminho}>
+        <span
+          className="quadro-pasta"
+          title={repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho}
+        >
           <span aria-hidden="true">📁</span> {rotulo}
         </span>
         {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}

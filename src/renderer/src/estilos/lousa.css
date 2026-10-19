@@ -5,6 +5,7 @@
 }
 
 .lousa-erro,
+.lousa-aviso,
 .lousa-vazia {
   position: absolute;
   z-index: 5;
@@ -20,6 +21,15 @@
   color: #ff9b9b;
   background: #2a1414;
   border: 1px solid #5a2323;
+  border-radius: 8px;
+}
+
+.lousa-aviso {
+  top: 12px;
+  padding: 8px 14px;
+  color: var(--texto, #ddd);
+  background: #1b2330;
+  border: 1px solid #2f4058;
   border-radius: 8px;
 }
 
@@ -309,4 +319,20 @@
 .pasta-linha .pasta-escolha {
   flex: 1;
   min-width: 0;
+}
+
+/* Cópia separada (T10.4, D18) */
+.novo-copia {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.novo-copia small {
+  display: block;
+  margin-top: 2px;
+  color: var(--apagado);
+  font-size: 11px;
 }

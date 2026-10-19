@@ -13,6 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
 import { chamaAtencao } from './atencao'
+import { semQuadro, textoDoFim } from './copia'
 import { aoPedirFoco } from './foco'
 import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from './nos'
 import { NovoQuadro } from './NovoQuadro'
@@ -62,12 +63,16 @@ function useEstadoLousa(versao: number, extras: Pick<AcoesLousa, 'abrirArquivo' 
     }
   }, [versao])
   const falhou = useCallback((e: unknown) => setErro(e instanceof Error ? e.message : String(e)), [])
+  const [aviso, setAviso] = useAvisoPassageiro()
   const acoes = useMemo<AcoesLousa>(
     () => ({
       removerQuadro: (quadroId) => {
         window.lousa.quadros
           .remover(quadroId)
-          .then(() => setEstado((e) => (e ? { ...e, quadros: e.quadros.filter((q) => q.id !== quadroId) } : e)))
+          .then((fim) => {
+            setEstado((e) => e && semQuadro(e, quadroId, fim))
+            setAviso(textoDoFim(fim))
+          })
           .catch(falhou)
       },
       // Erro aqui aparece no menu da conta (quem chamou), nao no topo da lousa.
@@ -78,17 +83,32 @@ function useEstadoLousa(versao: number, extras: Pick<AcoesLousa, 'abrirArquivo' 
       abrirArquivo,
       ampliar,
     }),
-    [falhou, abrirArquivo, ampliar],
+    [falhou, abrirArquivo, ampliar, setAviso],
   )
-  const tirarPasta = useCallback(async (repoId: string) => {
-    await window.lousa.repos.remover(repoId)
-    setEstado((e) =>
-      e
-        ? { ...e, repos: e.repos.filter((r) => r.id !== repoId), quadros: e.quadros.filter((q) => q.repoId !== repoId) }
-        : e,
-    )
-  }, [])
-  return { estado, setEstado, erro, falhou, acoes, tirarPasta }
+  const tirarPasta = useCallback(
+    async (repoId: string) => {
+      const fim = await window.lousa.repos.remover(repoId)
+      setEstado((e) =>
+        e
+          ? { ...e, repos: e.repos.filter((r) => r.id !== repoId), quadros: e.quadros.filter((q) => q.repoId !== repoId) }
+          : e,
+      )
+      setAviso(textoDoFim(fim))
+    },
+    [setAviso],
+  )
+  return { estado, setEstado, erro, aviso, falhou, acoes, tirarPasta }
+}
+
+/** Frase que some sozinha depois de alguns segundos (ex.: o que aconteceu com a copia, D18). */
+function useAvisoPassageiro(): [string | null, (texto: string | null) => void] {
+  const [aviso, setAviso] = useState<string | null>(null)
+  useEffect(() => {
+    if (!aviso) return
+    const t = window.setTimeout(() => setAviso(null), 10000)
+    return () => window.clearTimeout(t)
+  }, [aviso])
+  return [aviso, setAviso]
 }
 
 /** Zoom/posicao antigos podem deixar tudo fora da tela: sem nenhum quadro visivel, enquadra. */
@@ -130,12 +150,18 @@ function Minimapa(): React.JSX.Element {
   )
 }
 
-function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React.JSX.Element {
+function Avisos(p: { erro: string | null; aviso: string | null; vazia: boolean }): React.JSX.Element {
+  const { erro, aviso, vazia } = p
   return (
     <>
       {erro && (
         <p className="lousa-erro" role="alert">
           {erro}
+        </p>
+      )}
+      {!erro && aviso && (
+        <p className="lousa-aviso" role="status">
+          {aviso}
         </p>
       )}
       {vazia && (
@@ -150,7 +176,7 @@ function Avisos({ erro, vazia }: { erro: string | null; vazia: boolean }): React
 export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.JSX.Element {
   const instancia = useRef<ReactFlowInstance<QuadroNo> | null>(null)
   const ampliar = useAmpliar(instancia)
-  const { estado, setEstado, erro, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
+  const { estado, setEstado, erro, aviso, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
     abrirArquivo: aoAbrirArquivo,
     ampliar,
   })
@@ -181,7 +207,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
       onDragOver={novo.aoArrastarPorCima}
       onDrop={novo.aoSoltar}
     >
-      <Avisos erro={erro} vazia={estado?.quadros.length === 0} />
+      <Avisos erro={erro} aviso={aviso} vazia={estado?.quadros.length === 0} />
       {estado && (
         <button className="botao-novo-quadro" onClick={() => novo.abrirNoCentro()}>
           + Novo quadro
@@ -216,6 +242,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
         <NovoQuadro
           perfis={estado.perfis}
           repos={estado.repos}
+          quadros={estado.quadros}
           perfilInicial={novo.novo.perfilId}
           tela={novo.novo.tela}
           aoCriar={novo.criar}
