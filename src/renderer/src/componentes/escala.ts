@@ -22,6 +22,20 @@ export function pontoSemZoom(
 
 const EVENTOS = ['mousedown', 'mousemove', 'mouseup', 'click', 'dblclick', 'auxclick', 'contextmenu'] as const
 
+const BOTAO_ESQUERDO = 0
+const BOTAO_MEIO = 1
+/** Bit do botao do meio em `buttons` (botoes apertados durante um mousemove). */
+const APERTADO_MEIO = 4
+
+/**
+ * Evento do botao do meio, que nao e corrigido: apertar ou soltar o do meio, ou mover com ele
+ * apertado. A selecao do xterm e so com o esquerdo (e o direito no menu). Puro.
+ */
+export function usaBotaoDoMeio(e: { type: string; button: number; buttons: number }): boolean {
+  if (e.type === 'mousemove') return (e.buttons & APERTADO_MEIO) !== 0
+  return e.button === BOTAO_MEIO
+}
+
 /** Eventos que a propria correcao criou: passam direto, senao ela os corrigiria de novo. */
 const corrigidos = new WeakSet<Event>()
 
@@ -52,10 +66,21 @@ function copiaCorrigida(e: MouseEvent, ponto: { x: number; y: number }): MouseEv
  */
 export function ligarEscala(el: HTMLElement): () => void {
   let arrastando = false
+  // botao do meio apertado: a lousa esta sendo arrastada (usePanoMeio), que precisa da posicao
+  // real da tela em todo movimento, ate soltar (nem todo mousemove traz `buttons` preenchido)
+  let meio = false
+  /** Lousa sendo arrastada com o botao do meio: nada e corrigido ate soltar. */
+  const arrastandoLousa = (e: MouseEvent): boolean => {
+    if (e.type === 'mousedown' && e.button === BOTAO_MEIO) meio = true
+    const pular = meio || usaBotaoDoMeio(e)
+    if (e.type === 'mouseup' && e.button === BOTAO_MEIO) meio = false
+    return pular
+  }
   /** O evento e deste terminal: dentro dele, ou no documento durante um arraste que comecou nele. */
   const eDesteTerminal = (e: MouseEvent, alvo: Node): boolean => {
+    if (arrastandoLousa(e)) return false
     const dentro = el.contains(alvo)
-    if (e.type === 'mousedown' && dentro) arrastando = true
+    if (e.type === 'mousedown' && dentro && e.button === BOTAO_ESQUERDO) arrastando = true
     const vale = dentro || (arrastando && (e.type === 'mousemove' || e.type === 'mouseup'))
     if (e.type === 'mouseup') arrastando = false
     return vale

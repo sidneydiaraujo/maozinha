@@ -76,7 +76,33 @@
   await prova.foto('ampliada')
 
   r.zoomAmpliada = Number(r.ampliada.zoom) > 1
+
+  // botao do meio por cima do terminal arrasta a lousa junto com o mouse: a correcao nao mexe
+  // nele (sugestao da outra sessao). Fica no fim: depois de um arraste com o meio, o ⤢ desta
+  // prova nao amplia, com ou sem a correcao (achado a investigar a parte).
+  const deslocamento = () => Number(q('.react-flow__viewport').style.transform.match(/translate\(([-\d.]+)px/)?.[1])
+  const arrastarComMeio = async () => {
+    const t = q('[data-quadro="t1"] .xterm-screen').getBoundingClientRect()
+    const mx = Math.round(t.left + Math.min(120, t.width / 3))
+    const my = Math.round(Math.max(t.top, 80) + 40)
+    const antes = deslocamento()
+    await prova.eventos([
+      { type: 'mouseMove', x: mx, y: my },
+      { type: 'mouseDown', x: mx, y: my, button: 'middle', clickCount: 1 },
+      ...[50, 100, 150, 200].map((d) => ({ type: 'mouseMove', x: mx + d, y: my, button: 'middle' })),
+      { type: 'mouseUp', x: mx + 200, y: my, button: 'middle', clickCount: 1 },
+    ])
+    await espera(600)
+    return { zoom: zoom(), mouse: 200, lousaAndou: Math.round(deslocamento() - antes) }
+  }
+  r.panoAmpliada = await arrastarComMeio()
+  for (let i = 0; i < 6; i++) {
+    q('.react-flow__controls-zoomout').click()
+    await espera(250)
+  }
+  await espera(500)
+  r.panoReduzida = await arrastarComMeio()
   const certo = (s) => s.faixas >= 1 && Math.abs(s.desvioY) <= 4 && Math.abs(s.desvioX) <= 12 && Math.abs(s.larguraFaixa - s.larguraTexto) <= 16
-  r.ok = certo(r.reduzida) && certo(r.ampliada) && r.zoomAmpliada
+  r.ok = certo(r.reduzida) && certo(r.ampliada) && r.zoomAmpliada && [r.panoAmpliada, r.panoReduzida].every((p) => Math.abs(p.lousaAndou - 200) <= 4)
   return r
 })()

@@ -401,3 +401,5 @@ Nenhum.
     - Antes: faixa 45 e 100 px fora do texto.
     - Depois: 1 px de desvio e largura igual à do texto, `ok: true`.
   - **Sem regressão:** `fatia8` (links, duplo clique, botão direito), `colar-e-reabrir`, `paleta`, `notas` e `vistas` continuam certos; o `colarCtrlV: 0` do `fatia8` é a oscilação já conhecida.
+  - **Revisão da outra sessão antes do ff:** a primeira versão também corrigia o botão do meio, e a lousa andava mais que o mouse no arraste (210 px para 200 a 80%). Agora o botão do meio fica de fora. O `selecao` arrasta 200 px com o meio a 176% e a 59%, e a lousa anda 200 nos dois casos.
+  - **Achado a investigar à parte:** no cenário, depois de um arraste com o botão do meio, o ⤢ do quadro não amplia. Acontece com ou sem esta correção. Ainda não se sabe se é do mouse simulado ou do app. Por isso, o arraste com o meio fica no fim do `selecao`.

@@ -1,5 +1,25 @@
 import { describe, expect, it } from 'vitest'
-import { escalaDe, pontoSemZoom } from './escala'
+import { escalaDe, pontoSemZoom, usaBotaoDoMeio } from './escala'
+
+describe('usaBotaoDoMeio', () => {
+  it('apertar, soltar ou clicar com o botao do meio nao e corrigido (ele arrasta a lousa)', () => {
+    expect(usaBotaoDoMeio({ type: 'mousedown', button: 1, buttons: 4 })).toBe(true)
+    expect(usaBotaoDoMeio({ type: 'mouseup', button: 1, buttons: 0 })).toBe(true)
+    expect(usaBotaoDoMeio({ type: 'auxclick', button: 1, buttons: 0 })).toBe(true)
+  })
+
+  it('mover com o do meio apertado, mesmo junto com outro, nao e corrigido', () => {
+    expect(usaBotaoDoMeio({ type: 'mousemove', button: 0, buttons: 4 })).toBe(true)
+    expect(usaBotaoDoMeio({ type: 'mousemove', button: 0, buttons: 5 })).toBe(true)
+  })
+
+  it('esquerdo e direito (selecao, duplo clique, menu) e mover sem botao: corrigidos', () => {
+    expect(usaBotaoDoMeio({ type: 'mousedown', button: 0, buttons: 1 })).toBe(false)
+    expect(usaBotaoDoMeio({ type: 'contextmenu', button: 2, buttons: 2 })).toBe(false)
+    expect(usaBotaoDoMeio({ type: 'mousemove', button: 0, buttons: 1 })).toBe(false)
+    expect(usaBotaoDoMeio({ type: 'mousemove', button: 0, buttons: 0 })).toBe(false)
+  })
+})
 
 describe('escalaDe', () => {
   it('largura na tela dividida pela largura sem zoom', () => {
