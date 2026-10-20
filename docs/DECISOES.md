@@ -121,3 +121,6 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
 - **D31 (20/10/2026):** ver a diferença antes de juntar (Fatia 22).
   - **Diff unificada colorida** dentro da janela "Juntar" (verde entrou, vermelho saiu), em vez de duas colunas lado a lado: cabe na janela e não precisa de dependência.
   - **Segurança:** o canal `copias:diff` recebe um caminho, mas o main só aceita um que esteja na lista que ele mesmo montou com `git diff --numstat`. Até 3000 linhas.
+- **D32 (20/10/2026):** pequenos ajustes de uso (Fatia 24).
+  - **Quadro novo nunca nasce em cima de outro.** O main (`quadros/lugar.ts`) usa o lugar pedido (centro da vista, duplo clique ou onde a conta foi solta) se estiver livre. Senão, usa o lugar livre mais perto, ao lado, acima ou abaixo de algum quadro, com 24 px de folga. A foto da prova da Fatia 11 mostrava um quadro tampando outro.
+  - **Ctrl+F: Enter sobe.** A busca começa no achado mais recente, o de baixo. Antes, o Enter dava a volta para o mais antigo; agora ele sobe para o anterior, como quem lê o terminal de baixo para cima. Shift+Enter desce.

@@ -1,9 +1,10 @@
 // Quadros da lousa (T3.4a, D13): cada quadro e um terminal ou agente solto na lousa,
 // trabalhando numa pasta, com a sua propria conta (D11). Trocar a conta leva a conversa junto (D14).
-import type { FimDaCopia, Posicao, Provedor, Quadro, Repo, TipoQuadro } from '../../shared/model'
+import type { EstadoSalvo, FimDaCopia, Posicao, Provedor, Quadro, Repo, TipoQuadro } from '../../shared/model'
 import type { ServicoCopias } from '../copias/servico'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoPerfis } from '../perfis/servico'
+import { lugarLivre } from './lugar'
 
 export interface DepsServicoQuadros {
   armazem: Armazem
@@ -61,6 +62,15 @@ export class ServicoQuadros {
     return quadro
   }
 
+  /** O lugar pedido, ou o livre mais perto dele: quadro novo nunca nasce em cima de outro (T24.1). */
+  private lugar(estado: EstadoSalvo, desejada: Posicao): Posicao {
+    return lugarLivre(
+      estado.quadros.map((q) => q.caixa),
+      desejada,
+      { largura: LARGURA, altura: ALTURA },
+    )
+  }
+
   /** Sem `posicao`, o quadro entra a direita do mais a direita. A conta vira a sugestao da pasta. */
   criar(repoId: string, tipo: TipoQuadro, perfilId: string, posicao?: Posicao): Quadro {
     const estado = this.deps.armazem.carregar()
@@ -74,7 +84,7 @@ export class ServicoQuadros {
       perfilId: perfil.id,
       tipo,
       titulo: proximoTitulo(estado.quadros, tipo, perfil.provedor),
-      caixa: { ...(posicao ?? proximaPosicao(estado.quadros)), largura: LARGURA, altura: ALTURA },
+      caixa: { ...this.lugar(estado, posicao ?? proximaPosicao(estado.quadros)), largura: LARGURA, altura: ALTURA },
       ...(tipo === 'agente' && perfil.provedor === 'claude' ? { sessaoId: this.deps.novaSessao() } : {}),
     }
     estado.quadros.push(quadro)

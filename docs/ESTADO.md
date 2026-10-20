@@ -101,8 +101,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T22.1 | Ver a diferença de um arquivo antes de juntar (`copias:diff`) | ✅ |
 | T23.1 | Juntar ignora arquivo fora do git na original e explica a recusa | ✅ |
 | T23.2 | "Pedir ao agente para resolver" no conflito | ✅ (aceite: item 61) |
-| T24.1 | Quadro novo em espaço livre | ⬜ |
-| T24.2 | Enter do Ctrl+F sobe | ⬜ |
+| T24.1 | Quadro novo em espaço livre | ✅ |
+| T24.2 | Enter do Ctrl+F sobe | ✅ |
 | T25.1 | Mensagens prontas (main) | ⬜ |
 | T25.2 | Mensagens prontas na barra e no Ctrl+K | ⬜ |
 | T26.1 | Nota na lousa (main) | ⬜ |
@@ -351,3 +351,4 @@ Nenhum.
   - **Código:** `diffDoArquivo`, `lerDiff`, `explicarRecusa` (+7 testes, git de verdade); `VistaDiff.tsx`; `resolver.ts` (+2 testes); `escrever.ts`, que agora também é usado pelo `BarraEnvio`.
   - **Provado na janela real** (cenário `juntar`, `ok: true`): com `rascunho.txt` solto na original, o Juntar entra; clicar em `novo.txt` mostra `+oi`; "← Arquivos" volta; o conflito continua deixando a original limpa.
   - **Não provado:** o botão "Pedir ao agente para resolver" com um Claude de verdade (item 61).
+- **20/10/2026 (Fatia 24, D32):** `quadros/lugar.ts` (`lugarLivre`, +4 testes), ligado no `ServicoQuadros.criar`; Enter do Ctrl+F sobe. **Provado na janela real:** cenário `copias` com dois quadros novos abertos pelo centro da vista, nenhum por cima de outro (`ok: true`); cenário `paleta` com "11 de 11" e, depois de Enter, "10 de 11" (`ok: true`).

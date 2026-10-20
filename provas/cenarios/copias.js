@@ -61,6 +61,13 @@
   await window.lousa.terminais.escrever(c2.id, 'Set-Content -Path novo.txt -Value oi\r')
   r.copia2 = { rotulo: c2.rotulo, arquivoNovo: await perguntar(c2.id, "Test-Path 'novo.txt'") }
 
+  // quadros novos nascem no centro da vista, mas nunca em cima de outro (T24.1)
+  const caixas = todos('[data-quadro]').map((e) => e.getBoundingClientRect())
+  r.quadrosSobrepostos = caixas.some((a, i) =>
+    caixas.some((b, j) => j > i && a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom),
+  )
+  await prova.foto('3b-lado-a-lado')
+
   r.fecharLimpa = { aviso: await fechar(c1.id) }
   r.fecharLimpa.pastaExiste = await perguntar('q1', `Test-Path '${c1.caminho}'`)
   r.fecharLimpa.branches = await perguntar('q1', "(git branch --list 'lousa/*') -join ','")
@@ -80,6 +87,7 @@
 
   r.ok =
     r.janelinha.marcada === true &&
+    !r.quadrosSobrepostos &&
     /⑂/.test(r.copia1.rotulo ?? '') &&
     r.copia1.existe === 'True' &&
     r.copia1.branchNaPasta === r.copia1.branch &&

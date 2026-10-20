@@ -2,7 +2,7 @@
 // Fatia 12 (D20): Ctrl+K de verdade com o terminal em foco abre a paleta; "api" leva ate o quadro
 // de api (fora da tela); "fatia" acha o arquivo da subpasta e nao o de node_modules, e abre no
 // leitor; "novo api" abre a janelinha com a pasta api marcada (sem abrir agente sozinho).
-// Ctrl+F no terminal: 11 achados de "linha 1", comeca no mais recente, Enter vai para o proximo,
+// Ctrl+F no terminal: 11 achados de "linha 1", comeca no mais recente, Enter sobe para o anterior,
 // Esc fecha. Fotos 1..5.
 ;(async () => {
   const { espera } = prova
@@ -107,9 +107,9 @@
     r.novoEmApi.janelinha &&
     r.novoEmApi.pastaMarcada.includes('api') &&
     !r.novoEmApi.abriuQuadroSozinho &&
-    // comeca na ocorrencia mais recente (a de baixo); Enter da a volta para a primeira
+    // comeca na ocorrencia mais recente (a de baixo); Enter sobe para a anterior (T24.2)
     r.busca.contagem === '11 de 11' &&
-    r.busca.depoisDeEnter === '1 de 11' &&
+    r.busca.depoisDeEnter === '10 de 11' &&
     r.busca.fechou &&
     r.erros.length === 0
   return r

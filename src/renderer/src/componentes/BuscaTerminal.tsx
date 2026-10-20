@@ -21,8 +21,8 @@ function mostrar(term: Terminal, o: Ocorrencia, tamanho: number): void {
 }
 
 /**
- * Ctrl+F no terminal (T12.2): procura no historico (ate 10 mil linhas). Comeca pela mais nova;
- * Enter vai para a proxima, Shift+Enter volta, Esc fecha e devolve o foco ao terminal.
+ * Ctrl+F no terminal (T12.2): procura no historico (ate 10 mil linhas). Comeca pela mais nova
+ * (a de baixo); Enter sobe para a anterior, Shift+Enter desce (T24.2, D32), Esc fecha e devolve o foco ao terminal.
  */
 export function BuscaTerminal({ term, aoFechar }: Props): React.JSX.Element {
   const [texto, setTexto] = useState('')
@@ -67,7 +67,7 @@ export function BuscaTerminal({ term, aoFechar }: Props): React.JSX.Element {
         onChange={(e) => procurar(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Escape') fechar()
-          else if (e.key === 'Enter') andar(e.shiftKey ? -1 : 1)
+          else if (e.key === 'Enter') andar(e.shiftKey ? 1 : -1) // Enter sobe (mais antigo), T24.2
           else return
           e.preventDefault()
         }}

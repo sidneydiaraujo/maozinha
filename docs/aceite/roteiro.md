@@ -77,3 +77,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 
 - [ ] 60. Numa cópia separada com um commit, clique em "Juntar" e depois no nome de um arquivo da lista: aparece o que mudou (verde entrou, vermelho saiu). "← Arquivos" volta para a lista. Com um arquivo novo qualquer, fora do git, na pasta original (ex.: `rascunho.txt`), o Juntar funciona e o rascunho continua lá.
 - [ ] 61. Com um **agente** numa cópia, provoque um conflito (a mesma linha mudada e com commit na cópia e na original). Juntar → aparece "Conflito…" e o botão "Pedir ao agente para resolver". Clique: a janela fecha e o pedido aparece digitado e enviado no agente. Quando o agente terminar, "Juntar" de novo entra sem conflito. Num quadro de terminal comum o botão não aparece.
+
+## Fatia 24 — pequenos ajustes
+
+- [ ] 62. Clique em "+ Novo quadro" duas vezes seguidas sem mexer na lousa: o segundo quadro nasce ao lado do primeiro, não por cima. No Ctrl+F de um terminal, a busca começa no achado mais de baixo; Enter sobe para o anterior e Shift+Enter desce.
