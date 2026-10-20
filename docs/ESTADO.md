@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T16.0 (prova do print com Claude de verdade)**, pelo `docs/plano/fatia-16-colar-print.md`; o script é `provas/apoio/print-claude.mjs`. A Fatia 15 espera o aceite do Sidney (T15.3, itens 42 e 43).
+**Próxima tarefa: T16.1 + T16.2 (Ctrl+V com imagem, botão 📎 e arrastar)**, pelo `docs/plano/fatia-16-colar-print.md`. A Fatia 15 espera o aceite do Sidney (T15.3, itens 42 e 43).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -78,7 +78,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T15.1 | Tema e fonte do terminal | ✅ |
 | T15.2 | Desenhista WebGL | ✅ |
 | T15.3 | Aceite | ⬜ (itens 42 e 43 escritos no roteiro; espera o Sidney) |
-| T16.0 | Prova: Alt+V cola print no Claude | ⬜ (ok do Sidney em 19/10: abre um Claude de verdade numa pasta de teste, sem mandar mensagem) |
+| T16.0 | Prova: Alt+V cola print no Claude | ✅ |
 | T16.1 | Ctrl+V com imagem e botão 📎 | ⬜ |
 | T16.2 | Arrastar imagem para o quadro | ⬜ |
 | T16.3 | Aceite | ⬜ |
@@ -261,3 +261,15 @@ Nenhum.
   - Agora, sem `--user-data-dir`, usa `%TEMP%\lousa-ia-smoke` (`pastaDoSmoke` em `cenario.ts`, + 2 testes).
   - Conferido: o `estado.json` real ficou com a mesma data depois do smoke.
   - `npm run check` (299) e `npm run smoke` verdes.
+- **19/10/2026 (T16.0, com Claude de verdade, ok do Sidney):** `provas/apoio/print-claude.mjs`, `claude.exe` 2.1.304, conta Pessoal, pasta de teste vazia, nenhuma mensagem mandada.
+  - **Resultado:**
+    - `ESC v` (o Alt+V do xterm) com print na área de transferência: anexa (`[Image #1]`);
+    - Ctrl+V cru (`\x16`): nada;
+    - caminho do `.png` colado (bracketed paste): anexa (`[Image #2]`, depois de "Pasting…");
+    - o mesmo caminho digitado letra a letra: fica como texto.
+    - Por isso a T16.2 cola o caminho com `term.paste`; o plano foi ajustado.
+  - **Achados ao escrever a prova:**
+    - pasta nova abre a pergunta de confiança com a seta em "No, exit", e Enter fecha o Claude;
+    - o ConPTY desenha `[Image#2]` sem o espaço;
+    - outro programa segurou a área de transferência por alguns minutos (nenhum processo do teste sobrou), e o script tenta 10 vezes.
+  - **Efeito fora do repo:** o próprio Claude anotou as pastas de teste como confiáveis no `.claude.json` da conta Pessoal. A Lousa não escreveu nada lá.

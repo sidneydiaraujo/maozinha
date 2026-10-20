@@ -117,6 +117,7 @@ O que já ensinou a escrever cenário:
 | `apoio/medir-vigia.mjs` | Quanto um vigia recursivo de uma pasta receberia: avisos por segundo, caminhos diferentes, erros EPERM (D17) |
 | `apoio/medir-historico.mjs` | Custo de guardar o histórico do terminal: copiar sempre × em pedaços (D17) |
 | `apoio/conpty-osc/pai.mjs` + `filho.mjs` | Prova do ConPTY (D16): a resposta crua ao OSC 7501 some e a resposta em teclas `win32-input-mode` chega. Roda com `ELECTRON_RUN_AS_NODE=1` e `node_modules\electron\dist\electron.exe` (o node-pty do projeto é o do Electron) |
+| `apoio/print-claude.mjs <pasta-vazia> <imagem.png>` | Prova da T16.0, **com Claude de verdade** (conta Pessoal; pede o ok do Sidney). Abre o `claude.exe` num ConPTY, escolhe "Yes" na confiança da pasta e tenta quatro jeitos de anexar um print, sem mandar mensagem. Usa a área de transferência e devolve o texto que estava nela. `SAIDA_TEXTO=<arquivo>` guarda a tela, com e-mail mascarado. Roda como o `conpty-osc` |
 
 A `pasta-demo` guarda o `.git` e o `node_modules` como `_git` e `_node_modules`, porque o
 git não aceita guardar os dois. O `rodar.mjs` devolve os nomes certos na cópia de cada

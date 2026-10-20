@@ -54,9 +54,10 @@ export function colagem(temImagem: boolean, texto: string): { tipo: 'imagem' } |
 **Arquivos:** `Terminal.tsx` (ou `componentes/soltar.ts` + teste), `estilos/terminal.css`.
 
 **Regras:**
-- Soltar um ou mais arquivos `.png .jpg .jpeg .gif .webp` sobre o terminal digita os
-  caminhos entre aspas, separados por espaço, sem Enter: o Claude transforma em anexo
-  (confirmado na T16.0).
+- Soltar um ou mais arquivos `.png .jpg .jpeg .gif .webp` sobre o terminal **cola** os
+  caminhos entre aspas, separados por espaço, sem Enter, com `term.paste` (o mesmo colar
+  do Ctrl+V de texto). O Claude transforma o caminho colado em anexo, mas o digitado letra
+  a letra fica como texto (T16.0, 19/10/2026).
 - O caminho vem do `webUtils.getPathForFile` exposto pelo preload. Outro tipo de arquivo
   digita o caminho igual (útil para "leia este arquivo").
 - Borda tracejada no quadro enquanto arrasta por cima (CSS, sem animação).
