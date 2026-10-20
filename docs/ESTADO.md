@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T20.1 (uso por conta, main)**, pelo `docs/plano/fatia-20-uso-da-conta.md`. O cenário pode seguir o `anel` e o `modelo` (painel pelo `prova.ipc`). As Fatias 15, 16, 18 e 19 esperam o aceite do Sidney (itens 42 a 47).
+**Próxima tarefa: T21.1 (cores como variáveis)**, pelo `docs/plano/fatia-21-identidade-visual.md` (D36, Ardósia e giz; inclui as cores fixas do `nota.css`). O Sidney pediu as Fatias 20 e 21 seguidas e testa tudo instalando de novo no fim. As Fatias 15, 16, 18, 19 e 20 esperam o aceite (itens 42 a 48).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -91,9 +91,9 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T19.1 | Modelo e esforço no quadro (main) | ✅ 20/10/2026 |
 | T19.2 | Seletores no cabeçalho | ✅ 20/10/2026 |
 | T19.3 | Aceite | ⬜ (item 47 escrito no roteiro; espera o Sidney) |
-| T20.1 | Uso por conta (main) | ⬜ |
-| T20.2 | Barras de uso no alto | ⬜ |
-| T20.3 | Aceite | ⬜ |
+| T20.1 | Uso por conta (main) | ✅ 20/10/2026 |
+| T20.2 | Barras de uso no alto | ✅ 20/10/2026 |
+| T20.3 | Aceite | ⬜ (item 48 escrito no roteiro; espera o Sidney) |
 | T21.0 | Protótipo visual para aprovar | ✅ (A · Ardósia e giz, D36) |
 | T21.1 | Cores como variáveis | ⬜ |
 | T21.2 | Quadro, barra de cima e brilho de trabalho | ⬜ |
@@ -420,3 +420,13 @@ Nenhum.
   - **Provado na janela real** (cenário novo `modelo`, `ok: true`): Claude de verdade só até o "No, exit"; o estado do agente impresso pelo PowerShell e o painel pelo `prova.ipc`. Antes do painel, rótulos cinza; com o painel, "Opus 5.5 ▾" e "médio ▾"; trabalhando, Sonnet só guardou ("Vale quando o agente parar") e nada foi digitado; ao parar, chegou `/model sonnet`; "alto" com ele parado chegou na hora como `/effort high`; painel 5 s depois ainda com médio mostrou "⚠ médio"; o quadro salvo no main ficou com sonnet/high.
   - **Não provado:** um Claude de verdade trocando de modelo no meio da conversa, e o nível recusado por um modelo real. Fica para o aceite (item 47).
 - **20/10/2026 (D38, "ir ao quadro"):** o Ctrl+K e a notificação do Windows usam a mesma conta do ⤢ (`irPara` em `useAmpliar.ts`): folga de 20%, no máximo 100%, e a câmera move na hora. Check verde (415); cenários `paleta` (foto 2: o quadro "api" no centro, a 100%) e `ampliar` com `ok: true`. Aceite no item 67.
+- **20/10/2026 (T20.1 + T20.2, D24):** uso da sessão e da semana em cada conta Claude.
+  - **Código:**
+    - `shared/model.ts`: `UsoConta`; `shared/uso.ts`: `limiteVigente`/`usoVigente` (hora de zerar passada = 0%, usada no main e na tela; +4 testes);
+    - `agentes/uso.ts`: `juntarUso` (o mais novo vence; sem limites mantém o anterior) e `UsoDasContas` (+7 testes); ligado no `emitir` da ponte em `contexto.ts`, pela conta do quadro;
+    - canais `perfis:uso` e o evento `perfis:usoMudou` (handler em `handlers/agentes.ts`, junto dos outros dados dos agentes);
+    - tela: `topo/uso.ts` ("zera em 2h10", "zera sex 09:00", "visto há 12 min", níveis 70/90, velho com mais de 1 h; +9 testes) e `topo/UsoConta.tsx` (store único, barras e linhas do balão); `IconeConta` mostra só em conta Claude.
+  - **Desvios do plano:** o cenário se chama `uso` (o nome `painel` já era o da Fatia 17) e usa o estado `demo` com as duas contas; o `perfis:uso` mora em `handlers/agentes.ts`. De passagem, `enquadrar` (`useAmpliar.ts`) recebe folga e zoom num objeto, para zerar o aviso de lint (5 parâmetros).
+  - `npm run check` verde (435) sem aviso e `npm run smoke` verde.
+  - **Provado na janela real** (cenário `uso`, `ok: true`): sem dado ao abrir; Principal 42%/18% com barras azuis e balão "Sessão 42% · zera em 2h10" / "Semana 18% · zera sex 09:00" / "visto agora"; Pessoal 92%/75% vermelha e âmbar, em cinza, "visto há 2 h". A primeira rodada pegou o relógio da tela atrasado até 30 s ("visto há 1 h"): agora conta com a hora de cada desenho.
+  - **Não provado:** os números de um Claude de verdade contra o "Account & Usage" do VSCode. Fica para o aceite (item 48).

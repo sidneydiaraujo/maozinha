@@ -81,6 +81,10 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 
 - [ ] 47. Num agente parado, clique no rótulo do modelo no cabeçalho (ex.: "Opus 5.5 ▾") e escolha Sonnet: o Claude troca de modelo na mesma conversa e o rótulo passa a dizer Sonnet. Clique no esforço ("alto ▾") e escolha "médio": o rótulo muda. Com o agente trabalhando, troque de novo: o balão diz "Vale quando o agente parar" e a troca acontece sozinha quando ele termina. Escolha "máximo" num modelo que não aceita: depois de uns segundos aparece "⚠" e o balão "Este modelo não aceita esse nível". Feche e abra a Lousa: o quadro volta com Sonnet/médio. Fable também aparece na lista.
 
+## Fatia 20 — uso de cada conta
+
+- [ ] 48. Ao abrir a Lousa, clique no ícone de uma conta Claude: o balão diz "Uso: sem dado ainda". Mande uma mensagem a um agente dessa conta e espere a resposta: sob o ícone aparecem duas barrinhas (sessão de 5 h e semana) e o balão diz "Sessão NN% · zera em XhYY", "Semana NN% · zera <dia> HH:MM" e "visto agora". Os números batem com o "Account & Usage" do VSCode na mesma conta. Passando de 70% a barra fica âmbar, e de 90% vermelha. Sem resposta de agente por mais de 1 h, as barras e o texto ficam cinza. A outra conta não muda.
+
 ## Fatias 22 e 23 — ver e juntar a cópia
 
 - [ ] 60. Numa cópia separada com um commit, clique em "Juntar" e depois no nome de um arquivo da lista: aparece o que mudou (verde entrou, vermelho saiu). "← Arquivos" volta para a lista. Com um arquivo novo qualquer, fora do git, na pasta original (ex.: `rascunho.txt`), o Juntar funciona e o rascunho continua lá.

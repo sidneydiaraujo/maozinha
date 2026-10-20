@@ -167,6 +167,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `perfis:renomear` | `{ perfilId, nome }` | `PerfilComConta` | T1.6 |
 | `perfis:atualizarConta` | `{ perfilId }` | `StatusConta` | T1.6 |
 | `perfis:criar` | `{ provedor, nome }` | `PerfilComConta` | T1.8 |
+| `perfis:uso` | — | `UsoConta[]` (só em memória; limite cuja hora de zerar passou vem com 0%) | T20.1 |
+| evento `perfis:usoMudou` | — | `UsoConta` (cada conta fica com o painel mais novo de qualquer agente dela) | T20.1 |
 | `terminais:abrir` | `{ alvo: AlvoTerminal, cols, rows }` | `{ terminalId, bufferInicial, aviso }` (aviso = último estado do agente) | T2.3, T8.1 |
 | `terminais:escrever` | `{ terminalId, dados }` | — | T2.3 |
 | `terminais:redimensionar` | `{ terminalId, cols, rows }` | — | T2.3 |

@@ -119,6 +119,54 @@
   width: 100%;
 }
 
+/* Uso da sessao e da semana (T20.2): duas barras de 2 px sob o icone; cinza com dado velho. */
+.uso-barras {
+  position: absolute;
+  right: 11px;
+  bottom: 1px;
+  left: 3px;
+  display: grid;
+  gap: 1px;
+}
+
+.uso-barra {
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: rgb(255 255 255 / 12%);
+  border-radius: 1px;
+}
+
+.uso-cheio {
+  display: block;
+  height: 100%;
+  background: #8fb8ff;
+}
+
+.uso-alerta {
+  background: var(--ambar, #f5a524);
+}
+
+.uso-perigo {
+  background: #ff6b6b;
+}
+
+.uso-velho .uso-cheio {
+  background: var(--apagado);
+}
+
+.uso-balao {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 6px;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.uso-balao.uso-velho {
+  color: var(--apagado);
+}
+
 /* Painel da engrenagem: todas as contas e "+ Nova conta". */
 .painel-contas {
   position: fixed;

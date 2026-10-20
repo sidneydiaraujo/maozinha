@@ -134,6 +134,14 @@ export interface PainelAgente {
   quando: number
 }
 
+/** Uso da sessao (5 h) e da semana de uma conta: o painel mais novo de qualquer agente dela (T20.1). */
+export interface UsoConta {
+  perfilId: PerfilId
+  cincoHoras: Limite | null
+  semana: Limite | null
+  quando: number // quando o dado chegou
+}
+
 export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   versao: 2           // 1 = lousa com molduras, migrada ao carregar (estado/migrar.ts)
   perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean }>

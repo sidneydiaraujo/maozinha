@@ -25,6 +25,7 @@ import type {
   ResumoCopia,
   StatusConta,
   TipoQuadro,
+  UsoConta,
   Viewport,
   VistaSalva,
 } from './model'
@@ -40,6 +41,8 @@ export const IPC = {
   perfisRenomear: 'perfis:renomear',
   perfisAtualizarConta: 'perfis:atualizarConta',
   perfisCriar: 'perfis:criar',
+  perfisUso: 'perfis:uso',
+  perfisUsoMudou: 'perfis:usoMudou', // evento main -> tela (uso da conta, T20.1)
   reposEscolherPasta: 'repos:escolherPasta',
   reposAdicionar: 'repos:adicionar',
   reposRemover: 'repos:remover',
@@ -115,6 +118,9 @@ export interface LousaApi {
     atualizarConta(perfilId: string): Promise<StatusConta>
     /** Cria a pasta vazia da conta nova (T1.8); o login vem depois, pelo cartao. */
     criar(provedor: Provedor, nome: string): Promise<PerfilComConta>
+    /** Uso de cada conta Claude que ja teve um agente falando (T20.1); so em memoria. */
+    uso(): Promise<UsoConta[]>
+    aoUso(cb: (uso: UsoConta) => void): () => void
   }
   repos: {
     /** Abre o seletor de pasta do Windows; null se o usuario cancelar. */

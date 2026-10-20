@@ -1,5 +1,6 @@
 // Canais dos agentes (T17.2, D24): o painel que a linha de status de cada agente conta, o
-// compactar da conversa (T18.1) e o modelo e o esforco do quadro (T19.1).
+// compactar da conversa (T18.1), o modelo e o esforco do quadro (T19.1) e o uso de cada conta,
+// que vem dos mesmos paineis (T20.1).
 import { z } from 'zod'
 import { IPC } from '../../shared/ipc'
 import { ESFORCOS, MODELOS } from '../../shared/model'
@@ -15,9 +16,10 @@ const Ajustar = DoQuadro.extend({
     .refine((m) => m.modelo !== undefined || m.esforco !== undefined, 'Nada para mudar'),
 })
 
-type Servicos = Pick<Contexto, 'agentes' | 'quadros' | 'terminais' | 'ajustes'>
+type Servicos = Pick<Contexto, 'agentes' | 'quadros' | 'terminais' | 'ajustes' | 'usos'>
 
-export function registrarHandlersAgentes({ agentes, quadros, terminais, ajustes }: Servicos): void {
+export function registrarHandlersAgentes({ agentes, quadros, terminais, ajustes, usos }: Servicos): void {
+  handle(IPC.perfisUso, z.undefined(), () => usos.todos(Date.now()))
   // guarda no quadro (vale na proxima abertura) e, com o agente aberto, digita /model e /effort
   handle(IPC.agentesAjustar, Ajustar, ({ quadroId, mudanca }) => {
     quadros.ajustar(quadroId, mudanca)
