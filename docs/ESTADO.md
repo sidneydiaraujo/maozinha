@@ -213,4 +213,13 @@ Nenhum.
     - `desempenho acumular`: eco com mediana de 23 ms e nenhuma travada;
     - ConPTY: `win32` chega e `bruto`/`st` somem.
   - **Não rodado de novo:** `apoio/abrir-e-fechar.mjs` (abre uma janela na tela; provado em 18/10, aqui só ganhou caminhos sem pasta temporária).
+- **19/10/2026 (provas das Fatias 10 a 13 guardadas):** as provas que estavam na pasta temporária da sessão viram cenários de `provas/`:
+  - `copias`, `juntar`, `paleta` e `envio`;
+  - novo estado `git`, com os repositórios `app` e `api` criados limpos a cada rodada;
+  - cada cenário devolve `"ok"`.
+  - **Rodados agora, os quatro com `ok: true`.**
+  - **O que as provas mostraram para a fila de ideias:**
+    - o Juntar recusa quando a pasta original tem até um arquivo novo que não está no git;
+    - o Ctrl+F começa no achado mais recente, e o Enter dá a volta para o mais antigo;
+    - o quadro novo nasce por cima de outro.
 - **19/10/2026 (plano das Fatias 15 a 21, D23 e D24 propostas):** pedido do Sidney: plano de ação da evolução do terminal avaliada hoje, em fatias de no máximo 35% de contexto. Lidas antes as Fatias 10 a 14 do outro terminal. Sete fatias, cada uma com a lista do que ler; as provas com Claude de verdade (T16.0, T17.0) pedem o ok do Sidney. Achado de plano: com o desenhista WebGL o texto some do HTML, que é por onde os cenários de `provas/` leem a tela; por isso as provas ficam no desenho normal (T15.2).

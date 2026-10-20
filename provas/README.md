@@ -31,6 +31,14 @@ node provas/rodar.mjs <cenario> [--sem-build] [opções do cenário]
 | `vivo` | demo | Árvore mostra arquivo criado e apagado pelo terminal (raiz e subpasta); leitor recarrega com a pasta fechada na árvore; não existe "Alterados agora" (D17) | leitor |
 | `desempenho` | casa | Eco da tecla (mediana, p90, pior) e atraso da tela com a pasta do usuário aberta e um terminal soltando 1,3 MB e pingando. Opção `acumular`: 10 mil arquivos mudados chegam antes (30 min da pasta do usuário na versão antiga) | — |
 
+| `copias` | git | Fatia 10: "Cópia separada" já marcada numa pasta com quadro, quadro `app ⑂ terminal-N` com pasta e branch próprias, fechar a cópia limpa apaga pasta e branch, fechar com arquivo novo mantém tudo, a cópia mantida aparece na janelinha | 1..5 |
+| `juntar` | git | Fatia 11: resumo "1 commit… para juntar em main", Juntar leva o arquivo para a original, fechar apaga cópia e branch, conflito desfaz o merge (original limpa), cópia com alteração sem commit avisa e o main recusa | 1..5 |
+| `paleta` | git | Fatia 12: Ctrl+K de verdade com o terminal em foco, "api" leva a vista ao quadro fora da tela, "fatia" acha o arquivo da subpasta e não o de `node_modules` e abre no leitor, "novo api" abre a janelinha com api marcada (sem abrir agente sozinho), Ctrl+F conta 11 achados e Enter anda | 1..5 |
+| `envio` | git | Fatia 13: um quadro selecionado não mostra a barra, Ctrl+clique de verdade no segundo mostra "Para 2 quadros", Shift+Enter quebra a linha sem enviar, Enter chega aos dois e o terceiro não recebe | 1..2 |
+
+Todo cenário devolve `"ok": true` quando tudo o que ele prova deu certo; o resto do
+`resultado.json` mostra cada valor, para achar o que falhou.
+
 Resultado de referência (19/10/2026, `desempenho acumular`): versão anterior ao D17 = eco
 mediana 86 ms, pior 245 ms, tela travada 20,9 s em ~35 s; depois = 20 a 23 ms, nenhuma
 travada.
@@ -41,6 +49,11 @@ travada.
   Pessoal, sem login.
 - `casa`: a sua pasta de usuário salva na lateral, só para leitura, mais os dois
   terminais.
+- `git`: dois repositórios git novos, `app` e `api`, criados na saída da rodada, com
+  identidade própria e `core.autocrlf false`. Há três terminais: `q1` e `q3` em app e
+  `q2` em api, longe, fora da tela. O `app` traz `docs/plano/fatia-12.md` e o mesmo nome
+  dentro de `node_modules` (ignorado). Os dois nascem limpos, porque o Juntar recusa
+  qualquer alteração pendente.
 
 **Cuidados:**
 
@@ -75,6 +88,16 @@ O que já ensinou a escrever cenário:
   na `.xterm-screen`.
 - **Fotos:** saem sem animação (o smoke liga "reduzir movimento"), e cada foto é tirada
   duas vezes, porque a primeira às vezes vem com a tela anterior.
+- **Conferir o disco ou o git:** a tela não lê arquivos. Pergunte a um terminal do
+  cenário com `perguntar(id, expressão)` (ver `copias.js`): a resposta vem entre marcas
+  `<R1>…</R1>`, montadas com concatenação para não casar com o eco do comando. Depois de
+  mandar um comando, pergunte `'pronto'` **no mesmo terminal** antes de conferir em outro:
+  é isso que garante que o comando terminou.
+- **Campo de texto do React:** mude o valor pelo setter nativo e dispare `input` (ver
+  `preencher`). Tecla injetada sem `{ type: 'char' }` não escreve nada: Shift+Enter só
+  quebra a linha com o `char`.
+- **Ctrl+clique para selecionar:** o React Flow só soma a seleção se receber um `keyDown`
+  de `Control` antes do clique.
 - **Classes que mudam:** quando a tela muda um nome de classe (`.selo-agente`,
   `.quadro-encerrado`, `.topo-chamadas`...), o cenário que usa esse nome precisa ser
   atualizado junto.

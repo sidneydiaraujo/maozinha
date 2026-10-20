@@ -7,7 +7,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, w
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { estadoDe } from './estados.mjs'
+import { estadoDe, prepararPastas } from './estados.mjs'
 
 const AQUI = dirname(fileURLToPath(import.meta.url))
 const RAIZ = resolve(AQUI, '..')
@@ -33,10 +33,11 @@ renameSync(join(pastaDemo, '_git'), join(pastaDemo, '.git'))
 renameSync(join(pastaDemo, '_node_modules'), join(pastaDemo, 'node_modules'))
 
 mkdirSync(dados, { recursive: true })
-const estado = estadoDe(tipoDeEstado, { pastaDemo, casa: homedir() })
+const extras = prepararPastas(tipoDeEstado, saida)
+const estado = estadoDe(tipoDeEstado, { pastaDemo, casa: homedir(), ...extras })
 writeFileSync(join(dados, 'estado.json'), JSON.stringify(estado, null, 2))
 const opcoes = resto.filter((o) => o !== '--sem-build')
-writeFileSync(join(saida, 'dados.json'), JSON.stringify({ pastaDemo, apoio: join(AQUI, 'apoio'), opcoes }))
+writeFileSync(join(saida, 'dados.json'), JSON.stringify({ pastaDemo, ...extras, apoio: join(AQUI, 'apoio'), opcoes }))
 
 const rodar = (comando) => spawnSync(comando, { cwd: RAIZ, stdio: 'inherit', shell: true, timeout: PRAZO_MS })
 if (!resto.includes('--sem-build') && rodar('npx electron-vite build').status !== 0) process.exit(1)
