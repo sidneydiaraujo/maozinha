@@ -35,6 +35,20 @@ export function lerCenario(argv: string[], empacotado: boolean): Cenario | null 
   return arquivo && saida ? { arquivo, saida } : null
 }
 
+/** O `dados.json` que o provas/rodar.mjs grava na saida (caminhos e opcoes da rodada). */
+function lerDados(saida: string): unknown {
+  const arquivo = join(saida, 'dados.json')
+  return existsSync(arquivo) ? JSON.parse(readFileSync(arquivo, 'utf8')) : {}
+}
+
+/** Desenho dos terminais na rodada (T15.2): o normal, salvo a opcao `webgl` (`rodar.mjs aparencia webgl`). */
+export function desenhoDasOpcoes(dados: unknown): 'dom' | 'webgl' {
+  const opcoes = dados && typeof dados === 'object' ? (dados as { opcoes?: unknown }).opcoes : undefined
+  return Array.isArray(opcoes) && opcoes.includes('webgl') ? 'webgl' : 'dom'
+}
+
+export const desenhoDaRodada = (c: Cenario): 'dom' | 'webgl' => desenhoDasOpcoes(lerDados(c.saida))
+
 /** Nome de foto vira nome de arquivo sem caminho: so letras, numeros, - e _. */
 export function nomeDaFoto(nome: unknown): string {
   const limpo = String(nome ?? '').replace(/[^\w-]+/g, '-').slice(0, 60)
@@ -101,8 +115,7 @@ export async function rodarCenario(janela: BrowserWindow, c: Cenario): Promise<b
   const wc = janela.webContents
   wc.setBackgroundThrottling(false)
   await semMovimento(janela)
-  const arquivoDados = join(c.saida, 'dados.json')
-  const dados: unknown = existsSync(arquivoDados) ? JSON.parse(readFileSync(arquivoDados, 'utf8')) : {}
+  const dados = lerDados(c.saida)
   const estado: { fim: { ok: boolean; texto: string } | null } = { fim: null }
   wc.executeJavaScript(preludio(dados) + readFileSync(c.arquivo, 'utf8')).then(
     (r: unknown) => (estado.fim = { ok: true, texto: typeof r === 'string' ? r : JSON.stringify(r, null, 2) }),

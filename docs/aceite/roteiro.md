@@ -60,3 +60,10 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 ## Fatia 14 — acabamento
 
 - [ ] 41. O instalador se chama `Lousa.ia Setup 0.1.0.exe` e já mostra o ícone novo (lousa escura com quadros azul, verde e âmbar). Depois de instalar, o atalho do Menu Iniciar e a barra de tarefas mostram o mesmo ícone, e o canto de cima da Lousa diz `v0.1.0`.
+
+## Fatia 15 — letra e cores com cara de VSCode
+
+Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
+
+- [ ] 42. Com dois terminais abertos, clique na engrenagem e em "Aparência do terminal". Troque as cores de Lousa para Abyss: os dois terminais mudam na hora, sem reabrir, e ficam com o fundo azul-marinho do Abyss do VSCode. Troque a fonte para Consolas e aumente o tamanho e a entrelinha: muda na hora também. Feche e abra a Lousa: volta como você deixou. "Voltar ao padrão" põe Cascadia Code 14, entrelinha 1,2 e cores Lousa. Um quadro onde você usou Ctrl+roda mantém a letra dele.
+- [ ] 43. Abra 6 quadros de terminal (ou agentes) e digite rápido em um deles enquanto outro solta bastante texto (ex.: `dir C:\Windows\System32`): as letras aparecem sem atraso, nítidas, e nenhum quadro fica em branco.

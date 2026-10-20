@@ -1,5 +1,5 @@
 import { app } from 'electron'
-import { lerCenario, rodarCenario, type Cenario } from './cenario'
+import { desenhoDaRodada, lerCenario, rodarCenario, type Cenario } from './cenario'
 import { log } from './log'
 import { provarPty } from './terminais/smokePty'
 import { criarJanelaPrincipal } from './window'
@@ -23,7 +23,8 @@ export async function rodarSmoke(): Promise<number> {
 }
 
 async function provarTela(cenario: Cenario | null): Promise<boolean> {
-  const janela = criarJanelaPrincipal({ mostrar: false })
+  const domNaProva = cenario !== null && desenhoDaRodada(cenario) === 'dom'
+  const janela = criarJanelaPrincipal({ mostrar: false, ...(domNaProva ? { desenho: 'dom' as const } : {}) })
   const esperado = `Electron ${process.versions.electron}`
   const limite = Date.now() + (cenario ? PRAZO_TELA_CENARIO_MS : PRAZO_TELA_MS)
   while (Date.now() < limite) {

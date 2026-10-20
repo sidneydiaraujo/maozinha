@@ -1,7 +1,18 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('./log', () => ({ log: vi.fn() }))
-const { lerCenario, nomeDaFoto } = await import('./cenario')
+const { desenhoDasOpcoes, lerCenario, nomeDaFoto } = await import('./cenario')
+
+describe('desenhoDasOpcoes', () => {
+  it('a rodada usa o desenho normal, salvo a opcao webgl', () => {
+    expect(desenhoDasOpcoes({ opcoes: [] })).toBe('dom')
+    expect(desenhoDasOpcoes({ opcoes: ['acumular'] })).toBe('dom')
+    expect(desenhoDasOpcoes({ opcoes: ['webgl'] })).toBe('webgl')
+    expect(desenhoDasOpcoes({})).toBe('dom')
+    expect(desenhoDasOpcoes(null)).toBe('dom')
+    expect(desenhoDasOpcoes({ opcoes: 'webgl' })).toBe('dom')
+  })
+})
 
 describe('lerCenario', () => {
   const argv = ['electron', '.', '--smoke', '--cenario=C:\\p\\vivo.js', '--saida=C:\\p\\saida\\vivo-1']

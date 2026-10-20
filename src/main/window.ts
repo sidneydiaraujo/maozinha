@@ -9,6 +9,8 @@ interface Opcoes {
   mostrar: boolean
   /** Arquivo onde a janela guarda tamanho e posicao (T8.7); ausente no smoke. */
   lembrarEm?: string
+  /** Rodada de prova (T15.2): terminais no desenho normal, que deixa o texto no HTML. */
+  desenho?: 'dom'
 }
 
 /** O salvo, se o arquivo existe e a janela ainda cabe numa tela ligada. */
@@ -60,7 +62,8 @@ export function criarJanelaPrincipal(opcoes: Opcoes): BrowserWindow {
     })
   }
 
-  if (devUrl) void janela.loadURL(devUrl)
-  else void janela.loadFile(join(__dirname, '../renderer/index.html'))
+  const query: Record<string, string> = opcoes.desenho ? { desenho: opcoes.desenho } : {}
+  if (devUrl) void janela.loadURL(opcoes.desenho ? `${devUrl}?desenho=${opcoes.desenho}` : devUrl)
+  else void janela.loadFile(join(__dirname, '../renderer/index.html'), { query })
   return janela
 }

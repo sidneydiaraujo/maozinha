@@ -101,6 +101,8 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **A caixa de texto continua a do Claude, dentro do terminal.** Uma caixa separada, com fonte proporcional como o painel do VSCode, duplicaria a digitação e atrapalharia as perguntas de permissão do Claude. O que chega perto do VSCode são a letra, as cores e os botões do cabeçalho.
   - **Paleta própria (`lousa`), puxada do Abyss, com o Abyss puro como opção** na engrenagem.
   - **Dependência nova `@xterm/addon-webgl`** (só JavaScript, versão fixa casada com o `@xterm/xterm` 6.0.0). Volta ao desenho normal sozinho quando o WebGL cai ou passa de 16 quadros. Nas provas fica no desenho normal, salvo o cenário `aparencia webgl`.
+    - Instalada na T15.2: `@xterm/addon-webgl` **0.19.0**, publicada no mesmo minuto do `@xterm/xterm` 6.0.0 (22/12/2025), sem dependências.
+    - Limite da Lousa: **14** terminais em WebGL ao mesmo tempo. O Chromium derruba o contexto mais velho no 17º, e a folga evita isso; do 15º em diante, o terminal já nasce no desenho normal.
   - **Print:** no Windows o Claude cola imagem com Alt+V (lido no `claude.exe` 2.1.304). Ctrl+V com imagem e sem texto manda Alt+V ao terminal; o main só diz se há imagem e nunca entrega a imagem à tela.
 - **D24 (19/10/2026, proposta do Claude, aprovada pelo Sidney no mesmo dia):** dados do agente pela linha de status (Fatias 17 a 20).
   - **Fonte única: a `statusLine` do Claude Code**, ligada pela Lousa com `--settings <arquivo>` em cada agente. O arquivo fica em `<userData>\agentes`; nada é gravado nas pastas das contas. O caminho do painel do VSCode (`get_usage`, experimental) exigiria trocar o terminal pelo modo de troca de mensagens.

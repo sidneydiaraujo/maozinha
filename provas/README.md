@@ -35,7 +35,12 @@ node provas/rodar.mjs <cenario> [--sem-build] [opções do cenário]
 | `juntar` | git | Fatia 11: resumo "1 commit… para juntar em main", Juntar leva o arquivo para a original, fechar apaga cópia e branch, conflito desfaz o merge (original limpa), cópia com alteração sem commit avisa e o main recusa | 1..5 |
 | `paleta` | git | Fatia 12: Ctrl+K de verdade com o terminal em foco, "api" leva a vista ao quadro fora da tela, "fatia" acha o arquivo da subpasta e não o de `node_modules` e abre no leitor, "novo api" abre a janelinha com api marcada (sem abrir agente sozinho), Ctrl+F conta 11 achados e Enter anda | 1..5 |
 | `envio` | git | Fatia 13: um quadro selecionado não mostra a barra, Ctrl+clique de verdade no segundo mostra "Para 2 quadros", Shift+Enter quebra a linha sem enviar, Enter chega aos dois e o terceiro não recebe | 1..2 |
-| `aparencia` | demo | Fatia 15: a Aparência da engrenagem muda os terminais abertos na hora, sem reabrir (paleta Lousa → Abyss, fonte Consolas, letra 15, entrelinha maior); três cliques seguidos não se perdem; fica guardada; "Voltar ao padrão" volta tudo | a-lousa, b-abyss |
+| `aparencia` | demo | Fatia 15: a Aparência da engrenagem muda os terminais abertos na hora, sem reabrir (paleta Lousa → Abyss, fonte Consolas, letra 15, entrelinha maior); três cliques seguidos não se perdem; fica guardada; "Voltar ao padrão" volta tudo. Opção `webgl`: os terminais desenham em WebGL (sem texto no HTML) e, com o WebGL derrubado de propósito num deles, ele volta sozinho ao desenho normal enquanto o outro segue em WebGL | a-lousa, b-abyss; com `webgl`: c-webgl, d-webgl-abyss, e-caiu |
+
+**Desenho do terminal nas provas (T15.2):** o app usa o desenho WebGL, que não deixa o texto
+no HTML. Por isso, numa rodada de prova, o main abre a tela com `?desenho=dom` e os terminais
+ficam no desenho normal, que os cenários sabem ler (`.xterm-rows`). Só a opção `webgl` liga o
+WebGL na rodada. Cada terminal diz o seu desenho em `.terminal[data-desenho="webgl"|"dom"]`.
 
 Todo cenário devolve `"ok": true` quando tudo o que ele prova deu certo; o resto do
 `resultado.json` mostra cada valor, para achar o que falhou.

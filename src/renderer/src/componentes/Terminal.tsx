@@ -7,6 +7,7 @@ import type { AlvoTerminal, AvisoAgente } from '../../../shared/model'
 import '../estilos/terminal.css'
 import { fontePadrao, guardarFonte, lerFonte, proximaFonte } from './fonte'
 import { BuscaTerminal } from './BuscaTerminal'
+import { ligarDesenhista } from './desenhista'
 import { arquivoDeUri, ligarLinks, type AcoesLink } from './links'
 import { ligarTeclas } from './teclas'
 import { aoMudarAparencia, familiaDaFonte, lerAparencia, temaDoXterm, type Aparencia } from './tema'
@@ -138,6 +139,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
     if (!el) return
     const acoesLink = (): AcoesLink => ({ abrirUrl, arquivo: atual.current.arquivos })
     const { term, ajustar } = criarXterm(el, lerFonte(chave), acoesLink)
+    const soltarDesenhista = ligarDesenhista(term, el)
     let terminalId: string | null = null
     let ativo = true
     const escrever = (dados: string): void => {
@@ -179,6 +181,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
       cancelarDados()
       cancelarSaida()
       setBusca(null)
+      soltarDesenhista()
       term.dispose()
     }
   }, [chave])
