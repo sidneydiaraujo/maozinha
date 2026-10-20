@@ -137,6 +137,7 @@ Origem entre parênteses.
 | E4 | Papéis por quadro (construtor, QA, revisor) com briefing próprio (AgentGrid) | V2 |
 | E5 | Barramento sempre **por perfil**; registro auditável de todas as mensagens | V1 |
 | E6 | Agent Teams nativo do Claude dentro de um quadro, quando fizer sentido | V2 |
+| E7 | **Time por linhas** (20/10/2026, D39): puxar uma linha de um agente a outro, como no n8n; a Lousa apresenta o time, passa o trabalho adiante quando um termina e junta as cópias. Primeiro passo de E1 a E4 sem barramento | M |
 
 ### F. Tarefas e IAs web
 | # | Funcionalidade | P |

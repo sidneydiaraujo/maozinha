@@ -21,6 +21,8 @@ Faça as tarefas **na ordem**: cada uma usa o que a anterior entregou.
 | 19. Modelo e esforço | "Opus ▾" e "alto ▾" no cabeçalho, guardados no quadro | `fatia-19-modelo-e-esforco.md` |
 | 20. Uso da conta | Barras de 5 h e 7 dias em cada conta na barra de cima | `fatia-20-uso-da-conta.md` |
 | 21. Identidade visual | Cara própria (ardósia, giz, âmbar), primeiro em protótipo aprovado | `fatia-21-identidade-visual.md` |
+| 22 a 27. Evoluções | Ver e juntar a cópia, mensagens prontas, notas, vistas salvas | `fatia-22-a-27-evolucoes.md` |
+| 28 a 32. Time de agentes | Linhas entre agentes (como no n8n): o time se conhece, o trabalho passa adiante sozinho, juntar o time (D39) | `fatia-28-a-32-time.md` |
 
 Ordem das Fatias 15 a 21: 15 e 16 são independentes; 17 vem antes de 18, 19 e 20; 21 por
 último. Comece cada uma numa sessão nova.

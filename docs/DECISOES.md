@@ -170,3 +170,11 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Trocar com o agente aberto:** parado, o main digita `/model x` e `/effort y` (pausa de 150 ms antes de cada Enter, 600 ms entre os dois); trabalhando, o pedido espera o agente parar (`FilaAjustes`); fechado, vale na abertura (`--model`/`--effort`). Sem estado do agente ainda conta como ocupado: nada é digitado no escuro.
   - **O rótulo mostra o que o painel do agente diz valer** (Fatia 17), não o que foi pedido. Se o painel chega 4 s depois do pedido e o nível continua outro, o rótulo mostra "⚠" e o balão "Este modelo não aceita esse nível".
   - **Valor desconhecido no estado** (por exemplo, de uma versão futura) vira "sem escolha" ao carregar (`.catch(undefined)` no schema), sem estragar o resto do `estado.json`.
+- **D39 (20/10/2026, Sidney: "quero uma função visual de poder linkar terminal com terminal e eles entenderem que estão trabalhando juntos sem um atrapalhar o outro"):** time de agentes ligado por linhas, como no n8n (plano: `docs/plano/fatia-28-a-32-time.md`).
+  - **Linha com seta entre dois agentes = "este entrega para aquele".** Quadros ligados formam um time. A seleção com a barra de envio e as notas continuam iguais: a linha só acrescenta.
+  - **Não atrapalhar** vem de três regras: cada colega na própria cópia (D18); a Lousa só digita num agente parado (como a D25); sem ciclo e no máximo 3 repasses automáticos seguidos sem o Sidney digitar.
+  - **Contas:** liga se for a mesma conta, ou contas diferentes **no mesmo repositório** (original ou cópias dela), porque as duas já veem aquele código. Contas diferentes em repositórios diferentes: recusado (princípio 2 de `FUNCIONALIDADES.md`).
+  - **Padrão da linha nova: automático.** Sidney: "se o usuário uniu os agentes é porque ele quer otimizar as coisas". "Perguntar antes" e "Pausar" ficam no menu da linha.
+  - **Clicar na bolinha cria um colega** já ligado, na mesma conta e no mesmo repositório, numa cópia própria, sem escolher nada (pedido do Sidney).
+  - **Sem dependência nova nas Fatias 28 a 31:** o React Flow já liga nós (`Handle`, `onConnect`); o repasse usa o OSC 7501 (D16) e a fila da D25. O recado no meio do trabalho (MCP, Fatia 32) fica para depois, com decisão própria.
+  - **Ordem:** começa depois do aceite do instalador 0.2.0.

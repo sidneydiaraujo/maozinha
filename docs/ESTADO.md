@@ -1,6 +1,7 @@
 # Estado da construção
 
 **Próxima tarefa: aceite do Sidney com o instalador 0.2.0** (`release/Lousa.ia Setup 0.2.0.exe`, hash em `release/SHA256.txt`). Ele instala e testa os itens 17 a 49 e 60 a 67 do `docs/aceite/roteiro.md` (Fatias 7, 8, 10 a 16, 18 a 27 e as correções). As Fatias 15 a 21 do plano estão todas codadas; o que o aceite apontar vira correção.
+Depois do aceite: **T28.1** (time de agentes ligado por linhas, `docs/plano/fatia-28-a-32-time.md`, D39).
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
 
@@ -108,6 +109,12 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T26.2 | Nota na lousa (tela) | ✅ |
 | T27.1 | Vistas salvas (main) | ✅ |
 | T27.2 | Vistas salvas no Ctrl+K | ✅ |
+| T28.1 | Time: modelo, regras puras e canais (D39) | ⬜ depois do aceite 0.2.0 |
+| T28.2 | Time: bolinhas e linha na lousa | ⬜ |
+| T28.3 | Time: clicar na bolinha cria um colega ligado | ⬜ |
+| T29.1 | Time: papel e apresentação | ⬜ |
+| T30.1 | Time: repasse quando um termina | ⬜ |
+| T31.1 | Time: juntar todas as cópias | ⬜ |
 
 ## Bloqueios
 
@@ -440,3 +447,4 @@ Nenhum.
   - **Prova:** opção nova `brilho` no `desempenho` (o `main/cenario.ts` só liga "reduzir movimento" sem ela; +1 teste). `desempenho acumular brilho`: 5 trabalhando, 4 animando, eco mediana 21 ms (p90 24, pior 35), tela travada 0. `fatia8` com `ok` nos passos (pílula "● 1 esperando você", brilho apaga, pílula some). Numa das três rodadas do `fatia8` com a F21, o "ponteiro de link" saiu `false`; nas outras duas e na `main` sem a F21, `true`. Fica anotado como instável.
   - `npm run check` verde (439) sem aviso.
 - **20/10/2026 (T21.3, instalador):** versão 0.2.0 no `package.json`; `npm run dist` gerou `release/Lousa.ia Setup 0.2.0.exe` (104 MB, hash `4979c914…cd04` em `release/SHA256.txt`). **Conferido:** versão do arquivo 0.2.0 e `win-unpackedLousa.ia.exe --smoke` → código 0 (node-pty e tela+preload+IPC ok). **Não instalei** no PC; instalar e testar os itens 17 a 49 e 60 a 67 fica com o Sidney.
+- **20/10/2026 (plano do time de agentes, D39):** Sidney pediu ligar agentes com linhas, como no n8n, para trabalharem como time sem um atrapalhar o outro. Plano em `docs/plano/fatia-28-a-32-time.md` (Fatias 28 a 32). Decisões dele: contas diferentes só se ligam no mesmo repositório; clicar na bolinha cria um colega já ligado; linha nova nasce no automático; começa depois do aceite 0.2.0. Só documentação, nenhum código mudou.
