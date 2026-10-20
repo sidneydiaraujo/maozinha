@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T17.2 (ligar a linha de status em cada agente)**, pelo `docs/plano/fatia-17-dados-do-agente.md`, com as regras novas da T17.0. As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
+**Próxima tarefa: T18.1 (anel de contexto no quadro)**, pelo `docs/plano/fatia-18-anel-de-contexto.md`. Os cenários das Fatias 18 a 20 não precisam de Claude: `prova.ipc("agentes:painel", …)`. As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -84,7 +84,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T16.3 | Aceite | ⬜ (itens 44 e 45 escritos no roteiro; espera o Sidney) |
 | T17.0 | Prova: linha de status com Claude de verdade | ✅ |
 | T17.1 | Leitor puro do JSON da linha de status | ✅ |
-| T17.2 | Linha de status em cada agente + canal `agentes:painel` | ⬜ |
+| T17.2 | Linha de status em cada agente + canal `agentes:painel` | ✅ |
 | T18.1 | Anel de contexto e compactar | ⬜ |
 | T18.2 | Configurar o anel na engrenagem | ⬜ |
 | T18.3 | Aceite | ⬜ |
@@ -314,3 +314,25 @@ Nenhum.
   - `textoDoArquivo` aceita UTF-8 e UTF-16 com BOM.
   - 9 testes, um deles confere que nenhum caminho, sessão ou custo passa para o painel.
   - `npm run check` verde (315), sem aviso.
+- **19/10/2026 (T17.2):**
+  - **`agentes/ponte.ts` (`PonteAgentes`):**
+    - `preparar` grava `<userData>\agentes\<id>.settings.json` com a linha de status da T17.0;
+    - um vigia só da pasta lê o `<id>.json` 250 ms depois do último aviso e manda `agentes:painel`;
+    - guarda o último painel de cada quadro (`agentes:ultimoPainel`, para a tela remontada);
+    - `esquecer` apaga os dois arquivos quando o main fecha o terminal do quadro (removido, repo fechado, troca de conta);
+    - ao abrir o app, apaga os arquivos de quadros que não existem mais.
+  - `agentes/disco.ts` é o disco de verdade, separado para a ponte ser testada com disco falso.
+  - `comandoAgente` ganhou `--settings '<arquivo>'` em texto literal do PowerShell; só o agente Claude pede.
+  - Caminho com `$`, crase, `%`, `!` ou aspas: o agente abre sem painel, em vez de arriscar o comando.
+  - `registrarHandlersTerminais` passou a receber os serviços num objeto, porque o 5º serviço passaria do teto de 4 parâmetros.
+  - 11 testes novos; `npm run check` verde (326) e `npm run smoke` verde.
+  - **Desvio do plano:**
+    - a prova não usou o Claude falso: o PowerShell do quadro põe o `claude.exe` de verdade na frente do PATH, e trocá-lo exigiria um desvio só para teste no app;
+    - em vez disso, o cenário `painel` usa o estado novo `agente` (conta Pessoal, pasta de teste, ok do Sidney, sem mensagem).
+  - **Resultado do `painel`:** `ok: true`.
+    - O agente abriu com `--settings`, e a confiança na pasta foi aceita.
+    - O painel chegou com "Opus 5.5 (1M context)", esforço medium, 5 h a 34%, 7 dias a 32% e contexto `null`.
+    - O `ultimoPainel` bate com o evento, e nenhum `claude.exe` ficou aberto.
+    - A foto mostra o 📎 no cabeçalho do agente vivo.
+  - `colar-e-reabrir` passou com a ponte ligada.
+  - Para as Fatias 18 a 20, os cenários mandam o painel com `prova.ipc('agentes:painel', …)`, sem Claude.

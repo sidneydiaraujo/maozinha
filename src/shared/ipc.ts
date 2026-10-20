@@ -12,6 +12,7 @@ import type {
   EstadoTela,
   FimDaCopia,
   ItemArquivo,
+  PainelAgente,
   PerfilComConta,
   Posicao,
   Provedor,
@@ -61,6 +62,8 @@ export const IPC = {
   arquivosVigiar: 'arquivos:vigiar',
   arquivosBuscar: 'arquivos:buscar',
   arquivosMudou: 'arquivos:mudou', // evento main -> tela
+  agentesUltimoPainel: 'agentes:ultimoPainel',
+  agentesPainel: 'agentes:painel', // evento main -> tela (linha de status do agente, T17.2)
 } as const
 
 /** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
@@ -165,5 +168,11 @@ export interface LousaApi {
     /** Ctrl+K (T12.1): arquivos das pastas da lista cujo nome combina (ate 30). */
     buscar(texto: string): Promise<Array<{ repoId: string; relativo: string }>>
     aoMudar(cb: (repoId: string, caminhos: string[]) => void): () => void
+  }
+  /** O que cada agente Claude conta pela linha de status: modelo, esforco, contexto, uso (T17.2, D24). */
+  agentes: {
+    /** O ultimo painel que o main guardou do quadro (tela remontada); null antes do primeiro. */
+    ultimoPainel(quadroId: string): Promise<PainelAgente | null>
+    aoPainel(cb: (quadroId: string, painel: PainelAgente) => void): () => void
   }
 }

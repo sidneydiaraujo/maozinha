@@ -5,6 +5,7 @@ import { AvisosDoWindows } from './avisos/notificar'
 import { pastaDoSmoke } from './cenario'
 import { criarContexto, type Contexto } from './contexto'
 import { rodarGitReal } from './copias/git'
+import { registrarHandlersAgentes } from './handlers/agentes'
 import { registrarHandlersApp } from './handlers/app'
 import { registrarHandlersArquivos } from './handlers/arquivos'
 import { registrarHandlersCopias } from './handlers/copias'
@@ -45,12 +46,24 @@ function registrarCanais(): void {
   registrarHandlersQuadros(contexto.quadros)
   registrarHandlersCopias(contexto.repos, rodarGitReal)
   registrarHandlersLousa(contexto)
-  registrarHandlersTerminais(contexto.terminais, contexto.perfis, contexto.quadros, contexto.repos)
+  registrarHandlersTerminais(contexto)
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)
+  registrarHandlersAgentes(contexto.agentes)
+  iniciarPonte(contexto)
   app.on('before-quit', () => {
     contexto.terminais.fecharTodos()
     contexto.vigia.fecharTodos()
+    contexto.agentes.parar()
   })
+}
+
+/** Linha de status dos agentes (T17.2): se a pasta falhar, os agentes so ficam sem painel. */
+function iniciarPonte(contexto: Contexto): void {
+  try {
+    contexto.agentes.iniciar(contexto.quadros.listar().map((q) => q.id))
+  } catch (erro) {
+    log('warn', 'a pasta dos agentes não abriu; os agentes ficam sem painel', erro)
+  }
 }
 
 async function iniciar(): Promise<void> {

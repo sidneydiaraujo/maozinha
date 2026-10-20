@@ -191,6 +191,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `arquivos:vigiar` | `{ pastas: { repoId, relativo }[] }` (máx. 500) | — (vigia só essas pastas, sem subpastas, e para as outras) | T7.1, D17 |
 | `arquivos:buscar` | `{ texto }` | `{ repoId, relativo }[]` (Ctrl+K: até 30, teto de 20 mil itens) | T12.1 |
 | evento `arquivos:mudou` | — | `{ repoId, caminhos }` (lote de 75 ms, sem git/dependências/builds) | T7.1 |
+| `agentes:ultimoPainel` | `{ quadroId }` | `PainelAgente \| null` (o último guardado no main, para a tela remontada) | T17.2 |
+| evento `agentes:painel` | — | `{ quadroId, painel: PainelAgente }` (linha de status do agente Claude) | T17.2 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
 `powershell -NoProfile -Command "claude auth login; exit $LASTEXITCODE"`, sem terminal na tela).
@@ -243,6 +245,21 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
 `%APPDATA%\lousa-ia\estado.json` (`app.getPath('userData')`). Gravação atômica
 (arquivo `.tmp` e depois renomeia). Arquivo inválido: renomeia para
 `estado.json.corrompido-<data>` e começa do padrão. Validado com zod.
+
+## Linha de status dos agentes (Fatia 17, D24)
+
+Pasta `<userData>\agentes`, a única que a ponte (`src/main/agentes/ponte.ts`) toca:
+
+- `<quadroId>.settings.json`: gravado ao abrir um agente Claude.
+  - Traz só a `statusLine`: `findstr "^" > "C:/…/agentes/<quadroId>.json"`.
+  - O comando digitado vira `claude --settings '<arquivo>' …`.
+  - Caminho com `$`, crase, `%`, `!` ou aspas: o agente abre sem painel.
+- `<quadroId>.json`: o JSON que o Claude entrega à linha de status.
+  - Um vigia só desta pasta (sem subpastas, sem `stat`) lê 250 ms depois do último aviso.
+  - O `lerPainel` fica só com modelo, esforço, contexto e limites, e o JSON nunca vai para o registro.
+- Fechar o terminal de um quadro (removido, repo fechado, troca de conta) apaga os dois arquivos.
+- Ao abrir o app, os arquivos de quadros que não existem mais são apagados.
+- Nada vai para as pastas das contas (`~/.claude*`).
 
 ## Segurança
 

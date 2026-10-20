@@ -102,3 +102,36 @@ describe('resolverAlvo: conversa do quadro (T6.1)', () => {
     expect(comando('q1')).toBe('claude\r')
   })
 })
+
+describe('resolverAlvo: linha de status do agente (T17.2)', () => {
+  const pedidos: string[] = []
+  const comPainel: DepsAlvo = {
+    ...deps,
+    settingsDoAgente: (quadroId) => {
+      pedidos.push(quadroId)
+      return quadroId === 'q1' ? null : `C:\\Users\\O'Neil\\lousa\\agentes\\${quadroId}.settings.json`
+    },
+  }
+  const comando = (quadroId: string): string | undefined =>
+    resolverAlvo({ tipo: 'quadro', quadroId }, comPainel).comandoInicial
+
+  it('o agente Claude abre com --settings em texto literal do PowerShell, junto com --resume', () => {
+    expect(comando('q5')).toBe(
+      `claude --settings 'C:\\Users\\O''Neil\\lousa\\agentes\\q5.settings.json' --resume ${SESSAO}\r`,
+    )
+    expect(comando('q7')).toBe(
+      `claude --settings 'C:\\Users\\O''Neil\\lousa\\agentes\\q7.settings.json' --session-id ${NOVA}\r`,
+    )
+  })
+
+  it('sem settings (caminho que nao serve): abre como antes', () => {
+    expect(comando('q1')).toBe('claude\r')
+  })
+
+  it('Codex e terminal comum nao pedem settings', () => {
+    pedidos.length = 0
+    expect(comando('q3')).toBe('codex\r')
+    expect(comando('q4')).toBeUndefined()
+    expect(pedidos).toEqual([])
+  })
+})

@@ -19,6 +19,18 @@ export interface DepsAlvo {
   obterRepo(id: string): Repo
   /** A conversa do quadro ja esta gravada na pasta desta conta? */
   existeSessao(configDir: string, sessaoId: string): boolean
+  /** Grava o settings da linha de status do agente (T17.2) e devolve o caminho; null = sem painel. */
+  settingsDoAgente?(quadroId: string): string | null
+}
+
+/** So o agente Claude ganha a linha de status: o Codex nao tem `--settings`. */
+function comandoDoQuadro(quadro: Quadro, perfil: Perfil, deps: DepsAlvo): string | undefined {
+  if (quadro.tipo !== 'agente') return undefined
+  const sessao = quadro.sessaoId
+    ? { id: quadro.sessaoId, existe: deps.existeSessao(perfil.configDir, quadro.sessaoId) }
+    : undefined
+  const settings = perfil.provedor === 'claude' ? deps.settingsDoAgente?.(quadro.id) : null
+  return comandoAgente(perfil.provedor, sessao, settings ?? undefined)
 }
 
 export function resolverAlvo(alvo: AlvoTerminal, deps: DepsAlvo): AlvoResolvido {
@@ -34,13 +46,10 @@ export function resolverAlvo(alvo: AlvoTerminal, deps: DepsAlvo): AlvoResolvido 
   // Pasta vem do repo e conta vem do quadro, ambos salvos no main: nunca da tela.
   const quadro = deps.obterQuadro(alvo.quadroId)
   const perfil = deps.obterPerfil(quadro.perfilId)
-  const sessao = quadro.sessaoId
-    ? { id: quadro.sessaoId, existe: deps.existeSessao(perfil.configDir, quadro.sessaoId) }
-    : undefined
   return {
     terminalId: quadro.id,
     cwd: deps.obterRepo(quadro.repoId).caminho,
     perfil,
-    comandoInicial: quadro.tipo === 'agente' ? comandoAgente(perfil.provedor, sessao) : undefined,
+    comandoInicial: comandoDoQuadro(quadro, perfil, deps),
   }
 }

@@ -5,6 +5,8 @@ import { existsSync, mkdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
+import { adiarReal, discoDaPonte } from './agentes/disco'
+import { PonteAgentes } from './agentes/ponte'
 import { discoReal, observarReal } from './arquivos/disco'
 import { rodarGitReal } from './copias/git'
 import { ServicoCopias } from './copias/servico'
@@ -32,6 +34,7 @@ export interface Contexto {
   arquivos: ServicoArquivos
   vigia: VigiaArquivos
   avisos: AvisosDoWindows
+  agentes: PonteAgentes
 }
 
 /** Entrega um evento a todas as janelas abertas. */
@@ -101,18 +104,31 @@ export function criarContexto(): Contexto {
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
   const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
+  // linha de status dos agentes (T17.2, D24): fica so em <userData>\agentes
+  const agentes = new PonteAgentes({
+    pasta: join(app.getPath('userData'), 'agentes'),
+    disco: discoDaPonte,
+    agora: Date.now,
+    emitir: (quadroId, painel) => enviarParaJanelas(IPC.agentesPainel, { quadroId, painel }),
+    adiar: adiarReal,
+  })
+  // fechar o terminal de um quadro (removido, repo fechado, trocou de conta) leva o painel junto
+  const fecharQuadro = (id: string): void => {
+    terminais.fechar(id)
+    agentes.esquecer(id)
+  }
   const repos = new ServicoRepos({
     armazem,
     perfis,
     ehPasta,
-    fecharTerminal: (id) => terminais.fechar(id),
+    fecharTerminal: fecharQuadro,
     novoId: randomUUID,
     copias,
   })
   const quadros = new ServicoQuadros({
     armazem,
     perfis,
-    fecharTerminal: (id) => terminais.fechar(id),
+    fecharTerminal: fecharQuadro,
     novoId: randomUUID,
     novaSessao: randomUUID,
     copiarSessao,
@@ -123,5 +139,5 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos }
+  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes }
 }

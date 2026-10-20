@@ -3,6 +3,8 @@
 // casa: a pasta do usuario salva (aberta na arvore, so leitura) + dois terminais, como no D17.
 // git: dois repositorios git novos (app e api) e tres terminais, para copia separada,
 // juntar, Ctrl+K e mensagem para varios quadros (Fatias 10 a 13).
+// agente: UM AGENTE DE VERDADE (claude.exe, conta Pessoal) na copia da pasta de exemplo, para a
+// linha de status (Fatia 17). Pede o ok do Sidney; o cenario nao manda mensagem nenhuma.
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -20,7 +22,7 @@ const terminal = (id, repoId, perfilId, x, largura) => ({
 
 const repo = (id, nome, caminho) => ({ id, nome, caminho, perfilPadraoId: 'principal' })
 
-export const ESTADOS = ['demo', 'casa', 'git']
+export const ESTADOS = ['demo', 'casa', 'git', 'agente']
 
 /** Repositorio git com um commit; identidade e fim de linha locais (o autocrlf do PC nao vale aqui). */
 function criarRepo(pasta) {
@@ -80,6 +82,10 @@ export function estadoDe(nome, pastas) {
         terminal('q3', 'r1', 'principal', 640, 560),
       ],
     }
+  }
+  if (nome === 'agente') {
+    const a1 = { ...terminal('a1', 'rd', 'pessoal', 40, 900), tipo: 'agente', titulo: 'Claude 1' }
+    return { ...base, repos: [demo], quadros: [a1] }
   }
   if (nome !== 'demo') throw new Error(`estado desconhecido: ${nome} (use ${ESTADOS.join(' ou ')})`)
   return {

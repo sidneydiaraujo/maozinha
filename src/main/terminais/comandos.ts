@@ -8,11 +8,18 @@ export interface SessaoAgente {
   existe: boolean
 }
 
-/** Com conversa: retoma se ja existe, senao abre uma nova com o id que o Lousa escolheu. */
-export function comandoAgente(provedor: Provedor, sessao?: SessaoAgente): string {
+/** Texto literal no PowerShell: aspas simples, e a aspa simples de dentro dobrada. */
+const literalPowerShell = (texto: string): string => `'${texto.replace(/'/g, "''")}'`
+
+/**
+ * Com conversa: retoma se ja existe, senao abre uma nova com o id que o Lousa escolheu.
+ * `settings` (T17.2): arquivo da Lousa com a linha de status que conta o painel do agente.
+ */
+export function comandoAgente(provedor: Provedor, sessao?: SessaoAgente, settings?: string): string {
   if (provedor === 'codex') return 'codex\r'
-  if (!sessao || !FORMATO_SESSAO.test(sessao.id)) return 'claude\r'
-  return sessao.existe ? `claude --resume ${sessao.id}\r` : `claude --session-id ${sessao.id}\r`
+  const base = settings ? `claude --settings ${literalPowerShell(settings)}` : 'claude'
+  if (!sessao || !FORMATO_SESSAO.test(sessao.id)) return `${base}\r`
+  return sessao.existe ? `${base} --resume ${sessao.id}\r` : `${base} --session-id ${sessao.id}\r`
 }
 
 /**

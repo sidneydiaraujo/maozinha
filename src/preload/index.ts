@@ -2,7 +2,7 @@
 // contrato em src/shared/ipc.ts; nenhuma regra mora aqui.
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron'
 import { IPC, type LousaApi } from '../shared/ipc'
-import type { AvisoAgente } from '../shared/model'
+import type { AvisoAgente, PainelAgente } from '../shared/model'
 
 /** Assina um evento do main entregando so o payload (nunca o `event`); devolve o cancelar. */
 function inscrever<T>(canal: string, cb: (payload: T) => void): () => void {
@@ -70,6 +70,11 @@ const api: LousaApi = {
     vigiar: (pastas) => ipcRenderer.invoke(IPC.arquivosVigiar, { pastas }),
     buscar: (texto) => ipcRenderer.invoke(IPC.arquivosBuscar, { texto }),
     aoMudar: (cb) => inscrever<{ repoId: string; caminhos: string[] }>(IPC.arquivosMudou, (p) => cb(p.repoId, p.caminhos)),
+  },
+  agentes: {
+    ultimoPainel: (quadroId) => ipcRenderer.invoke(IPC.agentesUltimoPainel, { quadroId }),
+    aoPainel: (cb) =>
+      inscrever<{ quadroId: string; painel: PainelAgente }>(IPC.agentesPainel, (p) => cb(p.quadroId, p.painel)),
   },
 }
 
