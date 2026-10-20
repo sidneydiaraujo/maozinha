@@ -8,6 +8,7 @@ import type {
   AlvoTerminal,
   AvisoAgente,
   Caixa,
+  DiffArquivo,
   ConteudoArquivo,
   EstadoTela,
   FimDaCopia,
@@ -44,6 +45,7 @@ export const IPC = {
   quadrosFocar: 'quadros:focar', // evento main -> tela (clique na notificacao)
   copiasResumo: 'copias:resumo',
   copiasJuntar: 'copias:juntar',
+  copiasDiff: 'copias:diff',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -131,6 +133,8 @@ export interface LousaApi {
     resumo(repoId: string): Promise<ResumoCopia>
     /** Merge da branch da copia na branch atual da original; conflito nao muda nada e lanca. */
     juntar(repoId: string): Promise<{ branchAlvo: string }>
+    /** O que a copia mudou num arquivo da lista do resumo (T22.1); outro caminho e recusado. */
+    diff(repoId: string, caminho: string): Promise<DiffArquivo>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

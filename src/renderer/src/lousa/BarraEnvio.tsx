@@ -1,21 +1,11 @@
 import { useEffect, useState } from 'react'
 import '../estilos/envio.css'
 import { montarEnvio, quadrosPorExtenso } from './envio'
+import { enviarMensagem } from './escrever'
 
 interface Props {
   /** Quadros selecionados na lousa (Ctrl+clique no cabecalho ou Shift+arrastar no vazio). */
   quadroIds: string[]
-}
-
-/** Pausa entre o texto e o Enter (ver montarEnvio). */
-const PAUSA_ENTER_MS = 150
-
-const esperar = (ms: number): Promise<void> => new Promise((r) => window.setTimeout(r, ms))
-
-async function enviarPara(quadroId: string, pedacos: [string, string]): Promise<void> {
-  await window.lousa.terminais.escrever(quadroId, pedacos[0])
-  await esperar(PAUSA_ENTER_MS)
-  await window.lousa.terminais.escrever(quadroId, pedacos[1])
 }
 
 /**
@@ -35,10 +25,9 @@ export function BarraEnvio({ quadroIds }: Props): React.JSX.Element | null {
   if (quadroIds.length < 2) return null
 
   async function enviar(): Promise<void> {
-    const pedacos = montarEnvio(texto)
-    if (!pedacos) return
+    if (!montarEnvio(texto)) return
     const alvos = [...quadroIds]
-    const resultados = await Promise.allSettled(alvos.map((id) => enviarPara(id, pedacos)))
+    const resultados = await Promise.allSettled(alvos.map((id) => enviarMensagem(id, texto)))
     const falhas = resultados.filter((r) => r.status === 'rejected').length
     setTexto('')
     setAviso(

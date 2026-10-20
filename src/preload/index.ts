@@ -44,6 +44,7 @@ const api: LousaApi = {
   copias: {
     resumo: (repoId) => ipcRenderer.invoke(IPC.copiasResumo, { repoId }),
     juntar: (repoId) => ipcRenderer.invoke(IPC.copiasJuntar, { repoId }),
+    diff: (repoId, caminho) => ipcRenderer.invoke(IPC.copiasDiff, { repoId, caminho }),
   },
   lousa: {
     carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),

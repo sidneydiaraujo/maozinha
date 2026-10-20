@@ -1,0 +1,95 @@
+/* Janela "Juntar": lista clicavel, diferenca de um arquivo (T22.1) e pedir ao agente (T23.2). */
+
+.juntar-arquivos button {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  padding: 1px 4px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.juntar-arquivos button:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.juntar-arquivos button span:first-child {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.janela-juntar:has(.diff) {
+  width: min(960px, 94vw);
+}
+
+.diff {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.diff-topo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.diff-caminho {
+  overflow: hidden;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.diff-linhas {
+  max-height: min(60vh, 520px);
+  margin: 0;
+  padding: 6px 0;
+  overflow: auto;
+  border-radius: 6px;
+  background: #0d1117;
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.diff-linhas > div {
+  padding: 0 10px 0 0;
+  white-space: pre;
+}
+
+.diff-marca {
+  display: inline-block;
+  width: 22px;
+  text-align: center;
+  user-select: none;
+}
+
+.diff-mais {
+  background: rgba(46, 160, 67, 0.18);
+  color: #aff5b4;
+}
+
+.diff-menos {
+  background: rgba(248, 81, 73, 0.18);
+  color: #ffc1bc;
+}
+
+.diff-igual {
+  color: #8b949e;
+}
+
+.diff-trecho {
+  margin: 4px 0;
+  padding-left: 22px;
+  color: #79c0ff;
+}

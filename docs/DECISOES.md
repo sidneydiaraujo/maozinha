@@ -114,3 +114,10 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
     - A linha da Lousa não escreve nada na tela: a linha de status do agente fica vazia.
   - **A tela nunca manda comando:** `/compact`, `/model` e `/effort` são montados pelo main a partir de valores de uma lista fixa, e só com o agente parado.
   - **Uso por conta só em memória**, vindo do agente mais recente daquela conta. Sem o limite semanal só do Sonnet, que a linha de status não traz.
+- **D30 (20/10/2026, Sidney: "faça as demais evoluções"):** juntar sem travar à toa (Fatia 23).
+  - **Arquivo fora do git na pasta original não bloqueia mais o Juntar.** A prova da Fatia 11 mostrou que um rascunho solto já impedia juntar. O merge não toca nesses arquivos. Se a cópia traz um arquivo com o mesmo nome, o git recusa, e a Lousa explica quais são.
+  - **Alteração em arquivo acompanhado pelo git continua bloqueando**, na cópia e na original.
+  - **Conflito:** com um agente na cópia, "Pedir ao agente para resolver" escreve nele o pedido. O agente faz merge da branch da original dentro da cópia, resolve, testa e faz commit. A original nunca recebe um merge pela metade; o próximo Juntar entra limpo.
+- **D31 (20/10/2026):** ver a diferença antes de juntar (Fatia 22).
+  - **Diff unificada colorida** dentro da janela "Juntar" (verde entrou, vermelho saiu), em vez de duas colunas lado a lado: cabe na janela e não precisa de dependência.
+  - **Segurança:** o canal `copias:diff` recebe um caminho, mas o main só aceita um que esteja na lista que ele mesmo montou com `git diff --numstat`. Até 3000 linhas.

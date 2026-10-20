@@ -1,5 +1,6 @@
 // estado: git
-// Fatia 11 (D19): copia com commit -> "Juntar" mostra o resumo -> "Juntar em main" leva o arquivo
+// Fatias 11, 22 e 23 (D19, D30, D31): arquivo fora do git na original nao atrapalha; copia com
+// commit -> "Juntar" mostra o resumo, clicar no arquivo mostra a diferenca -> "Juntar em main" leva o arquivo
 // para a pasta original -> fechar apaga a copia e a branch. Conflito (os dois lados mudam a
 // mesma linha) desfaz o merge e deixa a original limpa. Alteracao sem commit na copia: a janela
 // avisa e o main recusa juntar. Fotos 1..5.
@@ -52,9 +53,21 @@
   await window.lousa.terminais.escrever(c.id, "Set-Content -Path novo.txt -Value oi; git add .; git commit -qm 'trabalho do agente'\r")
   await perguntar(c.id, "'pronto'")
   r.commitsNaBranch = await perguntar('q1', `@(git log --oneline main..${c.branch}).Count`)
+  // arquivo novo fora do git na original nao impede de juntar (D30)
+  await window.lousa.terminais.escrever('q1', 'Set-Content -Path rascunho.txt -Value meu\r')
+  await perguntar('q1', "'pronto'")
   await abrirJuntar(c.id)
   r.resumo = janela()
   await prova.foto('1-resumo')
+
+  // clicar no arquivo mostra o que a copia mudou nele (T22.1)
+  todos('.juntar-arquivos button').find((b) => b.textContent.includes('novo.txt'))?.click()
+  await ate(() => q('.diff-linhas'), 40)
+  r.diff = { mais: todos('.diff-mais').map((e) => e.textContent.trim()) }
+  await prova.foto('1b-diff')
+  clicarTexto('.diff-topo button', 'Arquivos')
+  await ate(() => q('.juntar-arquivos'), 20)
+  r.diff.voltou = !!q('.juntar-arquivos')
 
   clicarTexto('.juntar-botoes button', 'Juntar em main')
   await ate(() => todos('.juntar-botoes button').some((b) => b.textContent.includes('Fechar o quadro')), 40)
@@ -81,7 +94,7 @@
   r.conflito = {
     erro: q('.janela-juntar .erro')?.textContent ?? null,
     leiaNaOriginal: await perguntar('q1', "Get-Content 'leia.md'"),
-    statusDaOriginal: await perguntar('q1', "(git status --porcelain) -join ','"),
+    statusDaOriginal: await perguntar('q1', "(git status --porcelain --untracked-files=no) -join ','"),
   }
   await prova.foto('4-conflito')
   clicarTexto('.juntar-botoes button', 'Cancelar')
@@ -101,6 +114,8 @@
   r.ok =
     r.botaoJuntar &&
     r.commitsNaBranch === '1' &&
+    r.diff.mais.some((t) => t.includes('oi')) &&
+    r.diff.voltou &&
     r.arquivoNaOriginal === 'oi' &&
     r.copiaExiste === 'False' &&
     r.branches === '' &&

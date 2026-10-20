@@ -140,6 +140,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
         <JanelaJuntar
           repo={repo}
           cor={perfil?.cor ?? '#555'}
+          quadro={quadro}
           aoFechar={() => setJuntando(false)}
           aoFecharQuadro={() => {
             setJuntando(false)

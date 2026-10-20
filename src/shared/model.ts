@@ -62,6 +62,16 @@ export type FimDaCopia =
   | { copia: 'branchGuardada'; branch: string }           // pasta apagada; commits ficaram na branch
   | { copia: 'mantida'; caminho: string; motivo: string } // tinha alteração não salva: nada apagado
 
+// Diferença de um arquivo da cópia, para ver antes de juntar (T22, D31).
+export interface LinhaDiff {
+  tipo: 'trecho' | 'mais' | 'menos' | 'igual' // trecho = início de um bloco (@@ do git)
+  texto: string
+}
+export interface DiffArquivo {
+  linhas: LinhaDiff[] // até 3000
+  cortada: boolean    // o arquivo tinha mais linhas de diferença
+}
+
 export type TipoQuadro = 'terminal' | 'agente' // 'agente' digita o CLI do provedor da conta (claude ou codex)
 
 export interface Quadro {

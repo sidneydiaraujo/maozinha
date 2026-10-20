@@ -98,6 +98,17 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T21.1 | Cores como variáveis | ⬜ |
 | T21.2 | Quadro, barra de cima e brilho de trabalho | ⬜ |
 | T21.3 | Aceite e instalador 0.2.0 | ⬜ |
+| T22.1 | Ver a diferença de um arquivo antes de juntar (`copias:diff`) | ✅ |
+| T23.1 | Juntar ignora arquivo fora do git na original e explica a recusa | ✅ |
+| T23.2 | "Pedir ao agente para resolver" no conflito | ✅ (aceite: item 61) |
+| T24.1 | Quadro novo em espaço livre | ⬜ |
+| T24.2 | Enter do Ctrl+F sobe | ⬜ |
+| T25.1 | Mensagens prontas (main) | ⬜ |
+| T25.2 | Mensagens prontas na barra e no Ctrl+K | ⬜ |
+| T26.1 | Nota na lousa (main) | ⬜ |
+| T26.2 | Nota na lousa (tela) | ⬜ |
+| T27.1 | Vistas salvas (main) | ⬜ |
+| T27.2 | Vistas salvas no Ctrl+K | ⬜ |
 
 ## Bloqueios
 
@@ -336,3 +347,7 @@ Nenhum.
     - A foto mostra o 📎 no cabeçalho do agente vivo.
   - `colar-e-reabrir` passou com a ponte ligada.
   - Para as Fatias 18 a 20, os cenários mandam o painel com `prova.ipc('agentes:painel', …)`, sem Claude.
+- **20/10/2026 (Fatias 22 e 23, D30 e D31, branch `evolucoes-22-27`):** plano em `docs/plano/fatia-22-a-27-evolucoes.md`, feito em paralelo às Fatias 18 a 21 da outra sessão (divisão combinada: decisões D30+, roteiro 60+, só acréscimos nos arquivos compartilhados).
+  - **Código:** `diffDoArquivo`, `lerDiff`, `explicarRecusa` (+7 testes, git de verdade); `VistaDiff.tsx`; `resolver.ts` (+2 testes); `escrever.ts`, que agora também é usado pelo `BarraEnvio`.
+  - **Provado na janela real** (cenário `juntar`, `ok: true`): com `rascunho.txt` solto na original, o Juntar entra; clicar em `novo.txt` mostra `+oi`; "← Arquivos" volta; o conflito continua deixando a original limpa.
+  - **Não provado:** o botão "Pedir ao agente para resolver" com um Claude de verdade (item 61).
