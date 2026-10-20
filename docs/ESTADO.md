@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T19.1 (modelo e esforço no quadro, main)**, pelo `docs/plano/fatia-19-modelo-e-esforco.md`. Ela mexe no tipo `Quadro` e no `armazem.ts`: mantenha as linhas `notas` e `vistas` do schema. Os cenários das Fatias 19 e 20 podem seguir o `anel` (painel e estado pelo `prova.ipc`). As Fatias 15, 16 e 18 esperam o aceite do Sidney (itens 42 a 46).
+**Próxima tarefa: T20.1 (uso por conta, main)**, pelo `docs/plano/fatia-20-uso-da-conta.md`. O cenário pode seguir o `anel` e o `modelo` (painel pelo `prova.ipc`). As Fatias 15, 16, 18 e 19 esperam o aceite do Sidney (itens 42 a 47).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -88,9 +88,9 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T18.1 | Anel de contexto e compactar | ✅ 20/10/2026 |
 | T18.2 | Configurar o anel na engrenagem | ✅ 20/10/2026 |
 | T18.3 | Aceite | ⬜ (item 46 escrito no roteiro; espera o Sidney) |
-| T19.1 | Modelo e esforço no quadro (main) | ⬜ |
-| T19.2 | Seletores no cabeçalho | ⬜ |
-| T19.3 | Aceite | ⬜ |
+| T19.1 | Modelo e esforço no quadro (main) | ✅ 20/10/2026 |
+| T19.2 | Seletores no cabeçalho | ✅ 20/10/2026 |
+| T19.3 | Aceite | ⬜ (item 47 escrito no roteiro; espera o Sidney) |
 | T20.1 | Uso por conta (main) | ⬜ |
 | T20.2 | Barras de uso no alto | ⬜ |
 | T20.3 | Aceite | ⬜ |
@@ -406,3 +406,16 @@ Nenhum.
 - **20/10/2026 (correção D38):** o ⤢ falhava nas provas porque o `fitView` do React Flow espera um quadro de animação, e com isso o ⤢ seguinte "voltava". Agora o ⤢ calcula e move na hora; com "reduzir movimento", não anima. Mexer na vista desfaz o "ampliado". Resolve o achado deixado na entrada da D37.
   - **Provado na janela real** (cenário novo `ampliar`, `ok: true`): amplia, volta à vista exata, amplia de novo, amplia depois de arrastar com o meio, e passa para o outro quadro.
   - **Sem regressão:** `fatia8` (ampliar e voltar exato), `selecao`, `vistas`, `paleta`, `notas`, `copias` e smoke.
+- **20/10/2026 (T19.1 + T19.2, D25):** modelo e esforço por quadro. O Sidney pediu o Fable na lista "e todos os modelos que forem sendo atualizados": a lista usa os apelidos do CLI, que sempre apontam para a versão mais nova (D25).
+  - **Conferido antes de codar:** `claude --help` 2.1.304 tem `--model <alias>` (cita `fable`, `opus`, `sonnet`) e `--effort` (low, medium, high, xhigh, max).
+  - **Código:**
+    - `shared/model.ts`: `MODELOS`, `ESFORCOS`, `Modelo`, `AjusteAgente`, `QuandoAjusta`; `Quadro.modelo?` e `Quadro.esforco?`;
+    - `armazem.ts`: os dois no schema do quadro, com valor desconhecido virando "sem escolha" (+1 teste);
+    - `comandoAgente` recebe os extras num objeto (`settings`, `modelo`, `esforco`) e acrescenta `--model`/`--effort` (+4 testes no `alvo.test.ts`);
+    - `ServicoQuadros.ajustar` guarda e recusa terminal comum, Codex e valor fora da lista (+3 testes);
+    - `agentes/ajustes.ts` (`comandosDoAjuste`, `FilaAjustes`; +7 testes), ligado no `aoEstado` e no fechar do quadro (`contexto.ts`); canal `agentes:ajustar` com zod;
+    - tela: `lousa/modelo.ts` (rótulos, nomes em português, "não aceita esse nível"; +8 testes) e `ModeloDoQuadro.tsx` (os dois seletores, com o menu em portal da conta). Só no agente Claude.
+  - **Desvio do plano:** `ajustar` devolve `'agora' | 'quandoParar' | 'naAbertura'`, para o balão dizer quando vale.
+  - `npm run check` verde (415) sem aviso e `npm run smoke` verde. Uma rodada anterior do check teve 3 falhas que não se repetiram nas duas seguintes; não guardei os nomes (provável disputa com as provas da outra sessão rodando ao mesmo tempo).
+  - **Provado na janela real** (cenário novo `modelo`, `ok: true`): Claude de verdade só até o "No, exit"; o estado do agente impresso pelo PowerShell e o painel pelo `prova.ipc`. Antes do painel, rótulos cinza; com o painel, "Opus 5.5 ▾" e "médio ▾"; trabalhando, Sonnet só guardou ("Vale quando o agente parar") e nada foi digitado; ao parar, chegou `/model sonnet`; "alto" com ele parado chegou na hora como `/effort high`; painel 5 s depois ainda com médio mostrou "⚠ médio"; o quadro salvo no main ficou com sonnet/high.
+  - **Não provado:** um Claude de verdade trocando de modelo no meio da conversa, e o nível recusado por um modelo real. Fica para o aceite (item 47).

@@ -77,6 +77,10 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 
 - [ ] 46. Numa conversa longa com um agente, passando de 50% do contexto, aparece um anel com o número no cabeçalho. Passe o mouse: o balão diz "NN% do contexto usado (X mil de Y mil)". A partir de 70% fica âmbar, e de 90% vermelho. Com o agente trabalhando, o anel fica cinza e o clique não faz nada. Com ele parado, clique: "Compactar a conversa agora?" → "Compactar" faz o Claude resumir a conversa, e o número cai. Na engrenagem, em "Contexto da conversa", troque para "Sempre" e marque "Mostrar o que sobra": todos os anéis mudam na hora.
 
+## Fatia 19 — modelo e esforço no quadro
+
+- [ ] 47. Num agente parado, clique no rótulo do modelo no cabeçalho (ex.: "Opus 5.5 ▾") e escolha Sonnet: o Claude troca de modelo na mesma conversa e o rótulo passa a dizer Sonnet. Clique no esforço ("alto ▾") e escolha "médio": o rótulo muda. Com o agente trabalhando, troque de novo: o balão diz "Vale quando o agente parar" e a troca acontece sozinha quando ele termina. Escolha "máximo" num modelo que não aceita: depois de uns segundos aparece "⚠" e o balão "Este modelo não aceita esse nível". Feche e abra a Lousa: o quadro volta com Sonnet/médio. Fable também aparece na lista.
+
 ## Fatias 22 e 23 — ver e juntar a cópia
 
 - [ ] 60. Numa cópia separada com um commit, clique em "Juntar" e depois no nome de um arquivo da lista: aparece o que mudou (verde entrou, vermelho saiu). "← Arquivos" volta para a lista. Com um arquivo novo qualquer, fora do git, na pasta original (ex.: `rascunho.txt`), o Juntar funciona e o rascunho continua lá.

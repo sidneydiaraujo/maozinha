@@ -208,3 +208,29 @@ describe('ServicoQuadros com copia separada (D18)', () => {
     expect(estado().repos.some((r) => r.id === repo.id)).toBe(true)
   })
 })
+
+describe('ServicoQuadros.ajustar (T19.1)', () => {
+  it('guarda modelo e esforco no agente Claude; mudar um mantem o outro', () => {
+    const { servico, estado } = montar()
+    const q = servico.criar('r1', 'agente', 'pessoal')
+    servico.ajustar(q.id, { modelo: 'sonnet', esforco: 'high' })
+    servico.ajustar(q.id, { esforco: 'low' })
+    expect(estado().quadros[0]).toMatchObject({ modelo: 'sonnet', esforco: 'low' })
+  })
+
+  it('valor fora da lista: recusa e nao grava', () => {
+    const { servico, estado } = montar()
+    const q = servico.criar('r1', 'agente', 'pessoal')
+    expect(() => servico.ajustar(q.id, { modelo: 'gpt-9' as never })).toThrow('Modelo desconhecido')
+    expect(() => servico.ajustar(q.id, { esforco: 'turbo' as never })).toThrow('Esforço desconhecido')
+    expect(estado().quadros[0]?.modelo).toBeUndefined()
+  })
+
+  it('terminal comum ou agente Codex: recusa', () => {
+    const { servico } = montar()
+    const t = servico.criar('r1', 'terminal', 'pessoal')
+    const c = servico.criar('r1', 'agente', 'cx:x')
+    expect(() => servico.ajustar(t.id, { modelo: 'opus' })).toThrow('Só um agente')
+    expect(() => servico.ajustar(c.id, { modelo: 'opus' })).toThrow('só o Claude')
+  })
+})

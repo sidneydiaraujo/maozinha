@@ -1,6 +1,17 @@
 // Quadros da lousa (T3.4a, D13): cada quadro e um terminal ou agente solto na lousa,
 // trabalhando numa pasta, com a sua propria conta (D11). Trocar a conta leva a conversa junto (D14).
-import type { EstadoSalvo, FimDaCopia, Posicao, Provedor, Quadro, Repo, TipoQuadro } from '../../shared/model'
+import {
+  ESFORCOS,
+  MODELOS,
+  type AjusteAgente,
+  type EstadoSalvo,
+  type FimDaCopia,
+  type Posicao,
+  type Provedor,
+  type Quadro,
+  type Repo,
+  type TipoQuadro,
+} from '../../shared/model'
 import type { ServicoCopias } from '../copias/servico'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoPerfis } from '../perfis/servico'
@@ -156,6 +167,23 @@ export class ServicoQuadros {
     const repo = estado.repos.find((r) => r.id === quadro.repoId)
     if (repo) repo.perfilPadraoId = nova.id
     estado.ultimoPerfilId = nova.id
+    this.deps.armazem.salvar(estado)
+    return quadro
+  }
+
+  /** Guarda o modelo e o esforco do agente Claude (T19.1); vale na proxima abertura tambem. */
+  ajustar(quadroId: string, mudanca: AjusteAgente): Quadro {
+    const estado = this.deps.armazem.carregar()
+    const quadro = estado.quadros.find((q) => q.id === quadroId)
+    if (!quadro) throw new Error('Quadro não encontrado')
+    if (quadro.tipo !== 'agente') throw new Error('Só um agente troca de modelo')
+    if (this.deps.perfis.obter(quadro.perfilId).provedor !== 'claude') {
+      throw new Error('Por enquanto só o Claude troca de modelo pela Lousa')
+    }
+    if (mudanca.modelo !== undefined && !MODELOS.includes(mudanca.modelo)) throw new Error('Modelo desconhecido')
+    if (mudanca.esforco !== undefined && !ESFORCOS.includes(mudanca.esforco)) throw new Error('Esforço desconhecido')
+    if (mudanca.modelo) quadro.modelo = mudanca.modelo
+    if (mudanca.esforco) quadro.esforco = mudanca.esforco
     this.deps.armazem.salvar(estado)
     return quadro
   }

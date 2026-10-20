@@ -5,6 +5,7 @@
 
 import type {
   Abertura,
+  AjusteAgente,
   AlvoTerminal,
   AvisoAgente,
   Caixa,
@@ -19,6 +20,7 @@ import type {
   Posicao,
   Provedor,
   Quadro,
+  QuandoAjusta,
   Repo,
   ResumoCopia,
   StatusConta,
@@ -76,6 +78,7 @@ export const IPC = {
   agentesUltimoPainel: 'agentes:ultimoPainel',
   agentesPainel: 'agentes:painel', // evento main -> tela (linha de status do agente, T17.2)
   agentesCompactar: 'agentes:compactar',
+  agentesAjustar: 'agentes:ajustar',
 } as const
 
 /** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
@@ -209,5 +212,7 @@ export interface LousaApi {
     aoPainel(cb: (quadroId: string, painel: PainelAgente) => void): () => void
     /** O main escreve /compact no agente (T18.1); lanca se ele nao estiver parado. */
     compactar(quadroId: string): Promise<void>
+    /** Guarda modelo/esforco no quadro (T19.1) e diz quando passa a valer no agente aberto. */
+    ajustar(quadroId: string, mudanca: AjusteAgente): Promise<QuandoAjusta>
   }
 }

@@ -30,7 +30,11 @@ function comandoDoQuadro(quadro: Quadro, perfil: Perfil, deps: DepsAlvo): string
     ? { id: quadro.sessaoId, existe: deps.existeSessao(perfil.configDir, quadro.sessaoId) }
     : undefined
   const settings = perfil.provedor === 'claude' ? deps.settingsDoAgente?.(quadro.id) : null
-  return comandoAgente(perfil.provedor, sessao, settings ?? undefined)
+  return comandoAgente(perfil.provedor, sessao, {
+    settings: settings ?? undefined,
+    modelo: quadro.modelo,
+    esforco: quadro.esforco,
+  })
 }
 
 export function resolverAlvo(alvo: AlvoTerminal, deps: DepsAlvo): AlvoResolvido {

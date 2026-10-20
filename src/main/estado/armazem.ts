@@ -2,7 +2,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { z } from 'zod'
-import type { EstadoSalvo } from '../../shared/model'
+import { ESFORCOS, MODELOS, type EstadoSalvo } from '../../shared/model'
 import { log } from '../log'
 import { FORMATO_SESSAO } from '../quadros/sessoes'
 import { migrar } from './migrar'
@@ -39,6 +39,9 @@ const SchemaEstado = z.object({
       titulo: z.string(),
       caixa: Caixa,
       sessaoId: z.string().regex(FORMATO_SESSAO).optional(),
+      // valor desconhecido (versao futura do CLI) vira "sem escolha", sem estragar o estado
+      modelo: z.enum(MODELOS).optional().catch(undefined),
+      esforco: z.enum(ESFORCOS).optional().catch(undefined),
     }),
   ),
   viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),

@@ -24,6 +24,10 @@ const quadros: Quadro[] = [
   { id: 'q5', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'app', caixa, sessaoId: SESSAO },
   { id: 'q6', repoId: 'r1', perfilId: 'principal', tipo: 'agente', titulo: 'app 2', caixa, sessaoId: SESSAO },
   { id: 'q7', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'app 3', caixa, sessaoId: NOVA },
+  // T19.1: modelo e esforco escolhidos no quadro
+  { id: 'q8', repoId: 'r1', perfilId: 'pessoal', tipo: 'agente', titulo: 'app 4', caixa, sessaoId: SESSAO, modelo: 'sonnet', esforco: 'high' },
+  { id: 'q9', repoId: 'r1', perfilId: 'principal', tipo: 'agente', titulo: 'app 5', caixa, esforco: 'max' },
+  { id: 'q10', repoId: 'r1', perfilId: 'cx:x', tipo: 'agente', titulo: 'Codex 2', caixa, modelo: 'opus' },
 ]
 
 const achar = <T extends { id: string }>(lista: T[], id: string, erro: string): T => {
@@ -133,5 +137,28 @@ describe('resolverAlvo: linha de status do agente (T17.2)', () => {
     expect(comando('q3')).toBe('codex\r')
     expect(comando('q4')).toBeUndefined()
     expect(pedidos).toEqual([])
+  })
+
+  it('modelo e esforco do quadro vao junto com --settings e --resume (T19.1)', () => {
+    expect(comando('q8')).toBe(
+      `claude --settings 'C:\\Users\\O''Neil\\lousa\\agentes\\q8.settings.json' --model sonnet --effort high --resume ${SESSAO}\r`,
+    )
+  })
+})
+
+describe('resolverAlvo: modelo e esforco (T19.1)', () => {
+  const comando = (quadroId: string): string | undefined =>
+    resolverAlvo({ tipo: 'quadro', quadroId }, deps).comandoInicial
+
+  it('so o esforco: --effort, sem --model', () => {
+    expect(comando('q9')).toBe('claude --effort max\r')
+  })
+
+  it('sem escolha: como antes', () => {
+    expect(comando('q5')).toBe(`claude --resume ${SESSAO}\r`)
+  })
+
+  it('Codex ignora o modelo do quadro', () => {
+    expect(comando('q10')).toBe('codex\r')
   })
 })

@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
+import { FilaAjustes } from './agentes/ajustes'
 import { adiarReal, discoDaPonte } from './agentes/disco'
 import { PonteAgentes } from './agentes/ponte'
 import { discoReal, observarReal } from './arquivos/disco'
@@ -35,6 +36,7 @@ export interface Contexto {
   vigia: VigiaArquivos
   avisos: AvisosDoWindows
   agentes: PonteAgentes
+  ajustes: FilaAjustes
 }
 
 /** Entrega um evento a todas as janelas abertas. */
@@ -100,9 +102,17 @@ export function criarContexto(): Contexto {
     aoEstado: (terminalId, aviso) => {
       enviarParaJanelas(IPC.terminaisEstado, { terminalId, aviso })
       avisos.aoEstado(terminalId, aviso)
+      // modelo/esforco pedidos com o agente trabalhando: digita quando ele parar (T19.1)
+      void ajustes.aoEstado(terminalId, aviso)
     },
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
+  const ajustes = new FilaAjustes({
+    aberto: (id) => terminais.estaAberto(id),
+    aviso: (id) => terminais.aviso(id),
+    escrever: (id, dados) => terminais.escrever(id, dados),
+    esperar,
+  })
   const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
   // linha de status dos agentes (T17.2, D24): fica so em <userData>\agentes
   const agentes = new PonteAgentes({
@@ -116,6 +126,7 @@ export function criarContexto(): Contexto {
   const fecharQuadro = (id: string): void => {
     terminais.fechar(id)
     agentes.esquecer(id)
+    ajustes.esquecer(id)
   }
   const repos = new ServicoRepos({
     armazem,
@@ -139,5 +150,5 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes }
+  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes }
 }

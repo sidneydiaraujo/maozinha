@@ -1,5 +1,5 @@
 // O que rodar no terminal para cada provedor (T2.3). \r = Enter.
-import type { Provedor } from '../../shared/model'
+import { ESFORCOS, MODELOS, type Esforco, type Modelo, type Provedor } from '../../shared/model'
 import { FORMATO_SESSAO } from '../quadros/sessoes'
 
 /** Conversa do quadro (T6.1): `existe` = o Claude ja gravou algo com esse id nesta conta. */
@@ -11,13 +11,22 @@ export interface SessaoAgente {
 /** Texto literal no PowerShell: aspas simples, e a aspa simples de dentro dobrada. */
 const literalPowerShell = (texto: string): string => `'${texto.replace(/'/g, "''")}'`
 
-/**
- * Com conversa: retoma se ja existe, senao abre uma nova com o id que o Lousa escolheu.
- * `settings` (T17.2): arquivo da Lousa com a linha de status que conta o painel do agente.
- */
-export function comandoAgente(provedor: Provedor, sessao?: SessaoAgente, settings?: string): string {
+/** O que mais vai na linha do Claude. `modelo` e `esforco` vem dos enums, nunca de texto livre. */
+export interface ExtrasAgente {
+  /** Arquivo da Lousa com a linha de status que conta o painel do agente (T17.2). */
+  settings?: string
+  modelo?: Modelo
+  esforco?: Esforco
+}
+
+/** Com conversa: retoma se ja existe, senao abre uma nova com o id que o Lousa escolheu. */
+export function comandoAgente(provedor: Provedor, sessao?: SessaoAgente, extras: ExtrasAgente = {}): string {
   if (provedor === 'codex') return 'codex\r'
-  const base = settings ? `claude --settings ${literalPowerShell(settings)}` : 'claude'
+  const partes = ['claude']
+  if (extras.settings) partes.push(`--settings ${literalPowerShell(extras.settings)}`)
+  if (extras.modelo && MODELOS.includes(extras.modelo)) partes.push(`--model ${extras.modelo}`)
+  if (extras.esforco && ESFORCOS.includes(extras.esforco)) partes.push(`--effort ${extras.esforco}`)
+  const base = partes.join(' ')
   if (!sessao || !FORMATO_SESSAO.test(sessao.id)) return `${base}\r`
   return sessao.existe ? `${base} --resume ${sessao.id}\r` : `${base} --session-id ${sessao.id}\r`
 }

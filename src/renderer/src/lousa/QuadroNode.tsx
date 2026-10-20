@@ -1,6 +1,6 @@
 import { NodeResizer, type NodeProps } from '@xyflow/react'
 import { useEffect, useState } from 'react'
-import type { Quadro, Repo } from '../../../shared/model'
+import type { Perfil, Quadro, Repo } from '../../../shared/model'
 import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
@@ -9,6 +9,7 @@ import { chamaAtencao, seloDoAviso } from './atencao'
 import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
 import { JanelaJuntar } from './JanelaJuntar'
+import { ModeloDoQuadro } from './ModeloDoQuadro'
 import type { AcoesLousa, QuadroNo } from './nos'
 import { atencao, useAtencao } from './useAtencao'
 
@@ -24,12 +25,16 @@ function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | nul
   )
 }
 
-/** So no agente com o terminal aberto: anel de contexto (T18.1) e 📎 colar print (T16.1). */
-function ExtrasAgente({ quadroId }: { quadroId: string }): React.JSX.Element {
+/**
+ * So no agente com o terminal aberto: modelo e esforco (T19.2, so Claude), anel de contexto
+ * (T18.1) e 📎 colar print (T16.1).
+ */
+function ExtrasAgente({ quadro, perfil }: { quadro: Quadro; perfil: Perfil | undefined }): React.JSX.Element {
   return (
     <>
-      <AnelContexto quadroId={quadroId} />
-      <BotaoPrint quadroId={quadroId} />
+      {perfil?.provedor === 'claude' && <ModeloDoQuadro quadro={quadro} />}
+      <AnelContexto quadroId={quadro.id} />
+      <BotaoPrint quadroId={quadro.id} />
     </>
   )
 }
@@ -114,7 +119,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
         </span>
         {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}
         <SeloAgente quadroId={quadro.id} />
-        {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadroId={quadro.id} />}
+        {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} />}
         <ContaDoQuadro
           perfil={perfil}
           contas={contas}

@@ -82,6 +82,8 @@ export interface Quadro {
   titulo: string      // nome interno; a tela mostra a pasta (D14)
   caixa: Caixa        // posição e tamanho na lousa
   sessaoId?: string   // conversa do Claude neste quadro (agente): o Lousa escolhe e retoma com --resume
+  modelo?: Modelo     // agente Claude: escolhido no cabeçalho (T19.1); abre com --model
+  esforco?: Esforco   // agente Claude: abre com --effort
 }
 
 export interface Viewport { x: number; y: number; zoom: number }
@@ -114,7 +116,15 @@ export interface AvisoAgente {
 }
 
 // O que o agente diz pela linha de status (statusLine) do Claude Code (T17.1, D24)
-export type Esforco = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
+export const ESFORCOS = ['low', 'medium', 'high', 'xhigh', 'max'] as const // `claude --help` 2.1.304
+export type Esforco = (typeof ESFORCOS)[number]
+// Modelo e esforco escolhidos no quadro (T19.1, D25): aliases do CLI (`--model`, `/model`). Cada
+// alias aponta sempre para a versao mais nova da familia; familia nova = uma linha aqui.
+export const MODELOS = ['fable', 'opus', 'sonnet', 'haiku'] as const
+export type Modelo = (typeof MODELOS)[number]
+export interface AjusteAgente { modelo?: Modelo; esforco?: Esforco }
+/** agora = o main ja digitou; quandoParar = digita quando o agente parar; naAbertura = vale ao abrir. */
+export type QuandoAjusta = 'agora' | 'quandoParar' | 'naAbertura'
 export interface Limite { usado: number; zeraEm: number | null }  // usado 0-100; zeraEm em ms
 export interface PainelAgente {
   modelo: { id: string; nome: string } | null

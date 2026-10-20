@@ -112,6 +112,8 @@ export interface Quadro {
   titulo: string      // nome interno; a tela mostra a pasta (D14)
   caixa: Caixa        // posição e tamanho na lousa
   sessaoId?: string   // conversa do Claude neste quadro (agente): o Lousa escolhe e retoma com --resume
+  modelo?: Modelo     // 'opus' | 'sonnet' | 'haiku' (T19.1): o agente Claude abre com --model
+  esforco?: Esforco   // 'low' … 'max' (T19.1): abre com --effort; valor desconhecido no estado vira "sem escolha"
 }
 
 export interface Viewport { x: number; y: number; zoom: number }
@@ -202,6 +204,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `agentes:ultimoPainel` | `{ quadroId }` | `PainelAgente \| null` (o último guardado no main, para a tela remontada) | T17.2 |
 | evento `agentes:painel` | — | `{ quadroId, painel: PainelAgente }` (linha de status do agente Claude) | T17.2 |
 | `agentes:compactar` | `{ quadroId }` | `void`. O main escreve `/compact`, pausa 150 ms e Enter, só com o agente parado (OSC 7501 `parado` ou `terminou`); senão lança "Espere o agente parar" | T18.1 |
+| `agentes:ajustar` | `{ quadroId, mudanca: { modelo?, esforco? } }` (só valores das listas) | `'agora' \| 'quandoParar' \| 'naAbertura'`. Guarda no quadro; com o agente aberto e parado, o main digita `/model x` e `/effort y` (cada um com pausa e Enter); trabalhando, espera ele parar (`FilaAjustes`); fechado, vale na abertura. Terminal comum ou Codex: recusa | T19.1 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
 `powershell -NoProfile -Command "claude auth login; exit $LASTEXITCODE"`, sem terminal na tela).

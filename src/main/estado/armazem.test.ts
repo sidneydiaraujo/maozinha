@@ -34,6 +34,21 @@ describe('criarArmazem', () => {
     expect(criarArmazem(arquivo).carregar()).toEqual(estado)
   })
 
+  it('modelo e esforco do quadro (T19.1): valido volta; desconhecido vira "sem escolha" sem estragar o resto', () => {
+    const arquivo = join(pasta(), 'estado.json')
+    const q = estado.quadros[0]
+    const quadros = [
+      { ...q, id: 'q1', modelo: 'sonnet', esforco: 'high' },
+      { ...q, id: 'q2', modelo: 'gpt-9', esforco: 'turbo' },
+    ]
+    writeFileSync(arquivo, JSON.stringify({ ...estado, quadros }))
+    const lido = criarArmazem(arquivo).carregar()
+    expect(lido.quadros[0]).toMatchObject({ modelo: 'sonnet', esforco: 'high' })
+    expect(lido.quadros[1]?.modelo).toBeUndefined()
+    expect(lido.quadros[1]?.esforco).toBeUndefined()
+    expect(lido.quadros[1]?.titulo).toBe('Claude 1')
+  })
+
   it('arquivo ausente devolve o padrao sem criar o arquivo', () => {
     const arquivo = join(pasta(), 'estado.json')
     expect(criarArmazem(arquivo).carregar()).toEqual(ESTADO_PADRAO)

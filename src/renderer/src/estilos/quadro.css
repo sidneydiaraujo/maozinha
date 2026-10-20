@@ -217,3 +217,34 @@
 .juntar-botoes .botao-principal {
   width: auto;
 }
+
+/* Modelo e esforco do agente (T19.2): "Opus 5.5 ▾" e "alto ▾" no cabecalho */
+.quadro-modelo {
+  flex: none;
+  max-width: 110px;
+  padding: 1px 6px;
+  overflow: hidden;
+  font: inherit;
+  font-size: 11px;
+  color: var(--texto);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  background: transparent;
+  border: 1px solid var(--borda);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.quadro-modelo:hover {
+  background: rgb(255 255 255 / 6%);
+}
+
+/* antes do primeiro painel do agente: o guardado no quadro, ainda nao confirmado */
+.quadro-modelo-guardado {
+  color: var(--apagado);
+}
+
+.quadro-modelo-alerta {
+  color: var(--ambar);
+  border-color: var(--ambar);
+}
