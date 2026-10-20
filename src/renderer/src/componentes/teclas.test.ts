@@ -1,5 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { atalhoDe } from './teclas'
+import { ALT_V, atalhoDe, colagem } from './teclas'
+
+describe('colagem (Ctrl+V)', () => {
+  it('so um print: o Alt+V do Claude', () => {
+    expect(colagem(true, '')).toEqual({ tipo: 'imagem' })
+    expect(ALT_V).toBe('\x1bv')
+  })
+
+  it('so texto: cola o texto', () => {
+    expect(colagem(false, 'git status')).toEqual({ tipo: 'texto', texto: 'git status' })
+  })
+
+  it('texto e imagem juntos: o texto ganha, como hoje', () => {
+    expect(colagem(true, 'legenda')).toEqual({ tipo: 'texto', texto: 'legenda' })
+  })
+
+  it('nada na area de transferencia: null (segue o ^V para o programa)', () => {
+    expect(colagem(false, '')).toBeNull()
+  })
+})
 
 const tecla = (key: string, mods: Partial<{ ctrl: boolean; shift: boolean; alt: boolean; meta: boolean }> = {}) => ({
   key,

@@ -16,7 +16,7 @@ export interface Cenario {
 
 interface Pedido {
   id: number
-  tipo: 'foto' | 'eventos' | 'ipc'
+  tipo: 'foto' | 'eventos' | 'ipc' | 'imagem'
   nome?: string
   eventos?: unknown[]
   canal?: string
@@ -78,11 +78,22 @@ function preludio(dados: unknown): string {
     foto: (nome) => pedir({ tipo: 'foto', nome }),
     eventos: (eventos) => pedir({ tipo: 'eventos', eventos }),
     ipc: (canal, dados) => pedir({ tipo: 'ipc', canal, dados }),
+    imagemNaArea: () => pedir({ tipo: 'imagem' }),
   }
 })();\n`
 }
 
 const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
+
+// PNG de 1x1 ponto: o print falso que o cenario `print` poe na area de transferencia (T16.1)
+const PRINT_DE_TESTE =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+
+/** O electron so e importado aqui dentro: os testes do main rodam fora dele. */
+async function imagemNaArea(): Promise<void> {
+  const { clipboard, nativeImage } = await import('electron')
+  clipboard.writeImage(nativeImage.createFromDataURL(PRINT_DE_TESTE))
+}
 
 /** Duas capturas: a primeira as vezes vem com o quadro anterior da janela escondida. */
 async function fotografar(janela: BrowserWindow, arquivo: string): Promise<void> {
@@ -100,6 +111,7 @@ async function atender(janela: BrowserWindow, saida: string, p: Pedido): Promise
   const wc = janela.webContents
   if (p.tipo === 'foto') return fotografar(janela, join(saida, nomeDaFoto(p.nome)))
   if (p.tipo === 'ipc' && p.canal) return wc.send(p.canal, p.dados)
+  if (p.tipo === 'imagem') return imagemNaArea()
   for (const evento of p.eventos ?? []) {
     wc.sendInputEvent(evento as EventoDeEntrada)
     await esperar(40)

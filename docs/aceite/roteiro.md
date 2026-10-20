@@ -67,3 +67,8 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 
 - [ ] 42. Com dois terminais abertos, clique na engrenagem e em "Aparência do terminal". Troque as cores de Lousa para Abyss: os dois terminais mudam na hora, sem reabrir, e ficam com o fundo azul-marinho do Abyss do VSCode. Troque a fonte para Consolas e aumente o tamanho e a entrelinha: muda na hora também. Feche e abra a Lousa: volta como você deixou. "Voltar ao padrão" põe Cascadia Code 14, entrelinha 1,2 e cores Lousa. Um quadro onde você usou Ctrl+roda mantém a letra dele.
 - [ ] 43. Abra 6 quadros de terminal (ou agentes) e digite rápido em um deles enquanto outro solta bastante texto (ex.: `dir C:\Windows\System32`): as letras aparecem sem atraso, nítidas, e nenhum quadro fica em branco.
+
+## Fatia 16 — colar print no agente
+
+- [ ] 44. Tire um print com Win+Shift+S. Clique dentro de um agente e aperte Ctrl+V: aparece `[Image #1]` na caixa do Claude. Tire outro print e clique no 📎 do cabeçalho do agente: aparece `[Image #2]`. Copie um texto qualquer e clique no 📎 de novo: aparece "Copie um print primeiro (Win+Shift+S)" por 3 segundos. Ctrl+V com texto copiado continua colando o texto.
+- [ ] 45. Arraste um `.png` do Explorador do Windows para dentro de um agente: a borda fica tracejada enquanto você arrasta; ao soltar, o caminho aparece e vira `[Image #N]` (leva uns 3 segundos). Arraste outro tipo de arquivo (ex.: um `.md`): o caminho entra entre aspas, sem Enter. Solte um arquivo fora dos quadros: a Lousa continua na tela.

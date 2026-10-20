@@ -11,6 +11,12 @@
   background: transparent !important;
 }
 
+/* Arquivo arrastado por cima (T16.2): borda tracejada, sem animacao */
+.terminal.soltando {
+  outline: 2px dashed var(--apagado, #8a93a6);
+  outline-offset: -4px;
+}
+
 /* O terminal e a busca (Ctrl+F, T12.2) por cima dele */
 .terminal-moldura {
   position: relative;

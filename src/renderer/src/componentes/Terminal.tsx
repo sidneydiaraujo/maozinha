@@ -9,6 +9,7 @@ import { fontePadrao, guardarFonte, lerFonte, proximaFonte } from './fonte'
 import { BuscaTerminal } from './BuscaTerminal'
 import { ligarDesenhista } from './desenhista'
 import { arquivoDeUri, ligarLinks, type AcoesLink } from './links'
+import { ligarSoltar } from './soltar'
 import { ligarTeclas } from './teclas'
 import { aoMudarAparencia, familiaDaFonte, lerAparencia, temaDoXterm, type Aparencia } from './tema'
 
@@ -167,6 +168,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
     const digitou = term.onData(escrever)
     const desligarTeclas = ligarTeclas(term, el, escrever, () => setBusca(term))
     const links = ligarLinks(term, acoesLink)
+    const desligarSoltar = ligarSoltar(el, (texto) => term.paste(texto))
     const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
     ligarFonte(term, chave, tamanho.reajustar)
     const pararAparencia = ligarAparencia(term, chave, tamanho.reajustar)
@@ -176,6 +178,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
       pararAparencia()
       tamanho.parar()
       links.dispose()
+      desligarSoltar()
       desligarTeclas()
       digitou.dispose()
       cancelarDados()

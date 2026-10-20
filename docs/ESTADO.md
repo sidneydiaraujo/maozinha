@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T16.1 + T16.2 (Ctrl+V com imagem, botão 📎 e arrastar)**, pelo `docs/plano/fatia-16-colar-print.md`. A Fatia 15 espera o aceite do Sidney (T15.3, itens 42 e 43).
+**Próxima tarefa: T17.0 (prova da linha de status com Claude de verdade)**, pelo `docs/plano/fatia-17-dados-do-agente.md`; o script é `provas/apoio/status-claude.mjs`. As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -79,9 +79,9 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T15.2 | Desenhista WebGL | ✅ |
 | T15.3 | Aceite | ⬜ (itens 42 e 43 escritos no roteiro; espera o Sidney) |
 | T16.0 | Prova: Alt+V cola print no Claude | ✅ |
-| T16.1 | Ctrl+V com imagem e botão 📎 | ⬜ |
-| T16.2 | Arrastar imagem para o quadro | ⬜ |
-| T16.3 | Aceite | ⬜ |
+| T16.1 | Ctrl+V com imagem e botão 📎 | ✅ |
+| T16.2 | Arrastar imagem para o quadro | ✅ |
+| T16.3 | Aceite | ⬜ (itens 44 e 45 escritos no roteiro; espera o Sidney) |
 | T17.0 | Prova: linha de status com Claude de verdade | ⬜ (ok do Sidney em 19/10, mesmas condições da T16.0) |
 | T17.1 | Leitor puro do JSON da linha de status | ⬜ |
 | T17.2 | Linha de status em cada agente + canal `agentes:painel` | ⬜ |
@@ -273,3 +273,26 @@ Nenhum.
     - o ConPTY desenha `[Image#2]` sem o espaço;
     - outro programa segurou a área de transferência por alguns minutos (nenhum processo do teste sobrou), e o script tenta 10 vezes.
   - **Efeito fora do repo:** o próprio Claude anotou as pastas de teste como confiáveis no `.claude.json` da conta Pessoal. A Lousa não escreveu nada lá.
+- **19/10/2026 (T16.1 + T16.2):**
+  - Canal `app:temImagem`: o main só diz se há `image/*` na área de transferência; a imagem nunca vai para a tela.
+  - `teclas.ts`, `colagem`:
+    - Ctrl+V com texto cola como antes;
+    - só com print, manda `ESC v`;
+    - vazio, segue o `^V` cru.
+  - Botão 📎 (`lousa/BotaoPrint.tsx`):
+    - só em agente com o terminal aberto; o `CorpoQuadro` avisa o cabeçalho quando o terminal encerra;
+    - sem print copiado, mostra "Copie um print primeiro (Win+Shift+S)" por 3 s.
+  - `componentes/soltar.ts`:
+    - arrastar arquivos cola os caminhos entre aspas com `term.paste`, pelo `webUtils.getPathForFile` do preload;
+    - borda tracejada enquanto arrasta por cima.
+  - **Fora do plano, achado ao ler o código:** um arquivo solto fora de um terminal abriria NO LUGAR da Lousa, porque o `will-navigate` aceita qualquer `file://`. Agora `impedirAbrirArquivoSolto` barra isso no começo da tela.
+  - `npm run check` verde (306) e `npm run smoke` verde.
+  - Provas:
+    - cenário novo `print`, com `apoio/eco-print.mjs` no lugar do Claude e o pedido novo `prova.imagemNaArea()`: `ok: true` de primeira;
+    - `colar-e-reabrir` passou;
+    - `fatia8` sem erros.
+  - O `colarCtrlV` e o `colarDireito` do `fatia8` oscilam entre 0 e 1 desde antes de hoje: já davam 0 e 0 na rodada das 00:01 UTC. O colado chega depois da espera de 0,9 s da prova.
+  - **Não provado na janela:**
+    - o 📎 num agente de verdade;
+    - o arrastar com caminho real, porque um arquivo criado na tela não tem caminho no disco.
+    - Os dois ficam para os itens 44 e 45 do aceite.

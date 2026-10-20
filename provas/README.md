@@ -36,6 +36,7 @@ node provas/rodar.mjs <cenario> [--sem-build] [opções do cenário]
 | `paleta` | git | Fatia 12: Ctrl+K de verdade com o terminal em foco, "api" leva a vista ao quadro fora da tela, "fatia" acha o arquivo da subpasta e não o de `node_modules` e abre no leitor, "novo api" abre a janelinha com api marcada (sem abrir agente sozinho), Ctrl+F conta 11 achados e Enter anda | 1..5 |
 | `envio` | git | Fatia 13: um quadro selecionado não mostra a barra, Ctrl+clique de verdade no segundo mostra "Para 2 quadros", Shift+Enter quebra a linha sem enviar, Enter chega aos dois e o terceiro não recebe | 1..2 |
 | `aparencia` | demo | Fatia 15: a Aparência da engrenagem muda os terminais abertos na hora, sem reabrir (paleta Lousa → Abyss, fonte Consolas, letra 15, entrelinha maior); três cliques seguidos não se perdem; fica guardada; "Voltar ao padrão" volta tudo. Opção `webgl`: os terminais desenham em WebGL (sem texto no HTML) e, com o WebGL derrubado de propósito num deles, ele volta sozinho ao desenho normal enquanto o outro segue em WebGL | a-lousa, b-abyss; com `webgl`: c-webgl, d-webgl-abyss, e-caiu |
+| `print` | demo | Fatia 16, com o `apoio/eco-print.mjs` no lugar do Claude: Ctrl+V com um print na área de transferência manda o Alt+V (ESC v); com texto, cola o texto marcado; vazia, segue o ^V cru. Arquivo arrastado por cima do terminal mostra a borda tracejada; soltar um arquivo sem caminho no disco não cola nada; arquivo solto na lousa não abre no lugar dela; terminal comum não tem o 📎. Usa a área de transferência (devolve o texto) | arrastando |
 
 **Desenho do terminal nas provas (T15.2):** o app usa o desenho WebGL, que não deixa o texto
 no HTML. Por isso, numa rodada de prova, o main abre a tela com `?desenho=dom` e os terminais
@@ -83,6 +84,7 @@ Um arquivo `cenarios/<nome>.js`:
 | `foto(nome)` | O main fotografa a janela em `<saida>/<nome>.png` |
 | `eventos([...])` | O main manda teclas e mouse de verdade (`sendInputEvent`): `{ type: 'keyDown', keyCode: 'V', modifiers: ['control'] }`, `{ type: 'mouseDown', x, y, button, clickCount }` |
 | `ipc(canal, dados)` | O main manda um evento para a tela, como se viesse dele (ex.: `arquivos:mudou`) |
+| `imagemNaArea()` | O main põe um print de 1 ponto na área de transferência (a tela só copia texto) |
 
 O que já ensinou a escrever cenário:
 
@@ -118,6 +120,7 @@ O que já ensinou a escrever cenário:
 | `apoio/medir-historico.mjs` | Custo de guardar o histórico do terminal: copiar sempre × em pedaços (D17) |
 | `apoio/conpty-osc/pai.mjs` + `filho.mjs` | Prova do ConPTY (D16): a resposta crua ao OSC 7501 some e a resposta em teclas `win32-input-mode` chega. Roda com `ELECTRON_RUN_AS_NODE=1` e `node_modules\electron\dist\electron.exe` (o node-pty do projeto é o do Electron) |
 | `apoio/print-claude.mjs <pasta-vazia> <imagem.png>` | Prova da T16.0, **com Claude de verdade** (conta Pessoal; pede o ok do Sidney). Abre o `claude.exe` num ConPTY, escolhe "Yes" na confiança da pasta e tenta quatro jeitos de anexar um print, sem mandar mensagem. Usa a área de transferência e devolve o texto que estava nela. `SAIDA_TEXTO=<arquivo>` guarda a tela, com e-mail mascarado. Roda como o `conpty-osc` |
+| `apoio/eco-print.mjs` | No lugar do Claude, no cenário `print`: diz o que o terminal recebeu (`IMAGEM OK` para ESC v, `CTRL-V CRU`, `COLADO=...` para o colar marcado). Sai com `q` |
 
 A `pasta-demo` guarda o `.git` e o `node_modules` como `_git` e `_node_modules`, porque o
 git não aceita guardar os dois. O `rodar.mjs` devolve os nomes certos na cópia de cada

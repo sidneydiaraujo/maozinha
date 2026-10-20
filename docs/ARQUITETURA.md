@@ -158,6 +158,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `app:info` | — | `AppInfo` | feito |
 | `app:copiar` | `{ texto }` | — (área de transferência do Windows) | T8.3 |
 | `app:colar` | — | `string` | T8.3 |
+| `app:temImagem` | — | `boolean` (há um print na área de transferência; a imagem nunca vai para a tela) | T16.1 |
 | `app:erroDaTela` | `{ mensagem }` | — (vai para o arquivo de registros) | T8.6 |
 | `app:abrirRegistros` | — | — (abre `<userData>\logs`) | T8.6 |
 | `perfis:listar` | — | `PerfilComConta[]` | T1.6 |

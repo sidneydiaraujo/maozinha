@@ -20,6 +20,8 @@ export function registrarHandlersApp(pastaDosRegistros: string): void {
   // Copiar e colar do terminal (T8.3): so texto, com teto para nao travar a janela
   handle(IPC.appCopiar, z.object({ texto: z.string().max(LIMITE_TEXTO) }), ({ texto }) => clipboard.writeText(texto))
   handle(IPC.appColar, z.undefined(), () => clipboard.readText().slice(0, LIMITE_TEXTO))
+  // Print na area (T16.1): o Windows anuncia o bitmap como image/png. So diz sim ou nao.
+  handle(IPC.appTemImagem, z.undefined(), () => clipboard.availableFormats().some((f) => f.startsWith('image/')))
   handle(IPC.appErroDaTela, z.object({ mensagem: z.string().max(4000) }), ({ mensagem }) =>
     log('error', `erro na tela: ${mensagem}`),
   )

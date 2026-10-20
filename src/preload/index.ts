@@ -1,6 +1,6 @@
 // Ponte entre a tela (sandbox, sem Node) e o main. So repassa chamadas do
 // contrato em src/shared/ipc.ts; nenhuma regra mora aqui.
-import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
+import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron'
 import { IPC, type LousaApi } from '../shared/ipc'
 import type { AvisoAgente } from '../shared/model'
 
@@ -18,6 +18,8 @@ const api: LousaApi = {
   app: {
     copiar: (texto) => ipcRenderer.invoke(IPC.appCopiar, { texto }),
     colar: () => ipcRenderer.invoke(IPC.appColar),
+    temImagem: () => ipcRenderer.invoke(IPC.appTemImagem),
+    caminhoDoArquivo: (arquivo) => webUtils.getPathForFile(arquivo),
     erroDaTela: (mensagem) => ipcRenderer.invoke(IPC.appErroDaTela, { mensagem }),
     abrirRegistros: () => ipcRenderer.invoke(IPC.appAbrirRegistros),
   },

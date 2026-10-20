@@ -1,10 +1,11 @@
 import { NodeResizer, type NodeProps } from '@xyflow/react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { Quadro, Repo } from '../../../shared/model'
 import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import { chamaAtencao, seloDoAviso } from './atencao'
+import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
 import { JanelaJuntar } from './JanelaJuntar'
 import type { AcoesLousa, QuadroNo } from './nos'
@@ -26,11 +27,21 @@ function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | nul
  * O terminal do quadro. Se o processo sair (T8.5), aparece "Terminal encerrado · Reabrir":
  * reabrir remonta o terminal e o main abre um novo (o agente retoma a conversa, T6.1).
  */
-function CorpoQuadro({ quadro, repo, acoes }: { quadro: Quadro; repo: Repo; acoes: AcoesLousa }): React.JSX.Element {
+interface PropsCorpo {
+  quadro: Quadro
+  repo: Repo
+  acoes: AcoesLousa
+  /** O cabecalho so mostra o 📎 com o terminal aberto (T16.1). */
+  aoEncerrado(encerrado: boolean): void
+}
+
+function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JSX.Element {
   const [geracao, setGeracao] = useState(0)
   const [saida, setSaida] = useState<{ chave: string; codigo: number } | null>(null)
   // trocar a conta tambem remonta: a saida de um terminal antigo nao vale para o novo
   const chave = `${quadro.perfilId}:${geracao}`
+  const encerrado = saida?.chave === chave
+  useEffect(() => aoEncerrado(encerrado), [encerrado, aoEncerrado])
   // caminho citado no terminal: so os de dentro da pasta do quadro viram link (T8.3)
   const arquivos = {
     aceita: (texto: string) => caminhoNoRepo(repo.caminho, texto) !== null,
@@ -48,7 +59,7 @@ function CorpoQuadro({ quadro, repo, acoes }: { quadro: Quadro; repo: Repo; acoe
         aoAviso={(aviso) => atencao.aplicar(quadro.id, aviso)}
         arquivos={arquivos}
       />
-      {saida?.chave === chave && (
+      {encerrado && (
         <div className="quadro-encerrado nodrag" role="status">
           <span>Terminal encerrado (código {saida.codigo})</span>
           <button className="botao-pequeno botao-principal" onClick={() => setGeracao((g) => g + 1)}>
@@ -68,6 +79,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
   const { quadro, perfil, repo, rotulo, contas, acoes } = data
   const chamando = chamaAtencao(useAtencao(quadro.id))
   const [juntando, setJuntando] = useState(false)
+  const [encerrado, setEncerrado] = useState(false)
   return (
     <div
       className={chamando ? 'quadro quadro-chamando' : 'quadro'}
@@ -91,6 +103,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
         </span>
         {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}
         <SeloAgente quadroId={quadro.id} />
+        {quadro.tipo === 'agente' && !encerrado && <BotaoPrint quadroId={quadro.id} />}
         <ContaDoQuadro
           perfil={perfil}
           contas={contas}
@@ -122,7 +135,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           ×
         </button>
       </header>
-      <CorpoQuadro quadro={quadro} repo={repo} acoes={acoes} />
+      <CorpoQuadro quadro={quadro} repo={repo} acoes={acoes} aoEncerrado={setEncerrado} />
       {juntando && (
         <JanelaJuntar
           repo={repo}

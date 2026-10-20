@@ -116,6 +116,25 @@
   color: var(--texto);
 }
 
+/* 📎 Colar print (T16.1) e o aviso de 3 s quando nao ha print copiado */
+.botao-print-caixa {
+  position: relative;
+}
+
+.aviso-print {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 6px);
+  right: 0;
+  padding: 4px 8px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--texto);
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+}
+
 /* Terminal encerrado (T8.5): faixa no pe do quadro com "Reabrir" */
 .quadro-corpo {
   position: relative;

@@ -27,6 +27,7 @@ export const IPC = {
   appInfo: 'app:info',
   appCopiar: 'app:copiar',
   appColar: 'app:colar',
+  appTemImagem: 'app:temImagem',
   appErroDaTela: 'app:erroDaTela',
   appAbrirRegistros: 'app:abrirRegistros',
   perfisListar: 'perfis:listar',
@@ -81,6 +82,10 @@ export interface LousaApi {
   app: {
     copiar(texto: string): Promise<void>
     colar(): Promise<string>
+    /** Ha uma imagem (um print) na area de transferencia? So sim ou nao: a imagem nunca vem (T16.1). */
+    temImagem(): Promise<boolean>
+    /** Caminho no disco de um arquivo solto na tela (T16.2); '' se nao vier do disco. Sem IPC. */
+    caminhoDoArquivo(arquivo: File): string
     /** Erro nao tratado na tela vai para o arquivo de registros (T8.6). */
     erroDaTela(mensagem: string): Promise<void>
     /** Abre a pasta dos registros no Explorador do Windows. */
