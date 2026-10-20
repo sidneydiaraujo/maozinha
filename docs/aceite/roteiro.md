@@ -108,4 +108,4 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 
 ## Correção — ⤢ do quadro
 
-- [ ] 67. Clique no ⤢ de um quadro: ele ocupa a lousa. ⤢ de novo: volta para a vista de antes. Agora amplie, arraste a lousa com o botão do meio (ou a roda) e aperte ⤢ outra vez: o quadro volta a ocupar a lousa, em vez de pular para uma vista antiga.
+- [ ] 67. Clique no ⤢ de um quadro: ele ocupa a lousa. ⤢ de novo: volta para a vista de antes. Agora amplie, arraste a lousa com o botão do meio (ou a roda) e aperte ⤢ outra vez: o quadro volta a ocupar a lousa, em vez de pular para uma vista antiga. Com a lousa longe de um quadro, Ctrl+K com o nome da pasta dele e Enter: a lousa vai até o quadro e o deixa no centro, sem passar do tamanho normal (100%). O mesmo vale ao clicar na notificação do Windows de um agente.
