@@ -1,7 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T21.3 (versão 0.2.0 e instalador)**, pelo `docs/plano/fatia-21-identidade-visual.md`. O Sidney pediu as Fatias 20 e 21 seguidas e testa tudo instalando de novo no fim. As Fatias 15, 16, 18, 19, 20 e 21 esperam o aceite (itens 42 a 49).
-Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
+**Próxima tarefa: aceite do Sidney com o instalador 0.2.0** (`release/Lousa.ia Setup 0.2.0.exe`, hash em `release/SHA256.txt`). Ele instala e testa os itens 17 a 49 e 60 a 67 do `docs/aceite/roteiro.md` (Fatias 7, 8, 10 a 16, 18 a 27 e as correções). As Fatias 15 a 21 do plano estão todas codadas; o que o aceite apontar vira correção.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
 
@@ -97,7 +96,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T21.0 | Protótipo visual para aprovar | ✅ (A · Ardósia e giz, D36) |
 | T21.1 | Cores como variáveis | ✅ 20/10/2026 |
 | T21.2 | Quadro, barra de cima e brilho de trabalho | ✅ 20/10/2026 |
-| T21.3 | Aceite e instalador 0.2.0 | ⬜ |
+| T21.3 | Aceite e instalador 0.2.0 | ⬜ (instalador gerado em 20/10; item 49 espera o Sidney) |
 | T22.1 | Ver a diferença de um arquivo antes de juntar (`copias:diff`) | ✅ |
 | T23.1 | Juntar ignora arquivo fora do git na original e explica a recusa | ✅ |
 | T23.2 | "Pedir ao agente para resolver" no conflito | ✅ (aceite: item 61) |
@@ -440,3 +439,4 @@ Nenhum.
     - fundo fosco (`--vidro` + `backdrop-filter`) na barra de cima, nos menus de conta, no balão, no painel da engrenagem e no Ctrl+K; nunca nos quadros.
   - **Prova:** opção nova `brilho` no `desempenho` (o `main/cenario.ts` só liga "reduzir movimento" sem ela; +1 teste). `desempenho acumular brilho`: 5 trabalhando, 4 animando, eco mediana 21 ms (p90 24, pior 35), tela travada 0. `fatia8` com `ok` nos passos (pílula "● 1 esperando você", brilho apaga, pílula some). Numa das três rodadas do `fatia8` com a F21, o "ponteiro de link" saiu `false`; nas outras duas e na `main` sem a F21, `true`. Fica anotado como instável.
   - `npm run check` verde (439) sem aviso.
+- **20/10/2026 (T21.3, instalador):** versão 0.2.0 no `package.json`; `npm run dist` gerou `release/Lousa.ia Setup 0.2.0.exe` (104 MB, hash `4979c914…cd04` em `release/SHA256.txt`). **Conferido:** versão do arquivo 0.2.0 e `win-unpackedLousa.ia.exe --smoke` → código 0 (node-pty e tela+preload+IPC ok). **Não instalei** no PC; instalar e testar os itens 17 a 49 e 60 a 67 fica com o Sidney.
