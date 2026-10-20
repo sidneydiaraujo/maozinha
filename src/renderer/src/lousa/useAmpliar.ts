@@ -12,9 +12,30 @@ const duracao = (): number => (window.matchMedia('(prefers-reduced-motion: reduc
 const FOLGA = 0.03
 const ZOOM_MENOR = 0.2
 const ZOOM_MAIOR = 2
+/** "Ir ao quadro" (Ctrl+K, notificacao): mais folga e sem passar de 100%. */
+const FOLGA_IR = 0.2
+const ZOOM_IR = 1
+
+/**
+ * Conta e move na hora. O fitView do React Flow 12 entra numa fila que espera um quadro de
+ * animacao; na janela escondida das provas ele as vezes nem rodava (D38).
+ */
+function enquadrar(
+  flow: ReactFlowInstance<NoLousa>,
+  tela: DOMRect,
+  quadroId: string,
+  folga: number,
+  zoomMaior: number,
+): void {
+  const limites = flow.getNodesBounds([quadroId])
+  const vista = getViewportForBounds(limites, tela.width, tela.height, ZOOM_MENOR, zoomMaior, folga)
+  void flow.setViewport(vista, { duration: duracao() })
+}
 
 export interface Ampliacao {
   ampliar(quadroId: string): void
+  /** Enquadra o quadro sem zoom acima de 100% (Ctrl+K, notificacao); nao volta no segundo pedido. */
+  irPara(quadroId: string): void
   /** O usuario mexeu na vista: o proximo ⤢ amplia de novo, em vez de voltar a uma vista antiga (D38). */
   esquecer(): void
 }
@@ -37,21 +58,28 @@ export function useAmpliar(
       }
       // de um quadro ampliado para outro: a volta continua sendo a vista de antes do primeiro
       ampliado.current = { id: quadroId, vista: atual?.vista ?? flow.getViewport() }
-      // Conta e move na hora. O fitView do React Flow 12 entra numa fila que espera um quadro de
-      // animacao; na janela escondida das provas ele as vezes nem rodava (D38).
-      const limites = flow.getNodesBounds([quadroId])
-      const vista = getViewportForBounds(limites, tela.width, tela.height, ZOOM_MENOR, ZOOM_MAIOR, FOLGA)
-      void flow.setViewport(vista, { duration: duracao() })
+      enquadrar(flow, tela, quadroId, FOLGA, ZOOM_MAIOR)
+    },
+    [instancia, area],
+  )
+  const irPara = useCallback(
+    (quadroId: string) => {
+      const flow = instancia.current
+      const tela = area.current?.getBoundingClientRect()
+      if (!flow || !tela || !flow.getNode(quadroId)) return
+      ampliado.current = null
+      enquadrar(flow, tela, quadroId, FOLGA_IR, ZOOM_IR)
     },
     [instancia, area],
   )
   return useMemo(
     () => ({
       ampliar,
+      irPara,
       esquecer: () => {
         ampliado.current = null
       },
     }),
-    [ampliar],
+    [ampliar, irPara],
   )
 }

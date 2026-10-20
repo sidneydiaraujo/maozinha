@@ -141,17 +141,11 @@ function useAvisarPastas(estado: EstadoTela | null, aoMudarPastas: Props['aoMuda
  * (T8.2); "Novo quadro em <pasta>" do Ctrl+K abre a janelinha com a pasta marcada (T12.1).
  */
 function usePedidos(
-  instancia: React.RefObject<ReactFlowInstance<NoLousa> | null>,
+  irPara: (quadroId: string) => void,
   abrirNoCentro: (perfilId?: string, repoId?: string) => void,
   avisar: (texto: string) => void,
 ): void {
-  useEffect(
-    () =>
-      aoPedirFoco((quadroId) => {
-        void instancia.current?.fitView({ nodes: [{ id: quadroId }], padding: 0.2, maxZoom: 1, duration: 400 })
-      }),
-    [instancia],
-  )
+  useEffect(() => aoPedirFoco(irPara), [irPara])
   useEffect(() => aoPedirNovoQuadro((repoId) => abrirNoCentro(undefined, repoId)), [abrirNoCentro])
   // "Enviado para 2 quadros" de uma mensagem mandada pelo Ctrl+K (T25.2)
   useEffect(() => aoPedirAviso(avisar), [avisar])
@@ -252,7 +246,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
     aoFalhar: falhou,
   })
   const aoApertarMeio = usePanoMeio(instancia, aoMoverVista, ampliacao.esquecer)
-  usePedidos(instancia, novo.abrirNoCentro, setAviso)
+  usePedidos(ampliacao.irPara, novo.abrirNoCentro, setAviso)
   const selecionados = useAlvos(nos)
   useMontarNos(estado, { quadros: acoes, notas: notas.acoes }, setNos)
   useVistasSalvas({ instancia, estado, setEstado, nos, setNos, aoMoverVista, avisar: setAviso })

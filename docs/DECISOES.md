@@ -162,6 +162,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Agora o ⤢ calcula o enquadramento** (`getNodesBounds` + `getViewportForBounds`, as mesmas contas do `fitView`) **e move na hora** com `setViewport`.
   - **Com "reduzir movimento" ligado, a câmera vai direto, sem animar.** As provas ligam essa opção, e quem a liga no Windows também não vê o zoom animado.
   - **Mexer na vista desfaz o "ampliado"** (pista da outra sessão): roda, arrastar no vazio, minimapa (`onMoveStart` com evento) e arrastar com o botão do meio. Antes, ampliar, mexer e apertar ⤢ de novo voltava a uma vista antiga; agora amplia de novo.
+  - **"Ir ao quadro" (Ctrl+K, notificação do Windows) usa a mesma conta** (`irPara` em `useAmpliar.ts`), com folga de 20% e sem passar de 100%. Prova: cenário `paleta`, foto 2.
 - **D25 (20/10/2026, Fatia 19, Sidney: "inclua sim o fable e todos os modelos que forem sendo atualizados"):** a lista de modelos do quadro usa os **apelidos** do Claude Code: `fable`, `opus`, `sonnet` e `haiku` (`MODELOS` em `shared/model.ts`).
   - **Por que apelido:** cada um aponta sempre para a versão mais nova da família (o `claude --help` 2.1.304 diz: "an alias for the latest model"). Saiu um Opus novo, o quadro já usa o novo sem mudar nada na Lousa.
   - **Família nova** (um nome que ainda não existe) = uma linha em `MODELOS` e o nome em `NOME_MODELO` (`lousa/modelo.ts`). A lista é fechada de propósito: o main só digita `/model` e `--model` com valor da lista, nunca texto vindo da tela.
