@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T17.1 (leitor puro do JSON da linha de status)**, pelo `docs/plano/fatia-17-dados-do-agente.md` (as regras novas da T17.0 estão na T17.2). As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
+**Próxima tarefa: T17.2 (ligar a linha de status em cada agente)**, pelo `docs/plano/fatia-17-dados-do-agente.md`, com as regras novas da T17.0. As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -83,7 +83,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T16.2 | Arrastar imagem para o quadro | ✅ |
 | T16.3 | Aceite | ⬜ (itens 44 e 45 escritos no roteiro; espera o Sidney) |
 | T17.0 | Prova: linha de status com Claude de verdade | ✅ |
-| T17.1 | Leitor puro do JSON da linha de status | ⬜ |
+| T17.1 | Leitor puro do JSON da linha de status | ✅ |
 | T17.2 | Linha de status em cada agente + canal `agentes:painel` | ⬜ |
 | T18.1 | Anel de contexto e compactar | ⬜ |
 | T18.2 | Configurar o anel na engrenagem | ⬜ |
@@ -306,3 +306,11 @@ Nenhum.
   - **Precedência:** a linha concorrente, posta nas configurações do projeto (a pasta de teste), não rodou: o `--settings` vence. Nenhuma conta do PC tem linha própria, e a pasta da conta não se toca.
   - **Pasta da conta:** o `settings.json` não mudou. Mudaram `.claude.json`, `sessions`, `state`, `backups`, `plugins` e, na 1ª rodada, `.credentials.json`; são gravações do próprio Claude ao abrir.
   - Regras novas na T17.2 do plano e na D24.
+- **19/10/2026 (T17.1):** `src/main/agentes/painel.ts` e os tipos `PainelAgente`, `Limite` e `Esforco` em `shared/model.ts`.
+  - `lerPainel`, com zod 4: cada campo estranho vira `null` sozinho (`.catch(null)`), e campo novo é ignorado.
+  - Contexto `null` até a 1ª mensagem.
+  - `resets_at` vem em segundos e vira ms; se já vier em ms, fica como está.
+  - Percentuais presos em 0-100. Acima de 64 KB → `null`.
+  - `textoDoArquivo` aceita UTF-8 e UTF-16 com BOM.
+  - 9 testes, um deles confere que nenhum caminho, sessão ou custo passa para o painel.
+  - `npm run check` verde (315), sem aviso.

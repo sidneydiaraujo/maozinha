@@ -103,6 +103,17 @@ export interface AvisoAgente {
   mensagem?: string     // texto curto do Claude (ex.: o que terminou)
 }
 
+// O que o agente diz pela linha de status (statusLine) do Claude Code (T17.1, D24)
+export type Esforco = 'low' | 'medium' | 'high' | 'xhigh' | 'max'
+export interface Limite { usado: number; zeraEm: number | null }  // usado 0-100; zeraEm em ms
+export interface PainelAgente {
+  modelo: { id: string; nome: string } | null
+  esforco: Esforco | null
+  contexto: { usado: number; tamanho: number } | null            // usado 0-100; null antes da 1ª mensagem
+  limites: { cincoHoras: Limite | null; semana: Limite | null } | null // null = conta sem plano
+  quando: number
+}
+
 export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   versao: 2           // 1 = lousa com molduras, migrada ao carregar (estado/migrar.ts)
   perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean }>
