@@ -49,9 +49,9 @@
 .leitor-atualizado {
   padding: 1px 8px;
   font-size: 11px;
-  color: #1a1300;
-  background: #f5d76e;
-  border-radius: 999px;
+  color: var(--texto-no-ambar);
+  background: var(--ambar);
+  border-radius: var(--raio-pilula);
 }
 
 .leitor-erro {
@@ -79,7 +79,7 @@
 }
 
 .leitor-alca:hover {
-  background: color-mix(in srgb, #2f6df6 50%, transparent);
+  background: color-mix(in srgb, var(--destaque) 50%, transparent);
 }
 
 /* Codigo com numero de linha. */
@@ -100,7 +100,7 @@
 .leitor-numeros {
   position: sticky;
   left: 0;
-  color: #5b6170;
+  color: var(--apagado-2);
   text-align: right;
   background: var(--fundo);
   user-select: none;
@@ -144,7 +144,7 @@
 }
 
 .leitor-md a {
-  color: #6ea8ff;
+  color: var(--destaque);
 }
 
 .leitor-md code {
@@ -152,7 +152,7 @@
   font-family: 'Cascadia Mono', Consolas, monospace;
   font-size: 0.9em;
   background: var(--cartao);
-  border-radius: 4px;
+  border-radius: var(--raio-p);
 }
 
 .leitor-md pre {
@@ -160,7 +160,7 @@
   padding: 10px 12px;
   background: var(--painel);
   border: 1px solid var(--borda);
-  border-radius: 6px;
+  border-radius: var(--raio-m);
 }
 
 .leitor-md pre code {

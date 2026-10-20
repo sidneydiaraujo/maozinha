@@ -31,6 +31,21 @@
       await espera(75)
     }
   }
+  if (prova.dados.opcoes.includes('brilho')) {
+    // T21.2: 4 quadros com o brilho correndo na borda (a rodada liga as animacoes) e um quinto
+    // trabalhando com a borda parada (t3 a t5 vem do estado casa com a opcao); o estado chega
+    // como se viesse do main (OSC 7501)
+    const ids = [...document.querySelectorAll('[data-quadro]')].map((n) => n.dataset.quadro)
+    for (const terminalId of ids) await prova.ipc('terminais:estado', { terminalId, aviso: { estado: 'trabalhando' } })
+    await espera(800)
+    const brilhos = [...document.querySelectorAll('.quadro-brilho')]
+    r.brilho = {
+      trabalhando: document.querySelectorAll('.quadro-trabalhando').length,
+      animando: brilhos.filter((n) => getComputedStyle(n, '::after').animationName === 'quadro-giro').length,
+      pilula: document.querySelector('.topo-chamadas')?.innerText ?? null,
+    }
+    await prova.foto('brilho')
+  }
   let lotes = 0
   const desligaVigia = window.lousa.arquivos.aoMudar(() => lotes++)
   await window.lousa.terminais.escrever('t2', "1..1300 | % { 'y' * 1000 }; while ($true) { 'z' * 60; Start-Sleep -Milliseconds 5 }\r")

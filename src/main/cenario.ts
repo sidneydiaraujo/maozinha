@@ -52,8 +52,15 @@ function lerDados(saida: string): unknown {
 
 /** Desenho dos terminais na rodada (T15.2): o normal, salvo a opcao `webgl` (`rodar.mjs aparencia webgl`). */
 export function desenhoDasOpcoes(dados: unknown): 'dom' | 'webgl' {
+  return temOpcao(dados, 'webgl') ? 'webgl' : 'dom'
+}
+
+/** A opcao `brilho` (`rodar.mjs desempenho brilho`, T21.2) mede com as animacoes ligadas. */
+export const comMovimento = (dados: unknown): boolean => temOpcao(dados, 'brilho')
+
+function temOpcao(dados: unknown, nome: string): boolean {
   const opcoes = dados && typeof dados === 'object' ? (dados as { opcoes?: unknown }).opcoes : undefined
-  return Array.isArray(opcoes) && opcoes.includes('webgl') ? 'webgl' : 'dom'
+  return Array.isArray(opcoes) && opcoes.includes(nome)
 }
 
 export const desenhoDaRodada = (c: Cenario): 'dom' | 'webgl' => desenhoDasOpcoes(lerDados(c.saida))
@@ -135,8 +142,8 @@ export async function rodarCenario(janela: BrowserWindow, c: Cenario): Promise<b
   mkdirSync(c.saida, { recursive: true })
   const wc = janela.webContents
   wc.setBackgroundThrottling(false)
-  await semMovimento(janela)
   const dados = lerDados(c.saida)
+  if (!comMovimento(dados)) await semMovimento(janela)
   const estado: { fim: { ok: boolean; texto: string } | null } = { fim: null }
   wc.executeJavaScript(preludio(dados) + readFileSync(c.arquivo, 'utf8')).then(
     (r: unknown) => (estado.fim = { ok: true, texto: typeof r === 'string' ? r : JSON.stringify(r, null, 2) }),

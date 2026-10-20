@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T21.1 (cores como variáveis)**, pelo `docs/plano/fatia-21-identidade-visual.md` (D36, Ardósia e giz; inclui as cores fixas do `nota.css`). O Sidney pediu as Fatias 20 e 21 seguidas e testa tudo instalando de novo no fim. As Fatias 15, 16, 18, 19 e 20 esperam o aceite (itens 42 a 48).
+**Próxima tarefa: T21.3 (versão 0.2.0 e instalador)**, pelo `docs/plano/fatia-21-identidade-visual.md`. O Sidney pediu as Fatias 20 e 21 seguidas e testa tudo instalando de novo no fim. As Fatias 15, 16, 18, 19, 20 e 21 esperam o aceite (itens 42 a 49).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -95,8 +95,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T20.2 | Barras de uso no alto | ✅ 20/10/2026 |
 | T20.3 | Aceite | ⬜ (item 48 escrito no roteiro; espera o Sidney) |
 | T21.0 | Protótipo visual para aprovar | ✅ (A · Ardósia e giz, D36) |
-| T21.1 | Cores como variáveis | ⬜ |
-| T21.2 | Quadro, barra de cima e brilho de trabalho | ⬜ |
+| T21.1 | Cores como variáveis | ✅ 20/10/2026 |
+| T21.2 | Quadro, barra de cima e brilho de trabalho | ✅ 20/10/2026 |
 | T21.3 | Aceite e instalador 0.2.0 | ⬜ |
 | T22.1 | Ver a diferença de um arquivo antes de juntar (`copias:diff`) | ✅ |
 | T23.1 | Juntar ignora arquivo fora do git na original e explica a recusa | ✅ |
@@ -430,3 +430,13 @@ Nenhum.
   - `npm run check` verde (435) sem aviso e `npm run smoke` verde.
   - **Provado na janela real** (cenário `uso`, `ok: true`): sem dado ao abrir; Principal 42%/18% com barras azuis e balão "Sessão 42% · zera em 2h10" / "Semana 18% · zera sex 09:00" / "visto agora"; Pessoal 92%/75% vermelha e âmbar, em cinza, "visto há 2 h". A primeira rodada pegou o relógio da tela atrasado até 30 s ("visto há 1 h"): agora conta com a hora de cada desenho.
   - **Não provado:** os números de um Claude de verdade contra o "Account & Usage" do VSCode. Fica para o aceite (item 48).
+- **20/10/2026 (T21.1 + T21.2, D36):** cara nova da Lousa, Ardósia e giz.
+  - **T21.1:** `estilos/tokens.css` com todas as cores e raios (as da D36, mais nota, diff e o vidro); o `:root` do `styles.css` saiu de lá. Os 14 CSS só usam `var(--...)`: `grep -E "#[0-9a-f]{3,6}"` fora do tokens não acha nada. Botão principal em giz. O React Flow (lousa, pontos, minimapa, botões de zoom) pega as cores pelas variáveis `--xy-*`. O `lousa.css` foi dividido antes de crescer: a janela do novo quadro foi para `novo.css` (338 → 220 + 118).
+  - **T21.2:**
+    - `atencao.ts`: `brilhoDoQuadro` (no máximo 4 animando, na ordem em que avisaram; o quinto fica com a borda parada) e `textoDaPilula` (+3 testes);
+    - `QuadroNode` põe `quadro-trabalhando`/`quadro-brilho`; o brilho é um `::after` com `@property --giro` + `conic-gradient` e máscara só no anel, e para com "reduzir movimento". A faixa de cima continua na cor da conta;
+    - "esperando você" deixou de piscar: borda âmbar parada e halo (D36);
+    - a pílula foi para o meio da barra de cima: "● 1 esperando você · 3 trabalhando"; só trabalhando, fica em giz azulado e sem clique;
+    - fundo fosco (`--vidro` + `backdrop-filter`) na barra de cima, nos menus de conta, no balão, no painel da engrenagem e no Ctrl+K; nunca nos quadros.
+  - **Prova:** opção nova `brilho` no `desempenho` (o `main/cenario.ts` só liga "reduzir movimento" sem ela; +1 teste). `desempenho acumular brilho`: 5 trabalhando, 4 animando, eco mediana 21 ms (p90 24, pior 35), tela travada 0. `fatia8` com `ok` nos passos (pílula "● 1 esperando você", brilho apaga, pílula some). Numa das três rodadas do `fatia8` com a F21, o "ponteiro de link" saiu `false`; nas outras duas e na `main` sem a F21, `true`. Fica anotado como instável.
+  - `npm run check` verde (439) sem aviso.

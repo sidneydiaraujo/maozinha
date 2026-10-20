@@ -5,10 +5,10 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
-  color: #ecdcb8;
-  background: #2a2418;
-  border: 1px solid #6b5a33;
-  border-radius: 8px;
+  color: var(--nota-texto);
+  background: var(--nota-fundo);
+  border: 1px solid var(--nota-borda);
+  border-radius: var(--raio);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
 }
 
@@ -18,8 +18,8 @@
   align-items: center;
   padding: 5px 8px;
   cursor: grab;
-  background: rgba(245, 165, 36, 0.12);
-  border-bottom: 1px solid #6b5a33;
+  background: color-mix(in srgb, var(--ambar) 12%, transparent);
+  border-bottom: 1px solid var(--nota-borda);
 }
 
 .nota-rotulo {
@@ -80,12 +80,12 @@
 }
 
 .nota-md .md-feita {
-  color: #a59573;
+  color: var(--nota-apagado);
   text-decoration: line-through;
 }
 
 .nota-vazia {
-  color: #a59573;
+  color: var(--nota-apagado);
   font-style: italic;
 }
 
@@ -99,13 +99,13 @@
   font: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: #ecdcb8;
+  color: var(--nota-texto);
   cursor: pointer;
-  background: #2a2418;
-  border: 1px solid #6b5a33;
-  border-radius: 8px;
+  background: var(--nota-fundo);
+  border: 1px solid var(--nota-borda);
+  border-radius: var(--raio);
 }
 
 .botao-nova-nota:hover {
-  background: #3a3120;
+  background: var(--nota-realce);
 }

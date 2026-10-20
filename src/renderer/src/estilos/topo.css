@@ -8,7 +8,8 @@
   gap: 4px;
   height: 40px;
   padding: 0 10px;
-  background: var(--painel);
+  background: var(--vidro);
+  backdrop-filter: var(--vidro-filtro);
   border-bottom: 1px solid var(--borda);
 }
 
@@ -23,7 +24,7 @@
   color: var(--apagado);
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--raio-m);
   cursor: pointer;
 }
 
@@ -51,13 +52,13 @@
   bottom: 2px;
   width: 7px;
   height: 7px;
-  background: #5b6170;
+  background: var(--apagado-2);
   border-radius: 50%;
   box-shadow: 0 0 0 2px var(--painel);
 }
 
 .icone-status-on {
-  background: #22c55e;
+  background: var(--ok);
 }
 
 .topo-contas {
@@ -93,7 +94,7 @@
   color: var(--apagado);
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--raio-m);
   cursor: pointer;
 }
 
@@ -108,9 +109,10 @@
   z-index: 40;
   box-sizing: border-box;
   padding: 6px;
-  background: var(--painel);
+  background: var(--vidro);
+  backdrop-filter: var(--vidro-filtro);
   border: 1px solid var(--borda);
-  border-radius: 10px;
+  border-radius: var(--raio-g);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
@@ -133,22 +135,22 @@
   display: block;
   height: 2px;
   overflow: hidden;
-  background: rgb(255 255 255 / 12%);
+  background: color-mix(in srgb, var(--texto) 12%, transparent);
   border-radius: 1px;
 }
 
 .uso-cheio {
   display: block;
   height: 100%;
-  background: #8fb8ff;
+  background: var(--brilho);
 }
 
 .uso-alerta {
-  background: var(--ambar, #f5a524);
+  background: var(--ambar);
 }
 
 .uso-perigo {
-  background: #ff6b6b;
+  background: var(--perigo);
 }
 
 .uso-velho .uso-cheio {
@@ -177,9 +179,10 @@
   flex-direction: column;
   width: 320px;
   max-height: calc(100% - 56px);
-  background: var(--painel);
+  background: var(--vidro);
+  backdrop-filter: var(--vidro-filtro);
   border: 1px solid var(--borda);
-  border-radius: 10px;
+  border-radius: var(--raio-g);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
@@ -211,7 +214,7 @@
   color: var(--apagado);
   background: transparent;
   border: 1px dashed var(--borda);
-  border-radius: 8px;
+  border-radius: var(--raio);
   cursor: pointer;
 }
 
@@ -227,7 +230,7 @@
   padding: 12px;
   background: var(--cartao);
   border: 1px solid var(--borda);
-  border-radius: 8px;
+  border-radius: var(--raio);
 }
 
 .nova-conta-titulo {
@@ -252,7 +255,7 @@
   text-align: left;
   background: var(--fundo);
   border: 1px solid var(--borda);
-  border-radius: 8px;
+  border-radius: var(--raio);
   cursor: pointer;
 }
 
@@ -262,8 +265,8 @@
 }
 
 .nova-conta-provedor[aria-checked='true'] {
-  border-color: #2f6df6;
-  box-shadow: inset 0 0 0 1px #2f6df6;
+  border-color: var(--destaque);
+  box-shadow: inset 0 0 0 1px var(--destaque);
 }
 
 .nova-conta-campo {
@@ -281,7 +284,7 @@
   color: var(--texto);
   background: var(--fundo);
   border: 1px solid var(--borda);
-  border-radius: 6px;
+  border-radius: var(--raio-m);
 }
 
 .nova-conta-botoes {

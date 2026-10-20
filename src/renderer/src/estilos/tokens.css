@@ -1,0 +1,78 @@
+/*
+ * Cores e raios da Lousa (T21.1, D36 · Ardosia e giz): fundo azul-ardosia, texto cor de giz,
+ * ambar para "esperando voce" e brilho azulado para o agente trabalhando. Os outros CSS so
+ * usam var(--...); cor solta fora daqui o grep da T21.1 acusa.
+ */
+:root {
+  color-scheme: dark;
+
+  /* base */
+  --fundo: #0e151d;
+  --painel: #121b25; /* barra de cima, lateral, menus */
+  --cartao: #182231;
+  --borda: #24334a;
+  --borda-forte: #2b3d56;
+  --texto: #dcd8cc; /* giz */
+  --apagado: #93a0b2;
+  --apagado-2: #5d6b7d; /* ainda mais quieto: numeros de linha, conta sem login */
+  --pasta: #c9a96a;
+
+  /* lousa e quadros */
+  --lousa: #0f1720;
+  --lousa-pontos: #223042;
+  --quadro: #131c27; /* igual ao fundo da paleta `lousa` do terminal (Fatia 15) */
+
+  /* estados */
+  --brilho: #9cc4f0; /* agente trabalhando: giz azulado */
+  --brilho-borda: color-mix(in srgb, var(--brilho) 40%, var(--quadro));
+  --destaque: #9cc4f0; /* selecao, foco, link */
+  --ambar: #f0b44c; /* esperando voce, alerta */
+  --texto-no-ambar: #1a1306;
+  --perigo: #ff8a7a;
+  --perigo-fundo: color-mix(in srgb, var(--perigo) 10%, var(--fundo));
+  --perigo-borda: color-mix(in srgb, var(--perigo) 40%, var(--fundo));
+  --ok: #7ee2a8;
+  --ok-borda: color-mix(in srgb, var(--ok) 40%, var(--fundo));
+
+  /* botao principal em giz, nao azul */
+  --principal: #dcd8cc;
+  --principal-hover: #f2efe6;
+  --principal-texto: #131c27;
+
+  /* diferenca de arquivo (juntar copia) */
+  --diff-mais: #aff5b4;
+  --diff-mais-fundo: color-mix(in srgb, #2ea043 18%, transparent);
+  --diff-menos: #ffc1bc;
+  --diff-menos-fundo: color-mix(in srgb, #f85149 18%, transparent);
+
+  /* nota: papel ambar escuro */
+  --nota-fundo: #2a2418;
+  --nota-realce: #3a3120;
+  --nota-borda: #6b5a33;
+  --nota-texto: #ecdcb8;
+  --nota-apagado: #a59573;
+
+  /* fundo fosco: so a barra de cima e os menus, nunca os quadros (T21.2) */
+  --vidro: color-mix(in srgb, var(--painel) 82%, transparent);
+  --vidro-filtro: blur(12px) saturate(1.2);
+
+  /* raios */
+  --raio-p: 4px;
+  --raio-m: 6px;
+  --raio: 8px;
+  --raio-g: 10px;
+  --raio-pilula: 999px;
+}
+
+/* React Flow no modo escuro: a lousa, os pontos, o minimapa e os botoes de zoom */
+.react-flow.dark {
+  --xy-background-color: var(--lousa);
+  --xy-background-pattern-color: var(--lousa-pontos);
+  --xy-minimap-background-color: var(--painel);
+  --xy-minimap-mask-background-color: color-mix(in srgb, var(--fundo) 60%, transparent);
+  --xy-controls-button-background-color: var(--painel);
+  --xy-controls-button-background-color-hover: var(--cartao);
+  --xy-controls-button-color: var(--texto);
+  --xy-controls-button-color-hover: var(--texto);
+  --xy-controls-button-border-color: var(--borda);
+}

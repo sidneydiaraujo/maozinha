@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest'
-import { aplicarAviso, chamaAtencao, marcarVisto, proximoAChamar, seloDoAviso, type MapaAtencao } from './atencao'
+import type { AvisoAgente } from '../../../shared/model'
+import {
+  aplicarAviso,
+  brilhoDoQuadro,
+  chamaAtencao,
+  marcarVisto,
+  proximoAChamar,
+  seloDoAviso,
+  textoDaPilula,
+  type MapaAtencao,
+} from './atencao'
 
 const vazio: MapaAtencao = new Map()
 
@@ -49,5 +59,42 @@ describe('seloDoAviso', () => {
     expect(seloDoAviso({ estado: 'terminou' })?.classe).toBe('selo-terminou')
     expect(seloDoAviso({ estado: 'erro' })?.classe).toBe('selo-erro')
     expect(seloDoAviso({ estado: 'parado' })).toBeNull()
+  })
+})
+
+describe('brilhoDoQuadro', () => {
+  const com = (estados: Array<[string, AvisoAgente['estado']]>): MapaAtencao =>
+    estados.reduce<MapaAtencao>((m, [id, estado]) => aplicarAviso(m, id, { estado }), new Map())
+  it('so quem esta trabalhando brilha', () => {
+    const mapa = com([
+      ['a', 'trabalhando'],
+      ['b', 'esperando'],
+    ])
+    expect(brilhoDoQuadro(mapa, 'a')).toBe('anima')
+    expect(brilhoDoQuadro(mapa, 'b')).toBeNull()
+    expect(brilhoDoQuadro(mapa, 'c')).toBeNull()
+  })
+  it('do quinto em diante a borda fica parada', () => {
+    const mapa = com(['a', 'b', 'x', 'c', 'd', 'e'].map((id) => [id, id === 'x' ? 'parado' : 'trabalhando']))
+    expect(['a', 'b', 'c', 'd', 'e'].map((id) => brilhoDoQuadro(mapa, id))).toEqual([
+      'anima',
+      'anima',
+      'anima',
+      'anima',
+      'parado',
+    ])
+  })
+})
+
+describe('textoDaPilula', () => {
+  it('esperando e trabalhando', () => {
+    const mapa = [
+      ['a', 'esperando'],
+      ['b', 'trabalhando'],
+      ['c', 'trabalhando'],
+    ].reduce<MapaAtencao>((m, [id, estado]) => aplicarAviso(m, id!, { estado: estado as 'esperando' }), new Map())
+    expect(textoDaPilula(mapa, ['a', 'b', 'c'])).toBe('● 1 esperando você · 2 trabalhando')
+    expect(textoDaPilula(mapa, ['b'])).toBe('● 1 trabalhando')
+    expect(textoDaPilula(new Map(), ['a'])).toBeNull()
   })
 })

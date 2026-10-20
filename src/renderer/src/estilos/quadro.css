@@ -1,33 +1,53 @@
 /* Quadro (Fatia 8): aviso do agente, ampliar, letra e terminal encerrado. */
-:root {
-  --ambar: #f5a524;
-}
-
+/* Esperando voce (D36): borda ambar parada e um halo suave, sem piscar. */
 .quadro-chamando {
   border-color: var(--ambar);
-  animation: quadro-chamar 1.6s ease-in-out infinite;
+  box-shadow:
+    0 0 0 1px var(--ambar),
+    0 0 18px 4px color-mix(in srgb, var(--ambar) 28%, transparent);
 }
 
-@keyframes quadro-chamar {
-  0%,
-  100% {
-    box-shadow:
-      0 0 0 2px rgb(245 165 36 / 75%),
-      0 0 22px 6px rgb(245 165 36 / 38%);
-  }
-  50% {
-    box-shadow:
-      0 0 0 2px rgb(245 165 36 / 30%),
-      0 0 6px 1px rgb(245 165 36 / 12%);
+/*
+ * Agente trabalhando (T21.2, D36): borda em giz azulado e um brilho que corre por ela. So o
+ * desenho da borda anima (@property + conic-gradient, mascara so no anel); no maximo 4 quadros
+ * (brilhoDoQuadro) e nada com "reduzir movimento".
+ */
+@property --giro {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* a faixa de cima continua na cor da conta: ela diz quem paga (D14) */
+.quadro-trabalhando {
+  position: relative;
+  border-color: var(--brilho-borda);
+  border-top-color: var(--cor);
+}
+
+.quadro-brilho::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(from var(--giro), transparent 0 70%, var(--brilho) 85%, transparent 100%);
+  mask:
+    linear-gradient(black 0 0) content-box exclude,
+    linear-gradient(black 0 0);
+  pointer-events: none;
+  animation: quadro-giro 3.5s linear infinite;
+}
+
+@keyframes quadro-giro {
+  to {
+    --giro: 360deg;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .quadro-chamando {
+  .quadro-brilho::after {
     animation: none;
-    box-shadow:
-      0 0 0 2px var(--ambar),
-      0 0 16px 4px rgb(245 165 36 / 40%);
   }
 }
 
@@ -40,12 +60,12 @@
   font-size: 11px;
   white-space: nowrap;
   border: 1px solid;
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
 }
 
 .selo-trabalhando {
-  color: #8fb8ff;
-  border-color: #35538a;
+  color: var(--brilho);
+  border-color: var(--brilho-borda);
 }
 
 .selo-trabalhando::before {
@@ -65,40 +85,54 @@
 
 .selo-esperando {
   font-weight: 600;
-  color: #1a1306;
+  color: var(--texto-no-ambar);
   background: var(--ambar);
   border-color: var(--ambar);
 }
 
 .selo-terminou {
-  color: #7ee2a8;
-  border-color: #2f7a52;
+  color: var(--ok);
+  border-color: var(--ok-borda);
 }
 
 .selo-erro {
-  color: #ff9b9b;
-  border-color: #8a3535;
+  color: var(--perigo);
+  border-color: var(--perigo-borda);
 }
 
-/* Barra de cima: "● 2 esperando você" (clique enquadra o proximo) */
+/*
+ * Pilula no meio da barra de cima (D36, no jeito da dynamic-island, sem mola):
+ * "● 2 esperando você · 3 trabalhando"; o clique enquadra o proximo que espera.
+ */
 .topo-chamadas {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-left: 8px;
-  padding: 3px 10px;
+  padding: 3px 12px;
   font: inherit;
   font-size: 12px;
   font-weight: 600;
-  color: #1a1306;
+  color: var(--texto-no-ambar);
   background: var(--ambar);
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   cursor: pointer;
 }
 
 .topo-chamadas:hover {
   filter: brightness(1.1);
+}
+
+/* so trabalhando: giz azulado, sem pedir clique */
+.topo-chamadas-calmo {
+  font-weight: 500;
+  color: var(--brilho);
+  background: color-mix(in srgb, var(--brilho) 10%, var(--painel));
+  border: 1px solid var(--brilho-borda);
+  cursor: default;
 }
 
 .botao-ampliar {
@@ -132,7 +166,7 @@
   color: var(--texto);
   background: var(--painel);
   border: 1px solid var(--borda);
-  border-radius: 6px;
+  border-radius: var(--raio-m);
 }
 
 /* Terminal encerrado (T8.5): faixa no pe do quadro com "Reabrir" */
@@ -152,7 +186,7 @@
   padding: 10px;
   font-size: 13px;
   color: var(--texto);
-  background: rgb(22 25 34 / 94%);
+  background: color-mix(in srgb, var(--painel) 94%, transparent);
   border-top: 1px solid var(--borda);
 }
 
@@ -172,7 +206,7 @@
 }
 
 .juntar-aviso {
-  color: #f5c46b;
+  color: var(--ambar);
 }
 
 .juntar-arquivos {
@@ -185,7 +219,7 @@
   font-size: 12px;
   list-style: none;
   background: rgba(0, 0, 0, 0.25);
-  border-radius: 6px;
+  border-radius: var(--raio-m);
 }
 
 .juntar-arquivos li {
@@ -201,11 +235,11 @@
 }
 
 .juntar-mais {
-  color: #6ad38a;
+  color: var(--ok);
 }
 
 .juntar-menos {
-  color: #ff8a8a;
+  color: var(--perigo);
 }
 
 .juntar-botoes {
@@ -231,12 +265,12 @@
   text-overflow: ellipsis;
   background: transparent;
   border: 1px solid var(--borda);
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   cursor: pointer;
 }
 
 .quadro-modelo:hover {
-  background: rgb(255 255 255 / 6%);
+  background: color-mix(in srgb, var(--texto) 6%, transparent);
 }
 
 /* antes do primeiro painel do agente: o guardado no quadro, ainda nao confirmado */

@@ -55,3 +55,30 @@ export function seloDoAviso(aviso: AvisoAgente): { texto: string; classe: string
       return null
   }
 }
+
+/** Brilho que corre na borda (T21.2): no maximo 4 animando; os outros ficam com a borda parada (D17). */
+export const MAX_BRILHANDO = 4
+
+const trabalhando = (a: Atencao | undefined): boolean => a?.aviso.estado === 'trabalhando'
+
+/** 'anima' para os 4 primeiros trabalhando (na ordem em que avisaram), 'parado' para os demais. */
+export function brilhoDoQuadro(mapa: MapaAtencao, id: string): 'anima' | 'parado' | null {
+  if (!trabalhando(mapa.get(id))) return null
+  let antes = 0
+  for (const [outro, a] of mapa) {
+    if (outro === id) break
+    if (trabalhando(a)) antes++
+  }
+  return antes < MAX_BRILHANDO ? 'anima' : 'parado'
+}
+
+/** Pilula do alto: "● 2 esperando você · 3 trabalhando"; null sem nenhum dos dois. */
+export function textoDaPilula(mapa: MapaAtencao, ordem: string[]): string | null {
+  const esperando = ordem.filter((id) => chamaAtencao(mapa.get(id))).length
+  const ocupados = ordem.filter((id) => trabalhando(mapa.get(id))).length
+  const partes = [
+    ...(esperando > 0 ? [`${esperando} esperando você`] : []),
+    ...(ocupados > 0 ? [`${ocupados} trabalhando`] : []),
+  ]
+  return partes.length > 0 ? `● ${partes.join(' · ')}` : null
+}

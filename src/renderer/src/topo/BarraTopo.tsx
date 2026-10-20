@@ -3,7 +3,7 @@
 import { useCallback, useRef, useState } from 'react'
 import type { Quadro } from '../../../shared/model'
 import '../estilos/topo.css'
-import { chamaAtencao, proximoAChamar } from '../lousa/atencao'
+import { proximoAChamar, textoDaPilula } from '../lousa/atencao'
 import { pedirFoco } from '../lousa/foco'
 import { useMapaAtencao } from '../lousa/useAtencao'
 import { IconeConta } from './IconeConta'
@@ -22,16 +22,22 @@ function ChamadasAtencao({ quadros }: { quadros: Quadro[] }): React.JSX.Element 
   const mapa = useMapaAtencao()
   const ultimo = useRef<string | null>(null)
   const ordem = quadros.map((q) => q.id)
-  const quantos = ordem.filter((id) => chamaAtencao(mapa.get(id))).length
-  if (quantos === 0) return null
+  const texto = textoDaPilula(mapa, ordem)
+  if (!texto) return null
+  // so "trabalhando": a pilula fica azul e o clique nao tem para onde ir
+  const esperando = proximoAChamar(mapa, ordem, null) !== null
   const focarProximo = (): void => {
     const id = proximoAChamar(mapa, ordem, ultimo.current)
     ultimo.current = id
     if (id) pedirFoco(id)
   }
   return (
-    <button className="topo-chamadas" title="Mostrar o próximo quadro que pede atenção" onClick={focarProximo}>
-      ● {quantos} esperando você
+    <button
+      className={esperando ? 'topo-chamadas' : 'topo-chamadas topo-chamadas-calmo'}
+      title={esperando ? 'Mostrar o próximo quadro que pede atenção' : 'Agentes trabalhando'}
+      onClick={focarProximo}
+    >
+      {texto}
     </button>
   )
 }

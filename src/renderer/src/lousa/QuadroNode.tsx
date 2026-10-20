@@ -5,13 +5,13 @@ import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import { AnelContexto } from './AnelContexto'
-import { chamaAtencao, seloDoAviso } from './atencao'
+import { brilhoDoQuadro, chamaAtencao, seloDoAviso } from './atencao'
 import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
 import { JanelaJuntar } from './JanelaJuntar'
 import { ModeloDoQuadro } from './ModeloDoQuadro'
 import type { AcoesLousa, QuadroNo } from './nos'
-import { atencao, useAtencao } from './useAtencao'
+import { atencao, useAtencao, useMapaAtencao } from './useAtencao'
 
 /** "esperando você", "terminou"... no cabecalho (T8.2); a frase do Claude aparece ao parar o mouse. */
 function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | null {
@@ -87,18 +87,30 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
   )
 }
 
+/** Classe do quadro: ambar parado pedindo atencao; brilho na borda trabalhando (T21.2, D36). */
+function useClasseQuadro(quadroId: string): { classe: string; chamando: boolean } {
+  const mapa = useMapaAtencao()
+  const chamando = chamaAtencao(mapa.get(quadroId))
+  const brilho = brilhoDoQuadro(mapa, quadroId)
+  const classes = ['quadro']
+  if (chamando) classes.push('quadro-chamando')
+  if (brilho) classes.push('quadro-trabalhando')
+  if (brilho === 'anima') classes.push('quadro-brilho')
+  return { classe: classes.join(' '), chamando }
+}
+
 /**
  * Quadro solto na lousa (D13, D14): a pasta da o nome (onde o trabalho fica) e o selo
  * diz a conta (quem paga). Trocar a conta remonta o terminal, que retoma a conversa.
  */
 export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.Element {
   const { quadro, perfil, repo, rotulo, contas, acoes } = data
-  const chamando = chamaAtencao(useAtencao(quadro.id))
+  const { classe, chamando } = useClasseQuadro(quadro.id)
   const [juntando, setJuntando] = useState(false)
   const [encerrado, setEncerrado] = useState(false)
   return (
     <div
-      className={chamando ? 'quadro quadro-chamando' : 'quadro'}
+      className={classe}
       data-quadro={quadro.id}
       style={{ '--cor': perfil?.cor ?? '#555' } as React.CSSProperties}
       onMouseDownCapture={() => chamando && atencao.marcarVisto(quadro.id)}

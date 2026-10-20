@@ -1,6 +1,6 @@
 /* Anel de contexto no cabecalho do agente (T18.1) e a secao dele na engrenagem (T18.2). */
 .anel {
-  --anel-cor: #8fb8ff;
+  --anel-cor: var(--brilho);
 
   width: 22px;
   height: 22px;
@@ -11,12 +11,12 @@
 }
 
 .anel-perigo {
-  --anel-cor: #ff6b6b;
+  --anel-cor: var(--perigo);
 }
 
 .anel-fundo {
   fill: none;
-  stroke: rgb(255 255 255 / 14%);
+  stroke: color-mix(in srgb, var(--texto) 14%, transparent);
   stroke-width: 3;
 }
 
@@ -54,7 +54,7 @@
 }
 
 .anel-contexto:hover .anel-fundo {
-  stroke: rgb(255 255 255 / 28%);
+  stroke: color-mix(in srgb, var(--texto) 28%, transparent);
 }
 
 .anel-esperar {
@@ -77,12 +77,12 @@
   color: var(--texto);
   background: var(--painel);
   border: 1px solid var(--borda);
-  border-radius: 8px;
+  border-radius: var(--raio);
   box-shadow: 0 6px 18px rgb(0 0 0 / 40%);
 }
 
 .anel-erro {
-  color: #ff9b9b;
+  color: var(--perigo);
 }
 
 .anel-botoes {

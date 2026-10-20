@@ -60,15 +60,22 @@ export function prepararPastas(nome, saida) {
   return { app, api }
 }
 
-/** `pastas` = { pastaDemo, casa, app, api }: caminhos absolutos montados pelo rodar.mjs. */
-export function estadoDe(nome, pastas) {
+/**
+ * `pastas` = { pastaDemo, casa, app, api }: caminhos absolutos montados pelo rodar.mjs.
+ * Opcao `brilho` no casa: mais tres terminais, para 5 quadros trabalhando (T21.2).
+ */
+export function estadoDe(nome, pastas, opcoes = []) {
   const demo = repo('rd', 'pasta-demo', pastas.pastaDemo)
   const base = { versao: 2, perfis: {}, viewport: { x: 0, y: 0, zoom: 0.8 }, ultimoPerfilId: 'principal' }
   if (nome === 'casa') {
     return {
       ...base,
       repos: [repo('home', 'casa', pastas.casa), demo],
-      quadros: [terminal('t1', 'rd', 'principal', 40, 620), terminal('t2', 'rd', 'principal', 680, 520)],
+      quadros: [
+        terminal('t1', 'rd', 'principal', 40, 620),
+        terminal('t2', 'rd', 'principal', 680, 520),
+        ...(opcoes.includes('brilho') ? [1220, 1760, 2300].map((x, i) => terminal(`t${i + 3}`, 'rd', 'pessoal', x, 520)) : []),
+      ],
     }
   }
   if (nome === 'git') {

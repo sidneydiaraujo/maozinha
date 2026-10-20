@@ -13,9 +13,10 @@
 .paleta {
   width: min(620px, 92vw);
   overflow: hidden;
-  background: var(--painel);
+  background: var(--vidro);
+  backdrop-filter: var(--vidro-filtro);
   border: 1px solid var(--borda);
-  border-radius: 10px;
+  border-radius: var(--raio-g);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
 }
 
@@ -44,12 +45,12 @@
   gap: 10px;
   align-items: baseline;
   padding: 7px 10px;
-  border-radius: 6px;
+  border-radius: var(--raio-m);
   cursor: pointer;
 }
 
 .paleta-item.marcado {
-  background: rgba(59, 130, 246, 0.25);
+  background: color-mix(in srgb, var(--destaque) 25%, transparent);
 }
 
 .paleta-icone {

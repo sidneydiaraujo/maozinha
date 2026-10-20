@@ -2,7 +2,7 @@
   width: 100%;
   height: 100%;
   /* o fundo da paleta da Aparencia (T15.1), posto pelo Terminal.tsx */
-  background: var(--terminal-fundo, #131c27);
+  background: var(--terminal-fundo, var(--quadro));
   padding: 6px 0 0 8px;
   box-sizing: border-box;
 }
@@ -13,7 +13,7 @@
 
 /* Arquivo arrastado por cima (T16.2): borda tracejada, sem animacao */
 .terminal.soltando {
-  outline: 2px dashed var(--apagado, #8a93a6);
+  outline: 2px dashed var(--apagado);
   outline-offset: -4px;
 }
 
@@ -33,9 +33,9 @@
   gap: 6px;
   align-items: center;
   padding: 4px 6px;
-  background: var(--painel, #161a22);
-  border: 1px solid var(--borda, #2a3040);
-  border-radius: 6px;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-m);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
 }
 
@@ -43,7 +43,7 @@
   width: 180px;
   font: inherit;
   font-size: 12px;
-  color: var(--texto, #ddd);
+  color: var(--texto);
   background: transparent;
   border: 0;
   outline: none;
@@ -52,6 +52,6 @@
 .busca-contagem {
   min-width: 52px;
   font-size: 11px;
-  color: var(--apagado, #8a93a6);
+  color: var(--apagado);
   text-align: right;
 }

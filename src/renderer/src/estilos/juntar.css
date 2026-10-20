@@ -6,7 +6,7 @@
   width: 100%;
   padding: 1px 4px;
   border: 0;
-  border-radius: 4px;
+  border-radius: var(--raio-p);
   background: none;
   color: inherit;
   font: inherit;
@@ -15,7 +15,7 @@
 }
 
 .juntar-arquivos button:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: color-mix(in srgb, var(--texto) 7%, transparent);
 }
 
 .juntar-arquivos button span:first-child {
@@ -55,8 +55,8 @@
   margin: 0;
   padding: 6px 0;
   overflow: auto;
-  border-radius: 6px;
-  background: #0d1117;
+  border-radius: var(--raio-m);
+  background: var(--quadro);
   font-family: Consolas, monospace;
   font-size: 12px;
   line-height: 1.45;
@@ -75,21 +75,21 @@
 }
 
 .diff-mais {
-  background: rgba(46, 160, 67, 0.18);
-  color: #aff5b4;
+  background: var(--diff-mais-fundo);
+  color: var(--diff-mais);
 }
 
 .diff-menos {
-  background: rgba(248, 81, 73, 0.18);
-  color: #ffc1bc;
+  background: var(--diff-menos-fundo);
+  color: var(--diff-menos);
 }
 
 .diff-igual {
-  color: #8b949e;
+  color: var(--apagado);
 }
 
 .diff-trecho {
   margin: 4px 0;
   padding-left: 22px;
-  color: #79c0ff;
+  color: var(--destaque);
 }

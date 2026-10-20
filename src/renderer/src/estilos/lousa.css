@@ -18,19 +18,19 @@
 .lousa-erro {
   top: 12px;
   padding: 8px 14px;
-  color: #ff9b9b;
-  background: #2a1414;
-  border: 1px solid #5a2323;
-  border-radius: 8px;
+  color: var(--perigo);
+  background: var(--perigo-fundo);
+  border: 1px solid var(--perigo-borda);
+  border-radius: var(--raio);
 }
 
 .lousa-aviso {
   top: 12px;
   padding: 8px 14px;
-  color: var(--texto, #ddd);
-  background: #1b2330;
-  border: 1px solid #2f4058;
-  border-radius: 8px;
+  color: var(--texto);
+  background: var(--cartao);
+  border: 1px solid var(--borda-forte);
+  border-radius: var(--raio);
 }
 
 .lousa-vazia {
@@ -44,10 +44,10 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: var(--terminal-fundo, #131c27);
+  background: var(--terminal-fundo, var(--quadro));
   border: 1px solid var(--cor);
   border-top: 3px solid var(--cor);
-  border-radius: 8px;
+  border-radius: var(--raio);
   overflow: hidden;
 }
 
@@ -74,7 +74,7 @@
   color: var(--cor);
   background: transparent;
   border: 1px solid var(--cor);
-  border-radius: 999px;
+  border-radius: var(--raio-pilula);
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -101,8 +101,8 @@
 }
 
 .perigo {
-  color: #ff7b7b;
-  border-color: #ff7b7b;
+  color: var(--perigo);
+  border-color: var(--perigo);
 }
 
 .quadro-pasta {
@@ -114,97 +114,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.novo-fundo {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-}
-
-.novo-quadro {
-  position: fixed;
-  z-index: 21;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px;
-  background: var(--painel);
-  border: 1px solid var(--borda);
-  border-radius: 10px;
-  box-shadow: 0 12px 32px rgb(0 0 0 / 55%);
-}
-
-.novo-rotulo {
-  margin: 0;
-  font-size: 12px;
-  color: var(--apagado);
-}
-
-.novo-opcoes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.chip-escolha {
-  padding: 6px 12px;
-  color: var(--cor);
-  background: transparent;
-  border: 1px solid var(--cor);
-  border-radius: 999px;
-  cursor: pointer;
-}
-
-.chip-escolha[aria-checked='true'] {
-  color: #0b0d12;
-  background: var(--cor);
-  font-weight: 600;
-}
-
-.novo-pastas {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  max-height: 200px;
-  overflow-y: auto;
-}
-
-.pasta-escolha {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 6px 10px;
-  color: var(--texto);
-  text-align: left;
-  background: var(--cartao);
-  border: 1px solid var(--borda);
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.pasta-escolha span {
-  max-width: 100%;
-  font-size: 11px;
-  color: var(--apagado);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.pasta-escolha[aria-checked='true'] {
-  border-color: #4c8dff;
-  box-shadow: inset 3px 0 0 #4c8dff;
-}
-
-.novo-botoes {
-  display: flex;
-  gap: 8px;
-  margin-top: 4px;
-}
-
-.quadro-conta:hover {
-  background: color-mix(in srgb, var(--cor) 15%, transparent);
 }
 
 .bolinha {
@@ -223,9 +132,10 @@
   gap: 2px;
   padding: 6px;
   font-size: 13px;
-  background: var(--painel);
+  background: var(--vidro);
+  backdrop-filter: var(--vidro-filtro);
   border: 1px solid var(--borda);
-  border-radius: 8px;
+  border-radius: var(--raio);
   box-shadow: 0 12px 32px rgb(0 0 0 / 55%);
 }
 
@@ -247,7 +157,7 @@
   text-align: left;
   background: transparent;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--raio-m);
   cursor: pointer;
 }
 
@@ -298,41 +208,14 @@
   font: inherit;
   font-size: 13px;
   font-weight: 600;
-  color: #fff;
-  background: #2f6df6;
+  color: var(--principal-texto);
+  background: var(--principal);
   border: 0;
-  border-radius: 8px;
+  border-radius: var(--raio);
   box-shadow: 0 4px 14px rgb(0 0 0 / 40%);
   cursor: pointer;
 }
 
 .botao-novo-quadro:hover {
-  background: #4a80ff;
-}
-
-.pasta-linha {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.pasta-linha .pasta-escolha {
-  flex: 1;
-  min-width: 0;
-}
-
-/* Cópia separada (T10.4, D18) */
-.novo-copia {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.novo-copia small {
-  display: block;
-  margin-top: 2px;
-  color: var(--apagado);
-  font-size: 11px;
+  background: var(--principal-hover);
 }

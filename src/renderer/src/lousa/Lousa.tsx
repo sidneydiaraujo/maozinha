@@ -12,6 +12,7 @@ import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
+import '../estilos/novo.css'
 import { chamaAtencao } from './atencao'
 import { semQuadro, textoDoFim } from './copia'
 import { BarraEnvio } from './BarraEnvio'
@@ -170,7 +171,7 @@ function Minimapa(): React.JSX.Element {
       zoomable
       nodeColor={(no) => {
         if (no.type === 'nota') return '#8a7440'
-        return chamaAtencao(mapa.get(no.id)) ? '#f5a524' : (no.data.perfil?.cor ?? '#555')
+        return chamaAtencao(mapa.get(no.id)) ? '#f0b44c' : (no.data.perfil?.cor ?? '#555')
       }}
     />
   )

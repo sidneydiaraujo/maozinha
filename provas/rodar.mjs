@@ -34,9 +34,9 @@ renameSync(join(pastaDemo, '_node_modules'), join(pastaDemo, 'node_modules'))
 
 mkdirSync(dados, { recursive: true })
 const extras = prepararPastas(tipoDeEstado, saida)
-const estado = estadoDe(tipoDeEstado, { pastaDemo, casa: homedir(), ...extras })
-writeFileSync(join(dados, 'estado.json'), JSON.stringify(estado, null, 2))
 const opcoes = resto.filter((o) => o !== '--sem-build')
+const estado = estadoDe(tipoDeEstado, { pastaDemo, casa: homedir(), ...extras }, opcoes)
+writeFileSync(join(dados, 'estado.json'), JSON.stringify(estado, null, 2))
 writeFileSync(join(saida, 'dados.json'), JSON.stringify({ pastaDemo, ...extras, apoio: join(AQUI, 'apoio'), opcoes }))
 
 const rodar = (comando) => spawnSync(comando, { cwd: RAIZ, stdio: 'inherit', shell: true, timeout: PRAZO_MS })

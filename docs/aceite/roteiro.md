@@ -85,6 +85,10 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 
 - [ ] 48. Ao abrir a Lousa, clique no ícone de uma conta Claude: o balão diz "Uso: sem dado ainda". Mande uma mensagem a um agente dessa conta e espere a resposta: sob o ícone aparecem duas barrinhas (sessão de 5 h e semana) e o balão diz "Sessão NN% · zera em XhYY", "Semana NN% · zera <dia> HH:MM" e "visto agora". Os números batem com o "Account & Usage" do VSCode na mesma conta. Passando de 70% a barra fica âmbar, e de 90% vermelha. Sem resposta de agente por mais de 1 h, as barras e o texto ficam cinza. A outra conta não muda.
 
+## Fatia 21 — cara nova (Ardósia e giz)
+
+- [ ] 49. Abra a Lousa instalada (0.2.0): fundo azul-ardósia, texto cor de giz, botões principais em giz (não mais azul). Ponha 4 agentes para trabalhar ao mesmo tempo: a borda de cada um ganha um brilho azulado que gira devagar, a faixa de cima continua na cor da conta, e a pílula no meio da barra de cima diz "● 4 trabalhando". Digitar em outro quadro continua sem atraso. Quando um agente pede algo, o quadro fica com a borda âmbar parada e um halo, e a pílula fica âmbar ("● 1 esperando você · 3 trabalhando"); clicar nela leva ao quadro. Os menus e a barra de cima ficam levemente transparentes por cima da lousa; os quadros não. Com "reduzir movimento" ligado no Windows, o brilho para.
+
 ## Fatias 22 e 23 — ver e juntar a cópia
 
 - [ ] 60. Numa cópia separada com um commit, clique em "Juntar" e depois no nome de um arquivo da lista: aparece o que mudou (verde entrou, vermelho saiu). "← Arquivos" volta para a lista. Com um arquivo novo qualquer, fora do git, na pasta original (ex.: `rascunho.txt`), o Juntar funciona e o rascunho continua lá.

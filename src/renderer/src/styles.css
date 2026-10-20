@@ -1,13 +1,7 @@
+@import './estilos/tokens.css';
 @import './estilos/contas.css';
 
 :root {
-  color-scheme: dark;
-  --fundo: #111318;
-  --painel: #161922;
-  --cartao: #1c202b;
-  --borda: #2a2f3c;
-  --texto: #e6e8ee;
-  --apagado: #8b90a0;
   font-family: 'Segoe UI', system-ui, sans-serif;
 }
 

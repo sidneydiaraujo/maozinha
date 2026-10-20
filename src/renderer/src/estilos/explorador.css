@@ -47,8 +47,8 @@
 
 .arvore-selecionada,
 .arvore-selecionada:hover {
-  background: color-mix(in srgb, #2f6df6 22%, transparent);
-  border-color: color-mix(in srgb, #2f6df6 55%, transparent);
+  background: color-mix(in srgb, var(--destaque) 22%, transparent);
+  border-color: color-mix(in srgb, var(--destaque) 55%, transparent);
 }
 
 .arvore-raiz {
@@ -77,7 +77,7 @@
 
 .simbolo-pasta {
   flex: none;
-  color: #c09553;
+  color: var(--pasta);
 }
 
 .simbolo-arquivo {
