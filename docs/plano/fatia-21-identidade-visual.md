@@ -6,7 +6,9 @@ brilho que corre na borda só do quadro cujo agente está trabalhando. Nada do T
 como referência (nem cores, nem o `GOSTO.md`).
 
 Origem: avaliação de 19/10/2026, item "algo novo e legal das bibliotecas de front".
-Decisão: D25 (escrita junto com o protótipo aprovado).
+Decisão: **D36** (20/10/2026). O Sidney aprovou a variação A · Ardósia e giz do protótipo da
+T21.0; as cores estão na D36 e viram o `tokens.css` da T21.1. O número D25 citado antes ficou
+com a outra sessão.
 Depende de: Fatia 15 (paleta `lousa`). Melhor depois das Fatias 18 a 20, para o protótipo já
 ter anel, seletores e barras de uso.
 

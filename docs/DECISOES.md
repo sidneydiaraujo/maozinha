@@ -137,3 +137,18 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Uma vista guarda só a câmera e o lugar de cada quadro e nota.** Não fecha nem abre terminal. Voltar a uma vista devolve ao lugar quem existia; quem nasceu depois fica onde está. Lousas separadas, com quadros diferentes em cada uma, ficam para depois, se fizer falta.
   - **Tudo pelo Ctrl+K**, sem janela de nome: o texto digitado vira o nome ("Guardar vista atual como …"). O mesmo nome substitui; até 20 vistas.
   - **O main só guarda caixa de quadro ou nota que existe.** Voltar a uma vista salva pelo mesmo `lousa:salvarLayout` de quando se arrasta um quadro.
+- **D36 (20/10/2026, Sidney: "vamos seguir com a A"):** identidade visual da Lousa (Fatia 21). Escolhida a variação **A · Ardósia e giz** do protótipo da T21.0 (https://claude.ai/artifact/SzLNAaqnGKnwKRv1o6uYAg), entre ela e a B · Abyss profundo. O plano citava D25, mas D25 a D29 ficaram com a outra sessão; por isso, D36.
+  - **Cores (os tokens da T21.1):**
+    - fundo `#0e151d`, barras e lateral `#121b25`, lousa `#0f1720` com pontos `#223042`;
+    - quadro e terminal `#131c27`, bordas `#24334a` e `#2b3d56`;
+    - texto giz `#dcd8cc`, apagado `#93a0b2`, pasta `#c9a96a`;
+    - brilho de trabalho `#9cc4f0` (giz azulado), âmbar de "esperando você" e de alerta `#f0b44c`, perigo `#ff8a7a`;
+    - botão principal giz (`#dcd8cc`, com texto `#131c27`) em vez de azul;
+    - nota em papel âmbar escuro (`#2a2418` e `#6b5a33`), como já está no app.
+  - **O que o protótipo mostrou e vale para a T21.2:**
+    - o brilho gira na borda só do quadro trabalhando;
+    - o quadro esperando fica com a borda âmbar parada e um halo suave;
+    - a pílula do alto diz "● N esperando você · N trabalhando";
+    - as barras de uso ficam sob o ícone de cada conta;
+    - o anel do contexto e os seletores "Opus ▾ alto ▾" ficam no cabeçalho.
+  - **O terminal continua com a paleta `lousa` da Fatia 15** (fundo `#131c27`, giz `#dcd8cc`), que já casa com a A. O Abyss segue como opção na engrenagem.
