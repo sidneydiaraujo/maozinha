@@ -73,6 +73,10 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 - [ ] 44. Tire um print com Win+Shift+S. Clique dentro de um agente e aperte Ctrl+V: aparece `[Image #1]` na caixa do Claude. Tire outro print e clique no 📎 do cabeçalho do agente: aparece `[Image #2]`. Copie um texto qualquer e clique no 📎 de novo: aparece "Copie um print primeiro (Win+Shift+S)" por 3 segundos. Ctrl+V com texto copiado continua colando o texto.
 - [ ] 45. Arraste um `.png` do Explorador do Windows para dentro de um agente: a borda fica tracejada enquanto você arrasta; ao soltar, o caminho aparece e vira `[Image #N]` (leva uns 3 segundos). Arraste outro tipo de arquivo (ex.: um `.md`): o caminho entra entre aspas, sem Enter. Solte um arquivo fora dos quadros: a Lousa continua na tela.
 
+## Fatia 18 — anel de contexto
+
+- [ ] 46. Numa conversa longa com um agente, passando de 50% do contexto, aparece um anel com o número no cabeçalho. Passe o mouse: o balão diz "NN% do contexto usado (X mil de Y mil)". A partir de 70% fica âmbar, e de 90% vermelho. Com o agente trabalhando, o anel fica cinza e o clique não faz nada. Com ele parado, clique: "Compactar a conversa agora?" → "Compactar" faz o Claude resumir a conversa, e o número cai. Na engrenagem, em "Contexto da conversa", troque para "Sempre" e marque "Mostrar o que sobra": todos os anéis mudam na hora.
+
 ## Fatias 22 e 23 — ver e juntar a cópia
 
 - [ ] 60. Numa cópia separada com um commit, clique em "Juntar" e depois no nome de um arquivo da lista: aparece o que mudou (verde entrou, vermelho saiu). "← Arquivos" volta para a lista. Com um arquivo novo qualquer, fora do git, na pasta original (ex.: `rascunho.txt`), o Juntar funciona e o rascunho continua lá.

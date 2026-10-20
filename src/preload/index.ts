@@ -89,6 +89,7 @@ const api: LousaApi = {
     ultimoPainel: (quadroId) => ipcRenderer.invoke(IPC.agentesUltimoPainel, { quadroId }),
     aoPainel: (cb) =>
       inscrever<{ quadroId: string; painel: PainelAgente }>(IPC.agentesPainel, (p) => cb(p.quadroId, p.painel)),
+    compactar: (quadroId) => ipcRenderer.invoke(IPC.agentesCompactar, { quadroId }),
   },
 }
 

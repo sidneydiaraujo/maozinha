@@ -5,6 +5,7 @@ import { mensagemDe } from '../componentes/erro'
 import { NovaConta } from '../componentes/NovaConta'
 import { useFecharFora } from '../componentes/useFecharFora'
 import { Aparencia } from './Aparencia'
+import { ContextoConfig } from './ContextoConfig'
 import { avisoDeEmail, type Contas } from './useContas'
 
 interface Props {
@@ -92,6 +93,7 @@ export function PainelContas({ contas, aoFechar }: Props): React.JSX.Element {
         )}
       </div>
       <Aparencia />
+      <ContextoConfig />
       <Registros />
     </div>
   )

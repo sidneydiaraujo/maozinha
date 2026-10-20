@@ -75,6 +75,7 @@ export const IPC = {
   arquivosMudou: 'arquivos:mudou', // evento main -> tela
   agentesUltimoPainel: 'agentes:ultimoPainel',
   agentesPainel: 'agentes:painel', // evento main -> tela (linha de status do agente, T17.2)
+  agentesCompactar: 'agentes:compactar',
 } as const
 
 /** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
@@ -206,5 +207,7 @@ export interface LousaApi {
     /** O ultimo painel que o main guardou do quadro (tela remontada); null antes do primeiro. */
     ultimoPainel(quadroId: string): Promise<PainelAgente | null>
     aoPainel(cb: (quadroId: string, painel: PainelAgente) => void): () => void
+    /** O main escreve /compact no agente (T18.1); lanca se ele nao estiver parado. */
+    compactar(quadroId: string): Promise<void>
   }
 }

@@ -6,8 +6,8 @@ colar, árvore viva, desempenho da digitação. Nasceram nas provas das Fatias 8
 
 Nunca usam o seu estado nem as suas contas. Cada rodada cria, em `provas/saida/` (fora do
 git), uma pasta de dados nova e uma cópia nova da `pasta-demo`. Nenhum cenário abre um
-Claude de verdade, **salvo o `painel`** (estado `agente`, conta Pessoal, pede o ok do Sidney;
-não manda mensagem). O aviso do agente usa o "Claude falso" (`apoio/falso-claude.mjs`).
+Claude de verdade, **salvo o `painel` e o `anel`** (estado `agente`, conta Pessoal, pedem o ok
+do Sidney; não mandam mensagem). O aviso do agente usa o "Claude falso" (`apoio/falso-claude.mjs`).
 
 ## Como rodar
 
@@ -42,6 +42,7 @@ node provas/rodar.mjs <cenario> [--sem-build] [opções do cenário]
 | `aparencia` | demo | Fatia 15: a Aparência da engrenagem muda os terminais abertos na hora, sem reabrir (paleta Lousa → Abyss, fonte Consolas, letra 15, entrelinha maior); três cliques seguidos não se perdem; fica guardada; "Voltar ao padrão" volta tudo. Opção `webgl`: os terminais desenham em WebGL (sem texto no HTML) e, com o WebGL derrubado de propósito num deles, ele volta sozinho ao desenho normal enquanto o outro segue em WebGL | a-lousa, b-abyss; com `webgl`: c-webgl, d-webgl-abyss, e-caiu |
 | `print` | demo | Fatia 16, com o `apoio/eco-print.mjs` no lugar do Claude: Ctrl+V com um print na área de transferência manda o Alt+V (ESC v); com texto, cola o texto marcado; vazia, segue o ^V cru. Arquivo arrastado por cima do terminal mostra a borda tracejada; soltar um arquivo sem caminho no disco não cola nada; arquivo solto na lousa não abre no lugar dela; terminal comum não tem o 📎. Usa a área de transferência (devolve o texto) | arrastando |
 | `painel` | agente | Fatia 17, **com Claude de verdade**: o agente abre com `--settings` (arquivo da Lousa em `<dados>\agentes`), a linha de status grava o JSON e o `agentes:painel` chega com modelo, esforço e os limites de 5 h e 7 dias; o `ultimoPainel` devolve o mesmo. Sai com Ctrl+C, sem mandar mensagem. Para as Fatias 18 a 20, sem Claude: `prova.ipc('agentes:painel', { quadroId, painel })` | agente |
+| `anel` | agente | Fatia 18: o `claude.exe` abre e o cenário responde "No, exit" na confiança da pasta (o Claude fecha sem mensagem; fica o PowerShell). Com painel e estado pelo `prova.ipc`: sem painel e com 30% no padrão o anel não aparece; "Sempre" na engrenagem vale na hora; 30 normal, 75 âmbar, 95 vermelho, com o balão "30% do contexto usado (60 mil de 200 mil)"; trabalhando o anel fica cinza, o clique não abre nada e o main recusa o `agentes:compactar`; parado, o clique pergunta "Compactar a conversa agora?" e o cenário cancela | 1-30, 2-75, 3-95, 4-trabalhando, 5-pergunta |
 
 **Desenho do terminal nas provas (T15.2):** o app usa o desenho WebGL, que não deixa o texto
 no HTML. Por isso, numa rodada de prova, o main abre a tela com `?desenho=dom` e os terminais

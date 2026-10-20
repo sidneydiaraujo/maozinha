@@ -201,6 +201,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | evento `arquivos:mudou` | — | `{ repoId, caminhos }` (lote de 75 ms, sem git/dependências/builds) | T7.1 |
 | `agentes:ultimoPainel` | `{ quadroId }` | `PainelAgente \| null` (o último guardado no main, para a tela remontada) | T17.2 |
 | evento `agentes:painel` | — | `{ quadroId, painel: PainelAgente }` (linha de status do agente Claude) | T17.2 |
+| `agentes:compactar` | `{ quadroId }` | `void`. O main escreve `/compact`, pausa 150 ms e Enter, só com o agente parado (OSC 7501 `parado` ou `terminou`); senão lança "Espere o agente parar" | T18.1 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
 `powershell -NoProfile -Command "claude auth login; exit $LASTEXITCODE"`, sem terminal na tela).

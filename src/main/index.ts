@@ -54,7 +54,7 @@ function registrarCanais(): void {
   registrarHandlersLousa(contexto)
   registrarHandlersTerminais(contexto)
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)
-  registrarHandlersAgentes(contexto.agentes)
+  registrarHandlersAgentes(contexto)
   iniciarPonte(contexto)
   app.on('before-quit', () => {
     contexto.terminais.fecharTodos()

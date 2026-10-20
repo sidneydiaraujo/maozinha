@@ -35,7 +35,8 @@ interface PropsPasso {
   mais: (() => void) | null
 }
 
-function Passo({ rotulo, texto, menos, mais }: PropsPasso): React.JSX.Element {
+/** Valor com − e + (tambem usado na secao do contexto, T18.2). */
+export function Passo({ rotulo, texto, menos, mais }: PropsPasso): React.JSX.Element {
   return (
     <div className="aparencia-linha">
       <span className="aparencia-rotulo">{rotulo}</span>

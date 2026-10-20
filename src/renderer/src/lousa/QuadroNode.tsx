@@ -4,6 +4,7 @@ import type { Quadro, Repo } from '../../../shared/model'
 import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
+import { AnelContexto } from './AnelContexto'
 import { chamaAtencao, seloDoAviso } from './atencao'
 import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
@@ -20,6 +21,16 @@ function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | nul
     <span className={`selo-agente ${selo.classe}`} title={aviso?.mensagem}>
       {selo.texto}
     </span>
+  )
+}
+
+/** So no agente com o terminal aberto: anel de contexto (T18.1) e 📎 colar print (T16.1). */
+function ExtrasAgente({ quadroId }: { quadroId: string }): React.JSX.Element {
+  return (
+    <>
+      <AnelContexto quadroId={quadroId} />
+      <BotaoPrint quadroId={quadroId} />
+    </>
   )
 }
 
@@ -103,7 +114,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
         </span>
         {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}
         <SeloAgente quadroId={quadro.id} />
-        {quadro.tipo === 'agente' && !encerrado && <BotaoPrint quadroId={quadro.id} />}
+        {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadroId={quadro.id} />}
         <ContaDoQuadro
           perfil={perfil}
           contas={contas}

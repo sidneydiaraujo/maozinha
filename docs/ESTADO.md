@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T18.1 (anel de contexto no quadro)**, pelo `docs/plano/fatia-18-anel-de-contexto.md`. Os cenários das Fatias 18 a 20 não precisam de Claude: `prova.ipc("agentes:painel", …)`. As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
+**Próxima tarefa: T19.1 (modelo e esforço no quadro, main)**, pelo `docs/plano/fatia-19-modelo-e-esforco.md`. Ela mexe no tipo `Quadro` e no `armazem.ts`: mantenha as linhas `notas` e `vistas` do schema. Os cenários das Fatias 19 e 20 podem seguir o `anel` (painel e estado pelo `prova.ipc`). As Fatias 15, 16 e 18 esperam o aceite do Sidney (itens 42 a 46).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -85,16 +85,16 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T17.0 | Prova: linha de status com Claude de verdade | ✅ |
 | T17.1 | Leitor puro do JSON da linha de status | ✅ |
 | T17.2 | Linha de status em cada agente + canal `agentes:painel` | ✅ |
-| T18.1 | Anel de contexto e compactar | ⬜ |
-| T18.2 | Configurar o anel na engrenagem | ⬜ |
-| T18.3 | Aceite | ⬜ |
+| T18.1 | Anel de contexto e compactar | ✅ 20/10/2026 |
+| T18.2 | Configurar o anel na engrenagem | ✅ 20/10/2026 |
+| T18.3 | Aceite | ⬜ (item 46 escrito no roteiro; espera o Sidney) |
 | T19.1 | Modelo e esforço no quadro (main) | ⬜ |
 | T19.2 | Seletores no cabeçalho | ⬜ |
 | T19.3 | Aceite | ⬜ |
 | T20.1 | Uso por conta (main) | ⬜ |
 | T20.2 | Barras de uso no alto | ⬜ |
 | T20.3 | Aceite | ⬜ |
-| T21.0 | Protótipo visual para aprovar | ⬜ |
+| T21.0 | Protótipo visual para aprovar | ✅ (A · Ardósia e giz, D36) |
 | T21.1 | Cores como variáveis | ⬜ |
 | T21.2 | Quadro, barra de cima e brilho de trabalho | ⬜ |
 | T21.3 | Aceite e instalador 0.2.0 | ⬜ |
@@ -378,3 +378,20 @@ Nenhum.
     - `vivo` com todos os valores verdadeiros.
     - Não rodados de novo: `fatia8` e `colar-e-reabrir` (usam a área de transferência do PC) e `desempenho`.
   - **Falta:** o aceite pelo Sidney (itens 60 a 65 do roteiro), num instalador novo.
+- **20/10/2026 (T21.0):** protótipo com duas paletas lado a lado, publicado como artefato privado (https://claude.ai/artifact/SzLNAaqnGKnwKRv1o6uYAg). A · Ardósia e giz: fundo #0e151d, quadro #131c27, giz #dcd8cc, feixe #9cc4f0, âmbar #f0b44c. B · Abyss profundo: fundo #000c18, texto #cccccc, feixe ciano #78ffff, âmbar #ffe580. Cada tela tem três quadros (trabalhando, com o brilho girando na borda em CSS @property + conic-gradient; esperando você, âmbar parado; terminou), anel, modelo e esforço no cabeçalho, barras de uso 5 h e 7 dias sob as contas, a pílula "● 1 esperando você", uma nota e o painel de Aparência aberto. Nada foi codado no app. O Sidney aprovou a A (D36, commit 5242686).
+- **20/10/2026 (T18.1 + T18.2, D24):** anel de contexto no cabeçalho do agente e a seção "Contexto da conversa" na engrenagem.
+  - **Código:**
+    - `lousa/contexto.ts` (`PrefContexto`, `vistaDoContexto`, `tokensPorExtenso`, ler e guardar no `localStorage`; +12 testes);
+    - `shared/compactar.ts` (`podeCompactar`, usado pela tela e pelo main; +1 teste);
+    - `main/agentes/compactar.ts` e o canal `agentes:compactar`: o main escreve `/compact`, pausa 150 ms e Enter, só com o agente `parado` ou `terminou` (+4 testes);
+    - `lousa/usePainel.ts` (guarda única dos painéis, como o `useAtencao`), `AnelContexto.tsx` (SVG, sem animação: o número é inteiro e só muda a cada ponto, D17), `topo/ContextoConfig.tsx` (o `Passo` da Aparência foi exportado e reaproveitado);
+    - CSS em `estilos/contexto.css`, à parte, para o `quadro.css` não crescer.
+  - **Desvio do plano:** `vistaDoContexto` recebe também o tamanho do contexto, para o balão dizer "(124 mil de 200 mil)".
+  - `npm run check` verde (383) sem aviso e `npm run smoke` verde.
+  - **Provado na janela real** (cenário novo `anel`, com o ok do Sidney, `ok: true`): o `claude.exe` abriu, o cenário respondeu "No, exit" na confiança da pasta e o Claude fechou sem mensagem; o resto veio pelo `prova.ipc`.
+    - sem painel, e com 30% no padrão, o anel não aparece;
+    - "Sempre" na engrenagem vale na hora; 30 normal, 75 âmbar, 95 vermelho; balão "30% do contexto usado (60 mil de 200 mil)";
+    - trabalhando: cinza, o clique não abre nada e o main recusou ("Espere o agente parar");
+    - parado: "Compactar a conversa agora?" e o Cancelar fecha.
+  - **Defeito que a prova pegou:** sem estado do agente ainda, o anel saía cinza e perdia a cor. Agora fica cinza só trabalhando ou esperando você; sem estado, o clique continua sem efeito.
+  - **Não provado:** o `/compact` chegando a um Claude de verdade e o número caindo depois. Fica para o aceite (item 46).
