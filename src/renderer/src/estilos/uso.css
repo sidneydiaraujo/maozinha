@@ -1,0 +1,103 @@
+/* Uso das contas Claude na barra de cima (T20.2, A4): barrinhas, mostrador e balao. */
+/* Uso da sessao e da semana (T20.2): duas barras de 2 px sob o icone; cinza com dado velho. */
+.uso-barras {
+  position: absolute;
+  right: 11px;
+  bottom: 1px;
+  left: 3px;
+  display: grid;
+  gap: 1px;
+}
+
+.uso-barra {
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--texto) 12%, transparent);
+  border-radius: 1px;
+}
+
+.uso-cheio {
+  display: block;
+  height: 100%;
+  background: var(--brilho);
+}
+
+.uso-alerta {
+  background: var(--ambar);
+}
+
+.uso-perigo {
+  background: var(--perigo);
+}
+
+.uso-velho .uso-cheio {
+  background: var(--apagado);
+}
+
+/*
+ * Mostrador a vista (A4): ao lado do icone, uma linha por limite, legivel sem clicar. O numero
+ * leva a cor do nivel; com dado velho (mais de 1 h) tudo fica cinza.
+ */
+.uso-mostrador {
+  display: grid;
+  gap: 1px;
+  margin: 0 6px 0 -2px;
+  padding: 2px 6px;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--apagado);
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: var(--raio-m);
+  cursor: pointer;
+}
+
+.uso-mostrador:hover {
+  background: var(--cartao);
+}
+
+.uso-linha {
+  display: grid;
+  grid-template-columns: 44px 34px auto;
+  align-items: baseline;
+  white-space: nowrap;
+}
+
+.uso-numero {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--texto);
+  text-align: right;
+}
+
+.uso-numero-alerta {
+  color: var(--ambar);
+}
+
+.uso-numero-perigo {
+  color: var(--perigo);
+}
+
+.uso-zera {
+  padding-left: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.uso-mostrador.uso-velho .uso-numero {
+  color: var(--apagado);
+}
+
+.uso-balao {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 6px;
+  padding: 4px 6px;
+  font-size: 12px;
+}
+
+.uso-balao.uso-velho {
+  color: var(--apagado);
+}

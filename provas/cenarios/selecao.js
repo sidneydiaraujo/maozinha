@@ -41,8 +41,25 @@
     ])
     await espera(300)
     const faixas = todos('[data-quadro="t1"] .xterm-selection div').map((d) => d.getBoundingClientRect()).filter((b) => b.width > 0)
-    const f = faixas[0]
+    // o que o xterm de fato selecionou: Ctrl+C e le a area de transferencia
+    q('[data-quadro="t1"] .xterm-helper-textarea').focus()
+    await prova.eventos([
+      { type: 'keyDown', keyCode: 'C', modifiers: ['control'] },
+      { type: 'keyUp', keyCode: 'C', modifiers: ['control'] },
+    ])
+    await espera(500)
+    const copiado = (await window.lousa.app.colar()).trim()
+    // a faixa de uma linha pode vir em mais de um pedaco (letra redesenhada no zoom, A1): junta os da mesma linha
+    const p = faixas[0]
+    const mesma = p ? faixas.filter((b) => Math.abs(b.top - p.top) < 2) : []
+    const f = p && {
+      top: p.top,
+      height: p.height,
+      left: Math.min(...mesma.map((b) => b.left)),
+      width: Math.max(...mesma.map((b) => b.right)) - Math.min(...mesma.map((b) => b.left)),
+    }
     return {
+      copiado,
       faixas: faixas.length,
       // centro vertical da faixa menos o centro do texto: 0 = em cima do texto
       desvioY: f ? Math.round(f.top + f.height / 2 - y) : null,
@@ -66,13 +83,15 @@
   await ate(() => texto('t1').includes('linha-30fim'))
   await espera(500)
 
-  r.reduzida = { zoom: zoom(), ...(await selecionar(linhaVisivel())) }
+  const alvoReduzida = linhaVisivel()
+  r.reduzida = { zoom: zoom(), alvo: alvoReduzida, ...(await selecionar(alvoReduzida)) }
   await prova.foto('reduzida')
 
   // o botao de ampliar enquadra o quadro inteiro (zoom acima de 100%)
   q('[data-quadro="t1"] .botao-ampliar').click()
   await espera(1200)
-  r.ampliada = { zoom: zoom(), ...(await selecionar(linhaVisivel())) }
+  const alvoAmpliada = linhaVisivel()
+  r.ampliada = { zoom: zoom(), alvo: alvoAmpliada, ...(await selecionar(alvoAmpliada)) }
   await prova.foto('ampliada')
 
   r.zoomAmpliada = Number(r.ampliada.zoom) > 1
@@ -102,7 +121,11 @@
   }
   await espera(500)
   r.panoReduzida = await arrastarComMeio()
-  const certo = (s) => s.faixas >= 1 && Math.abs(s.desvioY) <= 4 && Math.abs(s.desvioX) <= 12 && Math.abs(s.larguraFaixa - s.larguraTexto) <= 16
+  // a prova de que o mouse caiu nas letras certas e o texto copiado. A largura da faixa azul so
+  // vale a 100% de letra: com a letra redesenhada no zoom (A1), o desenho sem WebGL das provas
+  // ainda mede a faixa com a celula antiga (o texto selecionado continua certo)
+  // (e as vezes ainda nem a desenhou: sem faixa, vale o texto copiado)
+  const certo = (s) => s.copiado === s.alvo && (s.faixas === 0 || (Math.abs(s.desvioY) <= 4 && Math.abs(s.desvioX) <= 12))
   r.ok = certo(r.reduzida) && certo(r.ampliada) && r.zoomAmpliada && [r.panoAmpliada, r.panoReduzida].every((p) => Math.abs(p.lousaAndou - 200) <= 4)
   return r
 })()

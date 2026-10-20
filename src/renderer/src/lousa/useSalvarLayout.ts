@@ -1,6 +1,7 @@
 import type { Node, NodeChange, Viewport } from '@xyflow/react'
 import { useCallback, useEffect, useRef } from 'react'
 import type { LayoutLousa } from '../../../shared/ipc'
+import { EVENTO_VISTA_PAROU } from '../componentes/nitidez'
 import { caixaDoNo } from './nos'
 
 const ESPERA_SALVAR_MS = 500
@@ -60,6 +61,8 @@ export function useSalvarLayout<N extends Node>({ nos, aoMudarNos, viewportInici
     (viewport: Viewport) => {
       viewportAtual.current = viewport
       agendar()
+      // cada terminal encosta o desenho no pixel inteiro de novo (A1, componentes/nitidez.ts)
+      window.dispatchEvent(new Event(EVENTO_VISTA_PAROU))
     },
     [agendar],
   )

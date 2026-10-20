@@ -1,4 +1,4 @@
-import { NodeResizer, type NodeProps } from '@xyflow/react'
+import { NodeResizer, useStore, type NodeProps } from '@xyflow/react'
 import { useEffect, useState } from 'react'
 import type { Perfil, Quadro, Repo } from '../../../shared/model'
 import { caminhoNoRepo } from '../componentes/links'
@@ -57,6 +57,8 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
   // trocar a conta tambem remonta: a saida de um terminal antigo nao vale para o novo
   const chave = `${quadro.perfilId}:${geracao}`
   const encerrado = saida?.chave === chave
+  // so o zoom (nao a posicao): arrastar a lousa nao redesenha o quadro
+  const zoom = useStore((s) => s.transform[2])
   useEffect(() => aoEncerrado(encerrado), [encerrado, aoEncerrado])
   // caminho citado no terminal: so os de dentro da pasta do quadro viram link (T8.3)
   const arquivos = {
@@ -74,6 +76,7 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
         aoSair={(codigo) => setSaida({ chave, codigo })}
         aoAviso={(aviso) => atencao.aplicar(quadro.id, aviso)}
         arquivos={arquivos}
+        zoom={zoom}
       />
       {encerrado && (
         <div className="quadro-encerrado nodrag" role="status">
@@ -116,13 +119,9 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
       onMouseDownCapture={() => chamando && atencao.marcarVisto(quadro.id)}
     >
       <NodeResizer minWidth={360} minHeight={220} isVisible={selected} />
-      <header
-        className="cabecalho-quadro"
-        title="Duplo clique amplia o quadro na tela · Ctrl+clique seleciona vários (para mandar a mesma mensagem)"
-        onDoubleClick={(e) => {
-          if (!(e.target as Element).closest('button')) acoes.ampliar(quadro.id)
-        }}
-      >
+      {/* sem duplo clique para ampliar (A2, 20/10): clicar duas vezes no cabecalho para escolher
+          ou arrastar o quadro ampliava sem querer; ampliar e so no ⤢ */}
+      <header className="cabecalho-quadro" title="Ctrl+clique seleciona vários (para mandar a mesma mensagem)">
         <span
           className="quadro-pasta"
           title={repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho}

@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: aceite do Sidney com o instalador 0.2.0** (`release/Lousa.ia Setup 0.2.0.exe`, hash em `release/SHA256.txt`). Ele instala e testa os itens 17 a 49 e 60 a 67 do `docs/aceite/roteiro.md` (Fatias 7, 8, 10 a 16, 18 a 27 e as correções). As Fatias 15 a 21 do plano estão todas codadas; o que o aceite apontar vira correção.
+**Próxima tarefa: aceite do Sidney com o instalador 0.2.0** (`release/Lousa.ia Setup 0.2.0.exe`, hash em `release/SHA256.txt`). Ele instala e testa os itens 17 a 49 e 60 a 67 do `docs/aceite/roteiro.md` (e 68 a 71, dos ajustes A1 a A4, depois de um instalador novo) (Fatias 7, 8, 10 a 16, 18 a 27 e as correções). As Fatias 15 a 21 do plano estão todas codadas; o que o aceite apontar vira correção.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
 
@@ -109,23 +109,16 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T27.1 | Vistas salvas (main) | ✅ |
 | T27.2 | Vistas salvas no Ctrl+K | ✅ |
 
-## Ajustes pedidos no aceite 0.2.0 (anotados em 20/10, ainda não feitos)
+## Ajustes pedidos no aceite 0.2.0 (20/10)
 
-O Sidney vai mandando enquanto testa; fazer depois, um por tarefa.
+O Sidney vai mandando enquanto testa. Feitos viram itens novos no `docs/aceite/roteiro.md`.
 
-- **A1. Texto do terminal ilegível.** Com o quadro grande na lousa, a letra do terminal sai miúda
-  e borrada (print de 20/10: resposta com tabela no quadro "lousa-ia ⑂ claude-2"). Suspeita:
-  a lousa fora de 100% escala o desenho do terminal (WebGL, T15.2) em vez de redesenhar no tamanho real.
-- **A2. Maximizar (⤢) cresce sozinho.** Depois de vários cliques no ⤢, o quadro cresceu sem
-  ninguém pedir. Investigar a ida e a volta do ⤢ (correção do item 67) e o tamanho salvo do quadro.
-- **A3. Painel da engrenagem quebra a tela.** Ao clicar na engrenagem, o painel "Contas" abre
-  transparente, por cima da lateral "Pastas", e os textos se misturam (Aparência do terminal,
-  Contexto da conversa, Abrir pasta de registros). Falta fundo opaco e camada (z-index) certa,
-  provavelmente desde as cores novas (T21.1).
-- **A4. Uso da conta à vista, como relógio de parede.** Hoje as barrinhas sob o ícone da conta são
-  pequenas demais e é preciso clicar para ver "Sessão 31% · zera em 2h04 / Semana 48%". Pedido:
-  mostrar isso direto na barra de cima, legível sem clicar (ex.: ao lado do ícone, "31% · 2h04"
-  e a semana), chamando atenção perto do limite. Desenhar e mostrar ao Sidney antes de codar.
+| Id | Ajuste | Status |
+|---|---|---|
+| A1 | Letra do terminal nítida com a lousa fora de 100% (D39) | ✅ 20/10/2026 (aceite: item 68) |
+| A2 | ⤢ ampliava sem querer: duplo clique no cabeçalho não amplia mais (D39) | ✅ 20/10/2026 (aceite: item 69) |
+| A3 | Painel da engrenagem transparente por cima da lateral (D39) | ✅ 20/10/2026 (aceite: item 70) |
+| A4 | Uso da conta à vista na barra de cima, opção na engrenagem (D39) | ✅ 20/10/2026 (aceite: item 71) |
 
 ## Bloqueios
 
@@ -458,3 +451,4 @@ Nenhum.
   - **Prova:** opção nova `brilho` no `desempenho` (o `main/cenario.ts` só liga "reduzir movimento" sem ela; +1 teste). `desempenho acumular brilho`: 5 trabalhando, 4 animando, eco mediana 21 ms (p90 24, pior 35), tela travada 0. `fatia8` com `ok` nos passos (pílula "● 1 esperando você", brilho apaga, pílula some). Numa das três rodadas do `fatia8` com a F21, o "ponteiro de link" saiu `false`; nas outras duas e na `main` sem a F21, `true`. Fica anotado como instável.
   - `npm run check` verde (439) sem aviso.
 - **20/10/2026 (T21.3, instalador):** versão 0.2.0 no `package.json`; `npm run dist` gerou `release/Lousa.ia Setup 0.2.0.exe` (104 MB, hash `4979c914…cd04` em `release/SHA256.txt`). **Conferido:** versão do arquivo 0.2.0 e `win-unpackedLousa.ia.exe --smoke` → código 0 (node-pty e tela+preload+IPC ok). **Não instalei** no PC; instalar e testar os itens 17 a 49 e 60 a 67 fica com o Sidney.
+- **20/10/2026 (A1 a A4, ajustes do aceite 0.2.0):** letra nítida em qualquer zoom (`componentes/nitidez.ts`, +8 testes), ⤢ só no botão, painel da engrenagem com o vidro no `.topo::before`, mostrador de uso à vista com opção na engrenagem (`topo/usoAVista.ts`, `UsoConfig.tsx`, estilos de uso em `uso.css`; +3 testes). Provas `selecao` (agora confere o texto copiado com Ctrl+C), `ampliar`, `fatia8`, `uso` (mostrador e a troca na engrenagem), `aparencia webgl` e `npm run smoke` ok; `npm run check` verde (449). Instalador ainda é o 0.2.0 de antes dos ajustes.

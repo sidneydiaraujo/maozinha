@@ -129,11 +129,16 @@
   await passo('5 ampliar e voltar', async () => {
     const antes = vista()
     const cabecalho = q('[data-quadro="t2"] .cabecalho-quadro')
+    // duplo clique no cabecalho nao amplia mais (A2): ampliava sem querer
     cabecalho.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
+    await espera(1000)
+    r.duploCliqueNaoAmplia = vista() === antes
+    const botao = q('[data-quadro="t2"] .botao-ampliar')
+    botao.click()
     await espera(3000)
     r.ampliou = vista() !== antes
     await prova.foto('f-ampliado')
-    cabecalho.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }))
+    botao.click()
     await espera(3000)
     r.voltouExato = vista() === antes
   })

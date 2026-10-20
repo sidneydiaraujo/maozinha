@@ -45,6 +45,27 @@
     quando: agora - 2 * 60 * MIN,
   })
   await espera(400)
+  // A4: o padrao e o mostrador a vista ao lado do icone, sem as barrinhas
+  const mostrador = (conta) => [...document.querySelectorAll(`[data-uso="${conta}"] .uso-linha`)].map((l) => l.textContent)
+  const cores = (conta) => [...document.querySelectorAll(`[data-uso="${conta}"] .uso-numero`)].map((n) => n.className)
+  r.mostradorPrincipal = mostrador('principal')
+  r.mostradorPessoal = mostrador('pessoal')
+  r.coresPessoal = cores('pessoal')
+  r.mostradorPessoalVelho = !!q('[data-uso="pessoal"].uso-velho')
+  r.semBarrasAVista = barras('principal').length === 0 && barras('pessoal').length === 0
+  await prova.foto('0-mostrador')
+  // engrenagem → "Uso das contas" → "Só no clique": voltam as barrinhas da T20.2
+  q('.topo-engrenagem').click()
+  await espera(300)
+  const secao = [...document.querySelectorAll('.painel-contas summary')].find((s) => s.textContent.includes('Uso das contas'))
+  secao?.click()
+  await espera(200)
+  ;[...document.querySelectorAll('.painel-contas button')].find((b) => b.textContent === 'Só no clique')?.click()
+  await espera(300)
+  await prova.foto('0-engrenagem')
+  q('.topo-engrenagem').click()
+  await espera(300)
+  r.semMostradorNoClique = !q('[data-uso]')
   r.principal = barras('principal')
   r.pessoal = barras('pessoal')
   r.pessoalVelho = !!q('[data-conta="pessoal"] .uso-barras.uso-velho')
@@ -64,6 +85,12 @@
 
   const dia = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'][sexta.getDay()]
   r.ok =
+    JSON.stringify(r.mostradorPrincipal) === JSON.stringify(['sessão42%2h10', `semana18%${dia} 09:00`]) &&
+    JSON.stringify(r.mostradorPessoal) === JSON.stringify(['sessão92%30 min', `semana75%${dia} 09:00`]) &&
+    JSON.stringify(r.coresPessoal) === JSON.stringify(['uso-numero uso-numero-perigo', 'uso-numero uso-numero-alerta']) &&
+    r.mostradorPessoalVelho &&
+    r.semBarrasAVista &&
+    r.semMostradorNoClique &&
     r.usoAoAbrir.length === 0 &&
     r.semBarrasAoAbrir &&
     /sem dado ainda/.test(r.balaoSemDado ?? '') &&
