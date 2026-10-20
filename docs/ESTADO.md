@@ -109,6 +109,24 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T27.1 | Vistas salvas (main) | ✅ |
 | T27.2 | Vistas salvas no Ctrl+K | ✅ |
 
+## Ajustes pedidos no aceite 0.2.0 (anotados em 20/10, ainda não feitos)
+
+O Sidney vai mandando enquanto testa; fazer depois, um por tarefa.
+
+- **A1. Texto do terminal ilegível.** Com o quadro grande na lousa, a letra do terminal sai miúda
+  e borrada (print de 20/10: resposta com tabela no quadro "lousa-ia ⑂ claude-2"). Suspeita:
+  a lousa fora de 100% escala o desenho do terminal (WebGL, T15.2) em vez de redesenhar no tamanho real.
+- **A2. Maximizar (⤢) cresce sozinho.** Depois de vários cliques no ⤢, o quadro cresceu sem
+  ninguém pedir. Investigar a ida e a volta do ⤢ (correção do item 67) e o tamanho salvo do quadro.
+- **A3. Painel da engrenagem quebra a tela.** Ao clicar na engrenagem, o painel "Contas" abre
+  transparente, por cima da lateral "Pastas", e os textos se misturam (Aparência do terminal,
+  Contexto da conversa, Abrir pasta de registros). Falta fundo opaco e camada (z-index) certa,
+  provavelmente desde as cores novas (T21.1).
+- **A4. Uso da conta à vista, como relógio de parede.** Hoje as barrinhas sob o ícone da conta são
+  pequenas demais e é preciso clicar para ver "Sessão 31% · zera em 2h04 / Semana 48%". Pedido:
+  mostrar isso direto na barra de cima, legível sem clicar (ex.: ao lado do ícone, "31% · 2h04"
+  e a semana), chamando atenção perto do limite. Desenhar e mostrar ao Sidney antes de codar.
+
 ## Bloqueios
 
 Nenhum.
