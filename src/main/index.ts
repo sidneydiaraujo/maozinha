@@ -1,6 +1,8 @@
 import { app, BrowserWindow, session } from 'electron'
+import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AvisosDoWindows } from './avisos/notificar'
+import { pastaDoSmoke } from './cenario'
 import { criarContexto, type Contexto } from './contexto'
 import { rodarGitReal } from './copias/git'
 import { registrarHandlersApp } from './handlers/app'
@@ -72,6 +74,9 @@ function focarJanelaExistente(): void {
 }
 
 if (process.argv.includes('--smoke')) {
+  // antes de registrarCanais: o contexto le o estado de dentro da pasta de dados
+  const pasta = pastaDoSmoke(process.argv, tmpdir())
+  if (pasta) app.setPath('userData', pasta)
   registrarCanais()
   iniciarSmoke()
 } else if (!app.requestSingleInstanceLock()) {

@@ -1,7 +1,18 @@
+import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('./log', () => ({ log: vi.fn() }))
-const { desenhoDasOpcoes, lerCenario, nomeDaFoto } = await import('./cenario')
+const { desenhoDasOpcoes, lerCenario, nomeDaFoto, pastaDoSmoke } = await import('./cenario')
+
+describe('pastaDoSmoke', () => {
+  it('npm run smoke nunca usa a pasta de dados de verdade', () => {
+    expect(pastaDoSmoke(['electron', '.', '--smoke'], 'C:\\Temp')).toBe(join('C:\\Temp', 'lousa-ia-smoke'))
+  })
+
+  it('a rodada de prova ja traz a dela', () => {
+    expect(pastaDoSmoke(['electron', '.', '--smoke', '--user-data-dir=C:\\p\\dados'], 'C:\\Temp')).toBeNull()
+  })
+})
 
 describe('desenhoDasOpcoes', () => {
   it('a rodada usa o desenho normal, salvo a opcao webgl', () => {

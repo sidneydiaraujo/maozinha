@@ -35,6 +35,15 @@ export function lerCenario(argv: string[], empacotado: boolean): Cenario | null 
   return arquivo && saida ? { arquivo, saida } : null
 }
 
+/**
+ * Pasta de dados do smoke: sem `--user-data-dir` (o `npm run smoke`), uma pasta temporaria
+ * propria. Antes era a mesma da Lousa instalada: o smoke abria o estado de verdade (quadros e
+ * terminais) e brigava com o app aberto pela pasta.
+ */
+export function pastaDoSmoke(argv: string[], temporaria: string): string | null {
+  return argv.some((a) => a.startsWith('--user-data-dir')) ? null : join(temporaria, 'lousa-ia-smoke')
+}
+
 /** O `dados.json` que o provas/rodar.mjs grava na saida (caminhos e opcoes da rodada). */
 function lerDados(saida: string): unknown {
   const arquivo = join(saida, 'dados.json')

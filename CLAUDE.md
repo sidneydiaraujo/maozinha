@@ -54,7 +54,7 @@ nunca só na memória de uma conta.
 |---|---|
 | `npm run dev` | Abre o app com recarga automática |
 | `npm run check` | Tipos + lint + testes. Obrigatório antes de commitar |
-| `npm run smoke` | Build + prova sem janela: terminal real e tela falando com o main |
+| `npm run smoke` | Build + prova sem janela: terminal real e tela falando com o main. Usa a pasta de dados `%TEMP%\lousa-ia-smoke`, nunca a da Lousa instalada |
 | `npm run build` | Só compila para `out/` |
 | `node provas/rodar.mjs <cenario>` | Prova na janela real (escondida) com estado de teste: `fatia8`, `colar-e-reabrir`, `vivo`, `desempenho`, `copias`, `juntar`, `paleta`, `envio`. Ver `provas/README.md` |
 

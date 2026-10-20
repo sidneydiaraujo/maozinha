@@ -255,3 +255,9 @@ Nenhum.
     - `aparencia` normal, `fatia8` (desta vez `colarCtrlV: 1`) e `vivo` passaram.
     - `desempenho acumular`: eco com mediana de 21 ms, p90 de 28 ms, pior de 143 ms e nenhuma travada. Mede o desenho normal, porque a prova lê o texto pelo HTML.
   - **Não provado na janela:** o limite de 14 (abrir 15 quadros). Fica para o item 43 do aceite.
+- **19/10/2026 (correção do smoke, fora do plano):** o `npm run smoke` usava a mesma pasta de dados da Lousa instalada (`%APPDATA%\lousa-ia`).
+  - Ele abria escondido o estado de verdade do Sidney: quadros e terminais, por alguns segundos.
+  - Com o app aberto, brigava pela pasta ("Unable to create cache"), e a tela falhava às vezes.
+  - Agora, sem `--user-data-dir`, usa `%TEMP%\lousa-ia-smoke` (`pastaDoSmoke` em `cenario.ts`, + 2 testes).
+  - Conferido: o `estado.json` real ficou com a mesma data depois do smoke.
+  - `npm run check` (299) e `npm run smoke` verdes.
