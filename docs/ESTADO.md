@@ -179,3 +179,13 @@ Nenhum.
   - **Provado na janela real** (três terminais comuns; Ctrl de verdade segurado e cliques de mouse): um selecionado não mostra a barra; Ctrl+clique no segundo mostra "Para 2 quadros"; `'enviado-' + (2 * 21)` + Enter → "Enviado para 2 quadros"; os dois selecionados escreveram `enviado-42` e o terceiro nada.
   - **Não provado:** um Claude de verdade recebendo (a pausa de 150 ms antes do Enter vem de como o Claude Code trata colagem; confirmar no aceite, item 40).
 - **19/10/2026 (Fatia 14, D22):** `scripts/gerar-icone.mjs` → `build/icon.png` e `build/icon.ico`; `electron-builder.yml` com o ícone e `signAndEditExecutable: true`; versão 0.1.0. `npm run dist` gerou `release/Lousa.ia Setup 0.1.0.exe` (hash em `release/SHA256.txt`). **Conferido:** ícone extraído do `.exe` e do instalador é o novo; versão do arquivo 0.1.0; `NotSigned` nos dois (nada foi assinado); `win-unpacked\Lousa.ia.exe --smoke` → código 0. **Não provado:** instalar de verdade e ver o atalho do Menu Iniciar (fica no aceite, item 41).
+- **19/10/2026 (provas/, pedido do Sidney: guardar o cenário de testes):** as provas na janela real saem da pasta temporária da sessão e viram `provas/`.
+  - **O que tem:** cenários `fatia8`, `colar-e-reabrir`, `vivo` e `desempenho` (com a opção `acumular`); o executor `rodar.mjs` (estado de teste e cópia da `pasta-demo` novos em `provas/saida/`, fora do git); o "Claude falso"; o abrir-e-fechar do app; os medidores do D17; e a prova do ConPTY do D16.
+  - **Como roda:** o smoke aceita `--cenario` e `--saida` (`src/main/cenario.ts`, +4 testes, ignorados no instalador). Nada mais reescreve `src/main/smoke.ts` para injetar roteiro.
+  - **Rodado agora, com a versão atual:**
+    - `vivo`: tudo verdadeiro;
+    - `colar-e-reabrir`: tudo verdadeiro;
+    - `fatia8`: sem erros, depois de corrigir três falhas do próprio roteiro (contagem com quebra de linha, espera do Reabrir e botão direito pelo evento da tela);
+    - `desempenho acumular`: eco com mediana de 23 ms e nenhuma travada;
+    - ConPTY: `win32` chega e `bruto`/`st` somem.
+  - **Não rodado de novo:** `apoio/abrir-e-fechar.mjs` (abre uma janela na tela; provado em 18/10, aqui só ganhou caminhos sem pasta temporária).

@@ -11,7 +11,7 @@ import quality from './eslint-rules/index.cjs'
 const NODE_NA_TELA = ['electron', 'node-pty', 'fs', 'path', 'os', 'child_process', 'crypto']
 
 export default defineConfig([
-  globalIgnores(['node_modules/**', 'out/**', 'dist/**', 'release/**', 'coverage/**']),
+  globalIgnores(['node_modules/**', 'out/**', 'dist/**', 'release/**', 'coverage/**', 'provas/pasta-demo/**', 'provas/saida/**']),
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -19,6 +19,14 @@ export default defineConfig([
     languageOptions: { globals: globals.node },
   },
   { files: ['src/renderer/**'], languageOptions: { globals: globals.browser } },
+  // provas/: executores em Node (*.mjs) e cenarios que rodam dentro da tela, com o `prova` do smoke
+  { files: ['provas/**/*.mjs'], languageOptions: { globals: globals.node } },
+  { files: ['provas/cenarios/**/*.js'], languageOptions: { globals: { ...globals.browser, prova: 'readonly' } } },
+  {
+    files: ['provas/**/*.{js,mjs}'],
+    plugins: { quality },
+    rules: { 'quality/max-lines': ['error', { max: 350 }], 'no-var': 'error', 'prefer-const': 'error' },
+  },
   {
     files: ['src/**/*.{ts,tsx}', 'scripts/**/*.mjs'],
     plugins: { quality },

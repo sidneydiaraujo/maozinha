@@ -56,9 +56,12 @@ nunca só na memória de uma conta.
 | `npm run check` | Tipos + lint + testes. Obrigatório antes de commitar |
 | `npm run smoke` | Build + prova sem janela: terminal real e tela falando com o main |
 | `npm run build` | Só compila para `out/` |
+| `node provas/rodar.mjs <cenario>` | Prova na janela real (escondida) com estado de teste: `fatia8`, `colar-e-reabrir`, `vivo`, `desempenho`. Ver `provas/README.md` |
 
-Sempre pelos scripts do npm: eles removem `ELECTRON_RUN_AS_NODE`, que vem
-ligado quando o terminal é do VS Code e faz o Electron fechar na hora.
+Sempre pelos scripts do npm (ou pelo `provas/rodar.mjs`): eles removem
+`ELECTRON_RUN_AS_NODE`, que vem ligado quando o terminal é do VS Code e faz o
+Electron fechar na hora. Prova na tela nunca reescreve `src/` para injetar
+roteiro: use um cenário em `provas/cenarios/`.
 
 ## Armadilhas conhecidas (Windows)
 

@@ -3,6 +3,7 @@ out/
 dist/
 release/
 coverage/
+provas/saida/
 *.log
 *.tsbuildinfo
 .DS_Store

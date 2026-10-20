@@ -1,0 +1,124 @@
+// Cenario de prova na janela real (provas/README.md): o smoke carrega a tela e roda um
+// roteiro de provas/cenarios/ dentro dela. So fora do instalador. O roteiro pede ao main
+// o que a tela sozinha nao faz: foto da janela, tecla ou clique de verdade e evento do main.
+import type { BrowserWindow } from 'electron'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { log } from './log'
+
+const PASSO_MS = 100
+const PRAZO_MS = 10 * 60_000
+
+export interface Cenario {
+  arquivo: string // roteiro .js que termina numa Promise com o resultado
+  saida: string // pasta do resultado.json, das fotos e do dados.json do executor
+}
+
+interface Pedido {
+  id: number
+  tipo: 'foto' | 'eventos' | 'ipc'
+  nome?: string
+  eventos?: unknown[]
+  canal?: string
+  dados?: unknown
+}
+
+type EventoDeEntrada = Parameters<BrowserWindow['webContents']['sendInputEvent']>[0]
+
+/** `--cenario=<roteiro.js> --saida=<pasta>`; null sem os dois ou dentro do instalador. */
+export function lerCenario(argv: string[], empacotado: boolean): Cenario | null {
+  if (empacotado) return null
+  const valor = (nome: string): string | undefined =>
+    argv.find((a) => a.startsWith(`--${nome}=`))?.slice(nome.length + 3) || undefined
+  const arquivo = valor('cenario')
+  const saida = valor('saida')
+  return arquivo && saida ? { arquivo, saida } : null
+}
+
+/** Nome de foto vira nome de arquivo sem caminho: so letras, numeros, - e _. */
+export function nomeDaFoto(nome: unknown): string {
+  const limpo = String(nome ?? '').replace(/[^\w-]+/g, '-').slice(0, 60)
+  return `${limpo || 'foto'}.png`
+}
+
+/** `window.prova` dentro da tela: espera, foto, eventos de entrada e evento do main. */
+function preludio(dados: unknown): string {
+  return `window.prova = (() => {
+  let proximo = 0
+  const pendentes = new Map()
+  window.__provaPedidos = []
+  window.__provaFeito = (id) => { pendentes.get(id)?.(); pendentes.delete(id) }
+  const pedir = (p) => new Promise((ok) => { const id = ++proximo; pendentes.set(id, ok); window.__provaPedidos.push({ ...p, id }) })
+  return {
+    dados: ${JSON.stringify(dados)},
+    espera: (ms) => new Promise((r) => setTimeout(r, ms)),
+    foto: (nome) => pedir({ tipo: 'foto', nome }),
+    eventos: (eventos) => pedir({ tipo: 'eventos', eventos }),
+    ipc: (canal, dados) => pedir({ tipo: 'ipc', canal, dados }),
+  }
+})();\n`
+}
+
+const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
+
+/** Duas capturas: a primeira as vezes vem com o quadro anterior da janela escondida. */
+async function fotografar(janela: BrowserWindow, arquivo: string): Promise<void> {
+  const wc = janela.webContents
+  await esperar(500)
+  wc.invalidate()
+  await esperar(400)
+  await wc.capturePage()
+  wc.invalidate()
+  await esperar(300)
+  writeFileSync(arquivo, (await wc.capturePage()).toPNG())
+}
+
+async function atender(janela: BrowserWindow, saida: string, p: Pedido): Promise<void> {
+  const wc = janela.webContents
+  if (p.tipo === 'foto') return fotografar(janela, join(saida, nomeDaFoto(p.nome)))
+  if (p.tipo === 'ipc' && p.canal) return wc.send(p.canal, p.dados)
+  for (const evento of p.eventos ?? []) {
+    wc.sendInputEvent(evento as EventoDeEntrada)
+    await esperar(40)
+  }
+}
+
+/** Fotos sem animacao no meio (brilho, transicoes). */
+async function semMovimento(janela: BrowserWindow): Promise<void> {
+  try {
+    janela.webContents.debugger.attach('1.3')
+    await janela.webContents.debugger.sendCommand('Emulation.setEmulatedMedia', {
+      features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
+    })
+  } catch {
+    // com o DevTools aberto o debugger ja esta preso: segue com animacao
+  }
+}
+
+/** Roda o roteiro e grava `resultado.json`. true = o roteiro terminou sem erro. */
+export async function rodarCenario(janela: BrowserWindow, c: Cenario): Promise<boolean> {
+  mkdirSync(c.saida, { recursive: true })
+  const wc = janela.webContents
+  wc.setBackgroundThrottling(false)
+  await semMovimento(janela)
+  const arquivoDados = join(c.saida, 'dados.json')
+  const dados: unknown = existsSync(arquivoDados) ? JSON.parse(readFileSync(arquivoDados, 'utf8')) : {}
+  const estado: { fim: { ok: boolean; texto: string } | null } = { fim: null }
+  wc.executeJavaScript(preludio(dados) + readFileSync(c.arquivo, 'utf8')).then(
+    (r: unknown) => (estado.fim = { ok: true, texto: typeof r === 'string' ? r : JSON.stringify(r, null, 2) }),
+    (e: unknown) => (estado.fim = { ok: false, texto: `ERRO ${String(e)}` }),
+  )
+  const limite = Date.now() + PRAZO_MS
+  while (!estado.fim && Date.now() < limite) {
+    await esperar(PASSO_MS)
+    const pedidos = (await wc.executeJavaScript('(window.__provaPedidos || []).splice(0)')) as Pedido[]
+    for (const p of pedidos) {
+      await atender(janela, c.saida, p)
+      await wc.executeJavaScript(`window.__provaFeito(${Number(p.id)})`)
+    }
+  }
+  const fim = estado.fim ?? { ok: false, texto: 'ERRO o cenario passou de 10 minutos' }
+  writeFileSync(join(c.saida, 'resultado.json'), fim.texto)
+  log(fim.ok ? 'info' : 'error', `smoke: cenario ${fim.ok ? 'terminou' : 'FALHOU'} (${c.saida})`)
+  return fim.ok
+}
