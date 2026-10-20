@@ -115,10 +115,10 @@ O Sidney vai mandando enquanto testa. Feitos viram itens novos no `docs/aceite/r
 
 | Id | Ajuste | Status |
 |---|---|---|
-| A1 | Letra do terminal nítida com a lousa fora de 100% (D39) | ✅ 20/10/2026 (aceite: item 68) |
-| A2 | ⤢ ampliava sem querer: duplo clique no cabeçalho não amplia mais (D39) | ✅ 20/10/2026 (aceite: item 69) |
-| A3 | Painel da engrenagem transparente por cima da lateral (D39) | ✅ 20/10/2026 (aceite: item 70) |
-| A4 | Uso da conta à vista na barra de cima, opção na engrenagem (D39) | ✅ 20/10/2026 (aceite: item 71) |
+| A1 | Letra do terminal nítida com a lousa fora de 100% (D40) | ✅ 20/10/2026 (aceite: item 68) |
+| A2 | ⤢ ampliava sem querer: duplo clique no cabeçalho não amplia mais (D40) | ✅ 20/10/2026 (aceite: item 69) |
+| A3 | Painel da engrenagem transparente por cima da lateral (D40) | ✅ 20/10/2026 (aceite: item 70) |
+| A4 | Uso da conta à vista na barra de cima, opção na engrenagem (D40) | ✅ 20/10/2026 (aceite: item 71) |
 
 ## Bloqueios
 
