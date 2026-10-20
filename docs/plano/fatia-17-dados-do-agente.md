@@ -68,6 +68,16 @@ desconhecido; JSON quebrado; `resets_at` em segundos vira ms.
 - Ao abrir um agente, o main grava `<userData>\agentes\<quadroId>.settings.json` com a
   `statusLine` escolhida na T17.0, que escreve em `<userData>\agentes\<quadroId>.json`. O
   comando vira `claude --settings "<arquivo>" ...`. Nada vai para `~/.claude*` (regra do CLAUDE.md).
+- **A statusLine da T17.0** (19/10/2026, D24):
+  - `{ "type": "command", "command": "findstr \"^\" > \"C:/<userData com barra normal>/agentes/<quadroId>.json\"" }`.
+  - O Claude roda esse comando pelo Git Bash: nada de `cmd /d /c`.
+  - Se um dia rodar pelo PowerShell 5.1, o `>` grava em UTF-16. Por isso o leitor aceita UTF-8 e UTF-16 com BOM.
+- **O que a T17.0 viu chegar (sem mensagem, conta Pro, Opus 5.5):**
+  - `model.id` e `display_name`, `effort.level` e `context_window.context_window_size` = 1 000 000;
+  - `context_window.used_percentage` = `null` até a primeira mensagem;
+  - `rate_limits.five_hour` e `seven_day`, com `used_percentage` e `resets_at` em segundos;
+  - também `session_id`, `transcript_path`, `cwd`, `cost`, que o leitor descarta.
+  - Parado, a linha rodou uma vez em 25 s, 5 s depois de abrir. Ela atualiza com a conversa, não por relógio.
 - Um vigia só da pasta `agentes` (sem subpastas, sem `stat`, como na D17), com espera de
   250 ms: lê o arquivo, `lerPainel` e manda `agentes:painel { quadroId, painel }`. O main
   guarda o último de cada quadro para a tela remontada (como o aviso do agente).

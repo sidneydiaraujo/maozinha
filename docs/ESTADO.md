@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: T17.0 (prova da linha de status com Claude de verdade)**, pelo `docs/plano/fatia-17-dados-do-agente.md`; o script é `provas/apoio/status-claude.mjs`. As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
+**Próxima tarefa: T17.1 (leitor puro do JSON da linha de status)**, pelo `docs/plano/fatia-17-dados-do-agente.md` (as regras novas da T17.0 estão na T17.2). As Fatias 15 e 16 esperam o aceite do Sidney (itens 42 a 45).
 Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -82,7 +82,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T16.1 | Ctrl+V com imagem e botão 📎 | ✅ |
 | T16.2 | Arrastar imagem para o quadro | ✅ |
 | T16.3 | Aceite | ⬜ (itens 44 e 45 escritos no roteiro; espera o Sidney) |
-| T17.0 | Prova: linha de status com Claude de verdade | ⬜ (ok do Sidney em 19/10, mesmas condições da T16.0) |
+| T17.0 | Prova: linha de status com Claude de verdade | ✅ |
 | T17.1 | Leitor puro do JSON da linha de status | ⬜ |
 | T17.2 | Linha de status em cada agente + canal `agentes:painel` | ⬜ |
 | T18.1 | Anel de contexto e compactar | ⬜ |
@@ -296,3 +296,13 @@ Nenhum.
     - o 📎 num agente de verdade;
     - o arrastar com caminho real, porque um arquivo criado na tela não tem caminho no disco.
     - Os dois ficam para os itens 44 e 45 do aceite.
+- **19/10/2026 (T17.0, com Claude de verdade, ok do Sidney):** `provas/apoio/status-claude.mjs`, `claude.exe` 2.1.304, conta Pessoal, pasta de teste, nenhuma mensagem mandada.
+  - **Medida** (15 vezes, JSON de exemplo, sem Claude): `findstr` com mediana de 155 ms, Electron como Node 338 ms, PowerShell 530 ms. Os três gravaram certo.
+  - **Com o Claude:**
+    - as duas primeiras rodadas não gravaram nada: no Windows o Claude roda a linha de status pelo Git Bash, e o bash troca o `/d /c` do `cmd` por caminhos. A tela mostrou o prompt de um `cmd` interativo;
+    - com `findstr "^" > "C:/…"`, o JSON chegou 5 s depois de abrir, sem mensagem, com modelo, esforço, contexto de 1 milhão e os limites de 5 h (24%) e 7 dias (31%), com a hora de zerar;
+    - `used_percentage` do contexto vem `null` até a primeira mensagem;
+    - parado, rodou 1 vez em 25 s.
+  - **Precedência:** a linha concorrente, posta nas configurações do projeto (a pasta de teste), não rodou: o `--settings` vence. Nenhuma conta do PC tem linha própria, e a pasta da conta não se toca.
+  - **Pasta da conta:** o `settings.json` não mudou. Mudaram `.claude.json`, `sessions`, `state`, `backups`, `plugins` e, na 1ª rodada, `.credentials.json`; são gravações do próprio Claude ao abrir.
+  - Regras novas na T17.2 do plano e na D24.

@@ -107,5 +107,10 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
 - **D24 (19/10/2026, proposta do Claude, aprovada pelo Sidney no mesmo dia):** dados do agente pela linha de status (Fatias 17 a 20).
   - **Fonte única: a `statusLine` do Claude Code**, ligada pela Lousa com `--settings <arquivo>` em cada agente. O arquivo fica em `<userData>\agentes`; nada é gravado nas pastas das contas. O caminho do painel do VSCode (`get_usage`, experimental) exigiria trocar o terminal pelo modo de troca de mensagens.
   - **Efeito colateral:** se a conta tiver uma linha de status própria, a da Lousa vale no lugar dela enquanto o agente estiver aberto na Lousa.
+  - **Comando escolhido na T17.0:** `findstr "^" > "C:/…/agentes/<quadroId>.json"`.
+    - Foi o mais rápido: mediana de 155 ms, contra 338 ms do Electron como Node e 530 ms do PowerShell.
+    - Não deixa nada no ambiente do terminal.
+    - No Windows o Claude roda a linha de status pelo Git Bash. Por isso, nada de `cmd /d /c` (o bash troca `/d` e `/c` por caminhos), e o caminho vai com barra normal.
+    - A linha da Lousa não escreve nada na tela: a linha de status do agente fica vazia.
   - **A tela nunca manda comando:** `/compact`, `/model` e `/effort` são montados pelo main a partir de valores de uma lista fixa, e só com o agente parado.
   - **Uso por conta só em memória**, vindo do agente mais recente daquela conta. Sem o limite semanal só do Sonnet, que a linha de status não traz.
