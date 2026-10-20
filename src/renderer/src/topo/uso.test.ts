@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { nivelDoUso, textoVisto, textoZera, vistaDoUso } from './uso'
+import { nivelDoUso, quandoZera, textoVisto, textoZera, vistaDoUso } from './uso'
 
 const MIN = 60_000
 // terca 20/10/2026 10:00, hora local
@@ -46,6 +46,14 @@ describe('vistaDoUso', () => {
     expect(vista?.visto).toBe('visto há 12 min')
     expect(vista?.velho).toBe(false)
   })
+  it('o mostrador da barra de cima (A4): numero, nivel e quando zera, curto', () => {
+    expect(vistaDoUso(uso, agora)?.barras).toEqual([
+      { nome: 'Sessão', usado: 42, nivel: 'normal', zera: '2h10' },
+      { nome: 'Semana', usado: 18, nivel: 'normal', zera: 'sex 09:00' },
+    ])
+    const perto = { ...uso, cincoHoras: { usado: 93, zeraEm: null } }
+    expect(vistaDoUso(perto, agora)?.barras[0]).toEqual({ nome: 'Sessão', usado: 93, nivel: 'perigo', zera: null })
+  })
   it('mais de 1 h: velho', () => {
     expect(vistaDoUso({ ...uso, quando: agora - 61 * MIN }, agora)?.velho).toBe(true)
   })
@@ -55,5 +63,16 @@ describe('vistaDoUso', () => {
   it('sem dado ou sem limites: nada', () => {
     expect(vistaDoUso(undefined, agora)).toBeNull()
     expect(vistaDoUso({ ...uso, cincoHoras: null, semana: null }, agora)).toBeNull()
+  })
+})
+
+describe('quandoZera', () => {
+  it('curto, sem o "zera em"', () => {
+    expect(quandoZera(agora + 35 * MIN, agora)).toBe('35 min')
+    expect(quandoZera(agora + 124 * MIN, agora)).toBe('2h04')
+    expect(quandoZera(sexta, agora)).toBe('sex 09:00')
+  })
+  it('ja passou: 0 min', () => {
+    expect(quandoZera(agora - MIN, agora)).toBe('0 min')
   })
 })

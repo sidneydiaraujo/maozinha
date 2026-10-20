@@ -122,7 +122,7 @@ sem git cai na mesma pasta.
 
 **Pronto quando:** `npm run check` e `npm run smoke` verdes; cenário novo `time` em
 `provas/cenarios/` (dois agentes, uma linha, um colega pela bolinha, reabrir a Lousa e as linhas
-continuam) com fotos; itens 68 a 70 do roteiro escritos.
+continuam) com fotos; itens 72 a 74 do roteiro escritos.
 
 ---
 
@@ -151,7 +151,7 @@ editável no cabeçalho), canal `quadros:definirPapel(quadroId, papel)`.
 duas mudanças em 2 s geram uma apresentação.
 
 **Pronto quando:** check e smoke verdes; cenário `time` mostra o texto chegando ao terminal
-falso; item 71 do roteiro.
+falso; item 75 do roteiro.
 
 ---
 
@@ -182,7 +182,7 @@ seguido pausa; digitar zera; `para` encerrado descarta; duas entradas no mesmo `
 ordem.
 
 **Pronto quando:** check e smoke verdes; cenário `time` com terminal falso que "termina"
-(OSC 7501 `done`) e o colega recebe; item 72 do roteiro (com Claude de verdade: Construtor →
+(OSC 7501 `done`) e o colega recebe; item 76 do roteiro (com Claude de verdade: Construtor →
 Revisor).
 
 ---
@@ -200,7 +200,7 @@ reaproveita a de "Juntar" (Fatias 11, 22 e 23).
 - Para no primeiro conflito e mostra "Pedir ao agente para resolver" (D30) **daquela** cópia.
 - Cópia com alteração sem commit: pula e lista no fim ("ficou de fora: tem alteração não salva").
 
-**Pronto quando:** check verde; cenário `juntar` estendido com duas cópias; item 73.
+**Pronto quando:** check verde; cenário `juntar` estendido com duas cópias; item 77.
 
 ---
 

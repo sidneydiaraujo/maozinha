@@ -30,7 +30,7 @@ Item 8 (Claude e ChatGPT) fica para depois: depende de T1.4b e T1.8.
 - [ ] 24. Quando o Claude termina, o selo diz "terminou" (e o quadro brilha até você clicar nele). Com dois agentes esperando, cada clique em "● 2 esperando você" mostra um deles.
 - [ ] 25. No terminal: selecione um texto e aperte Ctrl+C (copia; sem seleção, o Ctrl+C continua interrompendo). Ctrl+V cola. Botão direito: com seleção copia, sem seleção cola.
 - [ ] 26. Um link `https://...` que o Claude escrever abre no navegador; um caminho de arquivo da pasta (ex.: `docs/ESTADO.md`) abre no leitor ao lado.
-- [ ] 27. Duplo clique no cabeçalho de um quadro (ou ⤢) amplia o quadro na tela; de novo volta. Ctrl+roda do mouse dentro do terminal aumenta e diminui a letra, e o tamanho fica guardado.
+- [ ] 27. O ⤢ de um quadro amplia o quadro na tela; de novo volta (duplo clique no cabeçalho não amplia mais, A2). Ctrl+roda do mouse dentro do terminal aumenta e diminui a letra, e o tamanho fica guardado.
 - [ ] 28. Rolar para cima num agente com uma conversa longa mostra bem mais que antes (até 10 mil linhas).
 - [ ] 29. Num quadro de terminal, digite `exit`: aparece "Terminal encerrado · Reabrir"; "Reabrir" volta com um terminal novo (num agente, o Claude retoma a conversa).
 - [ ] 30. Feche a Lousa maximizada e abra de novo: volta maximizada. Engrenagem → "Abrir pasta de registros" abre a pasta com o arquivo do dia.
@@ -117,3 +117,11 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Correção — ⤢ do quadro
 
 - [ ] 67. Clique no ⤢ de um quadro: ele ocupa a lousa. ⤢ de novo: volta para a vista de antes. Agora amplie, arraste a lousa com o botão do meio (ou a roda) e aperte ⤢ outra vez: o quadro volta a ocupar a lousa, em vez de pular para uma vista antiga. Com a lousa longe de um quadro, Ctrl+K com o nome da pasta dele e Enter: a lousa vai até o quadro e o deixa no centro, sem passar do tamanho normal (100%). O mesmo vale ao clicar na notificação do Windows de um agente.
+
+## Ajustes do aceite 0.2.0 (A1 a A4)
+
+- [ ] 68. Diminua a lousa (Ctrl+roda fora dos quadros) e depois amplie um quadro com o ⤢: em todos os zooms, depois de meio segundo parado, a letra do terminal fica nítida (sem borrão), do mesmo jeito que a 100%. Selecione e copie uma frase: vem a frase certa.
+- [ ] 69. Clique duas vezes seguidas no cabeçalho de um quadro: ele **não** amplia. Só o ⤢ amplia e volta.
+- [ ] 70. Clique na engrenagem: o painel "Contas" abre com fundo inteiro, sem a lateral "Pastas" aparecendo por trás, e vai até "Abrir pasta de registros".
+- [ ] 71. Com um agente Claude que já respondeu, olhe a barra de cima sem clicar: ao lado do ícone da conta aparece "sessão N% 2h04" e "semana N% sex 03:00". Acima de 70% o número fica âmbar e acima de 90% fica vermelho. Clicar no mostrador abre o balão da conta. Engrenagem → "Uso das contas" → "Só no clique": o mostrador some e voltam as barrinhas; "À vista" traz de volta.
+

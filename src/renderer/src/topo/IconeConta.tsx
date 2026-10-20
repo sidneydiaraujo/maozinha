@@ -1,6 +1,6 @@
 // Um icone por conta na barra de cima (T7.2): desenho do provedor na cor da conta.
 // Clique abre o cartao da conta num balao; arrastar para a lousa abre um quadro nela.
-// Conta Claude: barras de uso da sessao e da semana sob o icone (T20.2).
+// Conta Claude: uso da sessao e da semana a vista ao lado do icone (A4) ou em barrinhas sob ele (T20.2).
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
 import type { PerfilComConta } from '../../../shared/model'
@@ -8,7 +8,8 @@ import { CartaoConta } from '../componentes/CartaoConta'
 import { useFecharFora } from '../componentes/useFecharFora'
 import { TIPO_ARRASTE_CONTA } from '../lousa/nos'
 import { SimboloProvedor } from './Simbolos'
-import { BarrasUso, UsoNoBalao, useUsoConta } from './UsoConta'
+import { BarrasUso, MostradorUso, UsoNoBalao, useUsoConta } from './UsoConta'
+import { useUsoAVista } from './usoAVista'
 import { avisoDeEmail, type Contas } from './useContas'
 
 interface Props {
@@ -44,6 +45,7 @@ export function IconeConta({ perfil, contas, aberto, aoAlternar, aoFechar }: Pro
   // Codex: a linha de status e do Claude; o uso dele fica para a Fatia 9
   const comUso = perfil.provedor === 'claude'
   const uso = comUso ? usoBruto : null
+  const aVista = useUsoAVista()
   const titulo = [descricao(perfil), ...(uso?.linhas ?? [])].join('\n')
   return (
     <>
@@ -66,8 +68,9 @@ export function IconeConta({ perfil, contas, aberto, aoAlternar, aoFechar }: Pro
       >
         <SimboloProvedor provedor={perfil.provedor} />
         <span className={`icone-status${perfil.conta.logado ? ' icone-status-on' : ''}`} />
-        {uso && <BarrasUso vista={uso} />}
+        {uso && !aVista && <BarrasUso vista={uso} />}
       </button>
+      {uso && aVista && <MostradorUso conta={perfil.id} vista={uso} aoClicar={aoAlternar} />}
       {aberto &&
         createPortal(
           <div ref={balao} className="balao-conta" style={{ ...posicao, width: LARGURA_BALAO }}>

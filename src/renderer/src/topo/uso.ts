@@ -20,14 +20,20 @@ export function nivelDoUso(usado: number): NivelUso {
 
 const doisDigitos = (n: number): string => String(n).padStart(2, '0')
 
-/** "zera em 35 min", "zera em 2h10" (menos de um dia) ou "zera sex 09:00". */
-export function textoZera(zeraEm: number, agora: number): string {
+/** Quando zera, curto, para o mostrador da barra de cima (A4): "35 min", "2h10" ou "sex 09:00". */
+export function quandoZera(zeraEm: number, agora: number): string {
   const falta = Math.max(0, zeraEm - agora)
   const minutos = Math.ceil(falta / MINUTO)
-  if (minutos < 60) return `zera em ${minutos} min`
-  if (falta < 24 * HORA) return `zera em ${Math.floor(minutos / 60)}h${doisDigitos(minutos % 60)}`
+  if (minutos < 60) return `${minutos} min`
+  if (falta < 24 * HORA) return `${Math.floor(minutos / 60)}h${doisDigitos(minutos % 60)}`
   const d = new Date(zeraEm)
-  return `zera ${DIAS[d.getDay()]} ${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`
+  return `${DIAS[d.getDay()]} ${doisDigitos(d.getHours())}:${doisDigitos(d.getMinutes())}`
+}
+
+/** "zera em 35 min", "zera em 2h10" (menos de um dia) ou "zera sex 09:00". */
+export function textoZera(zeraEm: number, agora: number): string {
+  const quando = quandoZera(zeraEm, agora)
+  return zeraEm - agora < 24 * HORA ? `zera em ${quando}` : `zera ${quando}`
 }
 
 /** "visto agora", "visto há 12 min", "visto há 2 h". */
@@ -44,7 +50,8 @@ function linha(nome: string, limite: Limite | null, agora: number): string | nul
 }
 
 export interface VistaUso {
-  barras: Array<{ nome: string; usado: number; nivel: NivelUso }>
+  /** `zera`: "2h04", "sex 03:00" (quandoZera); null se o Claude nao disse. */
+  barras: Array<{ nome: string; usado: number; nivel: NivelUso; zera: string | null }>
   linhas: string[]
   visto: string
   velho: boolean
@@ -58,7 +65,11 @@ export function vistaDoUso(bruto: UsoConta | undefined, agora: number): VistaUso
     ['Sessão', uso.cincoHoras],
     ['Semana', uso.semana],
   ] as const
-  const barras = pares.flatMap(([nome, l]) => (l ? [{ nome, usado: l.usado, nivel: nivelDoUso(l.usado) }] : []))
+  const barras = pares.flatMap(([nome, l]) =>
+    l
+      ? [{ nome, usado: l.usado, nivel: nivelDoUso(l.usado), zera: l.zeraEm === null ? null : quandoZera(l.zeraEm, agora) }]
+      : [],
+  )
   if (barras.length === 0) return null
   return {
     barras,

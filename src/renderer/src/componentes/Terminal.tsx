@@ -5,10 +5,11 @@ import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef, useState } from 'react'
 import type { AlvoTerminal, AvisoAgente } from '../../../shared/model'
 import '../estilos/terminal.css'
-import { fontePadrao, guardarFonte, lerFonte, proximaFonte } from './fonte'
+import { guardarFonte, lerFonte, proximaFonte } from './fonte'
 import { BuscaTerminal } from './BuscaTerminal'
 import { ligarDesenhista } from './desenhista'
 import { ligarEscala } from './escala'
+import { EVENTO_VISTA_PAROU, ligarNitidez, type Nitidez } from './nitidez'
 import { arquivoDeUri, ligarLinks, type AcoesLink } from './links'
 import { ligarSoltar } from './soltar'
 import { ligarTeclas } from './teclas'
@@ -21,6 +22,8 @@ interface Props {
   aoAviso?: (aviso: AvisoAgente) => void
   /** Caminho citado no terminal vira link (T8.3); `aceita` = esta dentro da pasta do quadro. */
   arquivos?: AcoesLink['arquivo']
+  /** Zoom da lousa: o terminal redesenha a letra no tamanho da tela (A1). Sem ele, 100%. */
+  zoom?: number
 }
 
 const chaveDoAlvo = (alvo: AlvoTerminal): string =>
@@ -70,30 +73,28 @@ function criarXterm(el: HTMLElement, fonte: number, acoes: () => AcoesLink): { t
 }
 
 /** Ctrl+roda dentro do terminal muda a letra (sem zoom na lousa nem na pagina). */
-function ligarFonte(term: XTerm, chave: string, reajustar: () => void): void {
+function ligarFonte(term: XTerm, chave: string, nitidez: Nitidez): void {
   term.attachCustomWheelEventHandler((e) => {
     if (!e.ctrlKey) return true
     e.preventDefault()
-    const tamanho = proximaFonte(term.options.fontSize ?? fontePadrao(), e.deltaY)
-    if (tamanho !== term.options.fontSize) {
-      term.options.fontSize = tamanho
+    const tamanho = proximaFonte(nitidez.base(), e.deltaY)
+    if (tamanho !== nitidez.base()) {
       guardarFonte(chave, tamanho)
-      reajustar()
+      nitidez.fonte(tamanho)
     }
     return false
   })
 }
 
 /** Mudou a Aparencia na engrenagem (T15.1): troca na hora, sem reabrir o terminal. */
-function ligarAparencia(term: XTerm, chave: string, reajustar: () => void): () => void {
+function ligarAparencia(term: XTerm, chave: string, nitidez: Nitidez): () => void {
   return aoMudarAparencia((aparencia) => {
     pintarFundo(aparencia)
     term.options.fontFamily = familiaDaFonte(aparencia.fonte)
     term.options.lineHeight = aparencia.entrelinha
     term.options.theme = temaDoXterm(aparencia.paleta)
     // quadro sem Ctrl+roda guardado segue o tamanho novo; o outro fica como esta
-    term.options.fontSize = lerFonte(chave)
-    reajustar()
+    nitidez.fonte(lerFonte(chave))
   })
 }
 
@@ -105,12 +106,19 @@ function acompanharTamanho(
   id: () => string | null,
 ): { reajustar(): void; parar(): void } {
   let relogio: ReturnType<typeof setTimeout> | undefined
+  let enviado = ''
   const reajustar = (): void => {
     clearTimeout(relogio)
     relogio = setTimeout(() => {
       ajustar.fit()
       const terminalId = id()
-      if (terminalId) void window.lousa.terminais.redimensionar(terminalId, term.cols, term.rows)
+      // o zoom da lousa (A1) troca a letra e reajusta, quase sempre sem mudar colunas e linhas:
+      // so avisa o programa quando mudou, para ele nao redesenhar a tela a toa
+      const medida = `${terminalId}:${term.cols}x${term.rows}`
+      if (terminalId && medida !== enviado) {
+        enviado = medida
+        void window.lousa.terminais.redimensionar(terminalId, term.cols, term.rows)
+      }
     }, 100)
   }
   const observador = new ResizeObserver(reajustar)
@@ -128,12 +136,13 @@ function acompanharTamanho(
  * Terminal xterm.js ligado a um terminal que vive no main (D8): desmontar
  * este componente NAO fecha o terminal, so para de mostrá-lo.
  */
-export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.Element {
+export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1 }: Props): React.JSX.Element {
   const recipiente = useRef<HTMLDivElement>(null)
+  const nitidez = useRef<Nitidez | null>(null)
   // Ctrl+F (T12.2): o xterm vivo fica aqui para a busca ler o historico
   const [busca, setBusca] = useState<XTerm | null>(null)
-  const atual = useRef({ alvo, aoSair, aoAviso, arquivos })
-  atual.current = { alvo, aoSair, aoAviso, arquivos }
+  const atual = useRef({ alvo, aoSair, aoAviso, arquivos, zoom })
+  atual.current = { alvo, aoSair, aoAviso, arquivos, zoom }
   const chave = chaveDoAlvo(alvo)
 
   useEffect(() => {
@@ -173,11 +182,17 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
     const links = ligarLinks(term, acoesLink)
     const desligarSoltar = ligarSoltar(el, (texto) => term.paste(texto))
     const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
-    ligarFonte(term, chave, tamanho.reajustar)
-    const pararAparencia = ligarAparencia(term, chave, tamanho.reajustar)
+    const nitido = ligarNitidez(el, term, lerFonte(chave), tamanho.reajustar)
+    nitido.zoom(atual.current.zoom)
+    nitidez.current = nitido
+    window.addEventListener(EVENTO_VISTA_PAROU, nitido.alinhar)
+    ligarFonte(term, chave, nitido)
+    const pararAparencia = ligarAparencia(term, chave, nitido)
 
     return () => {
       ativo = false
+      nitidez.current = null
+      window.removeEventListener(EVENTO_VISTA_PAROU, nitido.alinhar)
       pararAparencia()
       tamanho.parar()
       links.dispose()
@@ -192,6 +207,12 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
       term.dispose()
     }
   }, [chave])
+
+  // o zoom muda a cada quadro de animacao da lousa: redesenha so quando parar
+  useEffect(() => {
+    const t = window.setTimeout(() => nitidez.current?.zoom(zoom), 150)
+    return () => window.clearTimeout(t)
+  }, [zoom])
 
   return (
     <div className="terminal-moldura">

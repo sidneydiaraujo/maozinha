@@ -8,9 +8,21 @@
   gap: 4px;
   height: 40px;
   padding: 0 10px;
+  border-bottom: 1px solid var(--borda);
+}
+
+/*
+ * O vidro fosco fica num pseudo-elemento, nunca no .topo: backdrop-filter no .topo faz dele a
+ * caixa dos filhos "fixed" (painel da engrenagem, balao da conta). O painel media 40px de
+ * altura, o fundo encolhia e o resto vazava transparente por cima da lateral (A3, 20/10).
+ */
+.topo::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--vidro);
   backdrop-filter: var(--vidro-filtro);
-  border-bottom: 1px solid var(--borda);
 }
 
 .topo-engrenagem,
@@ -119,54 +131,6 @@
 .balao-conta .cartao {
   box-sizing: border-box;
   width: 100%;
-}
-
-/* Uso da sessao e da semana (T20.2): duas barras de 2 px sob o icone; cinza com dado velho. */
-.uso-barras {
-  position: absolute;
-  right: 11px;
-  bottom: 1px;
-  left: 3px;
-  display: grid;
-  gap: 1px;
-}
-
-.uso-barra {
-  display: block;
-  height: 2px;
-  overflow: hidden;
-  background: color-mix(in srgb, var(--texto) 12%, transparent);
-  border-radius: 1px;
-}
-
-.uso-cheio {
-  display: block;
-  height: 100%;
-  background: var(--brilho);
-}
-
-.uso-alerta {
-  background: var(--ambar);
-}
-
-.uso-perigo {
-  background: var(--perigo);
-}
-
-.uso-velho .uso-cheio {
-  background: var(--apagado);
-}
-
-.uso-balao {
-  display: grid;
-  gap: 2px;
-  margin-bottom: 6px;
-  padding: 4px 6px;
-  font-size: 12px;
-}
-
-.uso-balao.uso-velho {
-  color: var(--apagado);
 }
 
 /* Painel da engrenagem: todas as contas e "+ Nova conta". */

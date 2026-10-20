@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: aceite do Sidney com o instalador 0.2.0** (`release/Lousa.ia Setup 0.2.0.exe`, hash em `release/SHA256.txt`). Ele instala e testa os itens 17 a 49 e 60 a 67 do `docs/aceite/roteiro.md` (Fatias 7, 8, 10 a 16, 18 a 27 e as correções). As Fatias 15 a 21 do plano estão todas codadas; o que o aceite apontar vira correção.
+**Próxima tarefa: aceite do Sidney com o instalador 0.2.0** (`release/Lousa.ia Setup 0.2.0.exe`, hash em `release/SHA256.txt`). Ele instala e testa os itens 17 a 49 e 60 a 67 do `docs/aceite/roteiro.md` (e 68 a 71, dos ajustes A1 a A4, depois de um instalador novo) (Fatias 7, 8, 10 a 16, 18 a 27 e as correções). As Fatias 15 a 21 do plano estão todas codadas; o que o aceite apontar vira correção.
 Depois do aceite: **T28.1** (time de agentes ligado por linhas, `docs/plano/fatia-28-a-32-time.md`, D39).
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -115,6 +115,17 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T29.1 | Time: papel e apresentação | ⬜ |
 | T30.1 | Time: repasse quando um termina | ⬜ |
 | T31.1 | Time: juntar todas as cópias | ⬜ |
+
+## Ajustes pedidos no aceite 0.2.0 (20/10)
+
+O Sidney vai mandando enquanto testa. Feitos viram itens novos no `docs/aceite/roteiro.md`.
+
+| Id | Ajuste | Status |
+|---|---|---|
+| A1 | Letra do terminal nítida com a lousa fora de 100% (D40) | ✅ 20/10/2026 (aceite: item 68) |
+| A2 | ⤢ ampliava sem querer: duplo clique no cabeçalho não amplia mais (D40) | ✅ 20/10/2026 (aceite: item 69) |
+| A3 | Painel da engrenagem transparente por cima da lateral (D40) | ✅ 20/10/2026 (aceite: item 70) |
+| A4 | Uso da conta à vista na barra de cima, opção na engrenagem (D40) | ✅ 20/10/2026 (aceite: item 71) |
 
 ## Bloqueios
 
@@ -447,4 +458,5 @@ Nenhum.
   - **Prova:** opção nova `brilho` no `desempenho` (o `main/cenario.ts` só liga "reduzir movimento" sem ela; +1 teste). `desempenho acumular brilho`: 5 trabalhando, 4 animando, eco mediana 21 ms (p90 24, pior 35), tela travada 0. `fatia8` com `ok` nos passos (pílula "● 1 esperando você", brilho apaga, pílula some). Numa das três rodadas do `fatia8` com a F21, o "ponteiro de link" saiu `false`; nas outras duas e na `main` sem a F21, `true`. Fica anotado como instável.
   - `npm run check` verde (439) sem aviso.
 - **20/10/2026 (T21.3, instalador):** versão 0.2.0 no `package.json`; `npm run dist` gerou `release/Lousa.ia Setup 0.2.0.exe` (104 MB, hash `4979c914…cd04` em `release/SHA256.txt`). **Conferido:** versão do arquivo 0.2.0 e `win-unpackedLousa.ia.exe --smoke` → código 0 (node-pty e tela+preload+IPC ok). **Não instalei** no PC; instalar e testar os itens 17 a 49 e 60 a 67 fica com o Sidney.
+- **20/10/2026 (A1 a A4, ajustes do aceite 0.2.0):** letra nítida em qualquer zoom (`componentes/nitidez.ts`, +8 testes), ⤢ só no botão, painel da engrenagem com o vidro no `.topo::before`, mostrador de uso à vista com opção na engrenagem (`topo/usoAVista.ts`, `UsoConfig.tsx`, estilos de uso em `uso.css`; +3 testes). Provas `selecao` (agora confere o texto copiado com Ctrl+C), `ampliar`, `fatia8`, `uso` (mostrador e a troca na engrenagem), `aparencia webgl` e `npm run smoke` ok; `npm run check` verde (449). Instalador ainda é o 0.2.0 de antes dos ajustes.
 - **20/10/2026 (plano do time de agentes, D39):** Sidney pediu ligar agentes com linhas, como no n8n, para trabalharem como time sem um atrapalhar o outro. Plano em `docs/plano/fatia-28-a-32-time.md` (Fatias 28 a 32). Decisões dele: contas diferentes só se ligam no mesmo repositório; clicar na bolinha cria um colega já ligado; linha nova nasce no automático; começa depois do aceite 0.2.0. Só documentação, nenhum código mudou.

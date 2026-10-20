@@ -2,6 +2,7 @@
 // linhas no balao. O dado vem dos agentes da conta (T20.1); uma inscricao so, fora do React.
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import type { UsoConta } from '../../../shared/model'
+import '../estilos/uso.css'
 import { vistaDoUso, type VistaUso } from './uso'
 
 let mapa: ReadonlyMap<string, UsoConta> = new Map()
@@ -55,6 +56,41 @@ export function BarrasUso({ vista }: { vista: VistaUso }): React.JSX.Element {
         </span>
       ))}
     </span>
+  )
+}
+
+/** Nome curto de cada linha do mostrador. */
+const NOME_CURTO: Record<string, string> = { Sessão: 'sessão', Semana: 'semana' }
+
+/**
+ * Mostrador a vista ao lado do icone (A4): uma linha por limite, "sessão 31% 2h04", com o numero
+ * na cor do nivel. Le-se de longe, sem clicar; o clique abre o balao, como o icone.
+ */
+export function MostradorUso({
+  conta,
+  vista,
+  aoClicar,
+}: {
+  conta: string
+  vista: VistaUso
+  aoClicar(): void
+}): React.JSX.Element {
+  return (
+    <button
+      className={`uso-mostrador${vista.velho ? ' uso-velho' : ''}`}
+      data-uso={conta}
+      title={[...vista.linhas, vista.visto].join('\n')}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={aoClicar}
+    >
+      {vista.barras.map((b) => (
+        <span key={b.nome} className="uso-linha">
+          <span className="uso-nome">{NOME_CURTO[b.nome] ?? b.nome}</span>
+          <b className={`uso-numero uso-numero-${b.nivel}`}>{b.usado}%</b>
+          {b.zera && <span className="uso-zera">{b.zera}</span>}
+        </span>
+      ))}
+    </button>
   )
 }
 
