@@ -14,6 +14,27 @@ Faça as tarefas **na ordem**: cada uma usa o que a anterior entregou.
 | 6. Quadro e conta | Pasta em destaque no quadro; trocar a conta (quem paga) mantém a conversa; barra só com contas; login sem terminal | `fatia-6-quadro-e-conta.md` |
 | 7. Barra e arquivos | Contas como ícones numa barra no alto (engrenagem + "+ Nova conta"); lateral com as pastas em cascata e os arquivos que os terminais mexeram; leitor de md/código | `fatia-7-barra-e-arquivos.md` |
 | 8. Uma semana sem ajustes | Agente avisa quando para (quadro brilha, notificação do Windows); copiar, colar e links no terminal; ampliar quadro e letra; reabrir terminal; registros em arquivo; janela lembra o tamanho | `fatia-8-uma-semana.md` |
+| 15. Letra e cores | Terminal com fonte, entrelinha e paleta de quem usa o VSCode (Abyss); desenhista WebGL | `fatia-15-letra-e-cores.md` |
+| 16. Colar print | Ctrl+V com imagem, botão 📎 e arrastar imagem colam o print no agente | `fatia-16-colar-print.md` |
+| 17. Dados do agente | O main recebe de cada agente modelo, esforço, contexto e uso (linha de status do Claude) | `fatia-17-dados-do-agente.md` |
+| 18. Anel de contexto | Anel configurável no cabeçalho do agente; clique compacta | `fatia-18-anel-de-contexto.md` |
+| 19. Modelo e esforço | "Opus ▾" e "alto ▾" no cabeçalho, guardados no quadro | `fatia-19-modelo-e-esforco.md` |
+| 20. Uso da conta | Barras de 5 h e 7 dias em cada conta na barra de cima | `fatia-20-uso-da-conta.md` |
+| 21. Identidade visual | Cara própria (ardósia, giz, âmbar), primeiro em protótipo aprovado | `fatia-21-identidade-visual.md` |
+
+Ordem das Fatias 15 a 21: 15 e 16 são independentes; 17 vem antes de 18, 19 e 20; 21 por
+último. Comece cada uma numa sessão nova.
+
+## Teto de contexto por fatia (desde a Fatia 15)
+
+Cada fatia cabe em **no máximo 35% do contexto** de uma sessão (cerca de 70 mil tokens numa
+janela de 200 mil), da leitura ao commit:
+
+- A fatia diz o que ler ("Orçamento de contexto"). Fora dessa lista, só com motivo.
+- Leia arquivo grande por trecho (`grep -n` e depois o pedaço), e saída de comando pelo fim
+  (`| tail -30`).
+- Passou de 35%: termine a tarefa em andamento, faça o commit, escreva no `ESTADO.md` onde
+  parou e continue noutra sessão.
 
 ## Como cada tarefa está escrita
 

@@ -2,6 +2,7 @@
 
 **Próxima tarefa: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2)** — o Sidney instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
+Depois do aceite: Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual), na ordem do `docs/plano/README.md`, cada uma numa sessão nova; D23 e D24 esperam o ok do Sidney.
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -73,6 +74,29 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T13.2 | Aceite | ⬜ |
 | T14.1 | Ícone próprio e versão 0.1.0 | ✅ 19/10/2026 |
 | T14.2 | Aceite | ⬜ |
+| T15.1 | Tema e fonte do terminal | ⬜ |
+| T15.2 | Desenhista WebGL | ⬜ |
+| T15.3 | Aceite | ⬜ |
+| T16.0 | Prova: Alt+V cola print no Claude | ⬜ (pede o ok do Sidney: abre um Claude de verdade) |
+| T16.1 | Ctrl+V com imagem e botão 📎 | ⬜ |
+| T16.2 | Arrastar imagem para o quadro | ⬜ |
+| T16.3 | Aceite | ⬜ |
+| T17.0 | Prova: linha de status com Claude de verdade | ⬜ (pede o ok do Sidney) |
+| T17.1 | Leitor puro do JSON da linha de status | ⬜ |
+| T17.2 | Linha de status em cada agente + canal `agentes:painel` | ⬜ |
+| T18.1 | Anel de contexto e compactar | ⬜ |
+| T18.2 | Configurar o anel na engrenagem | ⬜ |
+| T18.3 | Aceite | ⬜ |
+| T19.1 | Modelo e esforço no quadro (main) | ⬜ |
+| T19.2 | Seletores no cabeçalho | ⬜ |
+| T19.3 | Aceite | ⬜ |
+| T20.1 | Uso por conta (main) | ⬜ |
+| T20.2 | Barras de uso no alto | ⬜ |
+| T20.3 | Aceite | ⬜ |
+| T21.0 | Protótipo visual para aprovar | ⬜ |
+| T21.1 | Cores como variáveis | ⬜ |
+| T21.2 | Quadro, barra de cima e brilho de trabalho | ⬜ |
+| T21.3 | Aceite e instalador 0.2.0 | ⬜ |
 
 ## Bloqueios
 
@@ -189,3 +213,4 @@ Nenhum.
     - `desempenho acumular`: eco com mediana de 23 ms e nenhuma travada;
     - ConPTY: `win32` chega e `bruto`/`st` somem.
   - **Não rodado de novo:** `apoio/abrir-e-fechar.mjs` (abre uma janela na tela; provado em 18/10, aqui só ganhou caminhos sem pasta temporária).
+- **19/10/2026 (plano das Fatias 15 a 21, D23 e D24 propostas):** pedido do Sidney: plano de ação da evolução do terminal avaliada hoje, em fatias de no máximo 35% de contexto. Lidas antes as Fatias 10 a 14 do outro terminal. Sete fatias, cada uma com a lista do que ler; as provas com Claude de verdade (T16.0, T17.0) pedem o ok do Sidney. Achado de plano: com o desenhista WebGL o texto some do HTML, que é por onde os cenários de `provas/` leem a tela; por isso as provas ficam no desenho normal (T15.2).
