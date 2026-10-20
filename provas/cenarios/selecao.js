@@ -78,8 +78,8 @@
   r.zoomAmpliada = Number(r.ampliada.zoom) > 1
 
   // botao do meio por cima do terminal arrasta a lousa junto com o mouse: a correcao nao mexe
-  // nele (sugestao da outra sessao). Fica no fim: depois de um arraste com o meio, o ⤢ desta
-  // prova nao amplia, com ou sem a correcao (achado a investigar a parte).
+  // nele (sugestao da outra sessao). Fica no fim, depois do ⤢ (o ⤢ depois de arrastar tem o
+  // cenario `ampliar`, D38).
   const deslocamento = () => Number(q('.react-flow__viewport').style.transform.match(/translate\(([-\d.]+)px/)?.[1])
   const arrastarComMeio = async () => {
     const t = q('[data-quadro="t1"] .xterm-screen').getBoundingClientRect()

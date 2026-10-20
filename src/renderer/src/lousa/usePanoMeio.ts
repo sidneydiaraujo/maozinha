@@ -13,6 +13,8 @@ const BOTAO_MEIO = 1
 export function usePanoMeio(
   instancia: RefObject<ReactFlowInstance<NoLousa> | null>,
   aoMoverVista: (viewport: Viewport) => void,
+  /** Arrastar desfaz o quadro ampliado (o proximo ⤢ amplia de novo). */
+  aoComecar: () => void,
 ): (e: React.MouseEvent) => void {
   return useCallback(
     (e: React.MouseEvent) => {
@@ -21,6 +23,7 @@ export function usePanoMeio(
       // Sem isso o Windows liga a rolagem automatica e o terminal recebe o clique.
       e.preventDefault()
       e.stopPropagation()
+      aoComecar()
       const inicio = { x: e.clientX, y: e.clientY, vista: i.getViewport() }
       const mover = (m: MouseEvent): void => {
         void i.setViewport({
@@ -37,6 +40,6 @@ export function usePanoMeio(
       window.addEventListener('mousemove', mover)
       window.addEventListener('mouseup', soltar)
     },
-    [instancia, aoMoverVista],
+    [instancia, aoMoverVista, aoComecar],
   )
 }

@@ -101,3 +101,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Correção — seleção com a lousa fora de 100%
 
 - [ ] 66. Diminua a lousa (Ctrl+roda fora dos quadros ou o "−" do canto) e, num terminal com bastante texto, arraste o mouse sobre uma frase lá embaixo: a faixa azul pinta exatamente a frase. Ctrl+C e cole em outro lugar: vem a frase certa. Faça o mesmo com a lousa ampliada (⤢ no quadro) e com duplo clique numa palavra. Um link de arquivo no terminal abre ao clicar em cima dele, com qualquer zoom.
+
+## Correção — ⤢ do quadro
+
+- [ ] 67. Clique no ⤢ de um quadro: ele ocupa a lousa. ⤢ de novo: volta para a vista de antes. Agora amplie, arraste a lousa com o botão do meio (ou a roda) e aperte ⤢ outra vez: o quadro volta a ocupar a lousa, em vez de pular para uma vista antiga.

@@ -234,14 +234,14 @@ function Avisos(p: { erro: string | null; aviso: string | null; vazia: boolean }
 
 export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.JSX.Element {
   const instancia = useRef<ReactFlowInstance<NoLousa> | null>(null)
-  const ampliar = useAmpliar(instancia)
+  const area = useRef<HTMLDivElement>(null)
+  const ampliacao = useAmpliar(instancia, area)
   const { estado, setEstado, erro, aviso, setAviso, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
     abrirArquivo: aoAbrirArquivo,
-    ampliar,
+    ampliar: ampliacao.ampliar,
     aoMudarPastas,
   })
   const [nos, setNos, aoMudarNos] = useNodesState<NoLousa>([])
-  const area = useRef<HTMLDivElement>(null)
   const novo = useNovoQuadro({ instancia, area, setEstado })
   const notas = useNotas({ instancia, area, setEstado, falhou })
 
@@ -251,7 +251,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
     viewportInicial: estado?.viewport,
     aoFalhar: falhou,
   })
-  const aoApertarMeio = usePanoMeio(instancia, aoMoverVista)
+  const aoApertarMeio = usePanoMeio(instancia, aoMoverVista, ampliacao.esquecer)
   usePedidos(instancia, novo.abrirNoCentro, setAviso)
   const selecionados = useAlvos(nos)
   useMontarNos(estado, { quadros: acoes, notas: notas.acoes }, setNos)
@@ -273,6 +273,8 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
         <ReactFlow
           nodes={nos}
           onNodesChange={aoMudar}
+          // roda, arrastar no vazio, minimapa: mexida do usuario (com evento) desfaz o "ampliado"
+          onMoveStart={(evento) => evento && ampliacao.esquecer()}
           onMoveEnd={(_, viewport) => aoMoverVista(viewport)}
           nodeTypes={nodeTypes}
           onInit={(i) => {
