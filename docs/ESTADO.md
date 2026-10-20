@@ -103,8 +103,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T23.2 | "Pedir ao agente para resolver" no conflito | ✅ (aceite: item 61) |
 | T24.1 | Quadro novo em espaço livre | ✅ |
 | T24.2 | Enter do Ctrl+F sobe | ✅ |
-| T25.1 | Mensagens prontas (main) | ⬜ |
-| T25.2 | Mensagens prontas na barra e no Ctrl+K | ⬜ |
+| T25.1 | Mensagens prontas (main) | ✅ |
+| T25.2 | Mensagens prontas na barra e no Ctrl+K | ✅ |
 | T26.1 | Nota na lousa (main) | ⬜ |
 | T26.2 | Nota na lousa (tela) | ⬜ |
 | T27.1 | Vistas salvas (main) | ⬜ |
@@ -352,3 +352,6 @@ Nenhum.
   - **Provado na janela real** (cenário `juntar`, `ok: true`): com `rascunho.txt` solto na original, o Juntar entra; clicar em `novo.txt` mostra `+oi`; "← Arquivos" volta; o conflito continua deixando a original limpa.
   - **Não provado:** o botão "Pedir ao agente para resolver" com um Claude de verdade (item 61).
 - **20/10/2026 (Fatia 24, D32):** `quadros/lugar.ts` (`lugarLivre`, +4 testes), ligado no `ServicoQuadros.criar`; Enter do Ctrl+F sobe. **Provado na janela real:** cenário `copias` com dois quadros novos abertos pelo centro da vista, nenhum por cima de outro (`ok: true`); cenário `paleta` com "11 de 11" e, depois de Enter, "10 de 11" (`ok: true`).
+- **20/10/2026 (Fatia 25, D33):** `mensagens/servico.ts` (+5 testes) e `handlers/mensagens.ts`, ligados no `index.ts`; `alvos.ts` (+3 testes), `useMensagens`, `MensagensProntas` (★ na barra), `mandar.ts`; item "Mandar: …" no Ctrl+K.
+  - **Provado na janela real** (cenário `prontas`, `ok: true`): clicar no terminal q3 e Ctrl+K "Mandar: Rode os testes…" escreve só no q3 e mostra "Enviado para 1 quadro"; com dois selecionados, o ★ lista as três padrão, guarda, preenche a barra e apaga. O `envio` continua `ok`.
+  - **Achado da prova:** na janela escondida, `.focus()` sozinho não dispara `focusin`; o cenário usa um clique de verdade.

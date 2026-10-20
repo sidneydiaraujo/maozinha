@@ -15,7 +15,8 @@ import '../estilos/lousa.css'
 import { chamaAtencao } from './atencao'
 import { semQuadro, textoDoFim } from './copia'
 import { BarraEnvio } from './BarraEnvio'
-import { aoPedirFoco, aoPedirNovoQuadro } from './foco'
+import { marcarSelecionados, useUltimoQuadro } from './alvos'
+import { aoPedirAviso, aoPedirFoco, aoPedirNovoQuadro } from './foco'
 import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from './nos'
 import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
@@ -49,7 +50,9 @@ function preservarGeometria(novos: QuadroNo[], atuais: Node[]): QuadroNo[] {
 /** Vista ainda no valor de fabrica: nunca foi movida, entao ajusta para mostrar tudo. */
 const vistaIntocada = (v: Viewport): boolean => v.x === 0 && v.y === 0 && v.zoom === 1
 
-function useEstadoLousa(versao: number, extras: Pick<AcoesLousa, 'abrirArquivo' | 'ampliar'>) {
+type ExtrasEstado = Pick<AcoesLousa, 'abrirArquivo' | 'ampliar'> & Pick<Props, 'aoMudarPastas'>
+
+function useEstadoLousa(versao: number, extras: ExtrasEstado) {
   const { abrirArquivo, ampliar } = extras
   const [estado, setEstado] = useState<EstadoTela | null>(null)
   const [erro, setErro] = useState<string | null>(null)
@@ -63,6 +66,7 @@ function useEstadoLousa(versao: number, extras: Pick<AcoesLousa, 'abrirArquivo' 
       ativo = false
     }
   }, [versao])
+  useAvisarPastas(estado, extras.aoMudarPastas)
   const falhou = useCallback((e: unknown) => setErro(e instanceof Error ? e.message : String(e)), [])
   const [aviso, setAviso] = useAvisoPassageiro()
   const acoes = useMemo<AcoesLousa>(
@@ -98,7 +102,7 @@ function useEstadoLousa(versao: number, extras: Pick<AcoesLousa, 'abrirArquivo' 
     },
     [setAviso],
   )
-  return { estado, setEstado, erro, aviso, falhou, acoes, tirarPasta }
+  return { estado, setEstado, erro, aviso, setAviso, falhou, acoes, tirarPasta }
 }
 
 /** Frase que some sozinha depois de alguns segundos (ex.: o que aconteceu com a copia, D18). */
@@ -135,6 +139,7 @@ function useAvisarPastas(estado: EstadoTela | null, aoMudarPastas: Props['aoMuda
 function usePedidos(
   instancia: React.RefObject<ReactFlowInstance<QuadroNo> | null>,
   abrirNoCentro: (perfilId?: string, repoId?: string) => void,
+  avisar: (texto: string) => void,
 ): void {
   useEffect(
     () =>
@@ -144,6 +149,17 @@ function usePedidos(
     [instancia],
   )
   useEffect(() => aoPedirNovoQuadro((repoId) => abrirNoCentro(undefined, repoId)), [abrirNoCentro])
+  // "Enviado para 2 quadros" de uma mensagem mandada pelo Ctrl+K (T25.2)
+  useEffect(() => aoPedirAviso(avisar), [avisar])
+}
+
+/** Selecao e ultimo quadro usado: para quem vai uma mensagem pronta ou uma nota (T25.2). */
+function useAlvos(nos: Node[]): string[] {
+  useUltimoQuadro()
+  const selecionados = nos.filter((n) => n.selected).map((n) => n.id)
+  const chave = selecionados.join(',')
+  useEffect(() => marcarSelecionados(chave ? chave.split(',') : []), [chave])
+  return selecionados
 }
 
 /** Minimapa com a cor da conta; quadro que pede atencao fica ambar. */
@@ -155,6 +171,15 @@ function Minimapa(): React.JSX.Element {
       zoomable
       nodeColor={(no) => (chamaAtencao(mapa.get(no.id)) ? '#f5a524' : (no.data.perfil?.cor ?? '#555'))}
     />
+  )
+}
+
+/** Botoes do canto de cima da lousa. */
+function BotoesCriar(p: { aoNovoQuadro(): void }): React.JSX.Element {
+  return (
+    <button className="botao-novo-quadro" onClick={p.aoNovoQuadro}>
+      + Novo quadro
+    </button>
   )
 }
 
@@ -184,11 +209,11 @@ function Avisos(p: { erro: string | null; aviso: string | null; vazia: boolean }
 export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.JSX.Element {
   const instancia = useRef<ReactFlowInstance<QuadroNo> | null>(null)
   const ampliar = useAmpliar(instancia)
-  const { estado, setEstado, erro, aviso, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
+  const { estado, setEstado, erro, aviso, setAviso, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
     abrirArquivo: aoAbrirArquivo,
     ampliar,
+    aoMudarPastas,
   })
-  useAvisarPastas(estado, aoMudarPastas)
   const [nos, setNos, aoMudarNos] = useNodesState<QuadroNo>([])
   const area = useRef<HTMLDivElement>(null)
   const novo = useNovoQuadro({ instancia, area, setEstado })
@@ -200,8 +225,8 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
     aoFalhar: falhou,
   })
   const aoApertarMeio = usePanoMeio(instancia, aoMoverVista)
-  usePedidos(instancia, novo.abrirNoCentro)
-
+  usePedidos(instancia, novo.abrirNoCentro, setAviso)
+  const selecionados = useAlvos(nos)
   useEffect(() => {
     if (estado) setNos((atuais) => preservarGeometria(montarNos(estado, acoes), atuais))
   }, [estado, acoes, setNos])
@@ -216,12 +241,8 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
       onDrop={novo.aoSoltar}
     >
       <Avisos erro={erro} aviso={aviso} vazia={estado?.quadros.length === 0} />
-      <BarraEnvio quadroIds={nos.filter((n) => n.selected).map((n) => n.id)} />
-      {estado && (
-        <button className="botao-novo-quadro" onClick={() => novo.abrirNoCentro()}>
-          + Novo quadro
-        </button>
-      )}
+      <BarraEnvio quadroIds={selecionados} />
+      {estado && <BotoesCriar aoNovoQuadro={() => novo.abrirNoCentro()} />}
       {estado && (
         <ReactFlow
           nodes={nos}

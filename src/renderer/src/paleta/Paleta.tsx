@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { PerfilComConta, Quadro, Repo } from '../../../shared/model'
 import '../estilos/paleta.css'
-import { itemDeArquivo, itensLocais, type ItemPaleta } from './itens'
+import { useMensagens } from '../lousa/useMensagens'
+import { itemDeArquivo, itensDeMensagem, itensLocais, type ItemPaleta } from './itens'
 
 interface Props {
   repos: Repo[]
@@ -11,7 +12,7 @@ interface Props {
   aoFechar(): void
 }
 
-const ICONE = { quadro: '▣', pasta: '+', arquivo: '📄' } as const
+const ICONE = { quadro: '▣', pasta: '+', arquivo: '📄', mensagem: '★' } as const
 
 /** Arquivos do main, 150 ms depois da ultima tecla (a busca anda pelas pastas). */
 function useArquivos(texto: string, repos: Repo[]): ItemPaleta[] {
@@ -41,9 +42,10 @@ export function Paleta({ repos, quadros, perfis, aoEscolher, aoFechar }: Props):
   const [texto, setTexto] = useState('')
   const [marcado, setMarcado] = useState(0)
   const arquivos = useArquivos(texto, repos)
+  const { mensagens } = useMensagens()
   const itens = useMemo(
-    () => [...itensLocais(repos, quadros, perfis, texto), ...arquivos],
-    [repos, quadros, perfis, texto, arquivos],
+    () => [...itensLocais(repos, quadros, perfis, texto), ...itensDeMensagem(mensagens, texto), ...arquivos],
+    [repos, quadros, perfis, texto, arquivos, mensagens],
   )
   const atual = Math.min(marcado, Math.max(0, itens.length - 1))
 

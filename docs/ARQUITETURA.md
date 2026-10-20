@@ -181,6 +181,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `copias:resumo` | `{ repoId }` | `ResumoCopia` (commits e arquivos para juntar) | T11.1 |
 | `copias:juntar` | `{ repoId }` | `{ branchAlvo }` (merge; conflito desfaz e lança) | T11.1 |
 | `copias:diff` | `{ repoId, caminho }` | `DiffArquivo` (só caminho da lista do `--numstat`) | T22.1 |
+| `mensagens:listar` | — | `string[]` (sem arquivo: as três padrão) | T25.1 |
+| `mensagens:salvar` | `{ mensagens }` | `string[]` limpa (sem vazias nem repetidas, até 30) | T25.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 | `arquivos:listar` | `{ repoId, relativo }` | `ItemArquivo[]` (ordem do VSCode, sem `.git` e afins) | T7.1 |

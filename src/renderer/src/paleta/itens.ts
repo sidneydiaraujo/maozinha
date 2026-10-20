@@ -6,6 +6,7 @@ export type ItemPaleta =
   | { tipo: 'quadro'; chave: string; titulo: string; detalhe: string; quadroId: string }
   | { tipo: 'pasta'; chave: string; titulo: string; detalhe: string; repoId: string }
   | { tipo: 'arquivo'; chave: string; titulo: string; detalhe: string; repoId: string; relativo: string }
+  | { tipo: 'mensagem'; chave: string; titulo: string; detalhe: string; texto: string }
 
 const MAXIMO_LOCAIS = 12
 
@@ -57,4 +58,24 @@ export function itemDeArquivo(achado: { repoId: string; relativo: string }, repo
     repoId: achado.repoId,
     relativo: achado.relativo,
   }
+}
+
+const MAXIMO_MENSAGENS = 5
+
+/** Mensagens prontas (T25.2): "Mandar: <frase>", filtradas pela consulta (tambem por "mandar"). */
+export function itensDeMensagem(mensagens: string[], consulta: string): ItemPaleta[] {
+  return mensagens
+    .map((texto, ordem) => ({ texto, ordem, nota: pontuar(consulta, `mandar mensagem ${texto}`) }))
+    .filter((x): x is { texto: string; ordem: number; nota: number } => x.nota !== null)
+    .sort((a, b) => b.nota - a.nota || a.ordem - b.ordem)
+    .slice(0, MAXIMO_MENSAGENS)
+    .map(
+      ({ texto }): ItemPaleta => ({
+        tipo: 'mensagem',
+        chave: `m:${texto}`,
+        titulo: `Mandar: ${texto}`,
+        detalhe: 'Aos quadros selecionados ou ao último em que você clicou',
+        texto,
+      }),
+    )
 }

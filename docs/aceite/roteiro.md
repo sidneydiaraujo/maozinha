@@ -81,3 +81,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Fatia 24 — pequenos ajustes
 
 - [ ] 62. Clique em "+ Novo quadro" duas vezes seguidas sem mexer na lousa: o segundo quadro nasce ao lado do primeiro, não por cima. No Ctrl+F de um terminal, a busca começa no achado mais de baixo; Enter sobe para o anterior e Shift+Enter desce.
+
+## Fatia 25 — mensagens prontas
+
+- [ ] 63. Clique dentro de um agente, aperte Ctrl+K e digite "commit": aparece "Mandar: Faça commit do que está pronto…". Enter: a frase chega a esse agente, e só a ele, e no alto da lousa aparece "Enviado para 1 quadro". Selecione dois agentes com Ctrl+clique e clique no ★ da barra: aparecem as três frases padrão. Escreva uma frase sua, clique em "★ Guardar a mensagem escrita", feche e abra a Lousa: a frase continua no ★ e no Ctrl+K. O × ao lado da frase apaga.

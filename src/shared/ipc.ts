@@ -46,6 +46,8 @@ export const IPC = {
   copiasResumo: 'copias:resumo',
   copiasJuntar: 'copias:juntar',
   copiasDiff: 'copias:diff',
+  mensagensListar: 'mensagens:listar',
+  mensagensSalvar: 'mensagens:salvar',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -135,6 +137,12 @@ export interface LousaApi {
     juntar(repoId: string): Promise<{ branchAlvo: string }>
     /** O que a copia mudou num arquivo da lista do resumo (T22.1); outro caminho e recusado. */
     diff(repoId: string, caminho: string): Promise<DiffArquivo>
+  }
+  /** Mensagens prontas (T25, D33): frases guardadas para mandar a um ou varios quadros. */
+  mensagens: {
+    listar(): Promise<string[]>
+    /** Grava a lista inteira; volta limpa (sem vazias nem repetidas, ate 30). */
+    salvar(mensagens: string[]): Promise<string[]>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

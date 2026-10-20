@@ -7,6 +7,7 @@ import { Leitor } from './leitor/Leitor'
 import { useArquivoAberto } from './leitor/useArquivoAberto'
 import { pedirFoco, pedirNovoQuadro } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
+import { mandarAosAlvos } from './lousa/mandar'
 import { Paleta } from './paleta/Paleta'
 import { usePaleta } from './paleta/usePaleta'
 import { BarraTopo } from './topo/BarraTopo'
@@ -84,6 +85,7 @@ export function App(): React.JSX.Element {
             paleta.fechar()
             if (item.tipo === 'quadro') pedirFoco(item.quadroId)
             else if (item.tipo === 'pasta') pedirNovoQuadro(item.repoId)
+            else if (item.tipo === 'mensagem') void mandarAosAlvos(item.texto)
             else abrir(item.repoId, item.relativo)
           }}
         />

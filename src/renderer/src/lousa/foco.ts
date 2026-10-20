@@ -22,3 +22,15 @@ export function aoPedirNovoQuadro(cb: (repoId: string) => void): () => void {
   ouvintesNovo.add(cb)
   return () => ouvintesNovo.delete(cb)
 }
+
+// Frase passageira no topo da lousa (ex.: "Enviado para 2 quadros" pelo Ctrl+K, T25.2).
+const ouvintesAviso = new Set<(texto: string) => void>()
+
+export function pedirAviso(texto: string): void {
+  for (const ouvinte of ouvintesAviso) ouvinte(texto)
+}
+
+export function aoPedirAviso(cb: (texto: string) => void): () => void {
+  ouvintesAviso.add(cb)
+  return () => ouvintesAviso.delete(cb)
+}

@@ -124,3 +124,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
 - **D32 (20/10/2026):** pequenos ajustes de uso (Fatia 24).
   - **Quadro novo nunca nasce em cima de outro.** O main (`quadros/lugar.ts`) usa o lugar pedido (centro da vista, duplo clique ou onde a conta foi solta) se estiver livre. Senão, usa o lugar livre mais perto, ao lado, acima ou abaixo de algum quadro, com 24 px de folga. A foto da prova da Fatia 11 mostrava um quadro tampando outro.
   - **Ctrl+F: Enter sobe.** A busca começa no achado mais recente, o de baixo. Antes, o Enter dava a volta para o mais antigo; agora ele sobe para o anterior, como quem lê o terminal de baixo para cima. Shift+Enter desce.
+- **D33 (20/10/2026):** mensagens prontas (Fatia 25).
+  - **Arquivo próprio** (`<userData>\mensagens.json`), fora do `estado.json`: lista pequena (até 30 frases de até 2000 letras), que não se mistura com a lousa. O arquivo estragado volta às três padrão sem quebrar.
+  - **Para quem vai pelo Ctrl+K:** para os quadros selecionados; sem seleção, para o último quadro em que se clicou ou digitou. Sem nenhum dos dois, a Lousa pede para clicar num quadro, em vez de adivinhar.
+  - **A mesma escrita da Fatia 13** (texto, pausa, Enter: `lousa/escrever.ts`). Nenhum canal novo para escrever; os canais novos são só `mensagens:listar` e `mensagens:salvar`.

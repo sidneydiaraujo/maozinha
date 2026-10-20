@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import '../estilos/envio.css'
 import { montarEnvio, quadrosPorExtenso } from './envio'
 import { enviarMensagem } from './escrever'
+import { MensagensProntas } from './MensagensProntas'
 
 interface Props {
   /** Quadros selecionados na lousa (Ctrl+clique no cabecalho ou Shift+arrastar no vazio). */
@@ -51,6 +52,7 @@ export function BarraEnvio({ quadroIds }: Props): React.JSX.Element | null {
           void enviar()
         }}
       />
+      <MensagensProntas texto={texto} aoEscolher={setTexto} />
       <button className="botao-principal" disabled={texto.trim() === ''} onClick={() => void enviar()}>
         Enviar
       </button>
