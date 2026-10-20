@@ -8,6 +8,7 @@ import { useArquivoAberto } from './leitor/useArquivoAberto'
 import { pedirFoco, pedirNovaNota, pedirNovoQuadro } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
 import { mandarAosAlvos } from './lousa/mandar'
+import { pedirVista } from './lousa/vistas'
 import { Paleta } from './paleta/Paleta'
 import { usePaleta } from './paleta/usePaleta'
 import { BarraTopo } from './topo/BarraTopo'
@@ -87,6 +88,7 @@ export function App(): React.JSX.Element {
             else if (item.tipo === 'pasta') pedirNovoQuadro(item.repoId)
             else if (item.tipo === 'mensagem') void mandarAosAlvos(item.texto)
             else if (item.tipo === 'novaNota') pedirNovaNota()
+            else if (item.tipo === 'vista') pedirVista(item.pedido)
             else abrir(item.repoId, item.relativo)
           }}
         />

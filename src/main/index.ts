@@ -12,6 +12,7 @@ import { registrarHandlersCopias } from './handlers/copias'
 import { registrarHandlersLousa } from './handlers/lousa'
 import { registrarHandlersMensagens } from './handlers/mensagens'
 import { registrarHandlersNotas } from './handlers/notas'
+import { registrarHandlersVistas } from './handlers/vistas'
 import { registrarHandlersPerfis } from './handlers/perfis'
 import { registrarHandlersQuadros } from './handlers/quadros'
 import { registrarHandlersRepos } from './handlers/repos'
@@ -49,6 +50,7 @@ function registrarCanais(): void {
   registrarHandlersCopias(contexto.repos, rodarGitReal)
   registrarHandlersMensagens(join(app.getPath('userData'), 'mensagens.json'))
   registrarHandlersNotas(contexto.armazem)
+  registrarHandlersVistas(contexto.armazem)
   registrarHandlersLousa(contexto)
   registrarHandlersTerminais(contexto)
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)

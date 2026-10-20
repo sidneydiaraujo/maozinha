@@ -133,6 +133,15 @@ export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   viewport: Viewport
   ultimoPerfilId: PerfilId | null
   notas?: Nota[]      // notas soltas na lousa (T26, D34); ausente = nenhuma
+  vistas?: VistaSalva[] // arrumações guardadas (T27, D35); ausente = nenhuma
+}
+
+// Arrumação guardada da lousa (T27, D35): câmera + lugar de cada quadro e nota que existia.
+export interface VistaSalva {
+  id: string
+  nome: string        // até 60 letras; o mesmo nome substitui a anterior
+  viewport: Viewport
+  caixas: Record<string, Caixa> // id do quadro ou da nota -> caixa
 }
 
 // Nota solta na lousa (T26, D34): texto markdown, sem pasta nem conta.
@@ -148,4 +157,5 @@ export interface EstadoTela {
   quadros: Quadro[]
   viewport: Viewport
   notas?: Nota[]      // T26; o main sempre manda (vazia = [])
+  vistas?: VistaSalva[] // T27; o main sempre manda (vazia = [])
 }

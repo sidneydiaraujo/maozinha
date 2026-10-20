@@ -24,6 +24,7 @@ import type {
   StatusConta,
   TipoQuadro,
   Viewport,
+  VistaSalva,
 } from './model'
 
 export const IPC = {
@@ -52,6 +53,8 @@ export const IPC = {
   notasCriar: 'notas:criar',
   notasSalvar: 'notas:salvar',
   notasRemover: 'notas:remover',
+  vistasSalvar: 'vistas:salvar',
+  vistasRemover: 'vistas:remover',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -154,6 +157,12 @@ export interface LousaApi {
     criar(posicao: Posicao): Promise<Nota>
     salvar(notaId: string, texto: string): Promise<void>
     remover(notaId: string): Promise<void>
+  }
+  /** Vistas salvas (T27, D35): arrumacoes da lousa com nome. Voltar a uma e coisa da tela. */
+  vistas: {
+    /** Guarda (o mesmo nome substitui) e devolve a lista nova. */
+    salvar(nome: string, layout: LayoutLousa): Promise<VistaSalva[]>
+    remover(vistaId: string): Promise<VistaSalva[]>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

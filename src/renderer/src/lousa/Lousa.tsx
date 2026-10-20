@@ -24,6 +24,7 @@ import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
 import { useNotas } from './useNotas'
 import { useNovoQuadro } from './useNovoQuadro'
+import { useVistasSalvas } from './useVistasSalvas'
 import { usePanoMeio } from './usePanoMeio'
 import { useAmpliar } from './useAmpliar'
 import { useMapaAtencao } from './useAtencao'
@@ -254,6 +255,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
   usePedidos(instancia, novo.abrirNoCentro, setAviso)
   const selecionados = useAlvos(nos)
   useMontarNos(estado, { quadros: acoes, notas: notas.acoes }, setNos)
+  useVistasSalvas({ instancia, estado, setEstado, nos, setNos, aoMoverVista, avisar: setAviso })
 
   return (
     <div

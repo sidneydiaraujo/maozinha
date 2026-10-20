@@ -89,3 +89,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Fatia 26 — nota na lousa
 
 - [ ] 64. Clique em "+ Nota" (ao lado de "+ Novo quadro"): aparece uma nota cor de papel, fora de cima dos quadros, já pronta para escrever. Escreva `# Plano` e `- [ ] testar` e clique em "Pronto": aparece o título e a caixinha ☐. Feche e abra a Lousa: a nota volta igual, no mesmo lugar e tamanho. Clique dentro de um agente e depois em "➤ Mandar" na nota: o texto chega ao agente. "×" numa nota com texto pergunta antes de apagar. Ctrl+K "nota" também cria uma.
+
+## Fatia 27 — vistas salvas
+
+- [ ] 65. Arrume a lousa do seu jeito, aperte Ctrl+K e digite "revisão": escolha "Guardar vista atual como "revisão"". Mexa em quadros e na câmera à vontade. Ctrl+K "revisão" → "Vista: revisão": tudo volta ao lugar, inclusive a câmera; um quadro aberto depois de guardar fica onde está. Feche e abra a Lousa: a vista continua no Ctrl+K. "Apagar vista: revisão" apaga só a vista.

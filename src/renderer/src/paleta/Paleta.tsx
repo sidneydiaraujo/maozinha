@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import type { PerfilComConta, Quadro, Repo } from '../../../shared/model'
 import '../estilos/paleta.css'
 import { useMensagens } from '../lousa/useMensagens'
-import { itemDeArquivo, itensDeAcao, itensDeMensagem, itensLocais, type ItemPaleta } from './itens'
+import { useListaVistas } from '../lousa/vistas'
+import { itemDeArquivo, itensDeAcao, itensDeMensagem, itensDeVista, itensLocais, type ItemPaleta } from './itens'
 
 interface Props {
   repos: Repo[]
@@ -12,7 +13,7 @@ interface Props {
   aoFechar(): void
 }
 
-const ICONE = { quadro: '▣', pasta: '+', arquivo: '📄', mensagem: '★', novaNota: '📝' } as const
+const ICONE = { quadro: '▣', pasta: '+', arquivo: '📄', mensagem: '★', novaNota: '📝', vista: '◫' } as const
 
 /** Arquivos do main, 150 ms depois da ultima tecla (a busca anda pelas pastas). */
 function useArquivos(texto: string, repos: Repo[]): ItemPaleta[] {
@@ -43,9 +44,16 @@ export function Paleta({ repos, quadros, perfis, aoEscolher, aoFechar }: Props):
   const [marcado, setMarcado] = useState(0)
   const arquivos = useArquivos(texto, repos)
   const { mensagens } = useMensagens()
+  const vistas = useListaVistas()
   const itens = useMemo(
-    () => [...itensDeAcao(texto), ...itensLocais(repos, quadros, perfis, texto), ...itensDeMensagem(mensagens, texto), ...arquivos],
-    [repos, quadros, perfis, texto, arquivos, mensagens],
+    () => [
+      ...itensDeAcao(texto),
+      ...itensLocais(repos, quadros, perfis, texto),
+      ...itensDeMensagem(mensagens, texto),
+      ...arquivos,
+      ...itensDeVista(vistas, texto),
+    ],
+    [repos, quadros, perfis, texto, arquivos, mensagens, vistas],
   )
   const atual = Math.min(marcado, Math.max(0, itens.length - 1))
 

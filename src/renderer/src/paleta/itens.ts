@@ -1,6 +1,7 @@
 // O que o Ctrl+K oferece (T12.1): ir a um quadro, abrir um quadro numa pasta, abrir um arquivo.
-import type { PerfilComConta, Quadro, Repo } from '../../../shared/model'
+import type { PerfilComConta, Quadro, Repo, VistaSalva } from '../../../shared/model'
 import { pontuar } from '../../../shared/pontuar'
+import type { PedidoVista } from '../lousa/vistas'
 
 export type ItemPaleta =
   | { tipo: 'quadro'; chave: string; titulo: string; detalhe: string; quadroId: string }
@@ -8,6 +9,7 @@ export type ItemPaleta =
   | { tipo: 'arquivo'; chave: string; titulo: string; detalhe: string; repoId: string; relativo: string }
   | { tipo: 'mensagem'; chave: string; titulo: string; detalhe: string; texto: string }
   | { tipo: 'novaNota'; chave: string; titulo: string; detalhe: string }
+  | { tipo: 'vista'; chave: string; titulo: string; detalhe: string; pedido: PedidoVista }
 
 const MAXIMO_LOCAIS = 12
 
@@ -88,4 +90,26 @@ export function itensDeAcao(consulta: string): ItemPaleta[] {
   ]
   if (consulta.trim() === '') return []
   return acoes.filter((a) => pontuar(consulta, `${a.titulo} ${a.detalhe}`) !== null)
+}
+
+/**
+ * Vistas salvas (T27.2): "Vista: <nome>" volta a ela; "Apagar vista: <nome>" so aparece quando a
+ * consulta casa; com texto que nao e o nome de uma vista, "Guardar vista atual como <texto>".
+ */
+export function itensDeVista(vistas: Pick<VistaSalva, 'id' | 'nome'>[], consulta: string): ItemPaleta[] {
+  const ir = vistas.map(
+    (v): ItemPaleta => ({ tipo: 'vista', chave: `v:${v.id}`, titulo: `Vista: ${v.nome}`, detalhe: 'Volta a câmera e o lugar dos quadros', pedido: { tipo: 'ir', vistaId: v.id } }),
+  )
+  const apagar = vistas.map(
+    (v): ItemPaleta => ({ tipo: 'vista', chave: `va:${v.id}`, titulo: `Apagar vista: ${v.nome}`, detalhe: 'Só a vista; nenhum quadro muda', pedido: { tipo: 'apagar', vistaId: v.id } }),
+  )
+  const nome = consulta.trim()
+  const casam = (i: ItemPaleta): boolean => pontuar(consulta, `vista ${i.titulo}`) !== null
+  const achados = nome === '' ? ir : [...ir.filter(casam), ...apagar.filter(casam)]
+  const jaExiste = vistas.some((v) => v.nome.toLowerCase() === nome.toLowerCase())
+  const guardar: ItemPaleta[] =
+    nome === '' || jaExiste
+      ? []
+      : [{ tipo: 'vista', chave: 'vg', titulo: `Guardar vista atual como "${nome}"`, detalhe: 'Câmera e lugar de cada quadro e nota', pedido: { tipo: 'guardar', nome } }]
+  return [...achados.slice(0, 8), ...guardar]
 }

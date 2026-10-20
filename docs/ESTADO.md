@@ -107,8 +107,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T25.2 | Mensagens prontas na barra e no Ctrl+K | ✅ |
 | T26.1 | Nota na lousa (main) | ✅ |
 | T26.2 | Nota na lousa (tela) | ✅ |
-| T27.1 | Vistas salvas (main) | ⬜ |
-| T27.2 | Vistas salvas no Ctrl+K | ⬜ |
+| T27.1 | Vistas salvas (main) | ✅ |
+| T27.2 | Vistas salvas no Ctrl+K | ✅ |
 
 ## Bloqueios
 
@@ -366,3 +366,15 @@ Nenhum.
     - o Ctrl+K cria a segunda nota;
     - apagar a nota vazia não pede confirmação.
   - **Defeito que a prova pegou:** o salvamento 500 ms depois da última tecla não acontecia. O relógio reiniciava a cada redesenho do nó. Corrigido com uma referência.
+- **20/10/2026 (Fatia 27, D35):** `vistas/servico.ts` (+4 testes), `handlers/vistas.ts`; `vistas` no schema e no `lousa:carregar`; `vistas.ts` (+1 teste), `useVistasSalvas.ts`, `itensDeVista` (+3 testes).
+  - **Provado na janela real** (cenário `vistas`, `ok: true`):
+    - Ctrl+K "foco" guarda;
+    - arrastar o q1 com o mouse de verdade (200 px);
+    - "Vista: foco" devolve o q1 ao mesmo pixel e à mesma câmera, e o lugar fica salvo no main;
+    - "apagar foco" apaga.
+  - **Rodada final das Fatias 22 a 27:**
+    - smoke ok;
+    - `copias`, `juntar`, `paleta`, `envio`, `prontas`, `notas` e `vistas` com `ok: true`;
+    - `vivo` com todos os valores verdadeiros.
+    - Não rodados de novo: `fatia8` e `colar-e-reabrir` (usam a área de transferência do PC) e `desempenho`.
+  - **Falta:** o aceite pelo Sidney (itens 60 a 65 do roteiro), num instalador novo.

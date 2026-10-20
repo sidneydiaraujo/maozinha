@@ -133,3 +133,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Nó próprio (`NotaNode`)**, que mostra o markdown com o mesmo renderizador do leitor (`html: false`: nada escrito na nota roda na tela). Link dentro da nota não troca a página.
   - **Posição e tamanho pelo mesmo `lousa:salvarLayout`:** o main aceita ids de quadros e de notas. Texto até 20 mil letras, salvo 500 ms depois da última tecla e ao sair da edição.
   - **"➤ Mandar":** usa os mesmos alvos da D33.
+- **D35 (20/10/2026):** vistas salvas (Fatia 27). A ideia de "várias lousas" (A7 e A9) começa pequena.
+  - **Uma vista guarda só a câmera e o lugar de cada quadro e nota.** Não fecha nem abre terminal. Voltar a uma vista devolve ao lugar quem existia; quem nasceu depois fica onde está. Lousas separadas, com quadros diferentes em cada uma, ficam para depois, se fizer falta.
+  - **Tudo pelo Ctrl+K**, sem janela de nome: o texto digitado vira o nome ("Guardar vista atual como …"). O mesmo nome substitui; até 20 vistas.
+  - **O main só guarda caixa de quadro ou nota que existe.** Voltar a uma vista salva pelo mesmo `lousa:salvarLayout` de quando se arrasta um quadro.

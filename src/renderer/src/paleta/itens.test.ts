@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Quadro, Repo } from '../../../shared/model'
-import { itemDeArquivo, itensDeAcao, itensDeMensagem, itensLocais } from './itens'
+import { itemDeArquivo, itensDeAcao, itensDeMensagem, itensDeVista, itensLocais } from './itens'
 
 const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
 const repos: Repo[] = [
@@ -60,5 +60,24 @@ describe('itensDeAcao', () => {
     expect(itensDeAcao('')).toEqual([])
     expect(itensDeAcao('nota').map((i) => i.tipo)).toEqual(['novaNota'])
     expect(itensDeAcao('zzz')).toEqual([])
+  })
+})
+
+describe('itensDeVista', () => {
+  const vistas = [{ id: 'v1', nome: 'Revisão' }]
+
+  it('sem texto: so "Vista: <nome>"', () => {
+    expect(itensDeVista(vistas, '').map((i) => i.titulo)).toEqual(['Vista: Revisão'])
+  })
+
+  it('texto novo oferece guardar com esse nome; o nome de uma vista existente nao', () => {
+    const pedidos = (consulta: string) => itensDeVista(vistas, consulta).map((i) => (i.tipo === 'vista' ? i.pedido : null))
+    expect(pedidos('foco')).toContainEqual({ tipo: 'guardar', nome: 'foco' })
+    expect(pedidos('revisão').some((p) => p?.tipo === 'guardar')).toBe(false)
+  })
+
+  it('"apagar" so quando a consulta casa', () => {
+    expect(itensDeVista(vistas, 'apagar rev').map((i) => i.titulo)).toContain('Apagar vista: Revisão')
+    expect(itensDeVista(vistas, '').some((i) => i.titulo.startsWith('Apagar'))).toBe(false)
   })
 })
