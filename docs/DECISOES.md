@@ -128,3 +128,8 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Arquivo próprio** (`<userData>\mensagens.json`), fora do `estado.json`: lista pequena (até 30 frases de até 2000 letras), que não se mistura com a lousa. O arquivo estragado volta às três padrão sem quebrar.
   - **Para quem vai pelo Ctrl+K:** para os quadros selecionados; sem seleção, para o último quadro em que se clicou ou digitou. Sem nenhum dos dois, a Lousa pede para clicar num quadro, em vez de adivinhar.
   - **A mesma escrita da Fatia 13** (texto, pausa, Enter: `lousa/escrever.ts`). Nenhum canal novo para escrever; os canais novos são só `mensagens:listar` e `mensagens:salvar`.
+- **D34 (20/10/2026):** nota na lousa (Fatia 26).
+  - **Lista própria (`notas`) no `estado.json`, fora dos quadros:** a nota não tem pasta, conta nem terminal. Por isso não é um tipo de quadro. Assim o tipo `Quadro` e o `QuadroNode` (onde a outra sessão mexe nas Fatias 18 e 19) ficam intactos. Estado antigo sem `notas` continua válido.
+  - **Nó próprio (`NotaNode`)**, que mostra o markdown com o mesmo renderizador do leitor (`html: false`: nada escrito na nota roda na tela). Link dentro da nota não troca a página.
+  - **Posição e tamanho pelo mesmo `lousa:salvarLayout`:** o main aceita ids de quadros e de notas. Texto até 20 mil letras, salvo 500 ms depois da última tecla e ao sair da edição.
+  - **"➤ Mandar":** usa os mesmos alvos da D33.

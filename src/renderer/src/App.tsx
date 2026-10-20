@@ -5,7 +5,7 @@ import { mensagemDe } from './componentes/erro'
 import { Explorador } from './explorador/Explorador'
 import { Leitor } from './leitor/Leitor'
 import { useArquivoAberto } from './leitor/useArquivoAberto'
-import { pedirFoco, pedirNovoQuadro } from './lousa/foco'
+import { pedirFoco, pedirNovaNota, pedirNovoQuadro } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
 import { mandarAosAlvos } from './lousa/mandar'
 import { Paleta } from './paleta/Paleta'
@@ -86,6 +86,7 @@ export function App(): React.JSX.Element {
             if (item.tipo === 'quadro') pedirFoco(item.quadroId)
             else if (item.tipo === 'pasta') pedirNovoQuadro(item.repoId)
             else if (item.tipo === 'mensagem') void mandarAosAlvos(item.texto)
+            else if (item.tipo === 'novaNota') pedirNovaNota()
             else abrir(item.repoId, item.relativo)
           }}
         />

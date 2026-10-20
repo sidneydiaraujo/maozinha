@@ -132,6 +132,14 @@ export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   quadros: Quadro[]
   viewport: Viewport
   ultimoPerfilId: PerfilId | null
+  notas?: Nota[]      // notas soltas na lousa (T26, D34); ausente = nenhuma
+}
+
+// Nota solta na lousa (T26, D34): texto markdown, sem pasta nem conta.
+export interface Nota {
+  id: string
+  texto: string       // até 20 mil letras
+  caixa: Caixa
 }
 
 export interface EstadoTela {
@@ -139,4 +147,5 @@ export interface EstadoTela {
   repos: Repo[]
   quadros: Quadro[]
   viewport: Viewport
+  notas?: Nota[]      // T26; o main sempre manda (vazia = [])
 }

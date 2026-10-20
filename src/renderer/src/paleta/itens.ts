@@ -7,6 +7,7 @@ export type ItemPaleta =
   | { tipo: 'pasta'; chave: string; titulo: string; detalhe: string; repoId: string }
   | { tipo: 'arquivo'; chave: string; titulo: string; detalhe: string; repoId: string; relativo: string }
   | { tipo: 'mensagem'; chave: string; titulo: string; detalhe: string; texto: string }
+  | { tipo: 'novaNota'; chave: string; titulo: string; detalhe: string }
 
 const MAXIMO_LOCAIS = 12
 
@@ -78,4 +79,13 @@ export function itensDeMensagem(mensagens: string[], consulta: string): ItemPale
         texto,
       }),
     )
+}
+
+/** Acoes da lousa no Ctrl+K: "Nova nota" (T26.2). So aparecem quando a consulta casa. */
+export function itensDeAcao(consulta: string): ItemPaleta[] {
+  const acoes: ItemPaleta[] = [
+    { tipo: 'novaNota', chave: 'acao:nota', titulo: 'Nova nota', detalhe: 'Texto solto na lousa (markdown)' },
+  ]
+  if (consulta.trim() === '') return []
+  return acoes.filter((a) => pontuar(consulta, `${a.titulo} ${a.detalhe}`) !== null)
 }

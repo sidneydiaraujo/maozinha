@@ -24,6 +24,13 @@ describe('aplicarLayout', () => {
     expect(novo.quadros.map((q) => q.id)).toEqual(['q1'])
     expect(novo.quadros[0]?.caixa).toEqual(c(0))
   })
+
+  it('notas tambem guardam posicao e tamanho (T26); sem notas, nada aparece', () => {
+    const comNota = { ...estado, notas: [{ id: 'n1', texto: 'oi', caixa: c(0) }] }
+    const novo = aplicarLayout(comNota, { quadros: [{ id: 'n1', caixa: c(30) }], viewport: vp })
+    expect(novo.notas).toEqual([{ id: 'n1', texto: 'oi', caixa: c(30) }])
+    expect('notas' in aplicarLayout(estado, { quadros: [], viewport: vp })).toBe(false)
+  })
 })
 
 describe('SchemaLayout', () => {

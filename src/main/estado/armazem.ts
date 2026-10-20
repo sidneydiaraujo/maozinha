@@ -43,6 +43,7 @@ const SchemaEstado = z.object({
   ),
   viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),
   ultimoPerfilId: z.string().nullable(),
+  notas: z.array(z.object({ id: z.string(), texto: z.string().max(20000), caixa: Caixa })).optional(),
 })
 
 export const ESTADO_PADRAO: EstadoSalvo = {

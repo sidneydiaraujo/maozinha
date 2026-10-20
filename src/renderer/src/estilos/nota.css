@@ -1,0 +1,111 @@
+/* Nota solta na lousa (T26.2, D34): papel ambar escuro, para nao ser confundida com um terminal. */
+.nota {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: #ecdcb8;
+  background: #2a2418;
+  border: 1px solid #6b5a33;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.cabecalho-nota {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 5px 8px;
+  cursor: grab;
+  background: rgba(245, 165, 36, 0.12);
+  border-bottom: 1px solid #6b5a33;
+}
+
+.nota-rotulo {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.cabecalho-nota .botao-pequeno {
+  padding: 1px 8px;
+  font-size: 11px;
+}
+
+.nota-texto {
+  flex: 1;
+  padding: 10px 12px;
+  font-family: Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: inherit;
+  resize: none;
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.nota-md {
+  flex: 1;
+  padding: 4px 14px 10px;
+  overflow: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: text;
+}
+
+.nota-md h1,
+.nota-md h2,
+.nota-md h3 {
+  margin: 10px 0 6px;
+  font-size: 15px;
+}
+
+.nota-md ul,
+.nota-md ol {
+  padding-left: 20px;
+}
+
+.nota-md code {
+  padding: 0 4px;
+  font-family: Consolas, monospace;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.nota-md .md-tarefa {
+  list-style: none;
+  margin-left: -16px;
+}
+
+.nota-md .md-feita {
+  color: #a59573;
+  text-decoration: line-through;
+}
+
+.nota-vazia {
+  color: #a59573;
+  font-style: italic;
+}
+
+/* "+ Nota", ao lado do "+ Novo quadro" */
+.botao-nova-nota {
+  position: absolute;
+  z-index: 5;
+  top: 12px;
+  left: 148px;
+  padding: 7px 12px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ecdcb8;
+  cursor: pointer;
+  background: #2a2418;
+  border: 1px solid #6b5a33;
+  border-radius: 8px;
+}
+
+.botao-nova-nota:hover {
+  background: #3a3120;
+}

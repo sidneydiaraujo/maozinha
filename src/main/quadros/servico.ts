@@ -65,7 +65,7 @@ export class ServicoQuadros {
   /** O lugar pedido, ou o livre mais perto dele: quadro novo nunca nasce em cima de outro (T24.1). */
   private lugar(estado: EstadoSalvo, desejada: Posicao): Posicao {
     return lugarLivre(
-      estado.quadros.map((q) => q.caixa),
+      [...estado.quadros, ...(estado.notas ?? [])].map((q) => q.caixa),
       desejada,
       { largura: LARGURA, altura: ALTURA },
     )

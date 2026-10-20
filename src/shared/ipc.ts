@@ -13,6 +13,7 @@ import type {
   EstadoTela,
   FimDaCopia,
   ItemArquivo,
+  Nota,
   PainelAgente,
   PerfilComConta,
   Posicao,
@@ -48,6 +49,9 @@ export const IPC = {
   copiasDiff: 'copias:diff',
   mensagensListar: 'mensagens:listar',
   mensagensSalvar: 'mensagens:salvar',
+  notasCriar: 'notas:criar',
+  notasSalvar: 'notas:salvar',
+  notasRemover: 'notas:remover',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -143,6 +147,13 @@ export interface LousaApi {
     listar(): Promise<string[]>
     /** Grava a lista inteira; volta limpa (sem vazias nem repetidas, ate 30). */
     salvar(mensagens: string[]): Promise<string[]>
+  }
+  /** Notas soltas na lousa (T26, D34): so texto, sem pasta nem conta. */
+  notas: {
+    /** Nota vazia em `posicao`, ou no lugar livre mais perto. */
+    criar(posicao: Posicao): Promise<Nota>
+    salvar(notaId: string, texto: string): Promise<void>
+    remover(notaId: string): Promise<void>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

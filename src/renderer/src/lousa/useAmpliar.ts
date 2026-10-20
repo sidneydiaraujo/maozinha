@@ -2,11 +2,11 @@
 // de novo no mesmo quadro, volta para a vista de antes. Posicao e tamanho dos quadros nao mudam.
 import type { ReactFlowInstance, Viewport } from '@xyflow/react'
 import { useCallback, useRef, type RefObject } from 'react'
-import type { QuadroNo } from './nos'
+import type { NoLousa } from './notas'
 
 const DURACAO_MS = 300
 
-export function useAmpliar(instancia: RefObject<ReactFlowInstance<QuadroNo> | null>): (quadroId: string) => void {
+export function useAmpliar(instancia: RefObject<ReactFlowInstance<NoLousa> | null>): (quadroId: string) => void {
   const ampliado = useRef<{ id: string; vista: Viewport } | null>(null)
   return useCallback(
     (quadroId: string) => {

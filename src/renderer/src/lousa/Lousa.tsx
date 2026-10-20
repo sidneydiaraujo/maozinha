@@ -9,7 +9,7 @@ import {
   type Viewport,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
 import { chamaAtencao } from './atencao'
@@ -17,9 +17,12 @@ import { semQuadro, textoDoFim } from './copia'
 import { BarraEnvio } from './BarraEnvio'
 import { marcarSelecionados, useUltimoQuadro } from './alvos'
 import { aoPedirAviso, aoPedirFoco, aoPedirNovoQuadro } from './foco'
-import { algumQuadroVisivel, montarNos, type AcoesLousa, type QuadroNo } from './nos'
+import { algumQuadroVisivel, montarNos, type AcoesLousa } from './nos'
+import { montarNotas, type AcoesNota, type NoLousa } from './notas'
+import { NotaNode } from './NotaNode'
 import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
+import { useNotas } from './useNotas'
 import { useNovoQuadro } from './useNovoQuadro'
 import { usePanoMeio } from './usePanoMeio'
 import { useAmpliar } from './useAmpliar'
@@ -27,7 +30,7 @@ import { useMapaAtencao } from './useAtencao'
 import { useSalvarLayout } from './useSalvarLayout'
 
 // Fora do componente: dentro dele o React Flow recriaria todos os nos a cada render.
-const nodeTypes = { quadro: QuadroNode }
+const nodeTypes = { quadro: QuadroNode, nota: NotaNode }
 
 interface Props {
   /** Muda quando algo fora da lousa (nome de conta) mudou: a lousa recarrega. */
@@ -39,7 +42,7 @@ interface Props {
 }
 
 /** Mantem posicao/tamanho que o usuario acabou de ajustar quando o estado e recarregado. */
-function preservarGeometria(novos: QuadroNo[], atuais: Node[]): QuadroNo[] {
+function preservarGeometria(novos: NoLousa[], atuais: Node[]): NoLousa[] {
   return novos.map((no) => {
     const antigo = atuais.find((a) => a.id === no.id)
     if (!antigo) return no
@@ -117,7 +120,7 @@ function useAvisoPassageiro(): [string | null, (texto: string | null) => void] {
 }
 
 /** Zoom/posicao antigos podem deixar tudo fora da tela: sem nenhum quadro visivel, enquadra. */
-function enquadrarSeSumiu(i: ReactFlowInstance<QuadroNo>, estado: EstadoTela): void {
+function enquadrarSeSumiu(i: ReactFlowInstance<NoLousa>, estado: EstadoTela): void {
   if (estado.quadros.length > 0 && !algumQuadroVisivel(estado.quadros, estado.viewport)) {
     window.setTimeout(() => void i.fitView({ maxZoom: 1, duration: 300 }), 50)
   }
@@ -137,7 +140,7 @@ function useAvisarPastas(estado: EstadoTela | null, aoMudarPastas: Props['aoMuda
  * (T8.2); "Novo quadro em <pasta>" do Ctrl+K abre a janelinha com a pasta marcada (T12.1).
  */
 function usePedidos(
-  instancia: React.RefObject<ReactFlowInstance<QuadroNo> | null>,
+  instancia: React.RefObject<ReactFlowInstance<NoLousa> | null>,
   abrirNoCentro: (perfilId?: string, repoId?: string) => void,
   avisar: (texto: string) => void,
 ): void {
@@ -156,7 +159,8 @@ function usePedidos(
 /** Selecao e ultimo quadro usado: para quem vai uma mensagem pronta ou uma nota (T25.2). */
 function useAlvos(nos: Node[]): string[] {
   useUltimoQuadro()
-  const selecionados = nos.filter((n) => n.selected).map((n) => n.id)
+  // nota selecionada nao conta: a mensagem vai so para quadros
+  const selecionados = nos.filter((n) => n.selected && n.type === 'quadro').map((n) => n.id)
   const chave = selecionados.join(',')
   useEffect(() => marcarSelecionados(chave ? chave.split(',') : []), [chave])
   return selecionados
@@ -166,21 +170,42 @@ function useAlvos(nos: Node[]): string[] {
 function Minimapa(): React.JSX.Element {
   const mapa = useMapaAtencao()
   return (
-    <MiniMap<QuadroNo>
+    <MiniMap<NoLousa>
       pannable
       zoomable
-      nodeColor={(no) => (chamaAtencao(mapa.get(no.id)) ? '#f5a524' : (no.data.perfil?.cor ?? '#555'))}
+      nodeColor={(no) => {
+        if (no.type === 'nota') return '#8a7440'
+        return chamaAtencao(mapa.get(no.id)) ? '#f5a524' : (no.data.perfil?.cor ?? '#555')
+      }}
     />
   )
 }
 
 /** Botoes do canto de cima da lousa. */
-function BotoesCriar(p: { aoNovoQuadro(): void }): React.JSX.Element {
+function BotoesCriar(p: { aoNovoQuadro(): void; aoNovaNota(): void }): React.JSX.Element {
   return (
-    <button className="botao-novo-quadro" onClick={p.aoNovoQuadro}>
-      + Novo quadro
-    </button>
+    <>
+      <button className="botao-novo-quadro" onClick={p.aoNovoQuadro}>
+        + Novo quadro
+      </button>
+      <button className="botao-nova-nota" title="Texto solto na lousa (markdown)" onClick={p.aoNovaNota}>
+        + Nota
+      </button>
+    </>
   )
+}
+
+/** Quadros e notas viram os nos do React Flow sempre que o estado muda. */
+function useMontarNos(
+  estado: EstadoTela | null,
+  acoes: { quadros: AcoesLousa; notas: AcoesNota },
+  setNos: Dispatch<SetStateAction<NoLousa[]>>,
+): void {
+  const { quadros, notas } = acoes
+  useEffect(() => {
+    if (!estado) return
+    setNos((atuais) => preservarGeometria([...montarNos(estado, quadros), ...montarNotas(estado, notas)], atuais))
+  }, [estado, quadros, notas, setNos])
 }
 
 function Avisos(p: { erro: string | null; aviso: string | null; vazia: boolean }): React.JSX.Element {
@@ -207,16 +232,17 @@ function Avisos(p: { erro: string | null; aviso: string | null; vazia: boolean }
 }
 
 export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.JSX.Element {
-  const instancia = useRef<ReactFlowInstance<QuadroNo> | null>(null)
+  const instancia = useRef<ReactFlowInstance<NoLousa> | null>(null)
   const ampliar = useAmpliar(instancia)
   const { estado, setEstado, erro, aviso, setAviso, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
     abrirArquivo: aoAbrirArquivo,
     ampliar,
     aoMudarPastas,
   })
-  const [nos, setNos, aoMudarNos] = useNodesState<QuadroNo>([])
+  const [nos, setNos, aoMudarNos] = useNodesState<NoLousa>([])
   const area = useRef<HTMLDivElement>(null)
   const novo = useNovoQuadro({ instancia, area, setEstado })
+  const notas = useNotas({ instancia, area, setEstado, falhou })
 
   const { aoMudar, aoMoverVista } = useSalvarLayout({
     nos,
@@ -227,9 +253,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
   const aoApertarMeio = usePanoMeio(instancia, aoMoverVista)
   usePedidos(instancia, novo.abrirNoCentro, setAviso)
   const selecionados = useAlvos(nos)
-  useEffect(() => {
-    if (estado) setNos((atuais) => preservarGeometria(montarNos(estado, acoes), atuais))
-  }, [estado, acoes, setNos])
+  useMontarNos(estado, { quadros: acoes, notas: notas.acoes }, setNos)
 
   return (
     <div
@@ -240,9 +264,9 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
       onDragOver={novo.aoArrastarPorCima}
       onDrop={novo.aoSoltar}
     >
-      <Avisos erro={erro} aviso={aviso} vazia={estado?.quadros.length === 0} />
+      <Avisos erro={erro} aviso={aviso} vazia={estado?.quadros.length === 0 && !estado.notas?.length} />
       <BarraEnvio quadroIds={selecionados} />
-      {estado && <BotoesCriar aoNovoQuadro={() => novo.abrirNoCentro()} />}
+      {estado && <BotoesCriar aoNovoQuadro={() => novo.abrirNoCentro()} aoNovaNota={notas.criarNoCentro} />}
       {estado && (
         <ReactFlow
           nodes={nos}

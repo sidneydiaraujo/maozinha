@@ -1,7 +1,8 @@
 import type { ReactFlowInstance } from '@xyflow/react'
 import { useCallback, useState, type Dispatch, type RefObject, type SetStateAction } from 'react'
 import type { EstadoTela, Posicao, Quadro, Repo, TipoQuadro } from '../../../shared/model'
-import { TIPO_ARRASTE_CONTA, type QuadroNo } from './nos'
+import { TIPO_ARRASTE_CONTA } from './nos'
+import type { NoLousa } from './notas'
 
 /** Tamanho do quadro novo (igual ao do main): o "+ Novo quadro" centraliza o quadro na vista. */
 const METADE_QUADRO = { x: 320, y: 210 }
@@ -24,7 +25,7 @@ function comQuadroNovo(e: EstadoTela, quadro: Quadro, copia: Repo | null): Estad
 }
 
 interface Opcoes {
-  instancia: RefObject<ReactFlowInstance<QuadroNo> | null>
+  instancia: RefObject<ReactFlowInstance<NoLousa> | null>
   area: RefObject<HTMLDivElement | null>
   setEstado: Dispatch<SetStateAction<EstadoTela | null>>
 }

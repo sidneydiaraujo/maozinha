@@ -105,8 +105,8 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T24.2 | Enter do Ctrl+F sobe | ✅ |
 | T25.1 | Mensagens prontas (main) | ✅ |
 | T25.2 | Mensagens prontas na barra e no Ctrl+K | ✅ |
-| T26.1 | Nota na lousa (main) | ⬜ |
-| T26.2 | Nota na lousa (tela) | ⬜ |
+| T26.1 | Nota na lousa (main) | ✅ |
+| T26.2 | Nota na lousa (tela) | ✅ |
 | T27.1 | Vistas salvas (main) | ⬜ |
 | T27.2 | Vistas salvas no Ctrl+K | ⬜ |
 
@@ -355,3 +355,14 @@ Nenhum.
 - **20/10/2026 (Fatia 25, D33):** `mensagens/servico.ts` (+5 testes) e `handlers/mensagens.ts`, ligados no `index.ts`; `alvos.ts` (+3 testes), `useMensagens`, `MensagensProntas` (★ na barra), `mandar.ts`; item "Mandar: …" no Ctrl+K.
   - **Provado na janela real** (cenário `prontas`, `ok: true`): clicar no terminal q3 e Ctrl+K "Mandar: Rode os testes…" escreve só no q3 e mostra "Enviado para 1 quadro"; com dois selecionados, o ★ lista as três padrão, guarda, preenche a barra e apaga. O `envio` continua `ok`.
   - **Achado da prova:** na janela escondida, `.focus()` sozinho não dispara `focusin`; o cenário usa um clique de verdade.
+- **20/10/2026 (Fatia 26, D34):**
+  - **Main:** `notas/servico.ts` (+4 testes), `handlers/notas.ts`; `notas` no schema do armazém, no `lousa:carregar` e no `aplicarLayout` (+1 teste).
+  - **Tela:** `notas.ts` (+3 testes), `NotaNode.tsx`, `useNotas.ts`, "+ Nota" e Ctrl+K "Nova nota"; testes da paleta para mensagens e ações (+3).
+  - **Provado na janela real** (cenário `notas`, `ok: true`):
+    - a nota nasce escrevendo, fora de cima dos quadros;
+    - o texto fica salvo sem clicar em "Pronto";
+    - "Pronto" mostra o título e o ☐;
+    - clicar no terminal q3 e "➤ Mandar" escreve só nele;
+    - o Ctrl+K cria a segunda nota;
+    - apagar a nota vazia não pede confirmação.
+  - **Defeito que a prova pegou:** o salvamento 500 ms depois da última tecla não acontecia. O relógio reiniciava a cada redesenho do nó. Corrigido com uma referência.

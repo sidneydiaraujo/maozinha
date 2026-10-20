@@ -85,3 +85,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Fatia 25 — mensagens prontas
 
 - [ ] 63. Clique dentro de um agente, aperte Ctrl+K e digite "commit": aparece "Mandar: Faça commit do que está pronto…". Enter: a frase chega a esse agente, e só a ele, e no alto da lousa aparece "Enviado para 1 quadro". Selecione dois agentes com Ctrl+clique e clique no ★ da barra: aparecem as três frases padrão. Escreva uma frase sua, clique em "★ Guardar a mensagem escrita", feche e abra a Lousa: a frase continua no ★ e no Ctrl+K. O × ao lado da frase apaga.
+
+## Fatia 26 — nota na lousa
+
+- [ ] 64. Clique em "+ Nota" (ao lado de "+ Novo quadro"): aparece uma nota cor de papel, fora de cima dos quadros, já pronta para escrever. Escreva `# Plano` e `- [ ] testar` e clique em "Pronto": aparece o título e a caixinha ☐. Feche e abra a Lousa: a nota volta igual, no mesmo lugar e tamanho. Clique dentro de um agente e depois em "➤ Mandar" na nota: o texto chega ao agente. "×" numa nota com texto pergunta antes de apagar. Ctrl+K "nota" também cria uma.

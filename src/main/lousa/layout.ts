@@ -21,10 +21,12 @@ export type Layout = z.infer<typeof SchemaLayout>
 
 /** Devolve um estado novo; ids desconhecidos sao ignorados. */
 export function aplicarLayout(estado: EstadoSalvo, layout: Layout): EstadoSalvo {
-  const quadros = new Map(layout.quadros.map((q) => [q.id, q.caixa]))
+  // `quadros` traz todos os nos da lousa: quadros e notas (T26)
+  const caixas = new Map(layout.quadros.map((q) => [q.id, q.caixa]))
   return {
     ...estado,
-    quadros: estado.quadros.map((q) => ({ ...q, caixa: quadros.get(q.id) ?? q.caixa })),
+    quadros: estado.quadros.map((q) => ({ ...q, caixa: caixas.get(q.id) ?? q.caixa })),
+    ...(estado.notas ? { notas: estado.notas.map((n) => ({ ...n, caixa: caixas.get(n.id) ?? n.caixa })) } : {}),
     viewport: layout.viewport,
   }
 }

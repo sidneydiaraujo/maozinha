@@ -1,6 +1,6 @@
 import type { ReactFlowInstance, Viewport } from '@xyflow/react'
 import { useCallback, type RefObject } from 'react'
-import type { QuadroNo } from './nos'
+import type { NoLousa } from './notas'
 
 /** Botao do meio do mouse (o esquerdo fica com o terminal e o cabecalho do quadro). */
 const BOTAO_MEIO = 1
@@ -11,7 +11,7 @@ const BOTAO_MEIO = 1
  * Use no `onMouseDownCapture` da area, para chegar antes do terminal.
  */
 export function usePanoMeio(
-  instancia: RefObject<ReactFlowInstance<QuadroNo> | null>,
+  instancia: RefObject<ReactFlowInstance<NoLousa> | null>,
   aoMoverVista: (viewport: Viewport) => void,
 ): (e: React.MouseEvent) => void {
   return useCallback(

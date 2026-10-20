@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Quadro, Repo } from '../../../shared/model'
-import { itemDeArquivo, itensLocais } from './itens'
+import { itemDeArquivo, itensDeAcao, itensDeMensagem, itensLocais } from './itens'
 
 const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
 const repos: Repo[] = [
@@ -39,5 +39,26 @@ describe('itemDeArquivo', () => {
       titulo: 'fatia-12.md',
       detalhe: 'lousa-ia / docs / plano',
     })
+  })
+})
+
+describe('itensDeMensagem', () => {
+  const mensagens = ['Rode os testes', 'Faça commit']
+
+  it('sem texto: todas, na ordem guardada, como "Mandar: …"', () => {
+    expect(itensDeMensagem(mensagens, '').map((i) => i.titulo)).toEqual(['Mandar: Rode os testes', 'Mandar: Faça commit'])
+  })
+
+  it('filtra pelo texto da frase e casa com "mandar"', () => {
+    expect(itensDeMensagem(mensagens, 'commit').map((i) => i.titulo)).toEqual(['Mandar: Faça commit'])
+    expect(itensDeMensagem(mensagens, 'mandar')).toHaveLength(2)
+  })
+})
+
+describe('itensDeAcao', () => {
+  it('"Nova nota" so quando a consulta casa', () => {
+    expect(itensDeAcao('')).toEqual([])
+    expect(itensDeAcao('nota').map((i) => i.tipo)).toEqual(['novaNota'])
+    expect(itensDeAcao('zzz')).toEqual([])
   })
 })

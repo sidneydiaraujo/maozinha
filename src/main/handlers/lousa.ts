@@ -17,6 +17,7 @@ export function registrarHandlersLousa(contexto: Contexto): void {
       repos: estado.repos,
       quadros: estado.quadros,
       viewport: estado.viewport,
+      notas: estado.notas ?? [],
     }
   })
 }

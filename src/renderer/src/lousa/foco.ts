@@ -34,3 +34,15 @@ export function aoPedirAviso(cb: (texto: string) => void): () => void {
   ouvintesAviso.add(cb)
   return () => ouvintesAviso.delete(cb)
 }
+
+// Ctrl+K "Nova nota" (T26.2): a lousa cria a nota no centro da vista.
+const ouvintesNota = new Set<() => void>()
+
+export function pedirNovaNota(): void {
+  for (const ouvinte of ouvintesNota) ouvinte()
+}
+
+export function aoPedirNovaNota(cb: () => void): () => void {
+  ouvintesNota.add(cb)
+  return () => ouvintesNota.delete(cb)
+}
