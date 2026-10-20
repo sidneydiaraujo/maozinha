@@ -395,3 +395,9 @@ Nenhum.
     - parado: "Compactar a conversa agora?" e o Cancelar fecha.
   - **Defeito que a prova pegou:** sem estado do agente ainda, o anel saía cinza e perdia a cor. Agora fica cinza só trabalhando ou esperando você; sem estado, o clique continua sem efeito.
   - **Não provado:** o `/compact` chegando a um Claude de verdade e o número caindo depois. Fica para o aceite (item 46).
+- **20/10/2026 (correção D37, print do Sidney):** a seleção com o mouse caía em outra linha sempre que a lousa estava fora de 100%. O Sidney viu isso no 0.0.1, e o código atual tinha o mesmo defeito.
+  - **Código:** `componentes/escala.ts` (+6 testes), ligado no `Terminal.tsx`.
+  - **Provado na janela real** (cenário novo `selecao`): arrastar o mouse de verdade sobre "linha-N fim" com a lousa a 80% e a 176%.
+    - Antes: faixa 45 e 100 px fora do texto.
+    - Depois: 1 px de desvio e largura igual à do texto, `ok: true`.
+  - **Sem regressão:** `fatia8` (links, duplo clique, botão direito), `colar-e-reabrir`, `paleta`, `notas` e `vistas` continuam certos; o `colarCtrlV: 0` do `fatia8` é a oscilação já conhecida.

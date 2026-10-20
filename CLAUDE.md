@@ -56,7 +56,7 @@ nunca só na memória de uma conta.
 | `npm run check` | Tipos + lint + testes. Obrigatório antes de commitar |
 | `npm run smoke` | Build + prova sem janela: terminal real e tela falando com o main. Usa a pasta de dados `%TEMP%\lousa-ia-smoke`, nunca a da Lousa instalada |
 | `npm run build` | Só compila para `out/` |
-| `node provas/rodar.mjs <cenario>` | Prova na janela real (escondida) com estado de teste: `fatia8`, `colar-e-reabrir`, `vivo`, `desempenho`, `copias`, `juntar`, `paleta`, `envio`, `prontas`, `anel`, `notas`, `vistas`. Ver `provas/README.md` |
+| `node provas/rodar.mjs <cenario>` | Prova na janela real (escondida) com estado de teste: `fatia8`, `colar-e-reabrir`, `vivo`, `desempenho`, `copias`, `juntar`, `paleta`, `envio`, `prontas`, `anel`, `notas`, `vistas`, `selecao`. Ver `provas/README.md` |
 
 Sempre pelos scripts do npm (ou pelo `provas/rodar.mjs`): eles removem
 `ELECTRON_RUN_AS_NODE`, que vem ligado quando o terminal é do VS Code e faz o

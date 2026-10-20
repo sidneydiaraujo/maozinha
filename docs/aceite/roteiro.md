@@ -97,3 +97,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Fatia 27 — vistas salvas
 
 - [ ] 65. Arrume a lousa do seu jeito, aperte Ctrl+K e digite "revisão": escolha "Guardar vista atual como "revisão"". Mexa em quadros e na câmera à vontade. Ctrl+K "revisão" → "Vista: revisão": tudo volta ao lugar, inclusive a câmera; um quadro aberto depois de guardar fica onde está. Feche e abra a Lousa: a vista continua no Ctrl+K. "Apagar vista: revisão" apaga só a vista.
+
+## Correção — seleção com a lousa fora de 100%
+
+- [ ] 66. Diminua a lousa (Ctrl+roda fora dos quadros ou o "−" do canto) e, num terminal com bastante texto, arraste o mouse sobre uma frase lá embaixo: a faixa azul pinta exatamente a frase. Ctrl+C e cole em outro lugar: vem a frase certa. Faça o mesmo com a lousa ampliada (⤢ no quadro) e com duplo clique numa palavra. Um link de arquivo no terminal abre ao clicar em cima dele, com qualquer zoom.

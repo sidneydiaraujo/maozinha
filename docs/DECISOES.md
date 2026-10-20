@@ -152,3 +152,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
     - as barras de uso ficam sob o ícone de cada conta;
     - o anel do contexto e os seletores "Opus ▾ alto ▾" ficam no cabeçalho.
   - **O terminal continua com a paleta `lousa` da Fatia 15** (fundo `#131c27`, giz `#dcd8cc`), que já casa com a A. O Abyss segue como opção na engrenagem.
+- **D37 (20/10/2026, Sidney: "não consigo selecionar o texto, fica selecionando quebrado em outro lugar"):** seleção com o mouse fora do zoom de 100%.
+  - **Causa:** o xterm (`browser/input/Mouse.ts`) acha a linha e a coluna com a posição do mouse na tela, que já vem com o zoom da lousa (`transform: scale`), dividida pelo tamanho da letra, que vem sem zoom. Fora de 100%, a seleção, o duplo clique e o clique em link caem em outra linha. Quanto mais para baixo no quadro, maior o erro: 45 e 100 px na prova.
+  - **Correção sem mexer no xterm** (`componentes/escala.ts`): cada evento de mouse do terminal (e, durante um arraste que começou nele, o do documento) é parado antes de chegar ao xterm e reenviado com a posição como se o zoom fosse 100%, medida pela própria `.xterm-screen` (largura na tela ÷ largura sem zoom). A 100%, nada muda.
+  - **Alternativas descartadas:** remendar o `node_modules` do xterm (perde-se na próxima instalação); tirar o zoom da lousa (é o jeito de ver muitos quadros); mexer em campos privados do xterm (`_core`), que podem mudar sem aviso.

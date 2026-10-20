@@ -8,6 +8,7 @@ import '../estilos/terminal.css'
 import { fontePadrao, guardarFonte, lerFonte, proximaFonte } from './fonte'
 import { BuscaTerminal } from './BuscaTerminal'
 import { ligarDesenhista } from './desenhista'
+import { ligarEscala } from './escala'
 import { arquivoDeUri, ligarLinks, type AcoesLink } from './links'
 import { ligarSoltar } from './soltar'
 import { ligarTeclas } from './teclas'
@@ -141,6 +142,8 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
     const acoesLink = (): AcoesLink => ({ abrirUrl, arquivo: atual.current.arquivos })
     const { term, ajustar } = criarXterm(el, lerFonte(chave), acoesLink)
     const soltarDesenhista = ligarDesenhista(term, el)
+    // selecao, duplo clique e link no lugar certo com a lousa fora de 100%
+    const desligarEscala = ligarEscala(el)
     let terminalId: string | null = null
     let ativo = true
     const escrever = (dados: string): void => {
@@ -185,6 +188,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
       cancelarSaida()
       setBusca(null)
       soltarDesenhista()
+      desligarEscala()
       term.dispose()
     }
   }, [chave])
