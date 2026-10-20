@@ -44,7 +44,7 @@
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: #0b0d12;
+  background: var(--terminal-fundo, #131c27);
   border: 1px solid var(--cor);
   border-top: 3px solid var(--cor);
   border-radius: 8px;

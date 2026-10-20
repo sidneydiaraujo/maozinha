@@ -1,7 +1,8 @@
 .terminal {
   width: 100%;
   height: 100%;
-  background: #0b0d12;
+  /* o fundo da paleta da Aparencia (T15.1), posto pelo Terminal.tsx */
+  background: var(--terminal-fundo, #131c27);
   padding: 6px 0 0 8px;
   box-sizing: border-box;
 }

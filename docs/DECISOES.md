@@ -97,12 +97,12 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Ícone gerado por script nosso** (`scripts/gerar-icone.mjs`, PNG e ICO montados com o `zlib` do Node): sem dependência e fácil de refazer.
   - **`signAndEditExecutable: true`** (antes `false`, D12): só assim o electron-builder grava ícone e versão dentro do `.exe`. Sem certificado configurado ele não assina nada (conferido: `NotSigned`); a integridade continua pelo `release/SHA256.txt`. O build passou sem baixar nada novo.
   - **Versão 0.1.0:** primeira versão com as Fatias 7 a 14 juntas. Daqui em diante, cada instalador para teste sobe a versão.
-- **D23 (19/10/2026, proposta do Claude, falta o ok do Sidney):** terminal com cara de VSCode (Fatias 15 e 16). Pedido: "a caixa de terminal precisa ter uma fonte mais elegante como o vscode, … importar print da área de transferência".
+- **D23 (19/10/2026, proposta do Claude, aprovada pelo Sidney no mesmo dia):** terminal com cara de VSCode (Fatias 15 e 16). Pedido: "a caixa de terminal precisa ter uma fonte mais elegante como o vscode, … importar print da área de transferência".
   - **A caixa de texto continua a do Claude, dentro do terminal.** Uma caixa separada, com fonte proporcional como o painel do VSCode, duplicaria a digitação e atrapalharia as perguntas de permissão do Claude. O que chega perto do VSCode são a letra, as cores e os botões do cabeçalho.
   - **Paleta própria (`lousa`), puxada do Abyss, com o Abyss puro como opção** na engrenagem.
   - **Dependência nova `@xterm/addon-webgl`** (só JavaScript, versão fixa casada com o `@xterm/xterm` 6.0.0). Volta ao desenho normal sozinho quando o WebGL cai ou passa de 16 quadros. Nas provas fica no desenho normal, salvo o cenário `aparencia webgl`.
   - **Print:** no Windows o Claude cola imagem com Alt+V (lido no `claude.exe` 2.1.304). Ctrl+V com imagem e sem texto manda Alt+V ao terminal; o main só diz se há imagem e nunca entrega a imagem à tela.
-- **D24 (19/10/2026, proposta do Claude, falta o ok do Sidney):** dados do agente pela linha de status (Fatias 17 a 20).
+- **D24 (19/10/2026, proposta do Claude, aprovada pelo Sidney no mesmo dia):** dados do agente pela linha de status (Fatias 17 a 20).
   - **Fonte única: a `statusLine` do Claude Code**, ligada pela Lousa com `--settings <arquivo>` em cada agente. O arquivo fica em `<userData>\agentes`; nada é gravado nas pastas das contas. O caminho do painel do VSCode (`get_usage`, experimental) exigiria trocar o terminal pelo modo de troca de mensagens.
   - **Efeito colateral:** se a conta tiver uma linha de status própria, a da Lousa vale no lugar dela enquanto o agente estiver aberto na Lousa.
   - **A tela nunca manda comando:** `/compact`, `/model` e `/effort` são montados pelo main a partir de valores de uma lista fixa, e só com o agente parado.

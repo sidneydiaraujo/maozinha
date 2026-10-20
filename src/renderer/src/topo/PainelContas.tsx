@@ -1,9 +1,10 @@
-// Painel da engrenagem (T7.2): todos os cartoes de conta e "+ Nova conta" (T1.8).
+// Painel da engrenagem (T7.2): todos os cartoes de conta e "+ Nova conta" (T1.8), e a Aparencia (T15.1).
 import { useRef, useState } from 'react'
 import { CartaoConta } from '../componentes/CartaoConta'
 import { mensagemDe } from '../componentes/erro'
 import { NovaConta } from '../componentes/NovaConta'
 import { useFecharFora } from '../componentes/useFecharFora'
+import { Aparencia } from './Aparencia'
 import { avisoDeEmail, type Contas } from './useContas'
 
 interface Props {
@@ -90,6 +91,7 @@ export function PainelContas({ contas, aoFechar }: Props): React.JSX.Element {
           </button>
         )}
       </div>
+      <Aparencia />
       <Registros />
     </div>
   )

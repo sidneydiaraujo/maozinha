@@ -5,10 +5,11 @@ import '@xterm/xterm/css/xterm.css'
 import { useEffect, useRef, useState } from 'react'
 import type { AlvoTerminal, AvisoAgente } from '../../../shared/model'
 import '../estilos/terminal.css'
-import { guardarFonte, lerFonte, proximaFonte } from './fonte'
+import { fontePadrao, guardarFonte, lerFonte, proximaFonte } from './fonte'
 import { BuscaTerminal } from './BuscaTerminal'
 import { arquivoDeUri, ligarLinks, type AcoesLink } from './links'
 import { ligarTeclas } from './teclas'
+import { aoMudarAparencia, familiaDaFonte, lerAparencia, temaDoXterm, type Aparencia } from './tema'
 
 interface Props {
   alvo: AlvoTerminal
@@ -35,13 +36,21 @@ function abrirUri(uri: string, acoes: AcoesLink): void {
 /** Linhas que a rolagem guarda (T8.4): uma sessao longa do Claude passa das 1.000 do padrao. */
 const HISTORICO = 10_000
 
+/** O fundo do quadro em volta do terminal acompanha a paleta (variavel CSS na raiz). */
+function pintarFundo(aparencia: Aparencia): void {
+  document.documentElement.style.setProperty('--terminal-fundo', temaDoXterm(aparencia.paleta).background ?? '')
+}
+
 function criarXterm(el: HTMLElement, fonte: number, acoes: () => AcoesLink): { term: XTerm; ajustar: FitAddon } {
+  const aparencia = lerAparencia()
+  pintarFundo(aparencia)
   const term = new XTerm({
     cursorBlink: true,
-    fontFamily: 'Cascadia Mono, Consolas, monospace',
+    fontFamily: familiaDaFonte(aparencia.fonte),
     fontSize: fonte,
+    lineHeight: aparencia.entrelinha,
     scrollback: HISTORICO,
-    theme: { background: '#0b0d12' },
+    theme: temaDoXterm(aparencia.paleta),
     // Necessario para term.unicode (API marcada como "proposta" no xterm).
     allowProposedApi: true,
     linkHandler: { activate: (_evento, uri) => abrirUri(uri, acoes()), allowNonHttpProtocols: true },
@@ -62,13 +71,26 @@ function ligarFonte(term: XTerm, chave: string, reajustar: () => void): void {
   term.attachCustomWheelEventHandler((e) => {
     if (!e.ctrlKey) return true
     e.preventDefault()
-    const tamanho = proximaFonte(term.options.fontSize ?? 13, e.deltaY)
+    const tamanho = proximaFonte(term.options.fontSize ?? fontePadrao(), e.deltaY)
     if (tamanho !== term.options.fontSize) {
       term.options.fontSize = tamanho
       guardarFonte(chave, tamanho)
       reajustar()
     }
     return false
+  })
+}
+
+/** Mudou a Aparencia na engrenagem (T15.1): troca na hora, sem reabrir o terminal. */
+function ligarAparencia(term: XTerm, chave: string, reajustar: () => void): () => void {
+  return aoMudarAparencia((aparencia) => {
+    pintarFundo(aparencia)
+    term.options.fontFamily = familiaDaFonte(aparencia.fonte)
+    term.options.lineHeight = aparencia.entrelinha
+    term.options.theme = temaDoXterm(aparencia.paleta)
+    // quadro sem Ctrl+roda guardado segue o tamanho novo; o outro fica como esta
+    term.options.fontSize = lerFonte(chave)
+    reajustar()
   })
 }
 
@@ -145,9 +167,11 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos }: Props): React.JSX.
     const links = ligarLinks(term, acoesLink)
     const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
     ligarFonte(term, chave, tamanho.reajustar)
+    const pararAparencia = ligarAparencia(term, chave, tamanho.reajustar)
 
     return () => {
       ativo = false
+      pararAparencia()
       tamanho.parar()
       links.dispose()
       desligarTeclas()

@@ -1,0 +1,119 @@
+/* Secao "Aparencia do terminal" no painel da engrenagem (T15.1). */
+.aparencia {
+  padding: 8px 12px 10px;
+  font-size: 12px;
+  border-top: 1px solid var(--borda);
+}
+
+.aparencia summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.aparencia summary .apagado {
+  font-size: 11px;
+}
+
+.aparencia[open] summary {
+  margin-bottom: 8px;
+}
+
+.aparencia-fontes,
+.aparencia-paletas {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.aparencia-opcao {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 12px;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.aparencia-opcao:hover {
+  border-color: var(--apagado);
+}
+
+.aparencia-opcao[aria-checked='true'] {
+  border-color: var(--texto);
+  background: var(--cartao);
+}
+
+.aparencia-paleta {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  font: inherit;
+  font-size: 12px;
+  text-align: left;
+}
+
+.aparencia-paleta small {
+  color: var(--apagado);
+}
+
+.aparencia-amostra {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  font-family: 'Cascadia Code', Consolas, monospace;
+  font-size: 11px;
+  border-radius: 4px;
+}
+
+.aparencia-cores {
+  display: flex;
+  gap: 3px;
+}
+
+.aparencia-cores i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.aparencia-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.aparencia-passo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.aparencia-passo .botao-pequeno {
+  min-width: 28px;
+  margin: 0;
+}
+
+.aparencia-valor {
+  min-width: 28px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.aparencia-dica {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 0;
+  font-size: 11px;
+}

@@ -1,8 +1,9 @@
 # Estado da construção
 
-**Próxima tarefa: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2)** — o Sidney instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
+**Próxima tarefa: T15.2 (desenhista WebGL)**, numa sessão nova, pelo `docs/plano/fatia-15-letra-e-cores.md`.
+Com o Sidney, em paralelo: aceite das Fatias 7, 8 e 10 a 14 (T7.6, T8.8, T10.5, T11.3, T12.3, T13.2, T14.2) — ele instala `release/Lousa.ia Setup 0.1.0.exe` e testa os itens 17 a 41 (com o 20b) do `docs/aceite/roteiro.md`.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
-Depois do aceite: Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual), na ordem do `docs/plano/README.md`, cada uma numa sessão nova; D23 e D24 esperam o ok do Sidney.
+Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
 
 Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 "Próxima tarefa" e escreva uma linha no diário.
@@ -74,14 +75,14 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T13.2 | Aceite | ⬜ |
 | T14.1 | Ícone próprio e versão 0.1.0 | ✅ 19/10/2026 |
 | T14.2 | Aceite | ⬜ |
-| T15.1 | Tema e fonte do terminal | ⬜ |
+| T15.1 | Tema e fonte do terminal | ✅ |
 | T15.2 | Desenhista WebGL | ⬜ |
 | T15.3 | Aceite | ⬜ |
-| T16.0 | Prova: Alt+V cola print no Claude | ⬜ (pede o ok do Sidney: abre um Claude de verdade) |
+| T16.0 | Prova: Alt+V cola print no Claude | ⬜ (ok do Sidney em 19/10: abre um Claude de verdade numa pasta de teste, sem mandar mensagem) |
 | T16.1 | Ctrl+V com imagem e botão 📎 | ⬜ |
 | T16.2 | Arrastar imagem para o quadro | ⬜ |
 | T16.3 | Aceite | ⬜ |
-| T17.0 | Prova: linha de status com Claude de verdade | ⬜ (pede o ok do Sidney) |
+| T17.0 | Prova: linha de status com Claude de verdade | ⬜ (ok do Sidney em 19/10, mesmas condições da T16.0) |
 | T17.1 | Leitor puro do JSON da linha de status | ⬜ |
 | T17.2 | Linha de status em cada agente + canal `agentes:painel` | ⬜ |
 | T18.1 | Anel de contexto e compactar | ⬜ |
@@ -223,3 +224,16 @@ Nenhum.
     - o Ctrl+F começa no achado mais recente, e o Enter dá a volta para o mais antigo;
     - o quadro novo nasce por cima de outro.
 - **19/10/2026 (plano das Fatias 15 a 21, D23 e D24 propostas):** pedido do Sidney: plano de ação da evolução do terminal avaliada hoje, em fatias de no máximo 35% de contexto. Lidas antes as Fatias 10 a 14 do outro terminal. Sete fatias, cada uma com a lista do que ler; as provas com Claude de verdade (T16.0, T17.0) pedem o ok do Sidney. Achado de plano: com o desenhista WebGL o texto some do HTML, que é por onde os cenários de `provas/` leem a tela; por isso as provas ficam no desenho normal (T15.2).
+- **19/10/2026 (T15.1, Fatia 15 começada antes do aceite a pedido do Sidney; D23 e D24 aprovadas):**
+  - `componentes/tema.ts`:
+    - paletas `abyss` (as 16 cores ANSI do `abyss-color-theme.json` do VSCode, fundo `#000c18`) e `lousa` (o mesmo desenho, com fundo ardósia `#131c27` e texto cor de giz);
+    - `aparenciaDe`: um valor ruim volta ao padrão só no próprio campo;
+    - `aoMudarAparencia`: os terminais abertos mudam na hora, sem reabrir.
+  - `fonte.ts`: `fontePadrao()` vem da Aparência. O padrão passou de 13 para 14, e o Ctrl+roda continua por quadro.
+  - Seção "Aparência do terminal" no painel da engrenagem. O CSS ficou em `estilos/aparencia.css`, à parte, para o `topo.css` não crescer.
+  - O fundo do quadro e do terminal segue a paleta pela variável `--terminal-fundo`.
+  - 10 testes novos; `npm run check` verde (295).
+  - Cenário novo `aparencia`: `ok: true`, fotos a-lousa e b-abyss. A primeira rodada pegou cliques seguidos que se perdiam (cada clique partia do valor de antes); corrigido.
+  - `fatia8` sem erros com a letra nova (14px → 16px).
+    - O `colarCtrlV` já oscilava entre 0 e 1 antes desta mudança, por causa da espera de 0,9 s.
+    - O Ctrl+V cola: a foto e-colado mostra `colado-ok`.
