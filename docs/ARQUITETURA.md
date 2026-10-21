@@ -70,6 +70,13 @@ export interface Perfil {
   configDir: string   // pasta da conta: CLAUDE_CONFIG_DIR (claude) ou CODEX_HOME (codex)
   ehPadrao: boolean   // true só para ~/.claude e ~/.codex: rodam SEM a variável
   raizes: string[]    // pastas cujo conteúdo pertence a esta conta (sugestão)
+  git?: GitDaConta    // ausente = o terminal usa o git e o GitHub do PC (C1, D42)
+}
+
+export interface GitDaConta {
+  nome: string | null    // GIT_AUTHOR_NAME e GIT_COMMITTER_NAME
+  email: string | null   // GIT_AUTHOR_EMAIL e GIT_COMMITTER_EMAIL
+  githubProprio: boolean // GH_CONFIG_DIR na pasta da Lousa + GCM_NAMESPACE próprio
 }
 
 export interface StatusConta {
@@ -167,6 +174,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `perfis:renomear` | `{ perfilId, nome }` | `PerfilComConta` | T1.6 |
 | `perfis:atualizarConta` | `{ perfilId }` | `StatusConta` | T1.6 |
 | `perfis:criar` | `{ provedor, nome }` | `PerfilComConta` | T1.8 |
+| `perfis:definirGit` | `{ perfilId, git: GitDaConta \| null }` | `PerfilComConta` (texto vazio vira null; e-mail sem @ recusado) | C1, D42 |
 | `perfis:uso` | — | `UsoConta[]` (só em memória; limite cuja hora de zerar passou vem com 0%) | T20.1 |
 | evento `perfis:usoMudou` | — | `UsoConta` (cada conta fica com o painel mais novo de qualquer agente dela) | T20.1 |
 | `terminais:abrir` | `{ alvo: AlvoTerminal, cols, rows }` | `{ terminalId, bufferInicial, aviso }` (aviso = último estado do agente) | T2.3, T8.1 |
@@ -232,6 +240,9 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
 - conta **codex** e `ehPadrao` falso: `CODEX_HOME=<configDir>`;
 - conta padrão (`~/.claude` ou `~/.codex`): nenhuma das duas, idêntico ao terminal normal;
 - `TERM=xterm-256color`, `COLORTERM=truecolor`, `LOUSA_PERFIL=<id>`;
+- git da conta (C1, D42, `perfis/git.ts`), só se a conta tiver: `GIT_AUTHOR_NAME`/`GIT_COMMITTER_NAME`
+  e `GIT_AUTHOR_EMAIL`/`GIT_COMMITTER_EMAIL`; com "GitHub próprio", `GH_CONFIG_DIR=<userData>\contas\<id>\gh`
+  e `GCM_NAMESPACE=lousa-<id>` (`:` do id vira `-`). Os herdados do PC nunca passam (não estão na lista);
 - `<USERPROFILE>\.local\bin` no começo do PATH, se ainda não estiver
   (é onde fica o `claude.exe`, que não está no PATH do Windows). O `codex`
   instalado por npm fica em `%APPDATA%\npm`, que já vem no PATH.

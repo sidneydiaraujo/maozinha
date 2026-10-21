@@ -88,4 +88,16 @@ describe('montarAmbiente', () => {
     const env = montarAmbiente(pessoal, { ...base, TEMP: undefined })
     expect('TEMP' in env).toBe(false)
   })
+
+  it('git da conta (D42): identidade e GitHub proprio entram; os herdados do PC nunca', () => {
+    const suja = { ...base, GIT_AUTHOR_EMAIL: 'empresa@x.com', GH_CONFIG_DIR: 'C:\\errado', GCM_NAMESPACE: 'git' }
+    const comGit = { ...pessoal, git: { nome: 'Ana', email: 'ana@x.com', githubProprio: true } }
+    const env = montarAmbiente(comGit, suja, 'C:\\dados')
+    expect(env.GIT_AUTHOR_EMAIL).toBe('ana@x.com')
+    expect(env.GIT_COMMITTER_NAME).toBe('Ana')
+    expect(env.GH_CONFIG_DIR).toBe('C:\\dados\\contas\\pessoal\\gh')
+    expect(env.GCM_NAMESPACE).toBe('lousa-pessoal')
+    const semGit = montarAmbiente(principal, suja, 'C:\\dados')
+    for (const v of ['GIT_AUTHOR_EMAIL', 'GH_CONFIG_DIR', 'GCM_NAMESPACE']) expect(v in semGit).toBe(false)
+  })
 })

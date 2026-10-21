@@ -15,6 +15,14 @@ export interface Perfil {
   configDir: string   // pasta da conta: CLAUDE_CONFIG_DIR (claude) ou CODEX_HOME (codex)
   ehPadrao: boolean   // true só para ~/.claude e ~/.codex: rodam SEM a variável
   raizes: string[]    // pastas cujo conteúdo pertence a esta conta (sugestão)
+  git?: GitDaConta    // ausente = o terminal usa o git e o GitHub do PC (C1, D42)
+}
+
+// Git e GitHub de uma conta (C1, D42). Vira variável de ambiente; a Lousa não escreve gitconfig.
+export interface GitDaConta {
+  nome: string | null   // autor dos commits (GIT_AUTHOR_NAME e GIT_COMMITTER_NAME)
+  email: string | null  // GIT_AUTHOR_EMAIL e GIT_COMMITTER_EMAIL
+  githubProprio: boolean // login do gh e do git separados, numa pasta da Lousa
 }
 
 export interface StatusConta {
@@ -145,7 +153,7 @@ export interface UsoConta {
 
 export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   versao: 2           // 1 = lousa com molduras, migrada ao carregar (estado/migrar.ts)
-  perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean }>
+  perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean; git?: GitDaConta }>
   // só o que o usuário mudou; criada = conta criada pelo app (a pasta pode estar vazia)
   repos: Repo[]
   quadros: Quadro[]

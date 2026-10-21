@@ -135,3 +135,9 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Fatia 29 — o time se conhece (D39)
 
 - [ ] 75. Num time de dois agentes (linha entre eles), clique em "+ papel" no cabeçalho de cada um e escreva "Construtor" e "Revisor" (Enter guarda). Uns 2 segundos depois, com o agente parado, cada um recebe uma mensagem que começa com "[Lousa] Você é…", com a pasta e a branch dele, os colegas e para quem entrega; o Claude responde "ok". Agente trabalhando só recebe quando para. Tire a linha: os dois recebem "Você não faz mais parte do time".
+
+## C1 — git e GitHub de cada conta (D42)
+
+- [ ] 76. Engrenagem → cartão da conta Pessoal → "Git e GitHub": escreva o seu nome e o e-mail que devem aparecer nos commits pessoais e salve. Feche e abra o terminal de um quadro da Pessoal e rode `git var GIT_AUTHOR_IDENT`: aparece o nome e o e-mail que você escreveu. Num quadro da Principal, o mesmo comando mostra o do PC. Um e-mail sem @ mostra "E-mail inválido" e não grava.
+- [ ] 77. (Só se quiser GitHub separado.) Marque "GitHub só desta conta" numa conta e salve. Num terminal novo dessa conta, `gh auth status` diz que não há login; `gh auth login` entra (escolha a conta GitHub certa no navegador). O primeiro `git push` dessa conta pede o login do GitHub no navegador. Nos terminais das outras contas, o `gh` e o push continuam com o login de antes.
+

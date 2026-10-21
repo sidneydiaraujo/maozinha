@@ -20,6 +20,7 @@ type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'a
 
 export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, agentes }: Servicos): void {
   const home = app.getPath('home')
+  const dados = app.getPath('userData') // login do gh de quem tem GitHub proprio (D42)
   handle(IPC.terminaisAbrir, Abrir, ({ alvo, cols, rows }) => {
     const r = resolverAlvo(alvo, {
       home,
@@ -33,7 +34,7 @@ export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, 
     const { bufferInicial } = terminais.abrir({
       terminalId: r.terminalId,
       cwd: r.cwd,
-      env: montarAmbiente(r.perfil, process.env),
+      env: montarAmbiente(r.perfil, process.env, dados),
       cols,
       rows,
       comandoInicial: r.comandoInicial,

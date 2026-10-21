@@ -24,6 +24,7 @@ function ListaCartoes({ contas }: { contas: Contas }): React.JSX.Element {
           perfil={p}
           aoRenomear={(nome) => contas.renomear(p, nome)}
           aoAtualizar={() => contas.atualizar(p)}
+          aoDefinirGit={(git) => contas.definirGit(p, git)}
           aoEntrou={(conta) => contas.entrou(p, conta)}
           aviso={avisoDeEmail(p, perfis)}
           conferirEmail={(email) => avisoDeEmail({ ...p, conta: { ...p.conta, email } }, perfis)}

@@ -2,6 +2,7 @@
 // so o que esta na lista permitida passa; a conta entra por UMA variavel.
 // Proibido repassar process.env inteiro (docs/DECISOES.md, D6).
 import type { Perfil } from '../../shared/model'
+import { variaveisDoGit } from './git'
 
 /** Nomes em MAIUSCULAS. Lista de docs/ARQUITETURA.md ("Ambiente de cada terminal"). */
 export const VARIAVEIS_PERMITIDAS: readonly string[] = [
@@ -70,13 +71,16 @@ export function ambienteBase(base: Record<string, string | undefined>): Record<s
   return env
 }
 
+/** `dados` = pasta de dados da Lousa, onde fica o login do gh de quem tem GitHub proprio (D42). */
 export function montarAmbiente(
-  perfil: Pick<Perfil, 'id' | 'provedor' | 'configDir' | 'ehPadrao'>,
+  perfil: Pick<Perfil, 'id' | 'provedor' | 'configDir' | 'ehPadrao' | 'git'>,
   base: Record<string, string | undefined>,
+  dados: string | null = null,
 ): Record<string, string> {
   const env = ambienteBase(base)
   // Conta padrao roda SEM variavel, igual ao terminal normal (D6).
   if (!perfil.ehPadrao) env[VARIAVEL_DA_CONTA[perfil.provedor]] = perfil.configDir
+  Object.assign(env, variaveisDoGit(perfil.id, perfil.git, dados))
   env.TERM = 'xterm-256color'
   env.COLORTERM = 'truecolor'
   env.LOUSA_PERFIL = perfil.id

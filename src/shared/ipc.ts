@@ -13,6 +13,7 @@ import type {
   ConteudoArquivo,
   EstadoTela,
   FimDaCopia,
+  GitDaConta,
   ItemArquivo,
   ColegaNovo,
   Ligacao,
@@ -44,6 +45,7 @@ export const IPC = {
   perfisRenomear: 'perfis:renomear',
   perfisAtualizarConta: 'perfis:atualizarConta',
   perfisCriar: 'perfis:criar',
+  perfisDefinirGit: 'perfis:definirGit',
   perfisUso: 'perfis:uso',
   perfisUsoMudou: 'perfis:usoMudou', // evento main -> tela (uso da conta, T20.1)
   reposEscolherPasta: 'repos:escolherPasta',
@@ -127,6 +129,8 @@ export interface LousaApi {
     atualizarConta(perfilId: string): Promise<StatusConta>
     /** Cria a pasta vazia da conta nova (T1.8); o login vem depois, pelo cartao. */
     criar(provedor: Provedor, nome: string): Promise<PerfilComConta>
+    /** Nome, e-mail e GitHub proprio da conta (C1, D42); null = usa o git do PC. */
+    definirGit(perfilId: string, git: GitDaConta | null): Promise<PerfilComConta>
     /** Uso de cada conta Claude que ja teve um agente falando (T20.1); so em memoria. */
     uso(): Promise<UsoConta[]>
     aoUso(cb: (uso: UsoConta) => void): () => void

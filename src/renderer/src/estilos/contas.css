@@ -215,3 +215,39 @@
   margin: 0;
   width: 100%;
 }
+
+/* Git e GitHub da conta (C1, D42) */
+.git-conta {
+  font-size: 12px;
+}
+
+.git-conta summary {
+  cursor: pointer;
+  color: var(--texto);
+}
+
+.git-campo {
+  display: grid;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.git-campo input {
+  font: inherit;
+  color: var(--texto);
+  background: var(--fundo);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-p);
+  padding: 3px 6px;
+}
+
+.git-marca {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.git-dica {
+  margin: 6px 0;
+}

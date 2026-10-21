@@ -107,7 +107,7 @@ Origem entre parênteses.
 ### C. Perfis e isolamento (o diferencial)
 | # | Funcionalidade | P |
 |---|---|---|
-| C1 | Perfil = nome + cor + pastas próprias: `CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GH_CONFIG_DIR`, `GIT_CONFIG_GLOBAL`, chave SSH | M |
+| C1 | Perfil = nome + cor + pastas próprias: `CLAUDE_CONFIG_DIR`, `CODEX_HOME`, `GH_CONFIG_DIR`, autor do git e login do git separado (D42: sem `GIT_CONFIG_GLOBAL`; chave SSH fica de fora) | M |
 | C2 | Detecta perfis existentes (`~/.claude`, `~/.claude-pessoal`, `~/.codex`, `~/.codex-<nome>`) e permite criar novos de Claude ou Codex | M |
 | C3 | Terminal recebe **só** as variáveis necessárias (lista permitida), nunca o ambiente inteiro do PC | M |
 | C4 | Segredos no Gerenciador de Credenciais do Windows, nunca em arquivo da Lousa | M |

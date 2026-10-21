@@ -19,6 +19,10 @@ const SchemaEstado = z.object({
       raizes: z.array(z.string()).optional(),
       provedor: z.enum(['claude', 'codex']).optional(),
       criada: z.boolean().optional(),
+      git: z
+        .object({ nome: z.string().nullable(), email: z.string().nullable(), githubProprio: z.boolean() })
+        .optional()
+        .catch(undefined),
     }),
   ),
   repos: z.array(

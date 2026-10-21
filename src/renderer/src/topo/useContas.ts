@@ -1,6 +1,6 @@
 // Contas da barra de cima e do painel da engrenagem (T7.2): uma lista so, lida uma vez.
 import { useCallback, useEffect, useState } from 'react'
-import type { PerfilComConta, Provedor, StatusConta } from '../../../shared/model'
+import type { GitDaConta, PerfilComConta, Provedor, StatusConta } from '../../../shared/model'
 import { mensagemDe } from '../componentes/erro'
 
 export interface Contas {
@@ -8,6 +8,8 @@ export interface Contas {
   erro: string | null
   renomear(perfil: PerfilComConta, nome: string): Promise<void>
   atualizar(perfil: PerfilComConta): Promise<void>
+  /** C1, D42: lanca a mensagem do main ("E-mail inválido") para o formulario mostrar. */
+  definirGit(perfil: PerfilComConta, git: GitDaConta | null): Promise<void>
   entrou(perfil: PerfilComConta, conta: StatusConta): void
   /** T1.8: lanca a mensagem do main ("Nome reservado"…) para a janela mostrar. */
   criar(provedor: Provedor, nome: string): Promise<void>
@@ -56,6 +58,11 @@ export function useContas(aoMudar: () => void): Contas {
     [trocar],
   )
 
+  const definirGit = useCallback(
+    async (perfil: PerfilComConta, git: GitDaConta | null) => trocar(await window.lousa.perfis.definirGit(perfil.id, git)),
+    [trocar],
+  )
+
   const entrou = useCallback(
     (perfil: PerfilComConta, conta: StatusConta) => {
       trocar({ ...perfil, conta })
@@ -73,5 +80,5 @@ export function useContas(aoMudar: () => void): Contas {
     [aoMudar],
   )
 
-  return { perfis, erro, renomear, atualizar, entrou, criar }
+  return { perfis, erro, renomear, atualizar, definirGit, entrou, criar }
 }

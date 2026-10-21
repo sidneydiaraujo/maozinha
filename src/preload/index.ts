@@ -28,6 +28,7 @@ const api: LousaApi = {
     renomear: (perfilId, nome) => ipcRenderer.invoke(IPC.perfisRenomear, { perfilId, nome }),
     atualizarConta: (perfilId) => ipcRenderer.invoke(IPC.perfisAtualizarConta, { perfilId }),
     criar: (provedor, nome) => ipcRenderer.invoke(IPC.perfisCriar, { provedor, nome }),
+    definirGit: (perfilId, git) => ipcRenderer.invoke(IPC.perfisDefinirGit, { perfilId, git }),
     uso: () => ipcRenderer.invoke(IPC.perfisUso),
     aoUso: (cb) => inscrever<UsoConta>(IPC.perfisUsoMudou, cb),
   },

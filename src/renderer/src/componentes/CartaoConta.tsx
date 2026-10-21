@@ -1,12 +1,15 @@
 import { useState, type CSSProperties, type KeyboardEvent } from 'react'
-import type { PerfilComConta, StatusConta } from '../../../shared/model'
+import type { GitDaConta, PerfilComConta, StatusConta } from '../../../shared/model'
 import { TIPO_ARRASTE_CONTA } from '../lousa/nos'
+import { GitDaContaSecao } from './GitDaConta'
 import { JanelaLogin } from './JanelaLogin'
 
 interface Props {
   perfil: PerfilComConta
   aoRenomear(nome: string): Promise<void>
   aoAtualizar(): Promise<void>
+  /** So no painel da engrenagem; o balao do icone fica sem a secao de git. */
+  aoDefinirGit?(git: GitDaConta | null): Promise<void>
   /** O login terminou: a conta ja foi lida de novo. */
   aoEntrou(conta: StatusConta): void
   /** Ex.: "mesmo e-mail da conta Principal". */
@@ -84,7 +87,7 @@ function Avisos({
 }
 
 export function CartaoConta(props: Props): React.JSX.Element {
-  const { perfil, aoRenomear, aoAtualizar, aoEntrou, aviso, conferirEmail } = props
+  const { perfil, aoRenomear, aoAtualizar, aoDefinirGit, aoEntrou, aviso, conferirEmail } = props
   const [editando, setEditando] = useState(false)
   const [rascunho, setRascunho] = useState(perfil.nome)
   const [falha, setFalha] = useState<string | null>(null)
@@ -147,6 +150,7 @@ export function CartaoConta(props: Props): React.JSX.Element {
       <p className="cartao-email">{email}</p>
       <Avisos perfil={perfil} aviso={aviso} falha={falha} />
       <AcoesCartao logado={conta.logado} aoAtualizar={aoAtualizar} aoEntrar={() => setEntrando(true)} />
+      {aoDefinirGit && <GitDaContaSecao perfil={perfil} aoSalvar={aoDefinirGit} />}
       {entrando && (
         <JanelaLogin
           perfil={perfil}

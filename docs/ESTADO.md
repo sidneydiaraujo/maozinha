@@ -128,6 +128,12 @@ O Sidney vai mandando enquanto testa. Feitos viram itens novos no `docs/aceite/r
 | A4 | Uso da conta à vista na barra de cima, opção na engrenagem (D40) | ✅ 20/10/2026 (aceite: item 71) |
 | A5 | Ícone novo "Time na lousa" (D41) | ✅ 21/10/2026 (instalador 0.3.1) |
 
+## Itens do mapa de funcionalidades (`FUNCIONALIDADES.md`)
+
+| Id | Item | Status |
+|---|---|---|
+| C1 | Git e GitHub de cada conta: nome e e-mail dos commits, "GitHub só desta conta" (D42) | ✅ 21/10/2026 (aceite: itens 76 e 77) |
+
 ## Bloqueios
 
 Nenhum.
@@ -471,3 +477,5 @@ Nenhum.
 - **21/10/2026 (versão 0.3.0):** pedido do Sidney: "junte tudo com os ajustes fornecidos no outro terminal e monte uma nova versão". A `main` (fceb034, ajustes A1 a A4, D40) já estava junta nesta branch desde o merge `f5473b7`; a `main` avançou até aqui (fast-forward) e o `npm run dist` gerou `release/Lousa.ia Setup 0.3.0.exe` (104 MB, hash `ed9a502d…000b` em `release/SHA256.txt`). **Conferido:** `npm run check` verde na pasta principal (488), versão do arquivo 0.3.0 e `win-unpacked\Lousa.ia.exe --smoke` → código 0. **Não instalei** no PC.
 
 - **21/10/2026 (ícone novo, versão 0.3.1):** pedido do Sidney: "esse ícone é muito feio… quero um ícone que reflita o trabalho". Três propostas comparadas numa página (D41); ele escolheu a A, "Time na lousa". scripts/gerar-icone.mjs refeito sem dependência, com versão simples até 32 px. Check verde (488). Instalador gerado na cópia `claude-2` (a pasta principal tinha alteração em andamento de outra sessão) e copiado para `release`: `Lousa.ia Setup 0.3.1.exe`, SHA-256 `fde652ac629568a605d1c9e803be28ecfadb8f05f19cc8cb983527bb83540663`, versão 0.3.1.0 gravada no .exe, `--smoke` com código 0, ícone do .exe conferido.
+- **21/10/2026 (C1, D42):** revisão do mapa de funcionalidades a pedido do Sidney ("ficou algo pendente?"): o C1 (git e GitHub por conta) era o item de primeira versão que faltava. **Prova antes de codar:** no PC, `GCM_NAMESPACE` separa o login do git (sem senha na gaveta nova), `gh` com pasta vazia pede login sem criar nada e `GIT_AUTHOR_*` vence o `~/.gitconfig`. Código: `perfis/git.ts` (+9 testes), `montarAmbiente` com a pasta de dados (+1), `ServicoPerfis.definirGit` (+2), canal `perfis:definirGit`, seção "Git e GitHub" no cartão da engrenagem (`GitDaConta.tsx`). 500 testes, lint zerado. **Provado na janela** (cenário `git-conta`): e-mail sem @ recusado sem gravar; salvo, o terminal da Pessoal reaberto recebe nome, e-mail, `GH_CONFIG_DIR` na pasta de dados da rodada e `GCM_NAMESPACE=lousa-pessoal`, e o `gh` nele diz "not logged into any GitHub hosts"; o da Principal não recebe nada. A primeira rodada deixou o Electron aberto depois do resultado (encerrado à mão); a segunda fechou sozinha. **Não provado:** `gh auth login` e push de verdade numa conta com GitHub próprio (abriria o navegador; fica para o aceite, item 77).
+

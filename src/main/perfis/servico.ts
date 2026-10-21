@@ -1,8 +1,9 @@
 // Regra das contas: junta o que foi detectado no PC com o que o usuario ajustou
 // (nome) e com o status de login lido de cada uma (T1.6).
 import { join } from 'node:path'
-import type { EstadoSalvo, Perfil, PerfilComConta, PerfilId, Provedor, StatusConta } from '../../shared/model'
+import type { EstadoSalvo, GitDaConta, Perfil, PerfilComConta, PerfilId, Provedor, StatusConta } from '../../shared/model'
 import type { Armazem } from '../estado/armazem'
+import { normalizarGit } from './git'
 import { slugConta } from './slug'
 
 export interface DepsServicoPerfis {
@@ -60,6 +61,18 @@ export class ServicoPerfis {
     this.obter(perfilId)
     const estado = this.deps.armazem.carregar()
     estado.perfis[perfilId] = { ...estado.perfis[perfilId], nome: nome.trim() }
+    this.deps.armazem.salvar(estado)
+    const perfil = this.obter(perfilId)
+    return { ...perfil, conta: await this.conta(perfil) }
+  }
+
+  /** Git e GitHub da conta (C1, D42); null volta ao git do PC. Vale para os terminais abertos depois. */
+  async definirGit(perfilId: PerfilId, git: GitDaConta | null): Promise<PerfilComConta> {
+    this.obter(perfilId)
+    const limpo = normalizarGit(git)
+    const estado = this.deps.armazem.carregar()
+    const { git: _antigo, ...resto } = estado.perfis[perfilId] ?? {}
+    estado.perfis[perfilId] = limpo ? { ...resto, git: limpo } : resto
     this.deps.armazem.salvar(estado)
     const perfil = this.obter(perfilId)
     return { ...perfil, conta: await this.conta(perfil) }

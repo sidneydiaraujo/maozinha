@@ -115,4 +115,25 @@ describe('ServicoPerfis', () => {
     await expect(servico.criar('claude', 'PESSOAL')).rejects.toThrow('Já existe uma conta com esse nome')
     expect(pastas).toEqual([])
   })
+
+  it('definirGit guarda o git limpo, mantem o nome ajustado e null apaga (D42)', async () => {
+    const { servico, estado } = montar()
+    await servico.renomear('pessoal', 'Casa')
+    await servico.definirGit('pessoal', { nome: ' Ana ', email: 'ana@x.com', githubProprio: true })
+    expect(estado().perfis.pessoal).toEqual({ nome: 'Casa', git: { nome: 'Ana', email: 'ana@x.com', githubProprio: true } })
+    await servico.definirGit('pessoal', { nome: '', email: '', githubProprio: false })
+    expect(estado().perfis.pessoal).toEqual({ nome: 'Casa' })
+    await servico.definirGit('pessoal', { nome: 'Ana', email: null, githubProprio: false })
+    await servico.definirGit('pessoal', null)
+    expect(estado().perfis.pessoal).toEqual({ nome: 'Casa' })
+  })
+
+  it('definirGit recusa conta desconhecida e e-mail invalido sem gravar', async () => {
+    const { servico, estado } = montar()
+    await expect(servico.definirGit('nada', null)).rejects.toThrow('Conta não encontrada')
+    await expect(servico.definirGit('pessoal', { nome: null, email: 'sem-arroba', githubProprio: false })).rejects.toThrow(
+      'E-mail inválido',
+    )
+    expect(estado().perfis).toEqual({})
+  })
 })
