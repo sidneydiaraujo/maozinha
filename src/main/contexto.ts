@@ -26,6 +26,9 @@ import { copiarSessao } from './quadros/sessoes'
 import { ServicoRepos } from './repos/servico'
 import { ServicoTerminais } from './terminais/servico'
 import { spawnReal } from './terminais/spawnReal'
+import { rodarReal, temClaudeDentro } from './terminais/filhos'
+import { ApresentadorTime, FilaMensagens } from './time/apresentar'
+import { provedoresDos } from './time/servico'
 
 export interface Contexto {
   perfis: ServicoPerfis
@@ -39,6 +42,41 @@ export interface Contexto {
   agentes: PonteAgentes
   ajustes: FilaAjustes
   usos: UsoDasContas
+  /** Time de agentes (T29.1): chame `mudou()` quando linha, colega, papel ou quadro mudar. */
+  time: ApresentadorTime
+}
+
+/** Fila de mensagens aos agentes e apresentador do time (T29.1). */
+function montarTime(d: {
+  armazem: Armazem
+  perfis: ServicoPerfis
+  terminais: ServicoTerminais
+  esperar(ms: number): Promise<void>
+}): { mensagens: FilaMensagens; time: ApresentadorTime } {
+  const { armazem, perfis, terminais } = d
+  const mensagens = new FilaMensagens({
+    aberto: (id) => terminais.estaAberto(id),
+    aviso: (id) => terminais.aviso(id),
+    escrever: (id, dados) => terminais.escrever(id, dados),
+    esperar: d.esperar,
+    temClaude: async (id) => {
+      const pid = terminais.pid(id)
+      return pid !== null && temClaudeDentro(pid, rodarReal)
+    },
+  })
+  const time = new ApresentadorTime({
+    dados: () => {
+      const e = armazem.carregar()
+      const provedores = provedoresDos(e.quadros, (id) => perfis.obter(id))
+      return { quadros: e.quadros, repos: e.repos, ligacoes: e.ligacoes ?? [], provedores }
+    },
+    fila: mensagens,
+    adiar: (fn, ms) => {
+      const t = setTimeout(fn, ms)
+      return () => clearTimeout(t)
+    },
+  })
+  return { mensagens, time }
 }
 
 /** Entrega um evento a todas as janelas abertas. */
@@ -115,6 +153,8 @@ export function criarContexto(): Contexto {
       avisos.aoEstado(terminalId, aviso)
       // modelo/esforco pedidos com o agente trabalhando: digita quando ele parar (T19.1)
       void ajustes.aoEstado(terminalId, aviso)
+      // apresentacao do time pedida com o agente ocupado: digita quando ele parar (T29.1)
+      void mensagens.aoEstado(terminalId, aviso)
     },
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
@@ -124,6 +164,7 @@ export function criarContexto(): Contexto {
     escrever: (id, dados) => terminais.escrever(id, dados),
     esperar,
   })
+  const { mensagens, time } = montarTime({ armazem, perfis, terminais, esperar })
   const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
   const usos = new UsoDasContas()
   // linha de status dos agentes (T17.2, D24): fica so em <userData>\agentes
@@ -145,6 +186,7 @@ export function criarContexto(): Contexto {
     terminais.fechar(id)
     agentes.esquecer(id)
     ajustes.esquecer(id)
+    mensagens.esquecer(id)
   }
   const repos = new ServicoRepos({
     armazem,
@@ -168,5 +210,5 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes, usos }
+  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes, usos, time }
 }

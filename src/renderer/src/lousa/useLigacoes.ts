@@ -15,7 +15,7 @@ import {
 import type { ColegaNovo, EstadoTela, ModoLigacao, Posicao } from '../../../shared/model'
 import { podeLigar, TEXTO_RECUSA } from '../../../shared/time'
 import { mensagemDe } from '../componentes/erro'
-import { aoPedirColega } from './foco'
+import { aoPedirColega, aoPedirMenuLinha } from './foco'
 import { comColega, comLigacao, dadosDaTela, montarArestas, type DadosLinha } from './linhas'
 import { LinhaTime } from './LinhaTime'
 import { MenuLinha, type PedidoMenuLinha } from './MenuLinha'
@@ -138,6 +138,15 @@ export function useLigacoes(deps: Deps) {
     if (d) setMenu({ ligacao: d.ligacao, mesmaPasta: d.mesmaPasta, x: evento.clientX, y: evento.clientY })
   }, [])
   const fechar = useCallback(() => setMenu(null), [])
+  // o rotulo da linha fica fora dela: clicar nele abre o mesmo menu
+  useEffect(
+    () =>
+      aoPedirMenuLinha(({ ligacaoId, x, y }) => {
+        const d = arestas.find((a) => a.id === ligacaoId)?.data as DadosLinha | undefined
+        if (d) setMenu({ ligacao: d.ligacao, mesmaPasta: d.mesmaPasta, x, y })
+      }),
+    [arestas],
+  )
   const fazer = (acao: () => Promise<unknown>): void => {
     setMenu(null)
     void acao()

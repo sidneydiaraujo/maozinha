@@ -52,6 +52,7 @@ export const IPC = {
   quadrosCriar: 'quadros:criar',
   quadrosRemover: 'quadros:remover',
   quadrosTrocarConta: 'quadros:trocarConta',
+  quadrosDefinirPapel: 'quadros:definirPapel',
   quadrosFocar: 'quadros:focar', // evento main -> tela (clique na notificacao)
   copiasResumo: 'copias:resumo',
   copiasJuntar: 'copias:juntar',
@@ -152,6 +153,8 @@ export interface LousaApi {
     remover(quadroId: string): Promise<FimDaCopia>
     /** Mesmo quadro e pasta, outra conta: reinicia o terminal e a conversa vai junto (D14). */
     trocarConta(quadroId: string, perfilId: string): Promise<Quadro>
+    /** Nome no time ("Revisor"), ate 40 letras; vazio tira (T29.1). */
+    definirPapel(quadroId: string, papel: string): Promise<Quadro>
     /** Clique na notificacao do Windows: a lousa enquadra este quadro. */
     aoFocar(cb: (quadroId: string) => void): () => void
   }

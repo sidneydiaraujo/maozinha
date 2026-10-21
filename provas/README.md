@@ -6,7 +6,7 @@ colar, árvore viva, desempenho da digitação. Nasceram nas provas das Fatias 8
 
 Nunca usam o seu estado nem as suas contas. Cada rodada cria, em `provas/saida/` (fora do
 git), uma pasta de dados nova e uma cópia nova da `pasta-demo`. Nenhum cenário abre um
-Claude de verdade, **salvo o `painel`, o `anel` e o `modelo`** (estado `agente`, conta Pessoal, pedem o ok
+Claude de verdade, **salvo o `painel`, o `anel`, o `modelo`, o `time` e o `osc-saida`** (estado `agente`, conta Pessoal, pedem o ok
 do Sidney; não mandam mensagem). O aviso do agente usa o "Claude falso" (`apoio/falso-claude.mjs`).
 
 ## Como rodar
@@ -47,6 +47,8 @@ node provas/rodar.mjs <cenario> [--sem-build] [opções do cenário]
 | `anel` | agente | Fatia 18: o `claude.exe` abre e o cenário responde "No, exit" na confiança da pasta (o Claude fecha sem mensagem; fica o PowerShell). Com painel e estado pelo `prova.ipc`: sem painel e com 30% no padrão o anel não aparece; "Sempre" na engrenagem vale na hora; 30 normal, 75 âmbar, 95 vermelho, com o balão "30% do contexto usado (60 mil de 200 mil)"; trabalhando o anel fica cinza, o clique não abre nada e o main recusa o `agentes:compactar`; parado, o clique pergunta "Compactar a conversa agora?" e o cenário cancela | 1-30, 2-75, 3-95, 4-trabalhando, 5-pergunta |
 | `uso` | demo | Fatia 20, sem Claude: o uso vem pelo `prova.ipc('perfis:usoMudou')`. Ao abrir, `perfis.uso()` vazio, nenhuma barra e "sem dado ainda" no balão; A4: por padrão o mostrador à vista ao lado do ícone ("sessão 42% 2h10", vermelho/âmbar na Pessoal, cinza com dado velho) e nenhuma barrinha; engrenagem → "Uso das contas" → "Só no clique" tira o mostrador e volta às barras; Principal 42%/18% com duas barras azuis e o balão "Sessão 42% · zera em 2h10", "Semana 18% · zera sex 09:00", "visto agora"; Pessoal 92%/75% visto há 2 h com vermelha e âmbar, mas em cinza | 0-mostrador, 0-engrenagem, 1-barras, 2-balao |
 | `modelo` | agente | Fatia 19, como o `anel` ("No, exit" na confiança; fica o PowerShell). O estado do agente (OSC 7501) é impresso pelo próprio PowerShell com `[char]27`, e o que o main digita cai nele: antes do painel os rótulos ficam cinza ("modelo ▾", "esforço ▾"); com o painel, "Opus 5.5 ▾" e "médio ▾"; trabalhando, Sonnet só fica guardado ("Vale quando o agente parar") e nada é digitado; ao parar, chega `/model sonnet`; "alto" com ele parado digita `/effort high` na hora; painel bem depois ainda com médio mostra "⚠ médio"; o quadro salvo no main fica com sonnet/high | 1-painel, 2-ajustado, 3-recusado |
+| `time` | time | Fatias 28 e 29, **com Claude de verdade** (ok do Sidney em 21/10; "No, exit" na confiança, nenhuma mensagem): bolinhas só nos agentes; soltar a linha no vazio cria colega; a1→a3 recusado (contas), a1→a2 âmbar, a volta recusada; clique na bolinha cria colega na cópia; menu (perguntar, pausar, tracejada); o rótulo também abre o menu; "Abrir o colega numa cópia"; salvo = tela; fechar quadro tira as linhas; papel "Construtor"; com só o PowerShell nada é digitado, nem com "parado" fingido; com o Claude falso (`apoio/eco-time.mjs`, o node copiado como `claude.exe`) a apresentação chega | 1..5 |
+| `osc-saida` | agente | Investigação (T29.1): grava o OSC 7501 cru do `claude.exe` na confiança da pasta e depois do "No, exit". Em 21/10: só a pergunta `?`, nenhum estado | — |
 
 **Desenho do terminal nas provas (T15.2):** o app usa o desenho WebGL, que não deixa o texto
 no HTML. Por isso, numa rodada de prova, o main abre a tela com `?desenho=dom` e os terminais

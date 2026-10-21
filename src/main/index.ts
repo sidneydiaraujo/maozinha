@@ -47,7 +47,7 @@ function registrarCanais(): void {
   registrarHandlersApp(pastaDosRegistros())
   registrarHandlersPerfis(contexto.perfis)
   registrarHandlersRepos(contexto.repos)
-  registrarHandlersQuadros(contexto.quadros)
+  registrarHandlersQuadros(contexto.quadros, contexto.time)
   registrarHandlersCopias(contexto.repos, rodarGitReal)
   registrarHandlersMensagens(join(app.getPath('userData'), 'mensagens.json'))
   registrarHandlersNotas(contexto.armazem)

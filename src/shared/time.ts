@@ -94,3 +94,63 @@ export function timeDe(ligacoes: Ligacao[], quadroId: string): string[] {
   }
   return time
 }
+
+// --- Apresentacao do time (T29.1) ---
+
+export const MAXIMO_LETRAS_PAPEL = 40
+export const TEXTO_SAIU_DO_TIME = '[Lousa] Você não faz mais parte do time. Siga só com o que eu pedir aqui. Responda só "ok".'
+// eslint-disable-next-line no-control-regex
+const CONTROLE = /[\u0000-\u001f\u007f-\u009f]+/g
+
+/** Papel livre ("Revisor"): sem quebra de linha nem caractere de controle, ate 40 letras. */
+export function limparPapel(papel: string): string {
+  return papel.replace(CONTROLE, ' ').replace(/\s+/g, ' ').trim().slice(0, MAXIMO_LETRAS_PAPEL).trim()
+}
+
+/** Nome do agente no time: o papel, senao o apelido da copia, senao o titulo ("Claude 3"). */
+export function nomeNoTime(dados: DadosTime, quadroId: string): string {
+  const q = dados.quadros.find((x) => x.id === quadroId)
+  if (!q) return quadroId
+  return q.papel || dados.repos.find((r) => r.id === q.repoId)?.copia?.apelido || q.titulo
+}
+
+function ondeTrabalha(dados: DadosTime, quadroId: string): string {
+  const q = dados.quadros.find((x) => x.id === quadroId)
+  const repo = dados.repos.find((r) => r.id === q?.repoId)
+  return repo?.copia ? `branch ${repo.copia.branch}` : `pasta original ${repo?.nome ?? '?'}`
+}
+
+const lista = (nomes: string[]): string => nomes.join(', ')
+
+/**
+ * O que a Lousa diz ao agente quando o time dele muda: quem ele e, onde trabalha, quem sao os
+ * colegas e para quem entrega. Uma linha so, sem caractere de controle. null = sem time.
+ */
+export function textoDoTime(dados: DadosTime, quadroId: string): string | null {
+  const time = timeDe(dados.ligacoes, quadroId)
+  if (time.length < 2) return null
+  const eu = dados.quadros.find((q) => q.id === quadroId)
+  const pasta = dados.repos.find((r) => r.id === eu?.repoId)?.caminho ?? '?'
+  const colegas = time.filter((id) => id !== quadroId).map((id) => `${nomeNoTime(dados, id)} (${ondeTrabalha(dados, id)})`)
+  const recebe = dados.ligacoes.filter((l) => l.para === quadroId).map((l) => nomeNoTime(dados, l.de))
+  const entrega = dados.ligacoes.filter((l) => l.de === quadroId).map((l) => nomeNoTime(dados, l.para))
+  const partes = [
+    `[Lousa] Você é ${nomeNoTime(dados, quadroId)} num time de ${time.length} agentes.`,
+    `Você trabalha em ${pasta} (${ondeTrabalha(dados, quadroId)}).`,
+    `Colegas: ${colegas.join(' · ')}.`,
+    recebe.length ? `Você recebe o trabalho de ${lista(recebe)}.` : '',
+    entrega.length ? `Quando terminar, o seu trabalho vai para ${lista(entrega)}.` : '',
+    'Mexa só na sua pasta. Para ver o trabalho de um colega, use git log ou git diff na branch dele.',
+    'Responda só "ok".',
+  ]
+  return inerte(partes.filter(Boolean).join(' '))
+}
+
+/**
+ * Sem caractere de controle nem os que um shell usa para encadear ou expandir (; & | $ e o
+ * acento grave): se o Claude tiver saido e o quadro estiver no PowerShell, a linha nao vira
+ * comando (comecar com "[Lousa] Voce" ja e erro de sintaxe; isto e a segunda trava).
+ */
+function inerte(texto: string): string {
+  return texto.replace(CONTROLE, ' ').replace(/[;&|$`]/g, ' ').replace(/ {2,}/g, ' ')
+}

@@ -42,6 +42,7 @@ const SchemaEstado = z.object({
       // valor desconhecido (versao futura do CLI) vira "sem escolha", sem estragar o estado
       modelo: z.enum(MODELOS).optional().catch(undefined),
       esforco: z.enum(ESFORCOS).optional().catch(undefined),
+      papel: z.string().max(40).optional(),
     }),
   ),
   viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),

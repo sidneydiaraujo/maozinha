@@ -20,8 +20,13 @@ const Colega = z.object({ quadroId: Id, posicao: z.object({ x: Numero, y: Numero
  * Linhas do time (T28.1, D39) e colega pela bolinha (T28.3): so ids de quadro e de linha. Conta,
  * pasta e copia do colega vem do quadro salvo; nada aqui digita num terminal.
  */
-export function registrarHandlersTime(contexto: Pick<Contexto, 'armazem' | 'perfis' | 'quadros'>): void {
+export function registrarHandlersTime(contexto: Pick<Contexto, 'armazem' | 'perfis' | 'quadros' | 'time'>): void {
   const { armazem, perfis, quadros } = contexto
+  // toda mudanca de linha ou colega: o time ouve de novo quem e quem (T29.1)
+  const eAvisa = <T>(feito: T): T => {
+    contexto.time.mudou()
+    return feito
+  }
   const time = new ServicoTime({ armazem, perfis, novoId: randomUUID })
   const deps: DepsColega = {
     armazem,
@@ -29,9 +34,11 @@ export function registrarHandlersTime(contexto: Pick<Contexto, 'armazem' | 'perf
     time,
     ehClaude: (perfilId) => perfis.obter(perfilId).provedor === 'claude',
   }
-  handle(IPC.timeLigar, Ligar, ({ de, para }) => time.ligar(de, para))
+  handle(IPC.timeLigar, Ligar, ({ de, para }) => eAvisa(time.ligar(de, para)))
   handle(IPC.timeAjustar, Ajustar, ({ ligacaoId, mudanca }) => time.ajustar(ligacaoId, mudanca))
-  handle(IPC.timeDesligar, PorLinha, ({ ligacaoId }) => time.desligar(ligacaoId))
-  handle(IPC.timeColega, Colega, ({ quadroId, posicao }) => criarColega(deps, quadroId, posicao ? { posicao } : {}))
-  handle(IPC.timeSeparar, PorLinha, ({ ligacaoId }) => separarEmCopia(deps, ligacaoId))
+  handle(IPC.timeDesligar, PorLinha, ({ ligacaoId }) => eAvisa(time.desligar(ligacaoId)))
+  handle(IPC.timeColega, Colega, async ({ quadroId, posicao }) =>
+    eAvisa(await criarColega(deps, quadroId, posicao ? { posicao } : {})),
+  )
+  handle(IPC.timeSeparar, PorLinha, async ({ ligacaoId }) => eAvisa(await separarEmCopia(deps, ligacaoId)))
 }

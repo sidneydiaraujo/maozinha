@@ -222,6 +222,17 @@ describe('ServicoQuadros com copia separada (D18)', () => {
   })
 })
 
+describe('ServicoQuadros.definirPapel (T29.1)', () => {
+  it('guarda o papel limpo; vazio tira; quadro que nao existe lanca', () => {
+    const { servico, estado } = montar()
+    const q = servico.criar('r1', 'agente', 'principal')
+    expect(servico.definirPapel(q.id, '  Revisor  ').papel).toBe('Revisor')
+    expect(estado().quadros[0]?.papel).toBe('Revisor')
+    expect(servico.definirPapel(q.id, '   ')).not.toHaveProperty('papel')
+    expect(() => servico.definirPapel('nada', 'x')).toThrow('Quadro não encontrado')
+  })
+})
+
 describe('ServicoQuadros.ajustar (T19.1)', () => {
   it('guarda modelo e esforco no agente Claude; mudar um mantem o outro', () => {
     const { servico, estado } = montar()

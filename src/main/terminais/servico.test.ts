@@ -4,6 +4,7 @@ import { ServicoTerminais, type Descartavel, type PtyLike, type Spawner } from '
 import { respostaEmTeclas } from './status'
 
 class PtyFalso implements PtyLike {
+  readonly pid = 4242
   escritos: string[] = []
   tamanhos: Array<[number, number]> = []
   mortes = 0

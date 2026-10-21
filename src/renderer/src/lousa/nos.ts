@@ -9,6 +9,8 @@ export interface AcoesLousa {
   abrirArquivo(repoId: string, relativo: string): void
   /** Enquadra o quadro na tela; de novo, volta a vista de antes (T8.4). */
   ampliar(quadroId: string): void
+  /** Papel no time (T29.1); vazio tira. */
+  definirPapel(quadroId: string, papel: string): Promise<void>
 }
 
 export type QuadroNo = Node<

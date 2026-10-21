@@ -15,6 +15,7 @@ import {
 import type { ServicoCopias } from '../copias/servico'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoPerfis } from '../perfis/servico'
+import { limparPapel } from '../../shared/time'
 import { semLinhasInvalidas } from '../time/servico'
 import { lugarLivre } from './lugar'
 
@@ -185,6 +186,18 @@ export class ServicoQuadros {
     if (mudanca.esforco !== undefined && !ESFORCOS.includes(mudanca.esforco)) throw new Error('Esforço desconhecido')
     if (mudanca.modelo) quadro.modelo = mudanca.modelo
     if (mudanca.esforco) quadro.esforco = mudanca.esforco
+    this.deps.armazem.salvar(estado)
+    return quadro
+  }
+
+  /** Nome do agente no time (T29.1): limpo e ate 40 letras; vazio tira o papel. */
+  definirPapel(quadroId: string, papel: string): Quadro {
+    const estado = this.deps.armazem.carregar()
+    const quadro = estado.quadros.find((q) => q.id === quadroId)
+    if (!quadro) throw new Error('Quadro não encontrado')
+    const limpo = limparPapel(papel)
+    if (limpo) quadro.papel = limpo
+    else delete quadro.papel
     this.deps.armazem.salvar(estado)
     return quadro
   }

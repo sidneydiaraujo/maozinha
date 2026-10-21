@@ -11,6 +11,7 @@ import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
 import { JanelaJuntar } from './JanelaJuntar'
 import { ModeloDoQuadro } from './ModeloDoQuadro'
+import { PapelDoQuadro } from './PapelDoQuadro'
 import type { AcoesLousa, QuadroNo } from './nos'
 import { atencao, useAtencao, useMapaAtencao } from './useAtencao'
 
@@ -91,6 +92,14 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
   )
 }
 
+/** "terminal" no terminal comum; no agente do time, o papel dele (T29.1). */
+function EtiquetaDoQuadro(p: { quadro: Quadro; noTime: boolean; acoes: AcoesLousa }): React.JSX.Element | null {
+  const { quadro, noTime, acoes } = p
+  if (quadro.tipo === 'terminal') return <span className="etiqueta">terminal</span>
+  if (!noTime) return null
+  return <PapelDoQuadro papel={quadro.papel} aoSalvar={(papel) => acoes.definirPapel(quadro.id, papel)} />
+}
+
 /** Classe do quadro: ambar parado pedindo atencao; brilho na borda trabalhando (T21.2, D36). */
 function useClasseQuadro(quadroId: string): { classe: string; chamando: boolean } {
   const mapa = useMapaAtencao()
@@ -130,7 +139,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           >
             <span aria-hidden="true">📁</span> {rotulo}
           </span>
-          {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}
+          <EtiquetaDoQuadro quadro={quadro} noTime={data.noTime} acoes={acoes} />
           <SeloAgente quadroId={quadro.id} />
           {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} />}
           <ContaDoQuadro

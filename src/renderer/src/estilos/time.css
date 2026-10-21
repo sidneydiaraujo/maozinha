@@ -57,6 +57,7 @@
   color: var(--apagado);
   white-space: nowrap;
   pointer-events: all;
+  cursor: pointer;
   background: var(--painel);
   border: 1px solid var(--borda);
   border-radius: var(--raio-pilula);
@@ -75,4 +76,37 @@
 
 .menu-linha-remover:hover {
   color: var(--perigo);
+}
+
+/* papel do agente no time (T29.1), no cabecalho */
+.papel-quadro {
+  max-width: 140px;
+  padding: 1px 8px;
+  overflow: hidden;
+  font: inherit;
+  font-size: 11px;
+  color: var(--texto);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--cartao);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pilula);
+}
+
+.papel-vazio {
+  color: var(--apagado-2);
+  border-style: dashed;
+}
+
+.papel-quadro-campo {
+  width: 120px;
+  padding: 1px 8px;
+  font: inherit;
+  font-size: 11px;
+  color: var(--texto);
+  background: var(--quadro);
+  border: 1px solid var(--destaque);
+  border-radius: var(--raio-pilula);
+  outline: none;
 }

@@ -3,6 +3,7 @@
 // casa: a pasta do usuario salva (aberta na arvore, so leitura) + dois terminais, como no D17.
 // git: dois repositorios git novos (app e api) e tres terminais, para copia separada,
 // juntar, Ctrl+K e mensagem para varios quadros (Fatias 10 a 13).
+// time: tres agentes de verdade (Fatia 28) nos repositorios do git, mais um terminal comum.
 // agente: UM AGENTE DE VERDADE (claude.exe, conta Pessoal) na copia da pasta de exemplo, para a
 // linha de status (Fatia 17). Pede o ok do Sidney; o cenario nao manda mensagem nenhuma.
 import { execFileSync } from 'node:child_process'
@@ -22,7 +23,7 @@ const terminal = (id, repoId, perfilId, x, largura) => ({
 
 const repo = (id, nome, caminho) => ({ id, nome, caminho, perfilPadraoId: 'principal' })
 
-export const ESTADOS = ['demo', 'casa', 'git', 'agente']
+export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time']
 
 /** Repositorio git com um commit; identidade e fim de linha locais (o autocrlf do PC nao vale aqui). */
 function criarRepo(pasta) {
@@ -44,7 +45,7 @@ function criarRepo(pasta) {
  * em subpasta (Ctrl+K acha) e o mesmo nome dentro de node_modules (Ctrl+K nao pode achar).
  */
 export function prepararPastas(nome, saida) {
-  if (nome !== 'git') return {}
+  if (nome !== 'git' && nome !== 'time') return {}
   const app = join(saida, 'app')
   const api = join(saida, 'api')
   const git = criarRepo(app)
@@ -87,6 +88,27 @@ export function estadoDe(nome, pastas, opcoes = []) {
         terminal('q1', 'r1', 'principal', 40, 560),
         terminal('q2', 'r2', 'pessoal', 2400, 560),
         terminal('q3', 'r1', 'principal', 640, 560),
+      ],
+    }
+  }
+  if (nome === 'time') {
+    // Fatia 28: agentes de verdade (claude.exe) que o cenario fecha na pergunta de confianca.
+    // a1 e a2 na mesma pasta (Pessoal), a3 em outro repo e outra conta (Principal), t1 terminal
+    const agente = (id, repoId, perfilId, x, y) => ({
+      ...terminal(id, repoId, perfilId, x, 460),
+      tipo: 'agente',
+      titulo: `Claude ${id.slice(1)}`,
+      caixa: { x, y, largura: 460, altura: 300 },
+    })
+    return {
+      ...base,
+      viewport: { x: 0, y: 0, zoom: 0.6 },
+      repos: [repo('r1', 'app', pastas.app), repo('r2', 'api', pastas.api)],
+      quadros: [
+        agente('a1', 'r1', 'pessoal', 40, 40),
+        agente('a2', 'r1', 'pessoal', 640, 40),
+        agente('a3', 'r2', 'principal', 40, 440),
+        { ...terminal('t1', 'r2', 'principal', 640, 460), caixa: { x: 640, y: 440, largura: 460, altura: 300 } },
       ],
     }
   }

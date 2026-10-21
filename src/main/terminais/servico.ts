@@ -9,6 +9,8 @@ export interface Descartavel {
 }
 
 export interface PtyLike {
+  /** Processo do shell (o claude.exe roda como filho dele, T29.1). */
+  readonly pid: number
   onData(cb: (dados: string) => void): Descartavel
   onExit(cb: (e: { exitCode: number }) => void): Descartavel
   write(dados: string): void
@@ -144,5 +146,10 @@ export class ServicoTerminais {
 
   estaAberto(terminalId: string): boolean {
     return this.vivo(terminalId) !== undefined
+  }
+
+  /** Processo do shell do terminal; null se fechado. */
+  pid(terminalId: string): number | null {
+    return this.vivo(terminalId)?.pty.pid ?? null
   }
 }

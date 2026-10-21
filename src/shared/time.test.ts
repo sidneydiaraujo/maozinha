@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest'
 import type { Ligacao, Quadro, Repo } from './model'
-import { ligacoesValidas, mesmaPasta, podeLigar, raizDoRepo, timeDe, type DadosTime } from './time'
+import {
+  limparPapel,
+  ligacoesValidas,
+  mesmaPasta,
+  nomeNoTime,
+  podeLigar,
+  raizDoRepo,
+  textoDoTime,
+  timeDe,
+  type DadosTime,
+} from './time'
 
 const caixa = { x: 0, y: 0, largura: 640, altura: 420 }
 const agente = (id: string, repoId: string, perfilId = 'pessoal'): Quadro => ({
@@ -87,5 +97,50 @@ describe('raizDoRepo e mesmaPasta', () => {
     const quadros = [agente('a', 'app'), agente('b', 'app'), agente('c', 'app-c1')]
     expect(mesmaPasta(quadros, 'a', 'b')).toBe(true)
     expect(mesmaPasta(quadros, 'a', 'c')).toBe(false)
+  })
+})
+
+describe('apresentacao do time (T29.1)', () => {
+  const copia = (id: string, apelido: string): Repo => ({
+    id, nome: `app ⑂ ${apelido}`, caminho: `C:/app.copias/${apelido}`, perfilPadraoId: 'pessoal',
+    copia: { origemId: 'app', branch: `lousa/${apelido}`, apelido },
+  })
+  const base = (ligacoes: Ligacao[]): DadosTime => ({
+    ...dados([{ ...agente('a', 'app'), papel: 'Construtor' }, agente('b', 'c1'), agente('c', 'c2')], ligacoes),
+    repos: [...repos, copia('c1', 'claude-1'), copia('c2', 'claude-2')],
+  })
+
+  it('limparPapel tira quebra de linha e controle e corta em 40', () => {
+    expect(limparPapel('  Re\nvisor\u001b[31m  ')).toBe('Re visor [31m')
+    expect(limparPapel('x'.repeat(60))).toHaveLength(40)
+    expect(limparPapel('\n\t')).toBe('')
+  })
+
+  it('nome: papel, senao apelido da copia, senao titulo', () => {
+    const d = base([])
+    expect(nomeNoTime(d, 'a')).toBe('Construtor')
+    expect(nomeNoTime(d, 'b')).toBe('claude-1')
+    expect(nomeNoTime({ ...d, repos }, 'b')).toBe('b')
+  })
+
+  it('cadeia: o do meio recebe de um e entrega para o outro; sozinho nao tem texto', () => {
+    const d = base([linha('a', 'b'), linha('b', 'c')])
+    const meio = textoDoTime(d, 'b') ?? ''
+    expect(meio).toMatch(/^\[Lousa\] Você é claude-1 num time de 3 agentes\./)
+    expect(meio).toContain('Você trabalha em C:/app.copias/claude-1 (branch lousa/claude-1).')
+    expect(meio).toContain('Colegas: Construtor (pasta original app) · claude-2 (branch lousa/claude-2).')
+    expect(meio).toContain('Você recebe o trabalho de Construtor.')
+    expect(meio).toContain('o seu trabalho vai para claude-2.')
+    // eslint-disable-next-line no-control-regex
+    expect(meio).not.toMatch(/[\u0000-\u001f]/)
+    expect(textoDoTime(d, 'a')).not.toContain('recebe o trabalho')
+    expect(textoDoTime(base([]), 'a')).toBeNull()
+  })
+
+  it('papel com ; & | $ e acento grave nao chega ao texto (se o agente saiu, o PowerShell nao executa nada)', () => {
+    const d = base([linha('a', 'b')])
+    const malicioso = { ...d, quadros: d.quadros.map((q) => (q.id === 'a' ? { ...q, papel: 'X; rm -r ~ & y | $(z) `w`' } : q)) }
+    expect(textoDoTime(malicioso, 'b')).not.toMatch(/[;&|$`]/)
+    expect(textoDoTime(malicioso, 'b')).toContain('X rm -r ~ y (z) w')
   })
 })

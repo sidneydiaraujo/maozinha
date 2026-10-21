@@ -84,6 +84,7 @@ export interface Quadro {
   sessaoId?: string   // conversa do Claude neste quadro (agente): o Lousa escolhe e retoma com --resume
   modelo?: Modelo     // agente Claude: escolhido no cabeçalho (T19.1); abre com --model
   esforco?: Esforco   // agente Claude: abre com --effort
+  papel?: string      // nome no time de agentes ("Revisor"), até 40 letras (T29.1)
 }
 
 export interface Viewport { x: number; y: number; zoom: number }

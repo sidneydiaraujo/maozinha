@@ -181,6 +181,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `quadros:criar` | `{ repoId, tipo, perfilId, posicao?, separado? }` | `{ quadro, repo }` (repo = cópia nova ou null) | T3.4, T5.1, T10.3 |
 | `quadros:remover` | `{ quadroId }` | `FimDaCopia` (último quadro de uma cópia: tenta limpar) | T3.4, T10.3 |
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
+| `quadros:definirPapel` | `{ quadroId, papel }` | `Quadro` (papel limpo, até 40 letras; vazio tira; o time ouve de novo) | T29.1 |
 | evento `quadros:focar` | — | `{ quadroId }` (clique na notificação do Windows) | T8.1 |
 | `copias:resumo` | `{ repoId }` | `ResumoCopia` (commits e arquivos para juntar) | T11.1 |
 | `copias:juntar` | `{ repoId }` | `{ branchAlvo }` (merge; conflito desfaz e lança) | T11.1 |

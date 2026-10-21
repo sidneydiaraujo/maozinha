@@ -102,6 +102,10 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
       },
       abrirArquivo,
       ampliar,
+      definirPapel: async (quadroId, papel) => {
+        const novo = await window.lousa.quadros.definirPapel(quadroId, papel)
+        setEstado((e) => e && comContaTrocada(e, novo))
+      },
     }),
     [falhou, abrirArquivo, ampliar, setAviso],
   )

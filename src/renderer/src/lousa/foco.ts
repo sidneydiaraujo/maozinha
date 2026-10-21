@@ -58,3 +58,20 @@ export function aoPedirColega(cb: (quadroId: string) => void): () => void {
   ouvintesColega.add(cb)
   return () => ouvintesColega.delete(cb)
 }
+
+// Clique no rotulo de uma linha do time (T28.2): fica fora da linha, entao pede o menu dela.
+export interface PedidoDeMenu {
+  ligacaoId: string
+  x: number
+  y: number
+}
+const ouvintesMenuLinha = new Set<(pedido: PedidoDeMenu) => void>()
+
+export function pedirMenuLinha(pedido: PedidoDeMenu): void {
+  for (const ouvinte of ouvintesMenuLinha) ouvinte(pedido)
+}
+
+export function aoPedirMenuLinha(cb: (pedido: PedidoDeMenu) => void): () => void {
+  ouvintesMenuLinha.add(cb)
+  return () => ouvintesMenuLinha.delete(cb)
+}

@@ -1,5 +1,6 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from '@xyflow/react'
 import '../estilos/time.css'
+import { pedirMenuLinha } from './foco'
 import type { ArestaTime } from './linhas'
 
 /** O que a linha diz no meio dela; linha normal (automatica, pastas separadas) fica muda. */
@@ -23,8 +24,9 @@ export function LinhaTime(p: EdgeProps<ArestaTime>): React.JSX.Element {
       {rotulo && (
         <EdgeLabelRenderer>
           <div
-            className="rotulo-linha-time"
+            className="rotulo-linha-time nodrag nopan"
             title={rotulo.dica}
+            onClick={(e) => pedirMenuLinha({ ligacaoId: p.id, x: e.clientX, y: e.clientY })}
             style={{ transform: `translate(-50%, -50%) translate(${x}px, ${y}px)` }}
           >
             {rotulo.texto}
