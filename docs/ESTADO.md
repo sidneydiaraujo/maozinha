@@ -126,6 +126,7 @@ O Sidney vai mandando enquanto testa. Feitos viram itens novos no `docs/aceite/r
 | A2 | ⤢ ampliava sem querer: duplo clique no cabeçalho não amplia mais (D40) | ✅ 20/10/2026 (aceite: item 69) |
 | A3 | Painel da engrenagem transparente por cima da lateral (D40) | ✅ 20/10/2026 (aceite: item 70) |
 | A4 | Uso da conta à vista na barra de cima, opção na engrenagem (D40) | ✅ 20/10/2026 (aceite: item 71) |
+| A5 | Ícone novo "Time na lousa" (D41) | ✅ 21/10/2026 (instalador 0.3.1) |
 
 ## Bloqueios
 
