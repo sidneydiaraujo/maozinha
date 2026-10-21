@@ -42,5 +42,7 @@ export function semQuadro(e: EstadoTela, quadroId: string, fim: FimDaCopia): Est
     ...e,
     quadros: e.quadros.filter((q) => q.id !== quadroId),
     repos: saiPasta ? e.repos.filter((r) => r.id !== repoId) : e.repos,
+    // as linhas do time que tocavam o quadro saem junto (o main faz o mesmo, T28.1)
+    ligacoes: e.ligacoes?.filter((l) => l.de !== quadroId && l.para !== quadroId),
   }
 }

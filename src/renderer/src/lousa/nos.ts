@@ -20,6 +20,8 @@ export type QuadroNo = Node<
     rotulo: string
     /** Contas para onde este quadro pode ir (mesmo provedor: a conversa vai junto). */
     contas: PerfilComConta[]
+    /** Agente Claude: tem as bolinhas do time (T28.2, D39). */
+    noTime: boolean
     acoes: AcoesLousa
   },
   'quadro'
@@ -63,6 +65,7 @@ export function montarNos(estado: EstadoTela, acoes: AcoesLousa): QuadroNo[] {
           repo,
           rotulo: ordem === 1 ? repo.nome : `${repo.nome} ${ordem}`,
           contas: estado.perfis.filter((p) => !perfil || p.provedor === perfil.provedor),
+          noTime: quadro.tipo === 'agente' && perfil?.provedor === 'claude',
           acoes,
         },
       },

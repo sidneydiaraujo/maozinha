@@ -6,6 +6,7 @@ import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import { AnelContexto } from './AnelContexto'
 import { brilhoDoQuadro, chamaAtencao, seloDoAviso } from './atencao'
+import { BolinhasTime } from './BolinhasTime'
 import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
 import { JanelaJuntar } from './JanelaJuntar'
@@ -112,69 +113,72 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
   const [juntando, setJuntando] = useState(false)
   const [encerrado, setEncerrado] = useState(false)
   return (
-    <div
-      className={classe}
-      data-quadro={quadro.id}
-      style={{ '--cor': perfil?.cor ?? '#555' } as React.CSSProperties}
-      onMouseDownCapture={() => chamando && atencao.marcarVisto(quadro.id)}
-    >
-      <NodeResizer minWidth={360} minHeight={220} isVisible={selected} />
-      {/* sem duplo clique para ampliar (A2, 20/10): clicar duas vezes no cabecalho para escolher
-          ou arrastar o quadro ampliava sem querer; ampliar e so no ⤢ */}
-      <header className="cabecalho-quadro" title="Ctrl+clique seleciona vários (para mandar a mesma mensagem)">
-        <span
-          className="quadro-pasta"
-          title={repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho}
-        >
-          <span aria-hidden="true">📁</span> {rotulo}
-        </span>
-        {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}
-        <SeloAgente quadroId={quadro.id} />
-        {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} />}
-        <ContaDoQuadro
-          perfil={perfil}
-          contas={contas}
-          tipo={quadro.tipo}
-          aoTrocar={(perfilId) => acoes.trocarConta(quadro.id, perfilId)}
-        />
-        {repo.copia && (
-          <button
-            className="botao-pequeno botao-juntar nodrag"
-            title={`Juntar o trabalho da branch ${repo.copia.branch} na pasta original`}
-            onClick={() => setJuntando(true)}
+    <>
+      <div
+        className={classe}
+        data-quadro={quadro.id}
+        style={{ '--cor': perfil?.cor ?? '#555' } as React.CSSProperties}
+        onMouseDownCapture={() => chamando && atencao.marcarVisto(quadro.id)}
+      >
+        <NodeResizer minWidth={360} minHeight={220} isVisible={selected} />
+        {/* sem duplo clique para ampliar (A2, 20/10): clicar duas vezes no cabecalho para escolher
+            ou arrastar o quadro ampliava sem querer; ampliar e so no ⤢ */}
+        <header className="cabecalho-quadro" title="Ctrl+clique seleciona vários (para mandar a mesma mensagem)">
+          <span
+            className="quadro-pasta"
+            title={repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho}
           >
-            Juntar
+            <span aria-hidden="true">📁</span> {rotulo}
+          </span>
+          {quadro.tipo === 'terminal' && <span className="etiqueta">terminal</span>}
+          <SeloAgente quadroId={quadro.id} />
+          {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} />}
+          <ContaDoQuadro
+            perfil={perfil}
+            contas={contas}
+            tipo={quadro.tipo}
+            aoTrocar={(perfilId) => acoes.trocarConta(quadro.id, perfilId)}
+          />
+          {repo.copia && (
+            <button
+              className="botao-pequeno botao-juntar nodrag"
+              title={`Juntar o trabalho da branch ${repo.copia.branch} na pasta original`}
+              onClick={() => setJuntando(true)}
+            >
+              Juntar
+            </button>
+          )}
+          <button
+            className="botao-ampliar nodrag"
+            title="Ampliar na tela (de novo para voltar)"
+            aria-label={`Ampliar ${rotulo}`}
+            onClick={() => acoes.ampliar(quadro.id)}
+          >
+            ⤢
           </button>
+          <button
+            className="botao-fechar nodrag"
+            aria-label={`Fechar ${rotulo}`}
+            onClick={() => acoes.removerQuadro(quadro.id)}
+          >
+            ×
+          </button>
+        </header>
+        <CorpoQuadro quadro={quadro} repo={repo} acoes={acoes} aoEncerrado={setEncerrado} />
+        {juntando && (
+          <JanelaJuntar
+            repo={repo}
+            cor={perfil?.cor ?? '#555'}
+            quadro={quadro}
+            aoFechar={() => setJuntando(false)}
+            aoFecharQuadro={() => {
+              setJuntando(false)
+              acoes.removerQuadro(quadro.id)
+            }}
+          />
         )}
-        <button
-          className="botao-ampliar nodrag"
-          title="Ampliar na tela (de novo para voltar)"
-          aria-label={`Ampliar ${rotulo}`}
-          onClick={() => acoes.ampliar(quadro.id)}
-        >
-          ⤢
-        </button>
-        <button
-          className="botao-fechar nodrag"
-          aria-label={`Fechar ${rotulo}`}
-          onClick={() => acoes.removerQuadro(quadro.id)}
-        >
-          ×
-        </button>
-      </header>
-      <CorpoQuadro quadro={quadro} repo={repo} acoes={acoes} aoEncerrado={setEncerrado} />
-      {juntando && (
-        <JanelaJuntar
-          repo={repo}
-          cor={perfil?.cor ?? '#555'}
-          quadro={quadro}
-          aoFechar={() => setJuntando(false)}
-          aoFecharQuadro={() => {
-            setJuntando(false)
-            acoes.removerQuadro(quadro.id)
-          }}
-        />
-      )}
-    </div>
+      </div>
+      {data.noTime && <BolinhasTime />}
+    </>
   )
 }

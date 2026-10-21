@@ -52,6 +52,13 @@
   --nota-texto: #ecdcb8;
   --nota-apagado: #a59573;
 
+  /* times de agentes (T28.2, D39): uma cor por time, longe do ambar de "mesma pasta" */
+  --time-1: #7fd1c7;
+  --time-2: #c7a2f0;
+  --time-3: #f0a07a;
+  --time-4: #a8d672;
+  --time-5: #8fb4ff;
+
   /* fundo fosco: so a barra de cima e os menus, nunca os quadros (T21.2) */
   --vidro: color-mix(in srgb, var(--painel) 82%, transparent);
   --vidro-filtro: blur(12px) saturate(1.2);

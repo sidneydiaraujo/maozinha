@@ -28,11 +28,21 @@ import { useNovoQuadro } from './useNovoQuadro'
 import { useVistasSalvas } from './useVistasSalvas'
 import { usePanoMeio } from './usePanoMeio'
 import { useAmpliar } from './useAmpliar'
+import { comQuadroNovo } from './linhas'
+import { useLigacoes } from './useLigacoes'
 import { useMapaAtencao } from './useAtencao'
 import { useSalvarLayout } from './useSalvarLayout'
 
 // Fora do componente: dentro dele o React Flow recriaria todos os nos a cada render.
 const nodeTypes = { quadro: QuadroNode, nota: NotaNode }
+const OPCOES_FIXAS = {
+  colorMode: 'dark',
+  minZoom: 0.2,
+  maxZoom: 2,
+  zoomOnDoubleClick: false,
+  deleteKeyCode: null,
+  proOptions: { hideAttribution: true },
+} as const
 
 interface Props {
   /** Muda quando algo fora da lousa (nome de conta) mudou: a lousa recarrega. */
@@ -88,7 +98,7 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
       // Erro aqui aparece no menu da conta (quem chamou), nao no topo da lousa.
       trocarConta: async (quadroId, perfilId) => {
         const novo = await window.lousa.quadros.trocarConta(quadroId, perfilId)
-        setEstado((e) => (e ? { ...e, quadros: e.quadros.map((q) => (q.id === quadroId ? novo : q)) } : e))
+        setEstado((e) => e && comQuadroNovo(e, novo))
       },
       abrirArquivo,
       ampliar,
@@ -251,6 +261,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
   const selecionados = useAlvos(nos)
   useMontarNos(estado, { quadros: acoes, notas: notas.acoes }, setNos)
   useVistasSalvas({ instancia, estado, setEstado, nos, setNos, aoMoverVista, avisar: setAviso })
+  const time = useLigacoes({ estado, setEstado, avisar: setAviso })
 
   return (
     <div
@@ -267,6 +278,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
       {estado && (
         <ReactFlow
           nodes={nos}
+          {...time.flow}
           onNodesChange={aoMudar}
           // roda, arrastar no vazio, minimapa: mexida do usuario (com evento) desfaz o "ampliado"
           onMoveStart={(evento) => evento && ampliacao.esquecer()}
@@ -276,21 +288,17 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
             instancia.current = i
             enquadrarSeSumiu(i, estado)
           }}
-          colorMode="dark"
-          minZoom={0.2}
-          maxZoom={2}
-          zoomOnDoubleClick={false}
+          {...OPCOES_FIXAS}
           defaultViewport={estado.viewport}
           fitView={vistaIntocada(estado.viewport)}
           fitViewOptions={{ maxZoom: 1 }}
-          deleteKeyCode={null}
-          proOptions={{ hideAttribution: true }}
         >
           <Background gap={24} />
           <Controls showInteractive={false} />
           <Minimapa />
         </ReactFlow>
       )}
+      {time.menu}
       {estado && novo.novo && (
         <NovoQuadro
           perfis={estado.perfis}

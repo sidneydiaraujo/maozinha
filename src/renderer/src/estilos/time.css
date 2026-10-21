@@ -1,0 +1,78 @@
+/* Time de agentes (T28.2, D39): bolinhas nos agentes e linhas com seta entre eles. */
+
+.bolinha-time.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  background: var(--cartao);
+  border: 2px solid var(--borda-forte);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.react-flow__node:hover .bolinha-time.react-flow__handle {
+  border-color: var(--apagado);
+}
+
+.bolinha-saida.react-flow__handle {
+  cursor: crosshair;
+}
+
+.bolinha-saida.react-flow__handle:hover,
+.bolinha-time.react-flow__handle.connectingto.valid {
+  background: var(--destaque);
+  border-color: var(--destaque);
+}
+
+.bolinha-time.react-flow__handle.connectingto:not(.valid) {
+  border-color: var(--perigo);
+}
+
+.linha-time .react-flow__edge-path {
+  stroke-width: 2.5;
+}
+
+.linha-time:hover .react-flow__edge-path {
+  stroke-width: 3.5;
+}
+
+.linha-time-cor-1 .react-flow__edge-path { stroke: var(--time-1); }
+.linha-time-cor-2 .react-flow__edge-path { stroke: var(--time-2); }
+.linha-time-cor-3 .react-flow__edge-path { stroke: var(--time-3); }
+.linha-time-cor-4 .react-flow__edge-path { stroke: var(--time-4); }
+.linha-time-cor-5 .react-flow__edge-path { stroke: var(--time-5); }
+
+/* depois das cores: mesma pasta e pausada mandam */
+.linha-time-mesma-pasta .react-flow__edge-path {
+  stroke: var(--ambar);
+}
+
+.linha-time-pausada .react-flow__edge-path {
+  stroke: var(--apagado-2);
+  stroke-dasharray: 6 4;
+}
+
+.rotulo-linha-time {
+  position: absolute;
+  padding: 1px 7px;
+  font-size: 11px;
+  color: var(--apagado);
+  white-space: nowrap;
+  pointer-events: all;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio-pilula);
+}
+
+.menu-linha-marca {
+  display: inline-block;
+  width: 1em;
+}
+
+.menu-linha-divisa {
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid var(--borda);
+}
+
+.menu-linha-remover:hover {
+  color: var(--perigo);
+}

@@ -100,12 +100,15 @@ com 310 linhas, nada de lógica nova nele), `estilos/time.css`.
 - A linha tem seta e a cor do time (cor estável a partir do id do primeiro quadro do time, das
   cores de `tokens.css`).
 - Clicar na linha abre um menu: "Automático / Perguntar antes", "Pausar / Retomar", "Remover".
-- Linha entre quadros na **mesma pasta** (não cópia): amarela, balão "Mesma pasta: podem se
-  atrapalhar" e botão "Abrir o colega numa cópia" (fecha o `para` só depois de criar o novo; a
-  conversa do antigo não vai junto, o balão avisa).
+- Linha entre quadros na **mesma pasta** (não cópia): âmbar, com o rótulo "⚠ mesma pasta" e o
+  balão "podem se atrapalhar". O botão "Abrir o colega numa cópia" vem na T28.3, que é quem cria
+  colegas; ele **não fecha** o quadro antigo (a conversa dele não iria junto).
 - A bolinha e a linha usam `nodrag` só onde precisam; o terminal continua com `nodrag nowheel`.
 
 ### T28.3 Clicar na bolinha cria um colega
+
+Também: o menu de uma linha âmbar ganha "Abrir o colega numa cópia" (cria o colega numa cópia e
+troca a linha para ele; o quadro antigo fica aberto).
 
 **Regras (pedido do Sidney, D39):**
 - **Clique** (sem arrastar) na bolinha de saída: o main cria um agente novo à direita do quadro
