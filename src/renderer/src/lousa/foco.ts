@@ -46,3 +46,15 @@ export function aoPedirNovaNota(cb: () => void): () => void {
   ouvintesNota.add(cb)
   return () => ouvintesNota.delete(cb)
 }
+
+// Clique na bolinha de saida de um agente (T28.3): a lousa pede ao main um colega ja ligado.
+const ouvintesColega = new Set<(quadroId: string) => void>()
+
+export function pedirColega(quadroId: string): void {
+  for (const ouvinte of ouvintesColega) ouvinte(quadroId)
+}
+
+export function aoPedirColega(cb: (quadroId: string) => void): () => void {
+  ouvintesColega.add(cb)
+  return () => ouvintesColega.delete(cb)
+}

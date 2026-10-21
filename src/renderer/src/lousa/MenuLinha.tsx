@@ -3,6 +3,7 @@ import type { Ligacao, ModoLigacao } from '../../../shared/model'
 
 export interface PedidoMenuLinha {
   ligacao: Ligacao
+  mesmaPasta: boolean // os dois na mesma pasta: oferece o colega numa copia (T28.3)
   x: number // posicao do clique na tela
   y: number
 }
@@ -10,11 +11,12 @@ export interface PedidoMenuLinha {
 interface Props extends PedidoMenuLinha {
   aoAjustar(mudanca: { modo?: ModoLigacao; pausada?: boolean }): void
   aoRemover(): void
+  aoSeparar(): void
   aoFechar(): void
 }
 
-/** Menu da linha do time (T28.2): automatico ou perguntar, pausar e remover. */
-export function MenuLinha({ ligacao, x, y, aoAjustar, aoRemover, aoFechar }: Props): React.JSX.Element {
+/** Menu da linha do time (T28.2): automatico ou perguntar, pausar, remover e (mesma pasta) separar. */
+export function MenuLinha({ ligacao, mesmaPasta, x, y, aoAjustar, aoRemover, aoSeparar, aoFechar }: Props): React.JSX.Element {
   const caixa = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const fora = (e: MouseEvent): void => {
@@ -41,6 +43,16 @@ export function MenuLinha({ ligacao, x, y, aoAjustar, aoRemover, aoFechar }: Pro
         <span className="menu-linha-marca">{automatico ? '○' : '●'}</span> recebe quando você mandar (perguntar)
       </button>
       <hr className="menu-linha-divisa" />
+      {mesmaPasta && (
+        <button
+          className="conta-menu-item"
+          role="menuitem"
+          title="Cria um colega numa cópia separada e passa a linha para ele; este quadro continua aberto"
+          onClick={aoSeparar}
+        >
+          ⑂ Abrir o colega numa cópia
+        </button>
+      )}
       <button className="conta-menu-item" role="menuitem" onClick={() => aoAjustar({ pausada: !ligacao.pausada })}>
         {ligacao.pausada ? '▶ Retomar' : '⏸ Pausar'}
       </button>

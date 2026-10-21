@@ -1,7 +1,7 @@
 // Linhas do time de agentes na lousa (T28.2, D39): de ligacao salva para aresta do React Flow.
 // Funcoes puras; as regras de quem pode ligar ficam em shared/time.ts.
 import { MarkerType, type Edge } from '@xyflow/react'
-import type { EstadoTela, Ligacao, PerfilId, Provedor, Quadro } from '../../../shared/model'
+import type { ColegaNovo, EstadoTela, Ligacao, PerfilId, Provedor, Quadro } from '../../../shared/model'
 import { ligacoesValidas, mesmaPasta, timeDe, type DadosTime } from '../../../shared/time'
 
 /** Quantas cores de time existem em tokens.css (--time-1 a --time-5). */
@@ -71,7 +71,7 @@ export function montarArestas(e: EstadoTela): ArestaTime[] {
 }
 
 /** O quadro trocou de conta: a tela tira as linhas que o main tambem tirou. */
-export function comQuadroNovo(e: EstadoTela, novo: Quadro): EstadoTela {
+export function comContaTrocada(e: EstadoTela, novo: Quadro): EstadoTela {
   const depois = { ...e, quadros: e.quadros.map((q) => (q.id === novo.id ? novo : q)) }
   return { ...depois, ligacoes: ligacoesValidas(dadosDaTela(depois)) }
 }
@@ -82,4 +82,11 @@ export function comLigacao(e: EstadoTela, id: string, nova: Ligacao | null): Est
   if (!nova) return { ...e, ligacoes: ligacoes.filter((l) => l.id !== id) }
   const existe = ligacoes.some((l) => l.id === id)
   return { ...e, ligacoes: existe ? ligacoes.map((l) => (l.id === id ? nova : l)) : [...ligacoes, nova] }
+}
+
+/** Colega criado pela bolinha (T28.3): o quadro, a copia nova (se houver) e a linha entram juntos. */
+export function comColega(e: EstadoTela, c: ColegaNovo): EstadoTela {
+  const novaPasta = c.repo && !e.repos.some((r) => r.id === c.repo?.id) ? [c.repo] : []
+  const depois = { ...e, repos: [...e.repos, ...novaPasta], quadros: [...e.quadros, c.quadro] }
+  return comLigacao(depois, c.ligacao.id, c.ligacao)
 }

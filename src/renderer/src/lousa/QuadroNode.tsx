@@ -178,7 +178,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           />
         )}
       </div>
-      {data.noTime && <BolinhasTime />}
+      {data.noTime && <BolinhasTime quadroId={quadro.id} />}
     </>
   )
 }

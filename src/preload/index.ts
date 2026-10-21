@@ -65,6 +65,8 @@ const api: LousaApi = {
     ligar: (de, para) => ipcRenderer.invoke(IPC.timeLigar, { de, para }),
     ajustar: (ligacaoId, mudanca) => ipcRenderer.invoke(IPC.timeAjustar, { ligacaoId, mudanca }),
     desligar: (ligacaoId) => ipcRenderer.invoke(IPC.timeDesligar, { ligacaoId }),
+    colega: (quadroId, posicao) => ipcRenderer.invoke(IPC.timeColega, { quadroId, posicao }),
+    separar: (ligacaoId) => ipcRenderer.invoke(IPC.timeSeparar, { ligacaoId }),
   },
   lousa: {
     carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),

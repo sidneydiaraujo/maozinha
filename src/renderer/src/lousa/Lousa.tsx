@@ -28,7 +28,7 @@ import { useNovoQuadro } from './useNovoQuadro'
 import { useVistasSalvas } from './useVistasSalvas'
 import { usePanoMeio } from './usePanoMeio'
 import { useAmpliar } from './useAmpliar'
-import { comQuadroNovo } from './linhas'
+import { comContaTrocada } from './linhas'
 import { useLigacoes } from './useLigacoes'
 import { useMapaAtencao } from './useAtencao'
 import { useSalvarLayout } from './useSalvarLayout'
@@ -98,7 +98,7 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
       // Erro aqui aparece no menu da conta (quem chamou), nao no topo da lousa.
       trocarConta: async (quadroId, perfilId) => {
         const novo = await window.lousa.quadros.trocarConta(quadroId, perfilId)
-        setEstado((e) => e && comQuadroNovo(e, novo))
+        setEstado((e) => e && comContaTrocada(e, novo))
       },
       abrirArquivo,
       ampliar,
@@ -261,7 +261,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
   const selecionados = useAlvos(nos)
   useMontarNos(estado, { quadros: acoes, notas: notas.acoes }, setNos)
   useVistasSalvas({ instancia, estado, setEstado, nos, setNos, aoMoverVista, avisar: setAviso })
-  const time = useLigacoes({ estado, setEstado, avisar: setAviso })
+  const time = useLigacoes({ estado, setEstado, avisar: setAviso, instancia })
 
   return (
     <div

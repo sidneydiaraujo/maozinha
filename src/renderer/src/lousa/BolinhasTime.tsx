@@ -1,12 +1,13 @@
 import { Handle, Position } from '@xyflow/react'
+import { pedirColega } from './foco'
 import { BOLINHA_ENTRADA, BOLINHA_SAIDA } from './linhas'
 
 /**
  * Bolinhas do time (T28.2, D39), so no agente Claude: a da direita puxa uma linha ate outro
  * agente ("este entrega para aquele"); a da esquerda recebe. Ficam fora do .quadro, que corta
- * o que passa da borda.
+ * o que passa da borda. Clicar na da direita (sem arrastar) cria um colega ja ligado (T28.3).
  */
-export function BolinhasTime(): React.JSX.Element {
+export function BolinhasTime({ quadroId }: { quadroId: string }): React.JSX.Element {
   return (
     <>
       <Handle
@@ -21,7 +22,8 @@ export function BolinhasTime(): React.JSX.Element {
         position={Position.Right}
         id={BOLINHA_SAIDA}
         className="bolinha-time bolinha-saida"
-        title="Puxe até outro agente para formar um time"
+        title="Clique para um colega novo, ou puxe até outro agente para formar um time"
+        onClick={() => pedirColega(quadroId)}
       />
     </>
   )

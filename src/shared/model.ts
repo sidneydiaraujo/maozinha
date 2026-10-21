@@ -165,6 +165,13 @@ export interface Ligacao {
   pausada?: boolean
 }
 
+/** Colega criado pela bolinha do time (T28.3): o quadro, a copia nova (ou null) e a linha. */
+export interface ColegaNovo {
+  quadro: Quadro
+  repo: Repo | null
+  ligacao: Ligacao
+}
+
 // Arrumação guardada da lousa (T27, D35): câmera + lugar de cada quadro e nota que existia.
 export interface VistaSalva {
   id: string

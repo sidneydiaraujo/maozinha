@@ -195,6 +195,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `time:ligar` | `{ de, para }` (ids de quadro) | `Ligacao` no automático; recusa com o motivo (`shared/time.ts`) | T28.1 |
 | `time:ajustar` | `{ ligacaoId, mudanca: { modo?, pausada? } }` | `Ligacao` | T28.1 |
 | `time:desligar` | `{ ligacaoId }` | — (os agentes não são tocados) | T28.1 |
+| `time:colega` | `{ quadroId, posicao? }` | `ColegaNovo` (agente Claude na mesma conta, numa cópia da pasta original, ligado; sem git, na mesma pasta) | T28.3 |
+| `time:separar` | `{ ligacaoId }` | `ColegaNovo` (colega numa cópia no lugar do `para`; linha antiga sai; sem git, recusa) | T28.3 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 | `arquivos:listar` | `{ repoId, relativo }` | `ItemArquivo[]` (ordem do VSCode, sem `.git` e afins) | T7.1 |

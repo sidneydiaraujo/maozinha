@@ -14,6 +14,7 @@ import type {
   EstadoTela,
   FimDaCopia,
   ItemArquivo,
+  ColegaNovo,
   Ligacao,
   ModoLigacao,
   Nota,
@@ -65,6 +66,8 @@ export const IPC = {
   timeLigar: 'time:ligar',
   timeAjustar: 'time:ajustar',
   timeDesligar: 'time:desligar',
+  timeColega: 'time:colega',
+  timeSeparar: 'time:separar',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -185,6 +188,10 @@ export interface LousaApi {
     ligar(de: string, para: string): Promise<Ligacao>
     ajustar(ligacaoId: string, mudanca: { modo?: ModoLigacao; pausada?: boolean }): Promise<Ligacao>
     desligar(ligacaoId: string): Promise<void>
+    /** Agente novo ligado a este: mesma conta e repositorio, numa copia propria (T28.3). */
+    colega(quadroId: string, posicao?: Posicao): Promise<ColegaNovo>
+    /** Linha ambar: colega numa copia no lugar do `para`; o quadro antigo fica aberto. */
+    separar(ligacaoId: string): Promise<ColegaNovo>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

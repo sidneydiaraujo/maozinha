@@ -125,3 +125,9 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 - [ ] 70. Clique na engrenagem: o painel "Contas" abre com fundo inteiro, sem a lateral "Pastas" aparecendo por trás, e vai até "Abrir pasta de registros".
 - [ ] 71. Com um agente Claude que já respondeu, olhe a barra de cima sem clicar: ao lado do ícone da conta aparece "sessão N% 2h04" e "semana N% sex 03:00". Acima de 70% o número fica âmbar e acima de 90% fica vermelho. Clicar no mostrador abre o balão da conta. Engrenagem → "Uso das contas" → "Só no clique": o mostrador some e voltam as barrinhas; "À vista" traz de volta.
 
+
+## Fatia 28 — time de agentes por linhas (D39)
+
+- [ ] 72. Abra um agente Claude numa pasta git. Ele tem uma bolinha de cada lado (terminal comum e Codex não têm). Clique na bolinha da direita: nasce um colega à direita, na mesma conta, numa cópia separada (o cabeçalho diz "app ⑂ claude-N"), com uma linha colorida e uma seta do primeiro para ele. Arraste a bolinha da direita e solte no vazio: outro colega nasce onde soltou.
+- [ ] 73. Puxe uma linha de um agente até a bolinha da esquerda de outro: a linha fica. Tente a volta (do segundo para o primeiro) e um círculo (C → A num time A → B → C): a linha não fica e aparece o motivo no alto da lousa. Ligue dois agentes da mesma pasta (sem cópia): a linha fica âmbar com "⚠ mesma pasta". Feche e abra a Lousa: as linhas continuam no lugar, cada time com a sua cor.
+- [ ] 74. Clique numa linha: o menu tem "recebe sozinho (automático)" marcado, "perguntar", "Pausar" e "Remover a linha". "Perguntar" põe o rótulo "perguntar" na linha; "Pausar" deixa a linha tracejada e apagada; "Remover" tira só a linha (os dois agentes seguem abertos). Numa linha âmbar, "⑂ Abrir o colega numa cópia" cria um colega numa cópia, a linha passa para ele e o quadro antigo continua aberto. Fechar um quadro tira as linhas dele.

@@ -1,25 +1,126 @@
-// Linhas do time na lousa (T28.2, D39): puxar, validar, ajustar e remover. O main decide; a tela
-// so manda ids de quadro e de linha.
-import type { Connection, Edge, OnConnectEnd } from '@xyflow/react'
-import { createElement, useCallback, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
-import type { EstadoTela, ModoLigacao } from '../../../shared/model'
+// Linhas do time na lousa (T28.2, T28.3, D39): puxar, validar, ajustar, remover e criar colega.
+// O main decide; a tela so manda ids de quadro e de linha (e a posicao do colega na lousa).
+import type { Connection, Edge, OnConnectEnd, OnConnectStart, ReactFlowInstance } from '@xyflow/react'
+import {
+  createElement,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type RefObject,
+  type SetStateAction,
+} from 'react'
+import type { ColegaNovo, EstadoTela, ModoLigacao, Posicao } from '../../../shared/model'
 import { podeLigar, TEXTO_RECUSA } from '../../../shared/time'
-import { mensagemDe as mensagem } from '../componentes/erro'
-import { comLigacao, dadosDaTela, montarArestas, type DadosLinha } from './linhas'
+import { mensagemDe } from '../componentes/erro'
+import { aoPedirColega } from './foco'
+import { comColega, comLigacao, dadosDaTela, montarArestas, type DadosLinha } from './linhas'
 import { LinhaTime } from './LinhaTime'
 import { MenuLinha, type PedidoMenuLinha } from './MenuLinha'
+import type { NoLousa } from './notas'
 
 // Fora do hook: o React Flow recriaria as arestas a cada render.
 const edgeTypes = { time: LinhaTime }
+/** Arraste menor que isto e um clique: quem cuida e a propria bolinha (BolinhasTime). */
+const CLIQUE_PX = 10
 
 interface Deps {
   estado: EstadoTela | null
   setEstado: Dispatch<SetStateAction<EstadoTela | null>>
   avisar(texto: string): void
+  instancia: RefObject<ReactFlowInstance<NoLousa> | null>
 }
 
-export function useLigacoes({ estado, setEstado, avisar }: Deps) {
+type Ajuste = { modo?: ModoLigacao; pausada?: boolean }
+
+/** Pedidos ao main; cada resposta entra no estado da tela, cada recusa vira aviso. */
+function acoesDoTime(setEstado: Deps['setEstado'], avisar: Deps['avisar']) {
+  const falhou = (e: unknown): void => avisar(mensagemDe(e))
+  const entrou = (c: ColegaNovo): void => {
+    setEstado((e) => e && comColega(e, c))
+    avisar(c.repo ? `Colega novo na cópia ${c.repo.copia?.apelido ?? c.repo.nome}, já ligado.` : 'Colega novo na mesma pasta, já ligado.')
+  }
+  return {
+    ligar: (de: string, para: string) =>
+      window.lousa.time
+        .ligar(de, para)
+        .then((l) => setEstado((e) => e && comLigacao(e, l.id, l)))
+        .catch(falhou),
+    ajustar: (id: string, mudanca: Ajuste) =>
+      window.lousa.time
+        .ajustar(id, mudanca)
+        .then((l) => setEstado((e) => e && comLigacao(e, id, l)))
+        .catch(falhou),
+    remover: (id: string) =>
+      window.lousa.time
+        .desligar(id)
+        .then(() => setEstado((e) => e && comLigacao(e, id, null)))
+        .catch(falhou),
+    colega: (quadroId: string, posicao?: Posicao) => window.lousa.time.colega(quadroId, posicao).then(entrou).catch(falhou),
+    separar: (id: string) =>
+      window.lousa.time
+        .separar(id)
+        .then((c) => {
+          setEstado((e) => e && comLigacao(e, id, null))
+          entrou(c)
+        })
+        .catch(falhou),
+  }
+}
+
+const pontoDo = (e: MouseEvent | TouchEvent): Posicao => {
+  const p = 'changedTouches' in e ? e.changedTouches[0] : e
+  return { x: p?.clientX ?? 0, y: p?.clientY ?? 0 }
+}
+
+type FimDaLinha =
+  | { faz: 'nada' }
+  | { faz: 'explicar'; para: string } // soltou num quadro que o React Flow recusou
+  | { faz: 'ligar'; para: string } // soltou no corpo de um quadro, longe da bolinha
+  | { faz: 'colega'; ponto: Posicao } // soltou no vazio
+
+/** O que fazer quando a linha e solta. Arraste curto e clique: a bolinha cuida (T28.3). */
+function fimDaLinha(conexao: Parameters<OnConnectEnd>[1], ponto: Posicao, inicio: Posicao | null): FimDaLinha {
+  const de = conexao.fromNode?.id
+  if (!de) return { faz: 'nada' }
+  if (conexao.toNode) return conexao.isValid === false ? { faz: 'explicar', para: conexao.toNode.id } : { faz: 'nada' }
+  if (conexao.fromHandle?.type !== 'source') return { faz: 'nada' }
+  if (inicio && Math.hypot(ponto.x - inicio.x, ponto.y - inicio.y) < CLIQUE_PX) return { faz: 'nada' }
+  return soltouLonge(de, ponto)
+}
+
+/** Longe de qualquer bolinha: no corpo de outro quadro, liga nele; no vazio, colega ali. */
+function soltouLonge(de: string, ponto: Posicao): FimDaLinha {
+  const sobre = document.elementFromPoint(ponto.x, ponto.y)?.closest<HTMLElement>('.react-flow__node')?.dataset.id
+  if (sobre) return sobre === de ? { faz: 'nada' } : { faz: 'ligar', para: sobre }
+  return { faz: 'colega', ponto }
+}
+
+function useFimDaConexao(deps: Deps, acoes: ReturnType<typeof acoesDoTime>, inicio: RefObject<Posicao | null>): OnConnectEnd {
+  const { estado, avisar, instancia } = deps
+  return useCallback<OnConnectEnd>(
+    (evento, conexao) => {
+      const de = conexao.fromNode?.id
+      if (!estado || !de) return
+      const fim = fimDaLinha(conexao, pontoDo(evento), inicio.current)
+      if (fim.faz === 'colega') return void acoes.colega(de, instancia.current?.screenToFlowPosition(fim.ponto))
+      if (fim.faz === 'nada') return
+      const veredito = podeLigar(dadosDaTela(estado), de, fim.para)
+      if (!veredito.ok) avisar(TEXTO_RECUSA[veredito.motivo])
+      else if (fim.faz === 'ligar') void acoes.ligar(de, fim.para)
+    },
+    [estado, avisar, instancia, acoes, inicio],
+  )
+}
+
+export function useLigacoes(deps: Deps) {
+  const { estado, setEstado, avisar } = deps
   const [menu, setMenu] = useState<PedidoMenuLinha | null>(null)
+  const inicio = useRef<Posicao | null>(null)
+  const acoes = useMemo(() => acoesDoTime(setEstado, avisar), [setEstado, avisar])
+  useEffect(() => aoPedirColega((quadroId) => void acoes.colega(quadroId)), [acoes])
   // tipo largo (Edge): a lousa e a instancia do React Flow nao sabem de arestas proprias
   const arestas = useMemo<Edge[]>(() => (estado ? montarArestas(estado) : []), [estado])
 
@@ -27,57 +128,43 @@ export function useLigacoes({ estado, setEstado, avisar }: Deps) {
     (c: Connection | Edge) => !!estado && podeLigar(dadosDaTela(estado), c.source, c.target).ok,
     [estado],
   )
-  const onConnect = useCallback(
-    (c: Connection) => {
-      window.lousa.time
-        .ligar(c.source, c.target)
-        .then((ligacao) => setEstado((e) => e && comLigacao(e, ligacao.id, ligacao)))
-        .catch((e: unknown) => avisar(mensagem(e)))
-    },
-    [setEstado, avisar],
-  )
-  // soltou em cima de um quadro que nao pode: diz por que (a linha some sozinha)
-  const onConnectEnd = useCallback<OnConnectEnd>(
-    (_, conexao) => {
-      if (!estado || conexao.isValid !== false || !conexao.fromNode || !conexao.toNode) return
-      const veredito = podeLigar(dadosDaTela(estado), conexao.fromNode.id, conexao.toNode.id)
-      if (!veredito.ok) avisar(TEXTO_RECUSA[veredito.motivo])
-    },
-    [estado, avisar],
-  )
-  const onEdgeClick = useCallback((evento: React.MouseEvent, aresta: Edge) => {
-    const dados = aresta.data as DadosLinha | undefined
-    if (dados) setMenu({ ligacao: dados.ligacao, x: evento.clientX, y: evento.clientY })
+  const onConnect = useCallback((c: Connection) => void acoes.ligar(c.source, c.target), [acoes])
+  const onConnectStart = useCallback<OnConnectStart>((e) => {
+    inicio.current = pontoDo(e)
   }, [])
-
+  const onConnectEnd = useFimDaConexao(deps, acoes, inicio)
+  const onEdgeClick = useCallback((evento: React.MouseEvent, aresta: Edge) => {
+    const d = aresta.data as DadosLinha | undefined
+    if (d) setMenu({ ligacao: d.ligacao, mesmaPasta: d.mesmaPasta, x: evento.clientX, y: evento.clientY })
+  }, [])
   const fechar = useCallback(() => setMenu(null), [])
-  const ajustar = (id: string, mudanca: { modo?: ModoLigacao; pausada?: boolean }): void => {
+  const fazer = (acao: () => Promise<unknown>): void => {
     setMenu(null)
-    window.lousa.time
-      .ajustar(id, mudanca)
-      .then((nova) => setEstado((e) => e && comLigacao(e, id, nova)))
-      .catch((e: unknown) => avisar(mensagem(e)))
-  }
-  const remover = (id: string): void => {
-    setMenu(null)
-    window.lousa.time
-      .desligar(id)
-      .then(() => setEstado((e) => e && comLigacao(e, id, null)))
-      .catch((e: unknown) => avisar(mensagem(e)))
+    void acao()
   }
 
   const menuAberto =
     menu &&
     createElement(MenuLinha, {
       ...menu,
-      aoAjustar: (mudanca) => ajustar(menu.ligacao.id, mudanca),
-      aoRemover: () => remover(menu.ligacao.id),
+      aoAjustar: (mudanca: Ajuste) => fazer(() => acoes.ajustar(menu.ligacao.id, mudanca)),
+      aoRemover: () => fazer(() => acoes.remover(menu.ligacao.id)),
+      aoSeparar: () => fazer(() => acoes.separar(menu.ligacao.id)),
       aoFechar: fechar,
     })
 
   return {
-    /** Espalhado no <ReactFlow>. Clicar na bolinha nao comeca linha (o clique e da T28.3). */
-    flow: { edges: arestas, edgeTypes, onConnect, onConnectEnd, onEdgeClick, isValidConnection: conexaoValida, connectOnClick: false },
+    /** Espalhado no <ReactFlow>. O clique na bolinha nao comeca linha: cria um colega (T28.3). */
+    flow: {
+      edges: arestas,
+      edgeTypes,
+      onConnect,
+      onConnectStart,
+      onConnectEnd,
+      onEdgeClick,
+      isValidConnection: conexaoValida,
+      connectOnClick: false,
+    },
     menu: menuAberto,
   }
 }

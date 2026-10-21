@@ -80,7 +80,7 @@ export function mesmaPasta(quadros: Quadro[], a: string, b: string): boolean
 - `time:ligar(de, para) → Ligacao` (lança com o motivo se `podeLigar` recusar);
 - `time:ajustar(id, { modo?, pausada? }) → Ligacao`;
 - `time:desligar(id) → void`;
-- `quadros:criarColega(quadroId, posicao?) → { quadro, repo, ligacao }` (T28.3).
+- `time:colega(quadroId, posicao?) → ColegaNovo` e `time:separar(ligacaoId) → ColegaNovo` (T28.3).
 
 **Testes (`time.test.ts`):** liga dois agentes da mesma conta; liga contas diferentes no mesmo
 repo e entre original e cópia; recusa contas diferentes em repos diferentes; recusa ciclo de 2 e

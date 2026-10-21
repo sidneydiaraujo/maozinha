@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { EstadoTela, Ligacao, PerfilComConta, Quadro } from '../../../shared/model'
 import { semQuadro } from './copia'
-import { comLigacao, comQuadroNovo, montarArestas } from './linhas'
+import { comColega, comContaTrocada, comLigacao, montarArestas } from './linhas'
 
 const conta = { logado: true, email: null, plano: null, erro: null }
 const perfil = (id: string): PerfilComConta => ({
@@ -52,9 +52,9 @@ describe('linhas quando o quadro muda', () => {
 
   it('trocar para outra conta em outro repo tira a linha; no mesmo repo fica', () => {
     const e = estado([agente('a', 'app'), agente('b', 'app'), agente('c', 'site')], [linha('a', 'b'), linha('b', 'c')])
-    const depois = comQuadroNovo(e, agente('c', 'site', 'empresa'))
+    const depois = comContaTrocada(e, agente('c', 'site', 'empresa'))
     expect(depois.ligacoes).toEqual([linha('a', 'b')])
-    expect(comQuadroNovo(e, agente('b', 'app', 'empresa')).ligacoes).toEqual([linha('a', 'b')])
+    expect(comContaTrocada(e, agente('b', 'app', 'empresa')).ligacoes).toEqual([linha('a', 'b')])
   })
 
   it('comLigacao acrescenta, troca e tira', () => {
@@ -64,5 +64,18 @@ describe('linhas quando o quadro muda', () => {
     const pausada = comLigacao(um, 'a-b', { ...linha('a', 'b'), pausada: true })
     expect(pausada.ligacoes?.[0]?.pausada).toBe(true)
     expect(comLigacao(pausada, 'a-b', null).ligacoes).toEqual([])
+  })
+})
+
+describe('comColega (T28.3)', () => {
+  it('quadro, copia nova e linha entram juntos; pasta repetida nao duplica', () => {
+    const e = estado([agente('a', 'app')], [])
+    const copia = { id: 'c1', nome: 'app ⑂ c1', caminho: 'C:\\app.copias\\c1', perfilPadraoId: 'pessoal' }
+    const depois = comColega(e, { quadro: agente('b', 'c1'), repo: copia, ligacao: linha('a', 'b') })
+    expect(depois.quadros.map((q) => q.id)).toEqual(['a', 'b'])
+    expect(depois.repos.map((r) => r.id)).toEqual(['app', 'site', 'c1'])
+    expect(depois.ligacoes).toEqual([linha('a', 'b')])
+    const mesmaPasta = comColega(e, { quadro: agente('b', 'app'), repo: null, ligacao: linha('a', 'b') })
+    expect(mesmaPasta.repos).toHaveLength(2)
   })
 })

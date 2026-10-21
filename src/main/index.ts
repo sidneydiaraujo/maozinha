@@ -52,7 +52,7 @@ function registrarCanais(): void {
   registrarHandlersMensagens(join(app.getPath('userData'), 'mensagens.json'))
   registrarHandlersNotas(contexto.armazem)
   registrarHandlersVistas(contexto.armazem)
-  registrarHandlersTime(contexto.armazem, contexto.perfis)
+  registrarHandlersTime(contexto)
   registrarHandlersLousa(contexto)
   registrarHandlersTerminais(contexto)
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)
