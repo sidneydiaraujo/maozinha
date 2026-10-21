@@ -187,6 +187,24 @@ export interface EventoRepasse {
   ligacao?: Ligacao
 }
 
+/**
+ * Juntar o time (T31.1): as cópias na ordem de entrega, uma por vez. Para no primeiro erro
+ * (conflito ou a original suja); cópia com alteração sem commit fica de fora e segue.
+ */
+export interface ResultadoJuntarTime {
+  juntadas: Array<{ apelido: string; branchAlvo: string }>
+  semNovidade: string[] // apelidos sem commit novo
+  deFora: string[]      // apelidos com alteração sem commit (puladas)
+  parou: {
+    quadroId: string    // quadro da cópia: se for agente, "Pedir ao agente para resolver" (D30)
+    apelido: string
+    branch: string
+    branchAlvo: string
+    erro: string
+  } | null
+  faltam: string[]      // apelidos que nem foram tentados depois da parada
+}
+
 /** Colega criado pela bolinha do time (T28.3): o quadro, a copia nova (ou null) e a linha. */
 export interface ColegaNovo {
   quadro: Quadro

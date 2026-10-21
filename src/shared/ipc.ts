@@ -27,6 +27,7 @@ import type {
   Quadro,
   QuandoAjusta,
   Repo,
+  ResultadoJuntarTime,
   ResumoCopia,
   StatusConta,
   TipoQuadro,
@@ -72,6 +73,7 @@ export const IPC = {
   timeDesligar: 'time:desligar',
   timeColega: 'time:colega',
   timeSeparar: 'time:separar',
+  timeJuntar: 'time:juntar', // juntar as copias do time na original, em ordem (T31.1)
   timePassar: 'time:passar', // botao da linha: passar agora ou continuar depois do freio (T30.1)
   timeRepasse: 'time:repasse', // evento main -> tela: o que aconteceu na linha (T30.1)
   lousaCarregar: 'lousa:carregar',
@@ -202,6 +204,8 @@ export interface LousaApi {
     colega(quadroId: string, posicao?: Posicao): Promise<ColegaNovo>
     /** Linha ambar: colega numa copia no lugar do `para`; o quadro antigo fica aberto. */
     separar(ligacaoId: string): Promise<ColegaNovo>
+    /** Junta as copias do time da linha na pasta original, na ordem de entrega (T31.1). */
+    juntar(ligacaoId: string): Promise<ResultadoJuntarTime>
     /** Passa o trabalho do `de` agora (perguntar, ou Continuar depois do freio); retoma a linha. */
     passar(ligacaoId: string): Promise<void>
     /** Cada repasse, pergunta, freio ou descarte numa linha (T30.1). */

@@ -21,7 +21,7 @@ if (!nome || !cenarios.includes(nome)) {
 }
 
 const arquivo = join(AQUI, 'cenarios', `${nome}.js`)
-const tipoDeEstado = /^\/\/ estado: (\w+)/m.exec(readFileSync(arquivo, 'utf8'))?.[1] ?? 'demo'
+const tipoDeEstado = /^\/\/ estado: ([\w-]+)/m.exec(readFileSync(arquivo, 'utf8'))?.[1] ?? 'demo'
 const carimbo = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
 const saida = join(AQUI, 'saida', `${nome}-${carimbo}`)
 const dados = join(saida, 'dados')

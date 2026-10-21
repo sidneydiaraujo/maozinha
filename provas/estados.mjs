@@ -5,6 +5,7 @@
 // juntar, Ctrl+K e mensagem para varios quadros (Fatias 10 a 13).
 // time: tres agentes de verdade (Fatia 28) nos repositorios do git, mais um terminal comum.
 // repasse: dois agentes de verdade (Pessoal) no app, ja ligados a1 -> a2 (Fatia 30).
+// juntar-time: tres agentes de verdade (Pessoal), cada um numa copia do app, ligados a1 -> a2 -> a3 (Fatia 31).
 // agente: UM AGENTE DE VERDADE (claude.exe, conta Pessoal) na copia da pasta de exemplo, para a
 // linha de status (Fatia 17). Pede o ok do Sidney; o cenario nao manda mensagem nenhuma.
 import { execFileSync } from 'node:child_process'
@@ -24,7 +25,7 @@ const terminal = (id, repoId, perfilId, x, largura) => ({
 
 const repo = (id, nome, caminho) => ({ id, nome, caminho, perfilPadraoId: 'principal' })
 
-export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time', 'repasse']
+export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time', 'repasse', 'juntar-time']
 
 /** Repositorio git com um commit; identidade e fim de linha locais (o autocrlf do PC nao vale aqui). */
 function criarRepo(pasta) {
@@ -46,7 +47,7 @@ function criarRepo(pasta) {
  * em subpasta (Ctrl+K acha) e o mesmo nome dentro de node_modules (Ctrl+K nao pode achar).
  */
 export function prepararPastas(nome, saida) {
-  if (nome !== 'git' && nome !== 'time' && nome !== 'repasse') return {}
+  if (!['git', 'time', 'repasse', 'juntar-time'].includes(nome)) return {}
   const app = join(saida, 'app')
   const api = join(saida, 'api')
   const git = criarRepo(app)
@@ -59,7 +60,31 @@ export function prepararPastas(nome, saida) {
   writeFileSync(join(app, '.gitignore'), 'node_modules/\n')
   git('add', '.')
   git('commit', '-qm', 'docs')
-  return { app, api }
+  return nome === 'juntar-time' ? { app, api, ...criarCopiasDoTime(git, app, saida) } : { app, api }
+}
+
+/**
+ * Tres copias do app (git worktree, como as da Lousa), para juntar o time (T31.1): c1 com um
+ * commit no leia.md; c2 com um commit e um arquivo nao salvo (fica de fora); c3 com um commit no
+ * mesmo trecho do leia.md que a c1 (conflito depois que a c1 entra).
+ */
+function criarCopiasDoTime(git, app, saida) {
+  const pastas = {}
+  const mudar = (nome, arquivo, texto, salvar = true) => {
+    writeFileSync(join(pastas[nome], arquivo), texto)
+    if (!salvar) return
+    execFileSync('git', ['add', arquivo], { cwd: pastas[nome] })
+    execFileSync('git', ['commit', '-qm', `${nome}: ${arquivo}`], { cwd: pastas[nome] })
+  }
+  for (const nome of ['c1', 'c2', 'c3']) {
+    pastas[nome] = join(saida, 'app.copias', nome)
+    git('worktree', 'add', '-q', '-b', `lousa/${nome}`, pastas[nome])
+  }
+  mudar('c1', 'leia.md', '# app de teste\n\nc1 escreveu aqui\n')
+  mudar('c2', 'novo-c2.md', '# do c2\n')
+  mudar('c2', 'rascunho.md', 'ainda nao salvo\n', false)
+  mudar('c3', 'leia.md', '# app de teste\n\nc3 escreveu outra coisa\n')
+  return pastas
 }
 
 /**
@@ -122,6 +147,21 @@ export function estadoDe(nome, pastas, opcoes = []) {
       repos: [repo('r1', 'app', pastas.app)],
       quadros: [agente('a1', 40), agente('a2', 700)],
       ligacoes: [{ id: 'l1', de: 'a1', para: 'a2', modo: 'automatico' }],
+    }
+  }
+  if (nome === 'juntar-time') {
+    // Fatia 31: o claude.exe de cada um e fechado na confianca; ninguem recebe mensagem
+    const copia = (id, caminho) => ({ id, nome: id, caminho, perfilPadraoId: 'pessoal', copia: { origemId: 'r1', branch: `lousa/${id}`, apelido: id } })
+    const agente = (id, repoId, x) => ({ ...terminal(id, repoId, 'pessoal', x, 440), tipo: 'agente', titulo: `Claude ${id.slice(1)}` })
+    return {
+      ...base,
+      viewport: { x: 0, y: 0, zoom: 0.7 },
+      repos: [repo('r1', 'app', pastas.app), copia('c1', pastas.c1), copia('c2', pastas.c2), copia('c3', pastas.c3)],
+      quadros: [agente('a1', 'c1', 40), agente('a2', 'c2', 560), agente('a3', 'c3', 1080)],
+      ligacoes: [
+        { id: 'l1', de: 'a1', para: 'a2', modo: 'automatico' },
+        { id: 'l2', de: 'a2', para: 'a3', modo: 'automatico' },
+      ],
     }
   }
   if (nome === 'agente') {

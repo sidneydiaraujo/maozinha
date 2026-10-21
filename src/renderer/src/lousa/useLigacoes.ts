@@ -3,6 +3,7 @@
 import type { Connection, Edge, OnConnectEnd, OnConnectStart, ReactFlowInstance } from '@xyflow/react'
 import {
   createElement,
+  Fragment,
   useCallback,
   useEffect,
   useMemo,
@@ -13,9 +14,10 @@ import {
   type SetStateAction,
 } from 'react'
 import type { ColegaNovo, EstadoTela, ModoLigacao, Posicao } from '../../../shared/model'
-import { podeLigar, TEXTO_RECUSA } from '../../../shared/time'
+import { copiasDoTime, podeLigar, TEXTO_RECUSA } from '../../../shared/time'
 import { mensagemDe } from '../componentes/erro'
 import { aoPedirColega, aoPedirMenuLinha } from './foco'
+import { JanelaJuntarTime, type CopiaDoTime } from './JanelaJuntarTime'
 import { comColega, comLigacao, dadosDaTela, montarArestas, type DadosLinha } from './linhas'
 import { LinhaTime } from './LinhaTime'
 import { MenuLinha, type PedidoMenuLinha } from './MenuLinha'
@@ -74,6 +76,14 @@ function acoesDoTime(setEstado: Deps['setEstado'], avisar: Deps['avisar']) {
   }
 }
 
+/** As copias do time da linha, na ordem de entrega, para a janela "Juntar o time" (T31.1). */
+function copiasParaJuntar(estado: EstadoTela, quadroId: string): CopiaDoTime[] {
+  return copiasDoTime(dadosDaTela(estado), quadroId).map(({ quadroId: id, repoId }) => {
+    const repo = estado.repos.find((r) => r.id === repoId)
+    return { quadroId: id, apelido: repo?.copia?.apelido ?? repo?.nome ?? id, agente: estado.quadros.find((q) => q.id === id)?.tipo === 'agente' }
+  })
+}
+
 const pontoDo = (e: MouseEvent | TouchEvent): Posicao => {
   const p = 'changedTouches' in e ? e.changedTouches[0] : e
   return { x: p?.clientX ?? 0, y: p?.clientY ?? 0 }
@@ -122,6 +132,7 @@ function useFimDaConexao(deps: Deps, acoes: ReturnType<typeof acoesDoTime>, inic
 export function useLigacoes(deps: Deps) {
   const { estado, setEstado, avisar } = deps
   const [menu, setMenu] = useState<PedidoMenuLinha | null>(null)
+  const [juntar, setJuntar] = useState<{ ligacaoId: string; copias: CopiaDoTime[] } | null>(null)
   const inicio = useRef<Posicao | null>(null)
   const acoes = useMemo(() => acoesDoTime(setEstado, avisar), [setEstado, avisar])
   useEffect(() => aoPedirColega((quadroId) => void acoes.colega(quadroId)), [acoes])
@@ -168,6 +179,10 @@ export function useLigacoes(deps: Deps) {
       aoAjustar: (mudanca: Ajuste) => fazer(() => acoes.ajustar(menu.ligacao.id, mudanca)),
       aoRemover: () => fazer(() => acoes.remover(menu.ligacao.id)),
       aoSeparar: () => fazer(() => acoes.separar(menu.ligacao.id)),
+      aoJuntarTime: () => {
+        setMenu(null)
+        if (estado) setJuntar({ ligacaoId: menu.ligacao.id, copias: copiasParaJuntar(estado, menu.ligacao.de) })
+      },
       aoFechar: fechar,
     })
 
@@ -183,6 +198,6 @@ export function useLigacoes(deps: Deps) {
       isValidConnection: conexaoValida,
       connectOnClick: false,
     },
-    menu: menuAberto,
+    menu: createElement(Fragment, null, menuAberto, juntar && createElement(JanelaJuntarTime, { ...juntar, aoFechar: () => setJuntar(null) })),
   }
 }

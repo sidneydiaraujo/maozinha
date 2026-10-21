@@ -93,3 +93,9 @@
   padding-left: 22px;
   color: var(--destaque);
 }
+
+/* Juntar o time (T31.1): o resultado ja traz o proprio sinal (✓) em cada linha */
+.juntar-time-resultado {
+  list-style: none;
+  padding-left: 0;
+}

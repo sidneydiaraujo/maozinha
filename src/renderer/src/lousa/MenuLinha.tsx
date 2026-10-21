@@ -12,11 +12,12 @@ interface Props extends PedidoMenuLinha {
   aoAjustar(mudanca: { modo?: ModoLigacao; pausada?: boolean }): void
   aoRemover(): void
   aoSeparar(): void
+  aoJuntarTime(): void
   aoFechar(): void
 }
 
 /** Menu da linha do time (T28.2): automatico ou perguntar, pausar, remover e (mesma pasta) separar. */
-export function MenuLinha({ ligacao, mesmaPasta, x, y, aoAjustar, aoRemover, aoSeparar, aoFechar }: Props): React.JSX.Element {
+export function MenuLinha({ ligacao, mesmaPasta, x, y, aoAjustar, aoRemover, aoSeparar, aoJuntarTime, aoFechar }: Props): React.JSX.Element {
   const caixa = useRef<HTMLDivElement>(null)
   useEffect(() => {
     const fora = (e: MouseEvent): void => {
@@ -53,6 +54,14 @@ export function MenuLinha({ ligacao, mesmaPasta, x, y, aoAjustar, aoRemover, aoS
           ⑂ Abrir o colega numa cópia
         </button>
       )}
+      <button
+        className="conta-menu-item"
+        role="menuitem"
+        title="As cópias do time voltam para a pasta original, na ordem de entrega (T31.1)"
+        onClick={aoJuntarTime}
+      >
+        ⇢ Juntar o time
+      </button>
       <button className="conta-menu-item" role="menuitem" onClick={() => aoAjustar({ pausada: !ligacao.pausada })}>
         {ligacao.pausada ? '▶ Retomar' : '⏸ Pausar'}
       </button>

@@ -144,3 +144,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Fatia 30 — o trabalho passa adiante (D39, D43)
 
 - [ ] 78. Num time Construtor → Revisor (linha entre dois agentes Claude, cada um na sua cópia), peça uma tarefa pequena ao Construtor. Quando ele terminar, a linha mostra "→ passou para Revisor" e o Revisor recebe sozinho uma mensagem que começa com "[Lousa] Seu colega Construtor terminou", com o que ele disse e a branch dele. Se o Revisor estiver trabalhando, a mensagem espera ele parar. Com a linha em "perguntar", ela mostra "▶ Passar para Revisor" e só passa quando você clica. Depois de 3 repasses seguidos sem você digitar em nenhum quadro do time, a linha pausa e mostra "Limite de 3 repasses: Continuar?"; o clique passa e retoma. A resposta "ok" à apresentação do time não é repassada.
+
+## Fatia 31 — juntar o time (D39, D44)
+
+- [ ] 79. Num time de agentes em cópias separadas (ex.: Construtor → Revisor), depois que os dois fizeram commit, clique na linha → "⇢ Juntar o time". A janela lista as cópias na ordem de entrega. "Juntar N cópias" junta uma por vez na pasta original e diz o resultado de cada uma: "✓ … juntada em main", "Ficou de fora (tem alteração não salva)" para a cópia com mudança sem commit, e "Parou em …: Conflito" no primeiro conflito, com "Pedir ao agente de … para resolver". As cópias continuam abertas; feche os quadros para apagá-las.

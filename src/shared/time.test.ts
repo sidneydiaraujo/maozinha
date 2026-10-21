@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import type { Ligacao, Quadro, Repo } from './model'
 import {
+  copiasDoTime,
   limparPapel,
   ligacoesValidas,
   mesmaPasta,
   nomeNoTime,
+  ordemDoTime,
   podeLigar,
   raizDoRepo,
   textoDoTime,
@@ -142,5 +144,39 @@ describe('apresentacao do time (T29.1)', () => {
     const malicioso = { ...d, quadros: d.quadros.map((q) => (q.id === 'a' ? { ...q, papel: 'X; rm -r ~ & y | $(z) `w`' } : q)) }
     expect(textoDoTime(malicioso, 'b')).not.toMatch(/[;&|$`]/)
     expect(textoDoTime(malicioso, 'b')).toContain('X rm -r ~ y (z) w')
+  })
+})
+
+describe('juntar o time (T31.1)', () => {
+  const comCopias: Repo[] = [
+    ...repos,
+    { id: 'app-c2', nome: 'c2', caminho: 'C:\\app.copias\\c2', perfilPadraoId: 'pessoal', copia: { origemId: 'app', branch: 'lousa/c2', apelido: 'c2' } },
+  ]
+  const comRepos = (d: DadosTime): DadosTime => ({ ...d, repos: comCopias })
+
+  it('ordem de entrega: quem entrega antes; empate pela ordem na lousa', () => {
+    // revisor (r) recebe de dois construtores (b e a); a lousa tem r, b, a
+    const d = dados([agente('r', 'app'), agente('b', 'app'), agente('a', 'app')], [linha('a', 'r'), linha('b', 'r')])
+    expect(ordemDoTime(d, 'r')).toEqual(['b', 'a', 'r'])
+    const corrente = dados([agente('c', 'app'), agente('b', 'app'), agente('a', 'app')], [linha('a', 'b'), linha('b', 'c')])
+    expect(ordemDoTime(corrente, 'c')).toEqual(['a', 'b', 'c'])
+  })
+
+  it('so quem esta no time entra', () => {
+    const d = dados([agente('a', 'app'), agente('b', 'app'), agente('fora', 'app')], [linha('a', 'b')])
+    expect(ordemDoTime(d, 'b')).toEqual(['a', 'b'])
+  })
+
+  it('copias na ordem, uma vez cada; a pasta original fica de fora', () => {
+    const d = comRepos(
+      dados(
+        [agente('orig', 'app'), agente('x', 'app-c2'), agente('y', 'app-c1'), agente('z', 'app-c2')],
+        [linha('orig', 'y'), linha('y', 'x'), linha('x', 'z')],
+      ),
+    )
+    expect(copiasDoTime(d, 'x')).toEqual([
+      { quadroId: 'y', repoId: 'app-c1' },
+      { quadroId: 'x', repoId: 'app-c2' },
+    ])
   })
 })

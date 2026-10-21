@@ -199,3 +199,9 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Freio por time:** a chave é o menor id do time; conta só repasse automático; o Sidney digitar em qualquer quadro do time (letra ou Enter vindos da tela, não a resposta automática do terminal que começa com ESC) zera. Os botões "▶ Passar" e "Continuar?" (`time:passar`) retomam a linha, zeram o freio e passam o que o `de` disse por último.
   - **O texto do repasse** passa pelo mesmo `inerte()` da apresentação: a mensagem do OSC 7501 vem do agente.
   - **Achado na prova:** o rótulo da linha é um portal do React Flow, mas o clique sobe pela árvore do React até a linha (`onEdgeClick`). "Continuar?" passava **e** abria o menu da linha; agora o rótulo para o clique (`stopPropagation`).
+- **D44 (21/10/2026, T31.1):** "Juntar o time" (D39).
+  - **Ordem de entrega:** quem entrega vem antes de quem recebe (`ordemDoTime` em `shared/time.ts`); empate, a ordem dos quadros na lousa. Dois quadros na mesma cópia: ela entra uma vez.
+  - **Reaproveita o Juntar de cada cópia** (`juntarCopia`, D19 e D30): a regra de alteração pendente, a recusa explicada e o conflito que desfaz o merge são os mesmos.
+  - **Cópia sem commit novo** não é juntada e aparece em "Sem nada novo"; **cópia com alteração sem commit** fica de fora e a próxima segue; **qualquer outro erro para** (conflito, a original suja, HEAD solto): o resto aparece em "Não tentadas", porque uma cópia que vem depois pode depender da que falhou.
+  - **No conflito, "Pedir ao agente de <cópia> para resolver"** usa o mesmo pedido da D30, só se o quadro daquela cópia for agente.
+  - **As cópias não são apagadas:** apagar continua sendo fechar o quadro (D18), com o aviso de sempre.

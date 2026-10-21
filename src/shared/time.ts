@@ -146,6 +146,40 @@ export function textoDoTime(dados: DadosTime, quadroId: string): string | null {
   return inerte(partes.filter(Boolean).join(' '))
 }
 
+// --- Juntar o time (T31.1) ---
+
+/**
+ * Os quadros do time em ordem de entrega: quem entrega vem antes de quem recebe. Empate (dois
+ * prontos ao mesmo tempo): a ordem dos quadros na lousa. Sem ciclo (podeLigar recusa).
+ */
+export function ordemDoTime(dados: DadosTime, quadroId: string): string[] {
+  const time = new Set(timeDe(dados.ligacoes, quadroId))
+  const linhas = dados.ligacoes.filter((l) => time.has(l.de) && time.has(l.para))
+  const naLousa = dados.quadros.map((q) => q.id).filter((id) => time.has(id))
+  const ordem: string[] = []
+  const faltam = new Set(naLousa)
+  while (faltam.size > 0) {
+    const pronto = naLousa.find((id) => faltam.has(id) && !linhas.some((l) => l.para === id && faltam.has(l.de)))
+    if (!pronto) break // ciclo: nao deveria existir
+    ordem.push(pronto)
+    faltam.delete(pronto)
+  }
+  return ordem
+}
+
+/** As copias do time na ordem de entrega, uma vez cada (dois quadros podem dividir a copia). */
+export function copiasDoTime(dados: DadosTime, quadroId: string): Array<{ quadroId: string; repoId: string }> {
+  const vistas = new Set<string>()
+  const copias: Array<{ quadroId: string; repoId: string }> = []
+  for (const id of ordemDoTime(dados, quadroId)) {
+    const repo = dados.repos.find((r) => r.id === dados.quadros.find((q) => q.id === id)?.repoId)
+    if (!repo?.copia || vistas.has(repo.id)) continue
+    vistas.add(repo.id)
+    copias.push({ quadroId: id, repoId: repo.id })
+  }
+  return copias
+}
+
 // --- Repasse (T30.1) ---
 
 /** Freio: repasses automaticos seguidos num time sem o Sidney digitar em algum quadro dele. */
