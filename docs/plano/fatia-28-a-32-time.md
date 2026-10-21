@@ -185,7 +185,7 @@ seguido pausa; digitar zera; `para` encerrado descarta; duas entradas no mesmo `
 ordem.
 
 **Pronto quando:** check e smoke verdes; cenário `time` com terminal falso que "termina"
-(OSC 7501 `done`) e o colega recebe; item 76 do roteiro (com Claude de verdade: Construtor →
+(OSC 7501 `done`) e o colega recebe; item 78 do roteiro (com Claude de verdade: Construtor →
 Revisor).
 
 ---
@@ -203,7 +203,7 @@ reaproveita a de "Juntar" (Fatias 11, 22 e 23).
 - Para no primeiro conflito e mostra "Pedir ao agente para resolver" (D30) **daquela** cópia.
 - Cópia com alteração sem commit: pula e lista no fim ("ficou de fora: tem alteração não salva").
 
-**Pronto quando:** check verde; cenário `juntar` estendido com duas cópias; item 77.
+**Pronto quando:** check verde; cenário `juntar` estendido com duas cópias; item 79.
 
 ---
 

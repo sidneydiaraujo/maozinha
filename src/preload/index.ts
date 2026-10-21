@@ -2,7 +2,7 @@
 // contrato em src/shared/ipc.ts; nenhuma regra mora aqui.
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron'
 import { IPC, type LousaApi } from '../shared/ipc'
-import type { AvisoAgente, PainelAgente, UsoConta } from '../shared/model'
+import type { AvisoAgente, EventoRepasse, PainelAgente, UsoConta } from '../shared/model'
 
 /** Assina um evento do main entregando so o payload (nunca o `event`); devolve o cancelar. */
 function inscrever<T>(canal: string, cb: (payload: T) => void): () => void {
@@ -69,6 +69,8 @@ const api: LousaApi = {
     desligar: (ligacaoId) => ipcRenderer.invoke(IPC.timeDesligar, { ligacaoId }),
     colega: (quadroId, posicao) => ipcRenderer.invoke(IPC.timeColega, { quadroId, posicao }),
     separar: (ligacaoId) => ipcRenderer.invoke(IPC.timeSeparar, { ligacaoId }),
+    passar: (ligacaoId) => ipcRenderer.invoke(IPC.timePassar, { ligacaoId }),
+    aoRepasse: (cb) => inscrever<EventoRepasse>(IPC.timeRepasse, cb),
   },
   lousa: {
     carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),

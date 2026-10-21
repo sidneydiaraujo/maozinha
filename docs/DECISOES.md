@@ -192,4 +192,10 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Por que opcional:** os repositórios do Sidney (pessoais e da empresa) estão todos em `sidneydiaraujo`; ligar por padrão deslogaria o `gh` e o push de quem já funciona hoje.
   - **Fica de fora:** chave SSH por conta (os remotes são https); o git que o próprio main roda (cópias e juntar, `copias/git.ts`) continua sem conta e com o autor do PC. O merge do "Juntar" é feito em nome de quem clica.
   - **Vale para terminal aberto depois de salvar:** o ambiente é montado na abertura; o formulário avisa.
-
+- **D43 (21/10/2026, T30.1, Sidney: "prepare as fatias 30 e 31 para iniciar e fazer"):** como o trabalho passa adiante no time (D39).
+  - **Fim da vez = `terminou` vindo de qualquer outro estado, ou `parado` vindo de `trabalhando`** (`fimDaVez` em `time/repasse.ts`). O `claude.exe` é empacotado e não dá para ler quando ele manda `done` e quando volta direto a `idle`: aceitar os dois cobre os dois jeitos. Abrir o Claude (já `parado`, sem ter trabalhado) não conta.
+  - **A resposta à apresentação do time não passa adiante:** a fila avisa o que digitou (`apresentacao` ou `repasse`); a vez que responde à apresentação ("ok") é ignorada. Sem isso, cada mudança no time viraria repasse.
+  - **Uma fila só por agente** (`FilaMensagens`): a apresentação continua uma por agente (a nova substitui), o repasse entra em ordem, e sai **uma mensagem por parada** (depois de digitar, a próxima espera o agente parar de novo). A apresentação pendente sai antes do repasse. Duas filas separadas poderiam digitar ao mesmo tempo no mesmo agente.
+  - **Freio por time:** a chave é o menor id do time; conta só repasse automático; o Sidney digitar em qualquer quadro do time (letra ou Enter vindos da tela, não a resposta automática do terminal que começa com ESC) zera. Os botões "▶ Passar" e "Continuar?" (`time:passar`) retomam a linha, zeram o freio e passam o que o `de` disse por último.
+  - **O texto do repasse** passa pelo mesmo `inerte()` da apresentação: a mensagem do OSC 7501 vem do agente.
+  - **Achado na prova:** o rótulo da linha é um portal do React Flow, mas o clique sobe pela árvore do React até a linha (`onEdgeClick`). "Continuar?" passava **e** abria o menu da linha; agora o rótulo para o clique (`stopPropagation`).

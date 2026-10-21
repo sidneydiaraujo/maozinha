@@ -12,6 +12,7 @@ import type {
   DiffArquivo,
   ConteudoArquivo,
   EstadoTela,
+  EventoRepasse,
   FimDaCopia,
   GitDaConta,
   ItemArquivo,
@@ -71,6 +72,8 @@ export const IPC = {
   timeDesligar: 'time:desligar',
   timeColega: 'time:colega',
   timeSeparar: 'time:separar',
+  timePassar: 'time:passar', // botao da linha: passar agora ou continuar depois do freio (T30.1)
+  timeRepasse: 'time:repasse', // evento main -> tela: o que aconteceu na linha (T30.1)
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -199,6 +202,10 @@ export interface LousaApi {
     colega(quadroId: string, posicao?: Posicao): Promise<ColegaNovo>
     /** Linha ambar: colega numa copia no lugar do `para`; o quadro antigo fica aberto. */
     separar(ligacaoId: string): Promise<ColegaNovo>
+    /** Passa o trabalho do `de` agora (perguntar, ou Continuar depois do freio); retoma a linha. */
+    passar(ligacaoId: string): Promise<void>
+    /** Cada repasse, pergunta, freio ou descarte numa linha (T30.1). */
+    aoRepasse(cb: (evento: EventoRepasse) => void): () => void
   }
   lousa: {
     carregar(): Promise<EstadoTela>

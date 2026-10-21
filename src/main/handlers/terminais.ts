@@ -6,6 +6,7 @@ import { handle } from '../ipc'
 import { montarAmbiente } from '../perfis/ambiente'
 import { acharSessao } from '../quadros/sessoes'
 import { resolverAlvo } from '../terminais/alvo'
+import { ehDigitacao } from '../time/repasse'
 
 const Tamanho = { cols: z.number().int().min(2).max(500), rows: z.number().int().min(2).max(500) }
 const Alvo = z.discriminatedUnion('tipo', [
@@ -16,9 +17,9 @@ const Abrir = z.object({ alvo: Alvo, ...Tamanho })
 const Escrever = z.object({ terminalId: z.string().min(1), dados: z.string().max(1_000_000) })
 const Redimensionar = z.object({ terminalId: z.string().min(1), ...Tamanho })
 
-type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'agentes'>
+type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'agentes' | 'repasse'>
 
-export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, agentes }: Servicos): void {
+export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, agentes, repasse }: Servicos): void {
   const home = app.getPath('home')
   const dados = app.getPath('userData') // login do gh de quem tem GitHub proprio (D42)
   handle(IPC.terminaisAbrir, Abrir, ({ alvo, cols, rows }) => {
@@ -46,7 +47,11 @@ export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, 
   handle(IPC.terminaisFecharLogin, z.object({ perfilId: z.string().min(1) }), ({ perfilId }) =>
     terminais.fechar(`login:${perfilId}`),
   )
-  handle(IPC.terminaisEscrever, Escrever, ({ terminalId, dados }) => terminais.escrever(terminalId, dados))
+  handle(IPC.terminaisEscrever, Escrever, ({ terminalId, dados }) => {
+    // so a tela chega aqui: digitacao do Sidney zera o freio do time (T30.1)
+    if (ehDigitacao(dados)) repasse.digitou(terminalId)
+    terminais.escrever(terminalId, dados)
+  })
   handle(IPC.terminaisRedimensionar, Redimensionar, ({ terminalId, cols, rows }) =>
     terminais.redimensionar(terminalId, cols, rows),
   )

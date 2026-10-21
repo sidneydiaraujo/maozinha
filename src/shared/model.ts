@@ -174,6 +174,19 @@ export interface Ligacao {
   pausada?: boolean
 }
 
+/**
+ * O que aconteceu numa linha quando o `de` terminou (T30.1): passou o trabalho; espera o seu ok
+ * (modo perguntar); parou no freio de 3 repasses seguidos; ou o `para` estava fechado.
+ * `ligacao` vem quando ela mudou (o freio a pausa).
+ */
+export type TipoRepasse = 'repassou' | 'perguntar' | 'limite' | 'descartado'
+export interface EventoRepasse {
+  ligacaoId: string
+  tipo: TipoRepasse
+  para: string        // nome do colega que recebe, para o rótulo
+  ligacao?: Ligacao
+}
+
 /** Colega criado pela bolinha do time (T28.3): o quadro, a copia nova (ou null) e a linha. */
 export interface ColegaNovo {
   quadro: Quadro

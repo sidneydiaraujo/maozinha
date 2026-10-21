@@ -4,6 +4,7 @@
 // git: dois repositorios git novos (app e api) e tres terminais, para copia separada,
 // juntar, Ctrl+K e mensagem para varios quadros (Fatias 10 a 13).
 // time: tres agentes de verdade (Fatia 28) nos repositorios do git, mais um terminal comum.
+// repasse: dois agentes de verdade (Pessoal) no app, ja ligados a1 -> a2 (Fatia 30).
 // agente: UM AGENTE DE VERDADE (claude.exe, conta Pessoal) na copia da pasta de exemplo, para a
 // linha de status (Fatia 17). Pede o ok do Sidney; o cenario nao manda mensagem nenhuma.
 import { execFileSync } from 'node:child_process'
@@ -23,7 +24,7 @@ const terminal = (id, repoId, perfilId, x, largura) => ({
 
 const repo = (id, nome, caminho) => ({ id, nome, caminho, perfilPadraoId: 'principal' })
 
-export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time']
+export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time', 'repasse']
 
 /** Repositorio git com um commit; identidade e fim de linha locais (o autocrlf do PC nao vale aqui). */
 function criarRepo(pasta) {
@@ -45,7 +46,7 @@ function criarRepo(pasta) {
  * em subpasta (Ctrl+K acha) e o mesmo nome dentro de node_modules (Ctrl+K nao pode achar).
  */
 export function prepararPastas(nome, saida) {
-  if (nome !== 'git' && nome !== 'time') return {}
+  if (nome !== 'git' && nome !== 'time' && nome !== 'repasse') return {}
   const app = join(saida, 'app')
   const api = join(saida, 'api')
   const git = criarRepo(app)
@@ -110,6 +111,17 @@ export function estadoDe(nome, pastas, opcoes = []) {
         agente('a3', 'r2', 'principal', 40, 440),
         { ...terminal('t1', 'r2', 'principal', 640, 460), caixa: { x: 640, y: 440, largura: 460, altura: 300 } },
       ],
+    }
+  }
+  if (nome === 'repasse') {
+    // Fatia 30: o claude.exe de cada um e fechado na confianca; o cenario poe o Claude falso
+    const agente = (id, x) => ({ ...terminal(id, 'r1', 'pessoal', x, 520), tipo: 'agente', titulo: `Claude ${id.slice(1)}` })
+    return {
+      ...base,
+      viewport: { x: 0, y: 0, zoom: 0.8 },
+      repos: [repo('r1', 'app', pastas.app)],
+      quadros: [agente('a1', 40), agente('a2', 700)],
+      ligacoes: [{ id: 'l1', de: 'a1', para: 'a2', modo: 'automatico' }],
     }
   }
   if (nome === 'agente') {

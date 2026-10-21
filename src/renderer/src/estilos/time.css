@@ -110,3 +110,38 @@
   border-radius: var(--raio-pilula);
   outline: none;
 }
+
+/* Repasse (T30.1): "passou" acende em verde; perguntar e o freio chamam o clique. */
+.rotulo-linha-time.repasse-repassou {
+  color: var(--texto);
+  border-color: var(--ok-borda);
+  animation: repasse-acende 1.2s ease-out 2;
+}
+
+.rotulo-linha-time.repasse-perguntar,
+.rotulo-linha-time.repasse-limite {
+  color: var(--texto-no-ambar);
+  background: var(--ambar);
+  border-color: var(--ambar);
+  font-weight: 600;
+}
+
+.rotulo-linha-time.repasse-descartado {
+  color: var(--perigo);
+  border-color: var(--perigo-borda);
+}
+
+@keyframes repasse-acende {
+  from {
+    box-shadow: 0 0 0 4px var(--ok-borda);
+  }
+  to {
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rotulo-linha-time.repasse-repassou {
+    animation: none;
+  }
+}

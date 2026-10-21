@@ -14,49 +14,93 @@ export interface DepsFila extends DepsAjustes {
 /** Montar uma arvore manda uma apresentacao so: espera o time ficar 2 s sem mudar. */
 export const ESPERA_APRESENTAR_MS = 2000
 
+/** De onde veio o que a Lousa digitou: a resposta a uma apresentacao nao passa adiante (T30.1). */
+export type TipoMensagem = 'apresentacao' | 'repasse'
+
 /**
- * Uma mensagem pendente por agente; a mais nova substitui a anterior (a apresentacao velha nao
- * vale mais). Agente trabalhando, esperando voce ou fechado: espera ele parar.
+ * Mensagens da Lousa para os agentes. A apresentacao (`mandar`) e uma por agente: a mais nova
+ * substitui a anterior (a velha nao vale mais). O repasse (`enfileirar`, T30.1) espera em ordem.
+ * Uma mensagem por parada: depois de digitar, a proxima espera o agente parar de novo. Agente
+ * trabalhando, esperando voce ou fechado: espera ele parar.
  */
 export class FilaMensagens {
   private readonly pendentes = new Map<string, string>()
+  private readonly emOrdem = new Map<string, string[]>()
+  /** Ja digitou nesta parada; limpa no proximo aviso do agente. */
+  private readonly digitouAgora = new Set<string>()
 
-  constructor(private readonly deps: DepsFila) {}
+  constructor(
+    private readonly deps: DepsFila,
+    private readonly aoDigitar: (quadroId: string, tipo: TipoMensagem) => void = () => {},
+  ) {}
 
   async mandar(quadroId: string, texto: string): Promise<void> {
-    if (!this.deps.aberto(quadroId) || !podeCompactar(this.deps.aviso(quadroId)?.estado)) {
+    if (!this.livre(quadroId)) {
       this.pendentes.set(quadroId, texto)
       return
     }
     this.pendentes.delete(quadroId)
-    await this.digitar(quadroId, texto)
+    await this.digitar(quadroId, texto, 'apresentacao')
+  }
+
+  /** Repasse: entra no fim da fila do agente; nada substitui nada (T30.1). */
+  async enfileirar(quadroId: string, texto: string): Promise<void> {
+    const fila = this.emOrdem.get(quadroId) ?? []
+    if (fila.length > 0 || this.pendentes.has(quadroId) || !this.livre(quadroId)) {
+      this.emOrdem.set(quadroId, [...fila, texto])
+      return
+    }
+    await this.digitar(quadroId, texto, 'repasse')
   }
 
   aoEstado(quadroId: string, aviso: AvisoAgente): Promise<void> {
-    const texto = this.pendentes.get(quadroId)
-    if (texto === undefined || !podeCompactar(aviso.estado)) return Promise.resolve()
-    this.pendentes.delete(quadroId)
-    return this.digitar(quadroId, texto)
+    this.digitouAgora.delete(quadroId)
+    if (!podeCompactar(aviso.estado)) return Promise.resolve()
+    const apresentacao = this.pendentes.get(quadroId)
+    if (apresentacao !== undefined) {
+      this.pendentes.delete(quadroId)
+      return this.digitar(quadroId, apresentacao, 'apresentacao')
+    }
+    const [repasse, ...resto] = this.emOrdem.get(quadroId) ?? []
+    if (repasse === undefined) return Promise.resolve()
+    this.emOrdem.set(quadroId, resto)
+    return this.digitar(quadroId, repasse, 'repasse')
   }
 
-  /** O quadro saiu da lousa: a mensagem dele nao vale mais. */
+  /** O quadro saiu da lousa: as mensagens dele nao valem mais. */
   esquecer(quadroId: string): void {
     this.pendentes.delete(quadroId)
+    this.emOrdem.delete(quadroId)
+    this.digitouAgora.delete(quadroId)
   }
 
   pendente(quadroId: string): string | undefined {
     return this.pendentes.get(quadroId)
   }
 
+  emEspera(quadroId: string): string[] {
+    return this.emOrdem.get(quadroId) ?? []
+  }
+
+  private livre(quadroId: string): boolean {
+    return (
+      this.deps.aberto(quadroId) && podeCompactar(this.deps.aviso(quadroId)?.estado) && !this.digitouAgora.has(quadroId)
+    )
+  }
+
   /**
    * Texto e Enter separados: juntos o Claude trata como colagem e nao envia (D21). Sem claude.exe
-   * no terminal (saiu e ficou o PowerShell), nao digita: a mensagem volta para a fila.
+   * no terminal (saiu e ficou o PowerShell), nao digita: a mensagem volta para o comeco da fila.
    */
-  private async digitar(quadroId: string, texto: string): Promise<void> {
+  private async digitar(quadroId: string, texto: string, tipo: TipoMensagem): Promise<void> {
+    this.digitouAgora.add(quadroId)
     if (!(await this.deps.temClaude(quadroId))) {
-      if (!this.pendentes.has(quadroId)) this.pendentes.set(quadroId, texto)
+      this.digitouAgora.delete(quadroId)
+      if (tipo === 'repasse') this.emOrdem.set(quadroId, [texto, ...(this.emOrdem.get(quadroId) ?? [])])
+      else if (!this.pendentes.has(quadroId)) this.pendentes.set(quadroId, texto)
       return
     }
+    this.aoDigitar(quadroId, tipo)
     this.deps.escrever(quadroId, texto)
     await this.deps.esperar(PAUSA_ENTER_MS)
     this.deps.escrever(quadroId, '\r')

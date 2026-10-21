@@ -206,6 +206,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `time:desligar` | `{ ligacaoId }` | — (os agentes não são tocados) | T28.1 |
 | `time:colega` | `{ quadroId, posicao? }` | `ColegaNovo` (agente Claude na mesma conta, numa cópia da pasta original, ligado; sem git, na mesma pasta) | T28.3 |
 | `time:separar` | `{ ligacaoId }` | `ColegaNovo` (colega numa cópia no lugar do `para`; linha antiga sai; sem git, recusa) | T28.3 |
+| `time:passar` | `{ ligacaoId }` | — (passa agora o que o `de` disse por último; retoma a linha pausada e zera o freio; `para` fechado recusa) | T30.1 |
+| evento `time:repasse` | — | `EventoRepasse` (`repassou`, `perguntar`, `limite` com a linha pausada, `descartado`) | T30.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 | `arquivos:listar` | `{ repoId, relativo }` | `ItemArquivo[]` (ordem do VSCode, sem `.git` e afins) | T7.1 |

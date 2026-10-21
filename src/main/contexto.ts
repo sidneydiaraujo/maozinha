@@ -5,6 +5,7 @@ import { existsSync, mkdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
+import type { DadosTime } from '../shared/time'
 import { FilaAjustes } from './agentes/ajustes'
 import { adiarReal, discoDaPonte } from './agentes/disco'
 import { PonteAgentes } from './agentes/ponte'
@@ -28,7 +29,8 @@ import { ServicoTerminais } from './terminais/servico'
 import { spawnReal } from './terminais/spawnReal'
 import { rodarReal, temClaudeDentro } from './terminais/filhos'
 import { ApresentadorTime, FilaMensagens } from './time/apresentar'
-import { provedoresDos } from './time/servico'
+import { Repasse } from './time/repasse'
+import { provedoresDos, ServicoTime } from './time/servico'
 
 export interface Contexto {
   perfis: ServicoPerfis
@@ -44,6 +46,8 @@ export interface Contexto {
   usos: UsoDasContas
   /** Time de agentes (T29.1): chame `mudou()` quando linha, colega, papel ou quadro mudar. */
   time: ApresentadorTime
+  /** Passar o trabalho adiante (T30.1): `digitou` zera o freio do time. */
+  repasse: Repasse
 }
 
 /** Fila de mensagens aos agentes e apresentador do time (T29.1). */
@@ -52,8 +56,22 @@ function montarTime(d: {
   perfis: ServicoPerfis
   terminais: ServicoTerminais
   esperar(ms: number): Promise<void>
-}): { mensagens: FilaMensagens; time: ApresentadorTime } {
+}): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; esquecer(quadroId: string): void } {
   const { armazem, perfis, terminais } = d
+  const dados = (): DadosTime => {
+    const e = armazem.carregar()
+    const provedores = provedoresDos(e.quadros, (id) => perfis.obter(id))
+    return { quadros: e.quadros, repos: e.repos, ligacoes: e.ligacoes ?? [], provedores }
+  }
+  const linhas = new ServicoTime({ armazem, perfis, novoId: randomUUID })
+  // a fila e criada logo abaixo; o repasse so a usa quando um agente termina
+  const repasse = new Repasse({
+    dados,
+    fila: { enfileirar: (id, texto) => mensagens.enfileirar(id, texto) },
+    aberto: (id) => terminais.estaAberto(id),
+    ajustar: (id, mudanca) => linhas.ajustar(id, mudanca),
+    avisar: (evento) => enviarParaJanelas(IPC.timeRepasse, evento),
+  })
   const mensagens = new FilaMensagens({
     aberto: (id) => terminais.estaAberto(id),
     aviso: (id) => terminais.aviso(id),
@@ -63,20 +81,20 @@ function montarTime(d: {
       const pid = terminais.pid(id)
       return pid !== null && temClaudeDentro(pid, rodarReal)
     },
-  })
+  }, (id, tipo) => repasse.aoDigitar(id, tipo))
   const time = new ApresentadorTime({
-    dados: () => {
-      const e = armazem.carregar()
-      const provedores = provedoresDos(e.quadros, (id) => perfis.obter(id))
-      return { quadros: e.quadros, repos: e.repos, ligacoes: e.ligacoes ?? [], provedores }
-    },
+    dados,
     fila: mensagens,
     adiar: (fn, ms) => {
       const t = setTimeout(fn, ms)
       return () => clearTimeout(t)
     },
   })
-  return { mensagens, time }
+  const esquecer = (id: string): void => {
+    mensagens.esquecer(id)
+    repasse.esquecer(id)
+  }
+  return { mensagens, time, repasse, esquecer }
 }
 
 /** Entrega um evento a todas as janelas abertas. */
@@ -155,6 +173,7 @@ export function criarContexto(): Contexto {
       void ajustes.aoEstado(terminalId, aviso)
       // apresentacao do time pedida com o agente ocupado: digita quando ele parar (T29.1)
       void mensagens.aoEstado(terminalId, aviso)
+      void repasse.aoEstado(terminalId, aviso.estado, aviso.mensagem) // fim da vez passa adiante (T30.1)
     },
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
@@ -164,7 +183,7 @@ export function criarContexto(): Contexto {
     escrever: (id, dados) => terminais.escrever(id, dados),
     esperar,
   })
-  const { mensagens, time } = montarTime({ armazem, perfis, terminais, esperar })
+  const { mensagens, time, repasse, esquecer } = montarTime({ armazem, perfis, terminais, esperar })
   const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
   const usos = new UsoDasContas()
   // linha de status dos agentes (T17.2, D24): fica so em <userData>\agentes
@@ -186,7 +205,7 @@ export function criarContexto(): Contexto {
     terminais.fechar(id)
     agentes.esquecer(id)
     ajustes.esquecer(id)
-    mensagens.esquecer(id)
+    esquecer(id)
   }
   const repos = new ServicoRepos({
     armazem,
@@ -210,5 +229,5 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes, usos, time }
+  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes, usos, time, repasse }
 }

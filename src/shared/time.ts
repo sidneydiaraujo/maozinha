@@ -146,6 +146,25 @@ export function textoDoTime(dados: DadosTime, quadroId: string): string | null {
   return inerte(partes.filter(Boolean).join(' '))
 }
 
+// --- Repasse (T30.1) ---
+
+/** Freio: repasses automaticos seguidos num time sem o Sidney digitar em algum quadro dele. */
+export const LIMITE_REPASSES = 3
+
+/**
+ * O que o `para` recebe quando o `de` termina: quem terminou, o que disse (a mensagem do OSC 7501,
+ * ate 200 letras, vem do agente: passa pelo inerte) e onde esta o trabalho. Uma linha so.
+ */
+export function textoDoRepasse(dados: DadosTime, de: string, mensagem?: string): string {
+  const disse = mensagem ? ` e disse: "${mensagem}"` : ''
+  const partes = [
+    `[Lousa] Seu colega ${nomeNoTime(dados, de)} terminou${disse}.`,
+    `O trabalho dele está na ${ondeTrabalha(dados, de)}.`,
+    'Veja o que mudou (git log e git diff nessa branch) e continue a sua parte.',
+  ]
+  return inerte(partes.join(' '))
+}
+
 /**
  * Sem caractere de controle nem os que um shell usa para encadear ou expandir (; & | $ e o
  * acento grave): se o Claude tiver saido e o quadro estiver no PowerShell, a linha nao vira

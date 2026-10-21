@@ -19,6 +19,7 @@ import { aoPedirColega, aoPedirMenuLinha } from './foco'
 import { comColega, comLigacao, dadosDaTela, montarArestas, type DadosLinha } from './linhas'
 import { LinhaTime } from './LinhaTime'
 import { MenuLinha, type PedidoMenuLinha } from './MenuLinha'
+import { limparRepasse } from './repasses'
 import type { NoLousa } from './notas'
 
 // Fora do hook: o React Flow recriaria as arestas a cada render.
@@ -51,7 +52,10 @@ function acoesDoTime(setEstado: Deps['setEstado'], avisar: Deps['avisar']) {
     ajustar: (id: string, mudanca: Ajuste) =>
       window.lousa.time
         .ajustar(id, mudanca)
-        .then((l) => setEstado((e) => e && comLigacao(e, id, l)))
+        .then((l) => {
+          setEstado((e) => e && comLigacao(e, id, l))
+          limparRepasse(id) // retomar ou mudar o modo tira o "Continuar?" (T30.1)
+        })
         .catch(falhou),
     remover: (id: string) =>
       window.lousa.time
@@ -121,6 +125,11 @@ export function useLigacoes(deps: Deps) {
   const inicio = useRef<Posicao | null>(null)
   const acoes = useMemo(() => acoesDoTime(setEstado, avisar), [setEstado, avisar])
   useEffect(() => aoPedirColega((quadroId) => void acoes.colega(quadroId)), [acoes])
+  // o freio do repasse pausa a linha no main (T30.1): a tela pega a linha como ficou
+  useEffect(
+    () => window.lousa.time.aoRepasse((r) => r.ligacao && setEstado((e) => e && comLigacao(e, r.ligacaoId, r.ligacao ?? null))),
+    [setEstado],
+  )
   // tipo largo (Edge): a lousa e a instancia do React Flow nao sabem de arestas proprias
   const arestas = useMemo<Edge[]>(() => (estado ? montarArestas(estado) : []), [estado])
 
