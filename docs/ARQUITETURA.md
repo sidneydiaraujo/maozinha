@@ -192,6 +192,9 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `notas:remover` | `{ notaId }` | — | T26.1 |
 | `vistas:salvar` | `{ nome, layout }` | `VistaSalva[]` (mesmo nome substitui; até 20) | T27.1 |
 | `vistas:remover` | `{ vistaId }` | `VistaSalva[]` | T27.1 |
+| `time:ligar` | `{ de, para }` (ids de quadro) | `Ligacao` no automático; recusa com o motivo (`shared/time.ts`) | T28.1 |
+| `time:ajustar` | `{ ligacaoId, mudanca: { modo?, pausada? } }` | `Ligacao` | T28.1 |
+| `time:desligar` | `{ ligacaoId }` | — (os agentes não são tocados) | T28.1 |
 | `lousa:carregar` | — | `EstadoTela` | T3.5 |
 | `lousa:salvarLayout` | `{ quadros: {id, caixa}[], viewport }` | — | T3.5, T5.1 |
 | `arquivos:listar` | `{ repoId, relativo }` | `ItemArquivo[]` (ordem do VSCode, sem `.git` e afins) | T7.1 |

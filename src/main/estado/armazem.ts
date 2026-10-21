@@ -57,6 +57,17 @@ const SchemaEstado = z.object({
       }),
     )
     .optional(),
+  ligacoes: z
+    .array(
+      z.object({
+        id: z.string(),
+        de: z.string(),
+        para: z.string(),
+        modo: z.enum(['automatico', 'perguntar']),
+        pausada: z.boolean().optional(),
+      }),
+    )
+    .optional(),
 })
 
 export const ESTADO_PADRAO: EstadoSalvo = {

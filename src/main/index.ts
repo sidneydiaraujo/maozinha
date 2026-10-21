@@ -17,6 +17,7 @@ import { registrarHandlersPerfis } from './handlers/perfis'
 import { registrarHandlersQuadros } from './handlers/quadros'
 import { registrarHandlersRepos } from './handlers/repos'
 import { registrarHandlersTerminais } from './handlers/terminais'
+import { registrarHandlersTime } from './handlers/time'
 import { gravarEm, log } from './log'
 import { iniciarRegistros } from './registros'
 import { iniciarSmoke } from './smoke'
@@ -51,6 +52,7 @@ function registrarCanais(): void {
   registrarHandlersMensagens(join(app.getPath('userData'), 'mensagens.json'))
   registrarHandlersNotas(contexto.armazem)
   registrarHandlersVistas(contexto.armazem)
+  registrarHandlersTime(contexto.armazem, contexto.perfis)
   registrarHandlersLousa(contexto)
   registrarHandlersTerminais(contexto)
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)

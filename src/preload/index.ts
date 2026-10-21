@@ -61,6 +61,11 @@ const api: LousaApi = {
     salvar: (nome, layout) => ipcRenderer.invoke(IPC.vistasSalvar, { nome, layout }),
     remover: (vistaId) => ipcRenderer.invoke(IPC.vistasRemover, { vistaId }),
   },
+  time: {
+    ligar: (de, para) => ipcRenderer.invoke(IPC.timeLigar, { de, para }),
+    ajustar: (ligacaoId, mudanca) => ipcRenderer.invoke(IPC.timeAjustar, { ligacaoId, mudanca }),
+    desligar: (ligacaoId) => ipcRenderer.invoke(IPC.timeDesligar, { ligacaoId }),
+  },
   lousa: {
     carregar: () => ipcRenderer.invoke(IPC.lousaCarregar),
     salvarLayout: (layout) => ipcRenderer.invoke(IPC.lousaSalvarLayout, layout),

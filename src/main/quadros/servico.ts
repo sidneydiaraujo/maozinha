@@ -15,6 +15,7 @@ import {
 import type { ServicoCopias } from '../copias/servico'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoPerfis } from '../perfis/servico'
+import { semLinhasInvalidas } from '../time/servico'
 import { lugarLivre } from './lugar'
 
 export interface DepsServicoQuadros {
@@ -167,7 +168,7 @@ export class ServicoQuadros {
     const repo = estado.repos.find((r) => r.id === quadro.repoId)
     if (repo) repo.perfilPadraoId = nova.id
     estado.ultimoPerfilId = nova.id
-    this.deps.armazem.salvar(estado)
+    this.deps.armazem.salvar(semLinhasInvalidas(estado, (id) => this.deps.perfis.obter(id)))
     return quadro
   }
 
@@ -194,7 +195,7 @@ export class ServicoQuadros {
     this.deps.fecharTerminal(quadroId)
     const estado = this.deps.armazem.carregar()
     estado.quadros = estado.quadros.filter((q) => q.id !== quadroId)
-    this.deps.armazem.salvar(estado)
+    this.deps.armazem.salvar(semLinhasInvalidas(estado, (id) => this.deps.perfis.obter(id)))
 
     const repo = estado.repos.find((r) => r.id === repoId)
     if (!repo?.copia || estado.quadros.some((q) => q.repoId === repoId)) return { copia: 'nenhuma' }

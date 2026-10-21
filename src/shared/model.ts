@@ -152,6 +152,17 @@ export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   ultimoPerfilId: PerfilId | null
   notas?: Nota[]      // notas soltas na lousa (T26, D34); ausente = nenhuma
   vistas?: VistaSalva[] // arrumações guardadas (T27, D35); ausente = nenhuma
+  ligacoes?: Ligacao[] // linhas do time de agentes (T28, D39); ausente = nenhuma
+}
+
+// Linha do time de agentes (T28, D39): "o `de` entrega para o `para`".
+export type ModoLigacao = 'automatico' | 'perguntar'
+export interface Ligacao {
+  id: string
+  de: string          // quadroId que entrega
+  para: string        // quadroId que recebe
+  modo: ModoLigacao   // nova nasce 'automatico' (D39)
+  pausada?: boolean
 }
 
 // Arrumação guardada da lousa (T27, D35): câmera + lugar de cada quadro e nota que existia.
@@ -176,4 +187,5 @@ export interface EstadoTela {
   viewport: Viewport
   notas?: Nota[]      // T26; o main sempre manda (vazia = [])
   vistas?: VistaSalva[] // T27; o main sempre manda (vazia = [])
+  ligacoes?: Ligacao[] // T28; o main sempre manda (vazia = [])
 }

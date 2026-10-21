@@ -14,6 +14,8 @@ import type {
   EstadoTela,
   FimDaCopia,
   ItemArquivo,
+  Ligacao,
+  ModoLigacao,
   Nota,
   PainelAgente,
   PerfilComConta,
@@ -60,6 +62,9 @@ export const IPC = {
   notasRemover: 'notas:remover',
   vistasSalvar: 'vistas:salvar',
   vistasRemover: 'vistas:remover',
+  timeLigar: 'time:ligar',
+  timeAjustar: 'time:ajustar',
+  timeDesligar: 'time:desligar',
   lousaCarregar: 'lousa:carregar',
   lousaSalvarLayout: 'lousa:salvarLayout',
   terminaisAbrir: 'terminais:abrir',
@@ -173,6 +178,13 @@ export interface LousaApi {
     /** Guarda (o mesmo nome substitui) e devolve a lista nova. */
     salvar(nome: string, layout: LayoutLousa): Promise<VistaSalva[]>
     remover(vistaId: string): Promise<VistaSalva[]>
+  }
+  /** Time de agentes (T28, D39): linhas "este entrega para aquele". A tela so manda ids. */
+  time: {
+    /** Lanca com o motivo quando as regras recusam (shared/time.ts). Nasce no automatico. */
+    ligar(de: string, para: string): Promise<Ligacao>
+    ajustar(ligacaoId: string, mudanca: { modo?: ModoLigacao; pausada?: boolean }): Promise<Ligacao>
+    desligar(ligacaoId: string): Promise<void>
   }
   lousa: {
     carregar(): Promise<EstadoTela>

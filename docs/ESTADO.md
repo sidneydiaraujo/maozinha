@@ -1,7 +1,7 @@
 # Estado da construção
 
 **Próxima tarefa: aceite do Sidney com o instalador 0.2.0** (`release/Lousa.ia Setup 0.2.0.exe`, hash em `release/SHA256.txt`). Ele instala e testa os itens 17 a 49 e 60 a 67 do `docs/aceite/roteiro.md` (e 68 a 71, dos ajustes A1 a A4, depois de um instalador novo) (Fatias 7, 8, 10 a 16, 18 a 27 e as correções). As Fatias 15 a 21 do plano estão todas codadas; o que o aceite apontar vira correção.
-Depois do aceite: **T28.1** (time de agentes ligado por linhas, `docs/plano/fatia-28-a-32-time.md`, D39).
+Em paralelo, a pedido do Sidney (21/10: "pode seguir com os próximos itens"): **T28.2** (bolinhas e linha na lousa), na branch `lousa/claude-2`. Plano: `docs/plano/fatia-28-a-32-time.md`, D39.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
 
@@ -109,7 +109,7 @@ Atualize este arquivo no mesmo commit de cada tarefa: marque ✅, troque a
 | T26.2 | Nota na lousa (tela) | ✅ |
 | T27.1 | Vistas salvas (main) | ✅ |
 | T27.2 | Vistas salvas no Ctrl+K | ✅ |
-| T28.1 | Time: modelo, regras puras e canais (D39) | ⬜ depois do aceite 0.2.0 |
+| T28.1 | Time: modelo, regras puras e canais (D39) | ✅ 21/10/2026 |
 | T28.2 | Time: bolinhas e linha na lousa | ⬜ |
 | T28.3 | Time: clicar na bolinha cria um colega ligado | ⬜ |
 | T29.1 | Time: papel e apresentação | ⬜ |
@@ -460,3 +460,4 @@ Nenhum.
 - **20/10/2026 (T21.3, instalador):** versão 0.2.0 no `package.json`; `npm run dist` gerou `release/Lousa.ia Setup 0.2.0.exe` (104 MB, hash `4979c914…cd04` em `release/SHA256.txt`). **Conferido:** versão do arquivo 0.2.0 e `win-unpackedLousa.ia.exe --smoke` → código 0 (node-pty e tela+preload+IPC ok). **Não instalei** no PC; instalar e testar os itens 17 a 49 e 60 a 67 fica com o Sidney.
 - **20/10/2026 (A1 a A4, ajustes do aceite 0.2.0):** letra nítida em qualquer zoom (`componentes/nitidez.ts`, +8 testes), ⤢ só no botão, painel da engrenagem com o vidro no `.topo::before`, mostrador de uso à vista com opção na engrenagem (`topo/usoAVista.ts`, `UsoConfig.tsx`, estilos de uso em `uso.css`; +3 testes). Provas `selecao` (agora confere o texto copiado com Ctrl+C), `ampliar`, `fatia8`, `uso` (mostrador e a troca na engrenagem), `aparencia webgl` e `npm run smoke` ok; `npm run check` verde (449). Instalador ainda é o 0.2.0 de antes dos ajustes.
 - **20/10/2026 (plano do time de agentes, D39):** Sidney pediu ligar agentes com linhas, como no n8n, para trabalharem como time sem um atrapalhar o outro. Plano em `docs/plano/fatia-28-a-32-time.md` (Fatias 28 a 32). Decisões dele: contas diferentes só se ligam no mesmo repositório; clicar na bolinha cria um colega já ligado; linha nova nasce no automático; começa depois do aceite 0.2.0. Só documentação, nenhum código mudou.
+- **21/10/2026 (T28.1, D39):** time de agentes, parte do main. `Ligacao` no modelo e no `estado.json` (`ligacoes`, opcional); regras puras em `shared/time.ts` (`podeLigar`, `ligacoesValidas`, `timeDe`, `raizDoRepo`, `mesmaPasta`, +9 testes); `main/time/servico.ts` (ligar no automático, ajustar, desligar, +4 testes); canais `time:ligar`, `time:ajustar`, `time:desligar`; `lousa:carregar` manda as linhas; fechar um quadro ou trocar a conta tira as linhas que deixaram de valer (+1 teste). A assinatura de `podeLigar` recebe `DadosTime` (precisa do provedor de cada conta). `npm run check` verde (463), smoke ok. Nada na tela ainda.

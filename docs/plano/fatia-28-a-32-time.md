@@ -68,9 +68,9 @@ export interface Ligacao {
 
 // shared/time.ts
 export type MotivoRecusa = 'mesmoQuadro' | 'repetida' | 'ciclo' | 'naoAgente' | 'contas'
-export function podeLigar(
-  quadros: Quadro[], repos: Repo[], ligacoes: Ligacao[], de: string, para: string,
-): { ok: true } | { ok: false; motivo: MotivoRecusa }
+export interface DadosTime { quadros: Quadro[]; repos: Repo[]; ligacoes: Ligacao[]; provedores: Record<PerfilId, Provedor> }
+export function podeLigar(dados: DadosTime, de: string, para: string): { ok: true } | { ok: false; motivo: MotivoRecusa }
+export function ligacoesValidas(dados: DadosTime): Ligacao[] // fechar quadro e trocar conta limpam com ela
 export function timeDe(ligacoes: Ligacao[], quadroId: string): string[] // ids, ordem estável
 export function raizDoRepo(repos: Repo[], repoId: string): string        // origemId ou o próprio id
 export function mesmaPasta(quadros: Quadro[], a: string, b: string): boolean

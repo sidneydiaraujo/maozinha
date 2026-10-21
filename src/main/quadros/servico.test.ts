@@ -51,7 +51,7 @@ function montar() {
       },
     },
   })
-  return { servico, fechados, copias, limpezas, fim, estado: () => estado }
+  return { servico, armazem, fechados, copias, limpezas, fim, estado: () => estado }
 }
 
 describe('ServicoQuadros', () => {
@@ -114,6 +114,19 @@ describe('ServicoQuadros', () => {
     expect(estado().quadros.map((q) => q.id)).toEqual([b.id])
     expect(limpezas).toEqual([])
     await expect(servico.remover(a.id)).rejects.toThrow('Quadro não encontrado')
+  })
+
+  it('fechar um quadro ou trocar a conta tira as linhas do time que deixaram de valer (T28.1)', async () => {
+    const { servico, armazem, estado } = montar()
+    const a = servico.criar('r1', 'agente', 'principal')
+    const b = servico.criar('r1', 'agente', 'principal')
+    const c = servico.criar('r2', 'agente', 'principal')
+    const linha = (id: string, de: string, para: string) => ({ id, de, para, modo: 'automatico' as const })
+    armazem.salvar({ ...armazem.carregar(), ligacoes: [linha('ab', a.id, b.id), linha('bc', b.id, c.id)] })
+    await servico.trocarConta(c.id, 'pessoal') // outra conta e outro repo: a linha bc cai
+    expect(estado().ligacoes?.map((l) => l.id)).toEqual(['ab'])
+    await servico.remover(a.id)
+    expect(estado().ligacoes).toEqual([])
   })
 
   it('agente do Claude nasce com conversa propria; terminal e Codex nao', () => {
