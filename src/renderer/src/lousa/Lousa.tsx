@@ -14,6 +14,7 @@ import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
 import '../estilos/novo.css'
 import { chamaAtencao } from './atencao'
+import { mensagemDe } from '../componentes/erro'
 import { semQuadro, textoDoFim } from './copia'
 import { BarraEnvio } from './BarraEnvio'
 import { marcarSelecionados, useUltimoQuadro } from './alvos'
@@ -82,7 +83,9 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
     }
   }, [versao])
   useAvisarPastas(estado, extras.aoMudarPastas)
-  const falhou = useCallback((e: unknown) => setErro(e instanceof Error ? e.message : String(e)), [])
+  // erro de uma acao some sozinho (ou no clique); o de carregar a lousa fica
+  const [falha, setFalha] = useAvisoPassageiro()
+  const falhou = useCallback((e: unknown) => setFalha(mensagemDe(e)), [setFalha])
   const [aviso, setAviso] = useAvisoPassageiro()
   const acoes = useMemo<AcoesLousa>(
     () => ({
@@ -121,7 +124,7 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
     },
     [setAviso],
   )
-  return { estado, setEstado, erro, aviso, setAviso, falhou, acoes, tirarPasta }
+  return { estado, setEstado, erro: erro ?? falha, limparErro: () => setFalha(null), aviso, setAviso, falhou, acoes, tirarPasta }
 }
 
 /** Frase que some sozinha depois de alguns segundos (ex.: o que aconteceu com a copia, D18). */
@@ -218,12 +221,12 @@ function useMontarNos(
   }, [estado, quadros, notas, setNos])
 }
 
-function Avisos(p: { erro: string | null; aviso: string | null; vazia: boolean }): React.JSX.Element {
+function Avisos(p: { erro: string | null; aviso: string | null; vazia: boolean; aoFecharErro(): void }): React.JSX.Element {
   const { erro, aviso, vazia } = p
   return (
     <>
       {erro && (
-        <p className="lousa-erro" role="alert">
+        <p className="lousa-erro" role="alert" title="Clique para fechar" onClick={p.aoFecharErro}>
           {erro}
         </p>
       )}
@@ -245,7 +248,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
   const instancia = useRef<ReactFlowInstance<NoLousa> | null>(null)
   const area = useRef<HTMLDivElement>(null)
   const ampliacao = useAmpliar(instancia, area)
-  const { estado, setEstado, erro, aviso, setAviso, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
+  const { estado, setEstado, erro, limparErro, aviso, setAviso, falhou, acoes, tirarPasta } = useEstadoLousa(versao, {
     abrirArquivo: aoAbrirArquivo,
     ampliar: ampliacao.ampliar,
     aoMudarPastas,
@@ -276,7 +279,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
       onDragOver={novo.aoArrastarPorCima}
       onDrop={novo.aoSoltar}
     >
-      <Avisos erro={erro} aviso={aviso} vazia={estado?.quadros.length === 0 && !estado.notas?.length} />
+      <Avisos erro={erro} aoFecharErro={limparErro} aviso={aviso} vazia={estado?.quadros.length === 0 && !estado.notas?.length} />
       <BarraEnvio quadroIds={selecionados} />
       {estado && <BotoesCriar aoNovoQuadro={() => novo.abrirNoCentro()} aoNovaNota={notas.criarNoCentro} />}
       {estado && (

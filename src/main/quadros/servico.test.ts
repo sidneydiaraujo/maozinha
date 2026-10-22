@@ -113,7 +113,10 @@ describe('ServicoQuadros', () => {
     expect(fechados).toEqual([a.id])
     expect(estado().quadros.map((q) => q.id)).toEqual([b.id])
     expect(limpezas).toEqual([])
-    await expect(servico.remover(a.id)).rejects.toThrow('Quadro não encontrado')
+    // de novo (clique duplo no x): nada acontece e nao e erro
+    expect(await servico.remover(a.id)).toEqual({ copia: 'nenhuma' })
+    expect(fechados).toEqual([a.id])
+    expect(estado().quadros.map((q) => q.id)).toEqual([b.id])
   })
 
   it('fechar um quadro ou trocar a conta tira as linhas do time que deixaram de valer (T28.1)', async () => {

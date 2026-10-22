@@ -16,6 +16,7 @@
 }
 
 .lousa-erro {
+  cursor: pointer;
   top: 12px;
   padding: 8px 14px;
   color: var(--perigo);

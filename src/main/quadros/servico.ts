@@ -203,8 +203,11 @@ export class ServicoQuadros {
   }
 
   /** Ultimo quadro de uma copia: a copia e limpa sem perder trabalho e, se saiu, deixa a lista (D18). */
+  /** Quadro que ja saiu nao e erro: o segundo clique no x (ou um clique durante a limpeza da copia) nao faz nada. */
   async remover(quadroId: string): Promise<FimDaCopia> {
-    const { repoId } = this.obter(quadroId)
+    const achado = this.listar().find((q) => q.id === quadroId)
+    if (!achado) return { copia: 'nenhuma' }
+    const { repoId } = achado
     this.deps.fecharTerminal(quadroId)
     const estado = this.deps.armazem.carregar()
     estado.quadros = estado.quadros.filter((q) => q.id !== quadroId)
