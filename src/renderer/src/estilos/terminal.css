@@ -3,7 +3,7 @@
   height: 100%;
   /* o fundo da paleta da Aparencia (T15.1), posto pelo Terminal.tsx */
   background: var(--terminal-fundo, var(--quadro));
-  padding: 6px 0 0 8px;
+  padding: 8px 0 0 12px;
   box-sizing: border-box;
 }
 

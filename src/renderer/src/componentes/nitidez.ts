@@ -32,7 +32,7 @@ export function desenhoNoZoom(zoom: number, fonte: number, ativo: boolean): Dese
 }
 
 /** Margem do terminal a 100% (igual ao terminal.css): em cima e a esquerda, em px. */
-const MARGEM = { topo: 6, esquerda: 8 }
+const MARGEM = { topo: 8, esquerda: 12 }
 
 /** Tamanho da letra ja na tela, em meios pixels (o xterm mede a celula com ele). Puro. */
 export function fonteNaTela(fonte: number, zoom: number): number {
