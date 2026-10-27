@@ -109,7 +109,7 @@ describe('ServicoTerminais', () => {
     expect(ptys[0]!.descartados).toBe(2)
   })
 
-  it('pronto (D47): so a primeira marca conta; terminal novo comeca sem; fechado nunca esta pronto', () => {
+  it('pronto (D48): so a primeira marca conta; terminal novo comeca sem; fechado nunca esta pronto', () => {
     const { servico } = montar()
     expect(servico.marcarPronto('t1')).toBe(false)
     servico.abrir(pedido)

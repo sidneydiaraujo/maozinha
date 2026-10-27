@@ -107,7 +107,7 @@ function montarTime(d: {
 }
 
 /**
- * Troca de modelo/esforco (D47): reabrir fecha o terminal, apaga o painel velho (`esquecerPainel`)
+ * Troca de modelo/esforco (D48): reabrir fecha o terminal, apaga o painel velho (`esquecerPainel`)
  * e pede a tela para abrir de novo; o comando novo le o modelo salvo no quadro e retoma a conversa.
  */
 function montarAjustes(
@@ -200,7 +200,7 @@ export function criarContexto(): Contexto {
     aoEstado: (terminalId, aviso) => {
       enviarParaJanelas(IPC.terminaisEstado, { terminalId, aviso })
       avisos.aoEstado(terminalId, aviso)
-      // modelo/esforco pedidos com o agente trabalhando: reabre quando ele parar (T19.1, D47)
+      // modelo/esforco pedidos com o agente trabalhando: reabre quando ele parar (T19.1, D48)
       void ajustes.aoEstado(terminalId, aviso)
       // apresentacao do time pedida com o agente ocupado: digita quando ele parar (T29.1)
       void mensagens.aoEstado(terminalId, aviso)
@@ -221,7 +221,7 @@ export function criarContexto(): Contexto {
     agora: Date.now,
     emitir: (quadroId, painel) => {
       enviarParaJanelas(IPC.agentesPainel, { quadroId, painel })
-      // a primeira linha de status: o Claude esta pronto para receber (D47)
+      // a primeira linha de status: o Claude esta pronto para receber (D48)
       if (terminais.marcarPronto(quadroId)) {
         void ajustes.aoPronto(quadroId)
         void mensagens.aoPronto(quadroId)

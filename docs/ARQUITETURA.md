@@ -223,8 +223,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `agentes:ultimoPainel` | `{ quadroId }` | `PainelAgente \| null` (o último guardado no main, para a tela remontada) | T17.2 |
 | evento `agentes:painel` | — | `{ quadroId, painel: PainelAgente }` (linha de status do agente Claude) | T17.2 |
 | `agentes:compactar` | `{ quadroId }` | `void`. O main escreve `/compact`, pausa 150 ms e Enter, só com o agente parado (OSC 7501 `parado` ou `terminou`); senão lança "Espere o agente parar" | T18.1 |
-| `agentes:ajustar` | `{ quadroId, mudanca: { modelo?, esforco? } }` (só valores das listas) | `'agora' \| 'quandoParar' \| 'naAbertura'`. Guarda no quadro; com o agente aberto e parado (ou recém-aberto e pronto), o main fecha o terminal e avisa `agentes:reabrir`: a tela abre de novo e o comando leva `--model`/`--effort` com `--resume` (D47; nunca digita `/model`, que gravaria o padrão da conta); trabalhando, espera ele parar (`FilaAjustes`); fechado, vale na abertura. Terminal comum ou Codex: recusa | T19.1, D47 |
-| evento `agentes:reabrir` | — | `{ quadroId }`: o main fechou o agente para ele voltar com o modelo novo; a tela remonta o terminal | D47 |
+| `agentes:ajustar` | `{ quadroId, mudanca: { modelo?, esforco? } }` (só valores das listas) | `'agora' \| 'quandoParar' \| 'naAbertura'`. Guarda no quadro; com o agente aberto e parado (ou recém-aberto e pronto), o main fecha o terminal e avisa `agentes:reabrir`: a tela abre de novo e o comando leva `--model`/`--effort` com `--resume` (D48; nunca digita `/model`, que gravaria o padrão da conta); trabalhando, espera ele parar (`FilaAjustes`); fechado, vale na abertura. Terminal comum ou Codex: recusa | T19.1, D48 |
+| evento `agentes:reabrir` | — | `{ quadroId }`: o main fechou o agente para ele voltar com o modelo novo; a tela remonta o terminal | D48 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
 `powershell -NoProfile -Command "claude auth login; exit $LASTEXITCODE"`, sem terminal na tela).

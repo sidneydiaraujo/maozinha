@@ -1,5 +1,5 @@
 // estado: agente
-// Fatia 19 (T19.1 + T19.2), refeita na D47: trocar o modelo ou o esforco REABRE o agente com
+// Fatia 19 (T19.1 + T19.2), refeita na D48: trocar o modelo ou o esforco REABRE o agente com
 // --model/--effort na mesma conversa; a Lousa nunca digita /model nem /effort (o Claude gravaria
 // a escolha como padrao da conta). O claude.exe de verdade abre (conta Pessoal) na pasta de
 // teste, que ele nao conhece: fica na pergunta de confianca e o cenario responde "No, exit".

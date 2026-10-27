@@ -84,7 +84,7 @@ function Seletor<T extends string>(p: PropsSeletor<T>): React.JSX.Element {
 /**
  * Modelo e esforco do agente Claude no cabecalho (T19.2, D25). O rotulo diz o que o painel do
  * agente conta (Fatia 17); antes dele, o guardado no quadro, em cinza. A tela so manda o valor
- * da lista (agentes:ajustar); o main reabre o agente com ele na mesma conversa (D47).
+ * da lista (agentes:ajustar); o main reabre o agente com ele na mesma conversa (D48).
  */
 export function ModeloDoQuadro({ quadro }: { quadro: Quadro }): React.JSX.Element {
   const painel = usePainel(quadro.id)

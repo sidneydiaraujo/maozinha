@@ -8,7 +8,7 @@ export function podeCompactar(estado: EstadoAgente | undefined): boolean {
 }
 
 /**
- * A Lousa pode digitar no agente (D47)? Parado ou terminou; ou ainda sem estado nenhum mas
+ * A Lousa pode digitar no agente (D48)? Parado ou terminou; ou ainda sem estado nenhum mas
  * `pronto`: o Claude so manda estado depois do primeiro trabalho, e a linha de status so roda
  * com ele pronto para receber (nunca na pergunta de confianca da pasta). Quem chama confere
  * tambem se o claude.exe ainda roda: ele nao avisa quando sai (D39).

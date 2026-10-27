@@ -1,4 +1,4 @@
-// "Claude falso" da prova da troca de modelo (D47): roda como claude.exe (o node copiado com esse
+// "Claude falso" da prova da troca de modelo (D48): roda como claude.exe (o node copiado com esse
 // nome, para o main achar um claude.exe dentro do PowerShell do quadro). Diz "parado" pelo OSC
 // 7501; a linha "trabalhe" o deixa "trabalhando" ate a linha "pare". Mostra cada linha recebida
 // como "RECEBI: ..." (se a Lousa digitasse /model, apareceria aqui). Nao usa conta nem rede.

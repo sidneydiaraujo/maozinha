@@ -80,7 +80,7 @@ export function AnelContexto({ quadroId }: { quadroId: string }): React.JSX.Elem
   const contexto = painel?.contexto ?? null
   const vista = vistaDoContexto(contexto?.usado ?? null, pref, contexto?.tamanho)
   if (!vista.visivel) return null
-  // o anel so aparece com painel, e painel e a linha de status: o Claude esta pronto (D47). Sem
+  // o anel so aparece com painel, e painel e a linha de status: o Claude esta pronto (D48). Sem
   // estado ainda (recem-aberto, nada pedido), ja pode compactar; o main confere de novo
   const pode = podeDigitar(estado, true)
   // cinza so com o agente ocupado

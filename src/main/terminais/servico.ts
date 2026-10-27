@@ -49,7 +49,7 @@ interface Terminal {
   ouvintes: Descartavel[]
   leitor: LeitorStatus | null
   aviso: AvisoAgente | null
-  /** O Claude ja desenhou a linha de status neste terminal (D47): pronto para receber. */
+  /** O Claude ja desenhou a linha de status neste terminal (D48): pronto para receber. */
   pronto: boolean
 }
 
@@ -121,7 +121,7 @@ export class ServicoTerminais {
     return this.vivo(terminalId)?.aviso ?? null
   }
 
-  /** A linha de status do agente rodou (D47). Devolve true so na primeira vez de cada terminal. */
+  /** A linha de status do agente rodou (D48). Devolve true so na primeira vez de cada terminal. */
   marcarPronto(terminalId: string): boolean {
     const t = this.vivo(terminalId)
     if (!t || t.pronto) return false

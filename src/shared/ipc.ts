@@ -98,7 +98,7 @@ export const IPC = {
   agentesPainel: 'agentes:painel', // evento main -> tela (linha de status do agente, T17.2)
   agentesCompactar: 'agentes:compactar',
   agentesAjustar: 'agentes:ajustar',
-  agentesReabrir: 'agentes:reabrir', // evento main -> tela: o main fechou o agente; abra de novo (D47)
+  agentesReabrir: 'agentes:reabrir', // evento main -> tela: o main fechou o agente; abra de novo (D48)
 } as const
 
 /** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
@@ -258,7 +258,7 @@ export interface LousaApi {
     compactar(quadroId: string): Promise<void>
     /** Guarda modelo/esforco no quadro (T19.1) e diz quando passa a valer no agente aberto. */
     ajustar(quadroId: string, mudanca: AjusteAgente): Promise<QuandoAjusta>
-    /** O main fechou o agente para ele voltar com o modelo novo na mesma conversa (D47). */
+    /** O main fechou o agente para ele voltar com o modelo novo na mesma conversa (D48). */
     aoReabrir(cb: (quadroId: string) => void): () => void
   }
 }

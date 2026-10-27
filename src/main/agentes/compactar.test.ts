@@ -33,7 +33,7 @@ describe('compactar', () => {
     expect(d.escrito).toEqual(['/compact', '\r'])
   })
 
-  it('recem-aberto, sem estado mas com a linha de status: pode (D47)', async () => {
+  it('recem-aberto, sem estado mas com a linha de status: pode (D48)', async () => {
     const d = deps('agente', null, { pronto: true })
     await compactar(d, 'q1')
     expect(d.escrito).toEqual(['/compact', '\r'])

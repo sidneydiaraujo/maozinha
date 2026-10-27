@@ -60,7 +60,7 @@ function ExtrasAgente({ quadro, perfil }: { quadro: Quadro; perfil: Perfil | und
 /**
  * O terminal do quadro. Se o processo sair (T8.5), aparece "Terminal encerrado · Reabrir":
  * reabrir remonta o terminal e o main abre um novo (o agente retoma a conversa, T6.1). Trocar o
- * modelo tambem remonta, quando o main avisa que fechou o agente (D47).
+ * modelo tambem remonta, quando o main avisa que fechou o agente (D48).
  */
 interface PropsCorpo {
   quadro: Quadro
@@ -79,7 +79,7 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
   // so o zoom (nao a posicao): arrastar a lousa nao redesenha o quadro
   const zoom = useStore((s) => s.transform[2])
   useEffect(() => aoEncerrado(encerrado), [encerrado, aoEncerrado])
-  // o main fechou o agente para ele voltar com o modelo novo, na mesma conversa (D47)
+  // o main fechou o agente para ele voltar com o modelo novo, na mesma conversa (D48)
   useEffect(
     () =>
       window.lousa.agentes.aoReabrir((id) => {
