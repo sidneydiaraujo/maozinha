@@ -73,7 +73,7 @@ export class ServicoArquivos {
   /** So documento, midia ou texto que o programa padrao apenas mostra: clicar nunca roda nada. */
   async abrirFora(repoId: string, relativo: string): Promise<void> {
     const caminho = this.absoluto(repoId, relativo)
-    if (!podeAbrirFora(nomeDe(relativo))) throw new Error('Este tipo de arquivo não abre fora do Salazar')
+    if (!podeAbrirFora(nomeDe(relativo))) throw new Error('Este tipo de arquivo não abre fora da Mãozinha')
     if (this.deps.tamanho(caminho) === null) throw new Error(NAO_ENCONTRADO)
     const erro = await this.deps.abrirNoWindows(caminho)
     if (erro) throw new Error(erro)

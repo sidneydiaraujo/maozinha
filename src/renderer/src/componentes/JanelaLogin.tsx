@@ -26,10 +26,10 @@ function AvisoContaPadrao({ nome, aoConfirmar }: { nome: string; aoConfirmar(): 
     <>
       <p className="erro">
         <strong>{nome} é a conta padrão do PC.</strong> Ela é a mesma usada pelo VSCode e por qualquer terminal fora do
-        Salazar: trocar o login aqui troca nesses lugares também.
+        Mãozinha: trocar o login aqui troca nesses lugares também.
       </p>
       <p className="apagado">
-        Para entrar com outro e-mail sem mexer neles, use uma conta separada do Salazar (ex.: Pessoal) em vez desta.
+        Para entrar com outro e-mail sem mexer neles, use uma conta separada da Mãozinha (ex.: Pessoal) em vez desta.
       </p>
       <button className="botao-pequeno perigo" onClick={aoConfirmar}>
         Entendi, trocar mesmo assim

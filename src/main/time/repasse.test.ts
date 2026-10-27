@@ -79,7 +79,7 @@ describe('textoDoRepasse', () => {
   it('quem terminou, o que disse e a branch, sem caractere de shell', () => {
     const { dados } = montar([])
     expect(textoDoRepasse(dados, 'a', 'Fiz o login; rode $x | y')).toBe(
-      '[Salazar] Seu colega Construtor terminou e disse: "Fiz o login rode x y". O trabalho dele está na branch lousa/claude-3. Veja o que mudou (git log e git diff nessa branch) e continue a sua parte.',
+      '[Mãozinha] Seu colega Construtor terminou e disse: "Fiz o login rode x y". O trabalho dele está na branch lousa/claude-3. Veja o que mudou (git log e git diff nessa branch) e continue a sua parte.',
     )
     expect(textoDoRepasse(dados, 'c')).toContain('Seu colega c terminou. O trabalho dele está na pasta original app.')
   })

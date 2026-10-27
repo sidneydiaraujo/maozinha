@@ -1,6 +1,6 @@
-# Salazar (antiga Lousa.ia) — instruções para o Claude
+# Mãozinha (antiga Lousa.ia e Salazar) — instruções para o Claude
 
-O nome visível é **Salazar** (D45); no código, no repositório e na pasta de dados continua
+O nome visível é **Mãozinha** (D50; antes Salazar, D45); no código, no repositório e na pasta de dados continua
 `lousa-ia`. App de desktop (Windows, Electron) com uma lousa onde cada quadro é um terminal
 de IA. Cada quadro pertence a uma **conta** (Claude Code ou Codex/ChatGPT) e já nasce
 nela; o repositório só tem a conta padrão. Dor nº 1 a resolver: usar duas contas

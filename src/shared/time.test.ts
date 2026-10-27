@@ -128,7 +128,7 @@ describe('apresentacao do time (T29.1)', () => {
   it('cadeia: o do meio recebe de um e entrega para o outro; sozinho nao tem texto', () => {
     const d = base([linha('a', 'b'), linha('b', 'c')])
     const meio = textoDoTime(d, 'b') ?? ''
-    expect(meio).toMatch(/^\[Salazar\] Você é claude-1 num time de 3 agentes\./)
+    expect(meio).toMatch(/^\[Mãozinha\] Você é claude-1 num time de 3 agentes\./)
     expect(meio).toContain('Você trabalha em C:/app.copias/claude-1 (branch lousa/claude-1).')
     expect(meio).toContain('Colegas: Construtor (pasta original app) · claude-2 (branch lousa/claude-2).')
     expect(meio).toContain('Você recebe o trabalho de Construtor.')

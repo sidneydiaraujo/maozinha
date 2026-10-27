@@ -68,7 +68,7 @@ export function NovaConta({ aoCriar, aoCancelar }: Props): React.JSX.Element {
         />
       </label>
       {provedor === 'codex' && (
-        <p className="apagado">O e-mail e o plano de contas Codex ainda não aparecem no Salazar.</p>
+        <p className="apagado">O e-mail e o plano de contas Codex ainda não aparecem na Mãozinha.</p>
       )}
       {erro && (
         <p className="erro" role="alert">

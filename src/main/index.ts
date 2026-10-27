@@ -33,12 +33,12 @@ function ligarRegistros(): void {
   } catch (erro) {
     log('warn', 'sem arquivo de registros (segue so no console)', erro)
   }
-  log('info', `Salazar ${app.getVersion()} abriu (Electron ${process.versions.electron})`)
+  log('info', `Mãozinha ${app.getVersion()} abriu (Electron ${process.versions.electron})`)
   process.on('uncaughtExceptionMonitor', (erro) => log('error', 'erro não tratado no main', erro))
   process.on('unhandledRejection', (motivo) => log('error', 'promessa rejeitada no main', motivo))
   app.on('render-process-gone', (_evento, _tela, d) => log('error', `a tela caiu: ${d.reason} (código ${d.exitCode})`))
   app.on('child-process-gone', (_evento, d) => log('error', `processo ${d.type} caiu: ${d.reason}`))
-  app.on('will-quit', () => log('info', 'Salazar fechou'))
+  app.on('will-quit', () => log('info', 'Mãozinha fechou'))
 }
 
 /** Registra todos os canais de IPC e garante que os terminais morrem junto com o app. */
@@ -94,7 +94,7 @@ function focarJanelaExistente(): void {
   janela.focus()
 }
 
-// O nome no Windows virou Salazar (D45), mas os dados (estado, contas, logins do gh) continuam em
+// O nome no Windows virou Salazar (D45) e depois Mãozinha (D50), mas os dados (estado, contas, logins do gh) continuam em
 // %APPDATA%/lousa-ia, fixado para nao depender do nome do pacote (nunca no smoke nem nas provas)
 if (usaPastaReal(process.argv)) app.setPath('userData', join(app.getPath('appData'), 'lousa-ia'))
 

@@ -98,7 +98,7 @@ export function timeDe(ligacoes: Ligacao[], quadroId: string): string[] {
 // --- Apresentacao do time (T29.1) ---
 
 export const MAXIMO_LETRAS_PAPEL = 40
-export const TEXTO_SAIU_DO_TIME = '[Salazar] Você não faz mais parte do time. Siga só com o que eu pedir aqui. Responda só "ok".'
+export const TEXTO_SAIU_DO_TIME = '[Mãozinha] Você não faz mais parte do time. Siga só com o que eu pedir aqui. Responda só "ok".'
 // eslint-disable-next-line no-control-regex
 const CONTROLE = /[\u0000-\u001f\u007f-\u009f]+/g
 
@@ -135,7 +135,7 @@ export function textoDoTime(dados: DadosTime, quadroId: string): string | null {
   const recebe = dados.ligacoes.filter((l) => l.para === quadroId).map((l) => nomeNoTime(dados, l.de))
   const entrega = dados.ligacoes.filter((l) => l.de === quadroId).map((l) => nomeNoTime(dados, l.para))
   const partes = [
-    `[Salazar] Você é ${nomeNoTime(dados, quadroId)} num time de ${time.length} agentes.`,
+    `[Mãozinha] Você é ${nomeNoTime(dados, quadroId)} num time de ${time.length} agentes.`,
     `Você trabalha em ${pasta} (${ondeTrabalha(dados, quadroId)}).`,
     `Colegas: ${colegas.join(' · ')}.`,
     recebe.length ? `Você recebe o trabalho de ${lista(recebe)}.` : '',
@@ -192,7 +192,7 @@ export const LIMITE_REPASSES = 3
 export function textoDoRepasse(dados: DadosTime, de: string, mensagem?: string): string {
   const disse = mensagem ? ` e disse: "${mensagem}"` : ''
   const partes = [
-    `[Salazar] Seu colega ${nomeNoTime(dados, de)} terminou${disse}.`,
+    `[Mãozinha] Seu colega ${nomeNoTime(dados, de)} terminou${disse}.`,
     `O trabalho dele está na ${ondeTrabalha(dados, de)}.`,
     'Veja o que mudou (git log e git diff nessa branch) e continue a sua parte.',
   ]
@@ -202,7 +202,7 @@ export function textoDoRepasse(dados: DadosTime, de: string, mensagem?: string):
 /**
  * Sem caractere de controle nem os que um shell usa para encadear ou expandir (; & | $ e o
  * acento grave): se o Claude tiver saido e o quadro estiver no PowerShell, a linha nao vira
- * comando (comecar com "[Salazar] Voce" ja e erro de sintaxe; isto e a segunda trava).
+ * comando (comecar com "[Mãozinha] Voce" ja e erro de sintaxe; isto e a segunda trava).
  */
 function inerte(texto: string): string {
   return texto.replace(CONTROLE, ' ').replace(/[;&|$`]/g, ' ').replace(/ {2,}/g, ' ')

@@ -29,7 +29,7 @@
   }
   const rotulo = () => q('[data-linha="l1"]')?.textContent ?? null
   // o falso numera o que recebe; no a2 so a Lousa digita
-  const recebidos = () => Math.max(0, ...[...semEspaco('a2').matchAll(/RECEBI(\d+):\[Lousa\]/g)].map((m) => Number(m[1])))
+  const recebidos = () => Math.max(0, ...[...semEspaco('a2').matchAll(/RECEBI(\d+):\[Mãozinha\]/g)].map((m) => Number(m[1])))
   const chegou = (t) => semEspaco('a2').includes(`disse:"${t}"`)
   const linha = async () => (await window.lousa.lousa.carregar()).ligacoes?.find((l) => l.id === 'l1') ?? null
 
@@ -63,7 +63,7 @@
     await ate(() => /Limite/.test(rotulo() ?? ''), 80)
     await espera(1500)
     r.recebidosAntesDoFreio = recebidos()
-    r.textoDoRepasse = semEspaco('a2').includes('RECEBI1:[Salazar]SeucolegaClaude1terminouedisse:"construiologin1".')
+    r.textoDoRepasse = semEspaco('a2').includes('RECEBI1:[Mãozinha]SeucolegaClaude1terminouedisse:"construiologin1".')
     r.rotuloLimite = rotulo()
     r.pausadaNoMain = (await linha())?.pausada === true
     await prova.foto('2-limite')

@@ -63,7 +63,7 @@ function Avisos({
     <>
       {conta.plano && <span className="etiqueta">{conta.plano}</span>}
       {perfil.ehPadrao && (
-        <span className="etiqueta" title="Mesma conta do VSCode e dos terminais fora do Salazar">
+        <span className="etiqueta" title="Mesma conta do VSCode e dos terminais fora da Mãozinha">
           padrão do PC · compartilhada
         </span>
       )}

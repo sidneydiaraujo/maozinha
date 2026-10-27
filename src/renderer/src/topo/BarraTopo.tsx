@@ -77,7 +77,7 @@ export function BarraTopo({ contas, versao, motor, quadros }: Props): React.JSX.
         {contas.erro && <span className="erro">{contas.erro}</span>}
       </div>
       <ChamadasAtencao quadros={quadros} />
-      <span className="topo-marca">Salazar</span>
+      <span className="topo-marca">Mãozinha</span>
       <span className="topo-versao" title={motor}>
         {versao}
       </span>

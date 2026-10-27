@@ -226,12 +226,12 @@
   await espera(3500)
   const semEspaco = (id) => texto(id).replace(/\s+/g, '')
   passo('fimEspera')
-  r.apresentacao = { antesDeParar: semEspaco('a1').includes('[Salazar]') }
+  r.apresentacao = { antesDeParar: semEspaco('a1').includes('[Mãozinha]') }
   // o PowerShell imprime o OSC 7501 "idle": o main acha que parou, mas nao ha claude.exe no
   // terminal (T29.1): continua sem digitar
   await window.lousa.terminais.escrever('a1', "Write-Host -NoNewline ([char]27 + ']7501;state=idle' + [char]7)\r")
   await espera(4000)
-  r.apresentacao.semClaudeNaoDigita = !semEspaco('a1').includes('[Salazar]')
+  r.apresentacao.semClaudeNaoDigita = !semEspaco('a1').includes('[Mãozinha]')
   // Claude falso: o node copiado como claude.exe, filho do PowerShell, diz "parado" e ecoa
   const { pastaDemo, apoio } = prova.dados
   const falso = `${pastaDemo}\\..\\claude-falso\\claude.exe`
@@ -239,9 +239,9 @@
     'a1',
     `New-Item -ItemType Directory -Force (Split-Path '${falso}') | Out-Null; Copy-Item (Get-Command node).Source '${falso}'; & '${falso}' '${apoio}\\eco-time.mjs'\r`,
   )
-  await ate(() => semEspaco('a1').includes('RECEBI:[Salazar]'), 80)
+  await ate(() => semEspaco('a1').includes('RECEBI:[Mãozinha]'), 80)
   const t = semEspaco('a1')
-  r.apresentacao.comClaudeChegou = t.includes('RECEBI:[Salazar]VocêéConstrutornumtimede2agentes.')
+  r.apresentacao.comClaudeChegou = t.includes('RECEBI:[Mãozinha]VocêéConstrutornumtimede2agentes.')
   r.apresentacao.colega = t.includes('Colegas:')
   r.apresentacao.entrega = t.includes('oseutrabalhovaipara')
   r.apresentacao.semPontoEVirgula = !/RECEBI: \[Lousa\][^\n]*;/.test(texto('a1'))
