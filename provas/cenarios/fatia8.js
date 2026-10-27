@@ -13,6 +13,13 @@
   const vista = () => q('.react-flow__viewport').style.transform
   // sem espacos: a linha quebrada logo depois de um espaco perde esse espaco na tela
   const contar = (t, s) => t.replace(/\s+/g, '').split(s.replace(/\s+/g, '')).length - 1
+  /** Espera o texto aparecer (ate 6 s) e devolve em quantos ms; a contagem era feita uma vez so,
+   * 0,9 s depois, e oscilava entre 0 e 1 com o PC ocupado (desde 19/10). */
+  const esperarTexto = async (id, s) => {
+    const inicio = Date.now()
+    for (let i = 0; i < 60 && contar(texto(id), s) === 0; i++) await espera(100)
+    return Date.now() - inicio
+  }
   const focar = (id) => q(`[data-quadro="${id}"] .xterm-helper-textarea`).focus()
   // centro de um trecho de texto na tela do terminal (a ocorrencia pedida)
   const ponto = (id, alvo, ocorrencia = 0) => {
@@ -102,7 +109,7 @@
     focar('t2')
     await espera(200)
     await prova.eventos(tecla('V', ['control']))
-    await espera(900)
+    r.msColarCtrlV = await esperarTexto('t2', 'echo colado-ok')
     r.colarCtrlV = contar(texto('t2'), 'echo colado-ok')
     await window.lousa.terminais.escrever('t2', '\r')
     await espera(1500)
@@ -118,7 +125,7 @@
     const c = tela.getBoundingClientRect()
     const evento = { bubbles: true, cancelable: true, button: 2, clientX: c.left + 50, clientY: c.top + 50 }
     tela.dispatchEvent(new MouseEvent('contextmenu', evento))
-    await espera(900)
+    r.msColarDireito = await esperarTexto('t2', 'echo direito-ok')
     r.colarDireito = contar(texto('t2'), 'echo direito-ok')
     await window.lousa.terminais.escrever('t2', '\r')
     await espera(1200)

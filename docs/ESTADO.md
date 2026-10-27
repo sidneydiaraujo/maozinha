@@ -1,6 +1,6 @@
 # Estado da construção
 
-**Próxima tarefa: aceite do Sidney com o instalador 0.4.0** (`release/Lousa.ia Setup 0.4.0.exe`, hash em `release/SHA256.txt`): os itens 17 a 49 e 60 a 79 do `docs/aceite/roteiro.md` (ajustes A1 a A4 nos itens 68 a 71, time de agentes 72 a 75, git e GitHub por conta 76 e 77, repasse 78, juntar o time 79; o ícone novo da D41 também). A Fatia 32 (recado no meio do trabalho) precisa de decisão própria.
+**Próxima tarefa: aceite do Sidney com o instalador 0.4.1** (`release/Lousa.ia Setup 0.4.1.exe`, hash em `release/SHA256.txt`; é a 0.4.0 com o A6 e o A9/D47): os itens 17 a 49 e 60 a 79 do `docs/aceite/roteiro.md` (ajustes A1 a A4 nos itens 68 a 71, time de agentes 72 a 75, git e GitHub por conta 76 e 77, repasse 78, juntar o time 79; a troca de modelo refeita no item 47). A Fatia 32 (recado no meio do trabalho) precisa de decisão própria.
 Plano do time: `docs/plano/fatia-28-a-32-time.md`, D39.
 A Fatia 9 (Codex/ChatGPT, T1.4b) espera o Sidney começar a usar o ChatGPT.
 Fatias 15 a 21 (terminal com cara de VSCode, dados do agente, identidade visual): começadas em 19/10 a pedido do Sidney, antes do aceite acima, na ordem do `docs/plano/README.md`, cada uma numa sessão nova. D23 e D24 aprovadas, e também as provas com Claude de verdade (T16.0, T17.0).
@@ -127,7 +127,23 @@ O Sidney vai mandando enquanto testa. Feitos viram itens novos no `docs/aceite/r
 | A3 | Painel da engrenagem transparente por cima da lateral (D40) | ✅ 20/10/2026 (aceite: item 70) |
 | A4 | Uso da conta à vista na barra de cima, opção na engrenagem (D40) | ✅ 20/10/2026 (aceite: item 71) |
 | A5 | Ícone novo "Time na lousa" (D41) | ✅ 21/10/2026 (instalador 0.3.1) |
-| A6 | Erro "quadros:remover: Quadro não encontrado" preso no alto da lousa (aceite 0.4.0) | ✅ 22/10/2026 (fora do instalador 0.4.0) |
+| A6 | Erro "quadros:remover: Quadro não encontrado" preso no alto da lousa (aceite 0.4.0) | ✅ 22/10/2026 (instalador 0.4.1) |
+| A9 | Troca de modelo não trocava: agora reabre o agente na mesma conversa, sem mudar o padrão da conta (D47) | ✅ 27/10/2026 (aceite: item 47; instalador 0.4.1) |
+
+## Pendências resgatadas (27/10)
+
+O Sidney pediu para vasculhar o que nenhum terminal tinha tratado.
+
+| Item | Status |
+|---|---|
+| Fila de modelo/esforço e `/compact` digitavam no PowerShell depois de o Claude sair (ponto cego da D39) | ✅ D47 (a troca nem digita mais; o `/compact` confere o `claude.exe`) |
+| A6 fora de instalador | ✅ instalador 0.4.1 |
+| Prova que não fechava o app depois do resultado (`time`, `git-conta`) | ✅ em parte: o `rodar.mjs` encerra a árvore 30 s depois do resultado. A causa não foi reproduzida. Fechar os terminais antes do `app.exit` fez o Electron cair ao sair (0xC0000409) e foi desfeito; essa queda ao sair também acontece sem a mudança, às vezes, e o `rodar.mjs` avisa |
+| `colarCtrlV`/`colarDireito` do `fatia8` oscilando desde 19/10 | ✅ era a espera fixa de 0,9 s da prova; o colado chega em ~110 ms. A prova agora espera até aparecer e anota o tempo |
+| Provas com vários Claudes de verdade sem memória | ✅ opção `sem-claude` em `time`, `repasse` e `juntar-time` |
+| Cenário `time` nunca passou inteiro depois da reordem de 21/10 (contava linhas do zero) | ✅ corrigido; verde com `sem-claude` |
+| Aceite dos itens 17 a 49 e 60 a 79 | ⬜ espera o Sidney |
+| Fatia 9 (Codex), Fatia 32 (recado), ideias V1 do mapa | ⏸ fora deste pedido |
 
 ## Itens do mapa de funcionalidades (`FUNCIONALIDADES.md`)
 
@@ -483,3 +499,4 @@ Nenhum.
 - **21/10/2026 (T31.1, D44):** "⇢ Juntar o time" no menu da linha. Código: `ordemDoTime` e `copiasDoTime` em `shared/time.ts` (+3 testes), `time/juntar.ts` (+4), canal `time:juntar`, `JanelaJuntarTime` e `juntarTime.ts` (+2). 526 testes, lint zerado. **Provado na janela** (cenário `juntar-time`, estado novo com três cópias reais e Claude de verdade fechado na confiança): lista c1, c2, c3; c1 entra, c2 fica de fora (arquivo não salvo), c3 para no conflito com "Pedir ao agente de c3 para resolver"; depois, a c1 não tem nada a juntar e a c3 mantém o commit dela. O leitor do estado no `rodar.mjs` passou a aceitar hífen. **Não provado:** o pedido ao agente (o Claude da prova já tinha saído; o pedido é o mesmo da T23.2).
 - **21/10/2026 (versão 0.4.0):** pedido do Sidney: "pode uma versão 0.4.0". A `main` (2bc8c1a: C1, T30.1, T31.1 e o ícone) gerou a 0.4.0 na cópia `claude-2`. Check verde (526). `Lousa.ia Setup 0.4.0.exe`, SHA-256 `c68c9f662747ae812b25dbf0e60891046a6b993d1b6764f461aa9bef475379a0`, versão 0.4.0.0 gravada no .exe, `--smoke` com código 0; copiado para `release` da pasta principal.
 - **22/10/2026 (A6):** no aceite da 0.4.0 o Sidney viu "Error invoking remote method 'quadros:remover': Error: Quadro não encontrado" parado no alto da lousa. Causa: fechar um quadro que já tinha saído (segundo clique no ×, ou clique durante a limpeza da cópia, que demora) lançava erro, e o erro de ação da lousa nunca sumia. Correção: `remover` de quadro que já saiu não faz nada (teste ajustado); erro de ação some em 10 s ou no clique e vem sem o prefixo do Electron (`mensagemDe`); o erro de carregar a lousa continua fixo. 526 testes, lint zerado. Não provado na janela.
+- **27/10/2026 (pendências resgatadas + A9, D47):** o Sidney pediu para vasculhar o que nenhum terminal tratou e para consertar a troca de modelo ("o botão não funciona"). **Investigação com Claude de verdade fora da Lousa** (`provas/apoio/modelo-claude.mjs`, conta Pessoal, pasta já confiada, nenhuma mensagem): o `/model` digitado funciona, mas o Claude não manda estado ao abrir, então a troca ficava esperando para sempre; e o `/model`/`/effort` gravam o padrão da conta (o `settings.json` foi devolvido ao texto de antes em cada rodada). O Sidney escolheu reabrir o agente (D47). Código: `podeDigitar` (+3 testes), pronto no `ServicoTerminais` (+1), `FilaAjustes` reabre (7 testes novos), `/compact` com pronto e `claude.exe` (+2), fila do time com `aoPronto` (+1), evento `agentes:reabrir`, a tela remonta o terminal, o anel não fica cinza no recém-aberto. Provas: opção `sem-claude`; `rodar.mjs` encerra o app que não sai; `fatia8` espera o colado; cenário `time` corrigido. `npm run check` verde (533). **Provado na janela:** `modelo` (Claude de verdade na confiança + falso), `anel`, `time sem-claude`, `repasse sem-claude`, `juntar-time sem-claude` com `ok`; `fatia8` sem erros, o colado em ~100 ms nas duas rodadas. A queda ao sair (0xC0000409) apareceu em algumas rodadas de `time` e `fatia8`, sempre depois do resultado gravado; o `time` no último commit, sem nada de hoje, também caiu.

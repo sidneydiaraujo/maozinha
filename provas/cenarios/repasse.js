@@ -34,8 +34,11 @@
   const linha = async () => (await window.lousa.lousa.carregar()).ligacoes?.find((l) => l.id === 'l1') ?? null
 
   await passo('0 confianca e Claude falso', async () => {
-    await ate(() => /trust/i.test(texto('a1')) && /trust/i.test(texto('a2')), 240)
-    for (const id of ['a1', 'a2']) await window.lousa.terminais.escrever(id, '\r')
+    // opcao sem-claude (rodar.mjs repasse sem-claude): os agentes abrem sem o claude.exe de verdade
+    if (!(prova.dados.opcoes ?? []).includes('sem-claude')) {
+      await ate(() => /trust/i.test(texto('a1')) && /trust/i.test(texto('a2')), 240)
+      for (const id of ['a1', 'a2']) await window.lousa.terminais.escrever(id, '\r')
+    }
     // o Claude de verdade precisa ter saido de vez (prompt do PowerShell na ultima linha)
     const noPowerShell = (id) => /PS [^\n]*>\s*$/.test(texto(id).trimEnd() + ' ')
     await ate(() => noPowerShell('a1') && noPowerShell('a2'), 80)

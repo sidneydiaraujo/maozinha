@@ -40,6 +40,11 @@
   }
 
   await passo('0 confianca', async () => {
+    // opcao sem-claude (rodar.mjs juntar-time sem-claude): os agentes abrem sem o claude.exe de verdade
+    if ((prova.dados.opcoes ?? []).includes('sem-claude')) {
+      await ate(() => ['a1', 'a2', 'a3'].every((id) => /PS .*>/.test(texto(id))), 240)
+      return
+    }
     await ate(() => ['a1', 'a2', 'a3'].every((id) => /trust/i.test(texto(id))), 240)
     for (const id of ['a1', 'a2', 'a3']) await window.lousa.terminais.escrever(id, '\r')
     await espera(3000)

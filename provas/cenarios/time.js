@@ -58,11 +58,14 @@
     }
     return null
   }
-  const aviso = () => q('.lousa-aviso')?.textContent ?? q('.lousa-erro')?.textContent ?? null
+  // o aviso e o erro da lousa juntos: o aviso do colega novo fica na tela e escondia a recusa
+  const aviso = () => [q('.lousa-aviso')?.textContent, q('.lousa-erro')?.textContent].filter(Boolean).join(' | ') || null
   const linhas = () => todos('.react-flow__edge.linha-time').map((g) => g.dataset.id)
   const salvas = async () => (await window.lousa.lousa.carregar()).ligacoes ?? []
   const quadros = () => todos('.react-flow__node-quadro').map((n) => n.dataset.id)
   const respondidos = new Set()
+  // opcao sem-claude (rodar.mjs <cenario> sem-claude): os agentes abrem sem o claude.exe de verdade
+  const semClaude = (prova.dados.opcoes ?? []).includes('sem-claude')
   // fecha o Claude de cada agente na pergunta de confianca, sem "Yes" e sem mensagem
   const fecharConfianca = async () => {
     for (const id of quadros()) {
@@ -77,7 +80,11 @@
   window.lousa.terminais.aoEstado((id, aviso) => r.estados.push({ id, s: Math.round((Date.now() - inicio) / 1000), ...aviso }))
   r.passos = {}
   const passo = (nome) => (r.passos[nome] = Math.round((Date.now() - inicio) / 1000))
-  await ate(() => ['a1', 'a2', 'a3'].every((id) => /trust/i.test(texto(id))), 240)
+  // sem o Claude, espera a lousa e o PowerShell de cada agente (a espera da confianca fazia isso)
+  if (semClaude) {
+    await ate(() => ['a1', 'a2', 'a3'].every((id) => /PS .*>/.test(texto(id))), 240)
+    await espera(8000) // a lousa termina de enquadrar (com o Claude, a confianca levava ~25 s)
+  } else await ate(() => ['a1', 'a2', 'a3'].every((id) => /trust/i.test(texto(id))), 240)
   await fecharConfianca()
   r.confiancaRespondida = [...respondidos]
 
@@ -99,23 +106,30 @@
     ligado: (await salvas()).some((l) => l.de === 'a3' && l.para === c2),
   }
 
-  // a1 -> a3: outra conta em outro repo
+  // a1 -> a3: outra conta em outro repo. As contagens sao a partir daqui: a linha a3 -> colega
+  // do passo acima ja esta na lousa (antes ela ficava no fim e as contas comecavam do zero)
+  // a linha do quadro novo so e desenhada depois que o React Flow mede o quadro: espera a tela
+  // alcancar o salvo antes de contar
+  const salvasAntes = (await salvas()).length
+  await ate(() => linhas().length === salvasAntes, 40)
+  const antes = linhas().length
   await arrastar(centro(bolinha('a1', 'saida')), centro(bolinha('a3', 'entrada')))
-  r.recusaContas = { aviso: aviso(), linhas: linhas().length }
+  await espera(600)
+  r.recusaContas = { aviso: aviso(), linhas: linhas().length - antes, salvas: (await salvas()).length - salvasAntes }
 
   // a1 -> a2: liga, ambar
   await arrastar(centro(bolinha('a1', 'saida')), centro(bolinha('a2', 'entrada')))
-  await ate(() => linhas().length === 1)
-  const ab = linhas()[0]
+  await ate(() => linhas().length === antes + 1)
+  const ab = (await salvas()).find((l) => l.de === 'a1' && l.para === 'a2')?.id
   r.ligou = {
-    linhas: linhas().length,
+    linhas: linhas().length - antes,
     ambar: !!q(`.react-flow__edge[data-id="${ab}"].linha-time-mesma-pasta`),
     rotulo: q('.rotulo-linha-time')?.textContent ?? null,
   }
 
   // a volta a2 -> a1
   await arrastar(centro(bolinha('a2', 'saida')), centro(bolinha('a1', 'entrada')))
-  r.recusaVolta = { aviso: aviso(), linhas: linhas().length }
+  r.recusaVolta = { aviso: aviso(), linhas: linhas().length - antes }
   await prova.foto('1-ligados')
 
   // clique na bolinha do a2: colega numa copia, ja ligado
