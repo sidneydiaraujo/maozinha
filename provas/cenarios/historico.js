@@ -36,6 +36,9 @@
     await clicarItem('Terminal 2')
     r.segundo = enquadrado('t2')
     q('[data-quadro="t1"] .botao-fechar').click()
+    // o x pergunta antes (BotaoFechar): espera a pergunta e confirma
+    await espera(300)
+    q('[data-quadro="t1"] .fechar-botoes .botao-perigo').click()
     await espera(1500)
     r.depoisDeFechar = itens()
     await prova.foto('3-fechado')

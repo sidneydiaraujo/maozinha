@@ -43,6 +43,9 @@
   }
   const fechar = async (id) => {
     q(`[data-quadro="${id}"] .botao-fechar`).click()
+    // o x pergunta antes (BotaoFechar): espera a pergunta e confirma
+    await espera(300)
+    q(`[data-quadro="${id}"] .fechar-botoes .botao-perigo`).click()
     await ate(() => !ids().includes(id) && q('.lousa-aviso'))
     return q('.lousa-aviso')?.textContent ?? null
   }

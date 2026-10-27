@@ -100,13 +100,16 @@ export function ligarNitidez(
     if (chave === aplicado) return
     aplicado = chave
     const s = el.style
+    // a margem vai no .xterm (terminal.css): e a que o FitAddon desconta
+    const margem = term.element?.style
     if (compensado === null) {
-      s.width = s.height = s.padding = s.transform = s.transformOrigin = ''
+      s.width = s.height = s.transform = s.transformOrigin = ''
+      if (margem) margem.padding = ''
       term.options.fontSize = fonteBase
     } else {
       const z = compensado
       s.width = s.height = `${100 * z}%`
-      s.padding = `${MARGEM.topo * z}px 0 0 ${MARGEM.esquerda * z}px`
+      if (margem) margem.padding = `${MARGEM.topo * z}px 0 0 ${MARGEM.esquerda * z}px`
       s.transformOrigin = '0 0'
       transformar(z)
       term.options.fontSize = fonteNaTela(fonteBase, z)

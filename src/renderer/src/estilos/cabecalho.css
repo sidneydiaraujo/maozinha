@@ -112,3 +112,40 @@
     transition: none;
   }
 }
+
+/* "Tem certeza que deseja fechar?" abaixo do x (BotaoFechar) */
+.fechar-caixa {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+}
+
+.fechar-pergunta {
+  position: absolute;
+  z-index: 4;
+  top: calc(100% + 6px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 240px;
+  padding: 10px;
+  font-size: 12px;
+  font-weight: normal;
+  color: var(--texto);
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: var(--raio);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 40%);
+}
+
+.fechar-botoes {
+  display: flex;
+  gap: 8px;
+}
+
+.fechar-botoes .botao-perigo {
+  color: var(--perigo);
+  background: var(--perigo-fundo);
+  border-color: var(--perigo-borda);
+}

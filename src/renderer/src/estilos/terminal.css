@@ -3,8 +3,12 @@
   height: 100%;
   /* o fundo da paleta da Aparencia (T15.1), posto pelo Terminal.tsx */
   background: var(--terminal-fundo, var(--quadro));
+}
+
+/* A margem fica no .xterm, nao no recipiente: o FitAddon mede o recipiente inteiro e so desconta
+   a margem do .xterm. Com ela no recipiente, sobravam 1 ou 2 colunas cortadas na direita. */
+.terminal .xterm {
   padding: 8px 0 0 12px;
-  box-sizing: border-box;
 }
 
 .terminal .xterm-viewport {

@@ -195,6 +195,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1, capa }: Pr
     const cancelarSaida = window.lousa.terminais.aoSair((id, codigo) => {
       if (id === terminalId) atual.current.aoSair?.(codigo)
     })
+    const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
     window.lousa.terminais
       .abrir(atual.current.alvo, term.cols, term.rows)
       .then((r) => {
@@ -202,6 +203,9 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1, capa }: Pr
         terminalId = r.terminalId
         term.write(r.bufferInicial)
         if (r.aviso) atual.current.aoAviso?.(r.aviso)
+        // o primeiro ajuste (e o do zoom) vem antes do id e nao chega ao programa; e o terminal
+        // que ja estava aberto continua com o tamanho da tela antiga: manda a medida de agora
+        tamanho.reajustar()
       })
       .catch((e: unknown) => {
         term.write(`\r\n[erro] ${e instanceof Error ? e.message : String(e)}\r\n`)
@@ -211,7 +215,6 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1, capa }: Pr
     const desligarTeclas = ligarTeclas(term, el, escrever, () => setBusca(term))
     const links = ligarLinks(term, acoesLink)
     const desligarSoltar = ligarSoltar(el, (texto) => term.paste(texto))
-    const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
     const nitido = ligarNitidez(el, term, lerFonte(chave), { reajustar: tamanho.reajustar, aoPausar: setPausado })
     nitido.zoom(atual.current.zoom)
     const desligarEventos = ligarEventosNitidez(el, nitido)

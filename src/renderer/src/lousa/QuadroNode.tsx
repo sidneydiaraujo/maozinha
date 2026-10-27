@@ -8,6 +8,7 @@ import '../estilos/cabecalho.css'
 import { AnelContexto } from './AnelContexto'
 import { brilhoDoQuadro, chamaAtencao, seloDoAviso } from './atencao'
 import { BolinhasTime } from './BolinhasTime'
+import { BotaoFechar } from './BotaoFechar'
 import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
 import { JanelaJuntar } from './JanelaJuntar'
@@ -192,14 +193,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           >
             ⤢
           </button>
-          <button
-            className="botao-fechar botao-acao botao-acao-fechar nodrag"
-            title="Fechar o quadro"
-            aria-label={`Fechar ${rotulo}`}
-            onClick={() => acoes.removerQuadro(quadro.id)}
-          >
-            ×
-          </button>
+          <BotaoFechar rotulo={rotulo} aoFechar={() => acoes.removerQuadro(quadro.id)} />
         </header>
         <CorpoQuadro quadro={quadro} repo={repo} acoes={acoes} aoEncerrado={setEncerrado} />
         {juntando && (
