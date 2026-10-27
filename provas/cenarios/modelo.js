@@ -17,6 +17,8 @@
   const { pastaDemo, apoio } = prova.dados
   const r = { passos: [] }
   const texto = () => [...document.querySelectorAll('[data-quadro="a1"] .xterm-rows > div')].map((d) => d.textContent).join('\n')
+  /** As linhas da tela emendadas: o comando longo do Claude quebra em qualquer coluna. */
+  const corrido = () => texto().replace(/\n/g, '')
   const escrever = (dados) => window.lousa.terminais.escrever('a1', dados)
   const ate = async (condicao, vezes) => {
     for (let i = 0; i < vezes && !condicao(); i++) await espera(250)
@@ -64,7 +66,7 @@
   // a resposta chega depois de o main perguntar ao Windows se ha um claude.exe (alguns segundos)
   r.avisoNaConfianca = await ate(() => botoes()[0]?.title.includes('Vale quando o agente parar'), 40)
   await espera(2500)
-  r.naoReabriuNaConfianca = confianca() && !/--model sonnet/.test(texto())
+  r.naoReabriuNaConfianca = confianca() && !/--model sonnet/.test(corrido())
   r.passos.push('1 confianca')
 
   // 2. "No, exit"; o painel gravado pelo PowerShell = a primeira linha de status: reabre
@@ -74,7 +76,7 @@
   await espera(2500)
   const json = '{"model":{"id":"claude-opus-5-5","display_name":"Opus 5.5 (1M context)"},"effort":{"level":"medium"}}'
   await escrever(`Set-Content -Encoding utf8 -Path '${pastaDemo}\\..\\dados\\agentes\\a1.json' -Value '${json}'\r`)
-  r.reabriuAoFicarPronto = await ate(() => /--model sonnet/.test(texto()), 80)
+  r.reabriuAoFicarPronto = await ate(() => /--model sonnet/.test(corrido()), 80)
   r.saiuDeNovo = await sairDaConfianca()
   await painelNaTela('medium')
   r.comPainel = rotulos()
@@ -86,7 +88,7 @@
   await espera(1200)
   vigiar()
   await escolher(1, 'alto')
-  r.reabriuParado = await ate(() => /--model sonnet --effort high/.test(texto()), 80)
+  r.reabriuParado = await ate(() => /--model sonnet --effort high/.test(corrido()), 80)
   r.saiuDepoisDoAlto = await sairDaConfianca()
   r.passos.push('3 parado')
 
@@ -99,9 +101,9 @@
   r.avisoTrabalhando = await ate(() => botoes()[0]?.title.includes('Vale quando o agente parar'), 40)
   vigiar()
   await espera(1500)
-  r.naoReabriuTrabalhando = /ECO DO MODELO PRONTO/.test(texto()) && !/--model haiku/.test(texto())
+  r.naoReabriuTrabalhando = /ECO DO MODELO PRONTO/.test(texto()) && !/--model haiku/.test(corrido())
   await escrever('pare\r')
-  r.reabriuAoParar = await ate(() => /--model haiku --effort high/.test(texto()), 80)
+  r.reabriuAoParar = await ate(() => /--model haiku --effort high/.test(corrido()), 80)
   r.saiuNoFim = await sairDaConfianca()
   await prova.foto('2-reaberto')
   r.passos.push('4 trabalhando')
