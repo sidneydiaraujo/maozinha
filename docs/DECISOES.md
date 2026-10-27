@@ -233,3 +233,7 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Por quê:** "dar uma mãozinha" é o que os agentes fazem. Na pesquisa de 27/10, Maestro e Regente já eram apps de agentes de programação e Mirante uma empresa de software; "Mãozinha" e `maozinha.dev` não apareceram em uso. Falta o Sidney conferir no INPI (classes 9 e 42) e comprar o domínio.
   - **Til só no que se vê:** título, barra, nome no Windows e mensagens (`[Mãozinha]`). O `.exe` e o instalador ficam sem til (`Maozinha.exe`, `Maozinha Setup x.exe`), para não dar problema de caminho com acento.
   - **Fica igual:** `appId`, pasta de instalação e pasta de dados `lousa-ia` (instala por cima, nada se perde), nome do pacote e do repositório.
+- **D51 (27/10/2026, Sidney: "quero uma mãozinha dentro de um monitor anos 80"):** ícone novo, no lugar do "Time na lousa" da D41.
+  - **Desenho:** monitor bege com pé e base, LED verde e tela de fósforo verde com linhas de varredura; dentro, a "mãozinha" do cursor de link em pixels, que é o próprio nome do programa.
+  - **Tamanhos pequenos (até 32 px):** mão cheia 7 x 9 com o dedo fino e alto, para continuar lendo "apontando" na barra de tarefas.
+  - **Como:** o mesmo gerador sem dependência (`node scripts/gerar-icone.mjs`, `--amostras` para conferir os pequenos).

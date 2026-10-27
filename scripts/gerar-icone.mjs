@@ -1,6 +1,6 @@
-// Gera o icone da Lousa (T14.1, refeito em D41): build/icon.png (512) e build/icon.ico
-// (256, 64, 48, 32, 24, 16). Desenho "Time na lousa": um terminal com o prompt >_ puxa duas
-// linhas ate dois colegas, sobre a ardosia, com as cores do app (giz, ambar e a cor de time).
+// Gera o icone (T14.1, refeito em D41 e D51): build/icon.png (512) e build/icon.ico
+// (256, 64, 48, 32, 24, 16). Desenho "Mãozinha" (D51): um monitor bege dos anos 80, tela de
+// fosforo verde com linhas de varredura, e dentro a mãozinha do cursor em pixels.
 // De 32 px para baixo vai uma versao simples, porque detalhe pequeno vira borrao.
 // Sem dependencia: cada forma e uma distancia com sinal (negativa dentro), pintada com 4x4
 // amostras por pixel; PNG e ICO montados aqui com o zlib do Node.
@@ -8,13 +8,16 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
 
-// cores do src/renderer/src/estilos/tokens.css (D36) e o fundo da proposta aprovada
-const GIZ = [0xdc, 0xd8, 0xcc]
-const AMBAR = [0xf0, 0xb4, 0x4c]
-const TIME = [0x7f, 0xd1, 0xc7]
-const QUADRO = [0x13, 0x1c, 0x27]
-const ARDOSIA_ALTO = [0x1b, 0x28, 0x36]
-const ARDOSIA_BAIXO = [0x0d, 0x14, 0x1b]
+// monitor bege dos anos 80 com tela de fosforo verde (D51)
+const BEGE_ALTO = [0xee, 0xe3, 0xc6]
+const BEGE_BAIXO = [0xc9, 0xba, 0x95]
+const MOLDURA = [0xa8, 0x99, 0x74]
+const SOMBRA = [0x7d, 0x70, 0x52]
+const TELA_CENTRO = [0x0f, 0x2e, 0x1c]
+const TELA_BORDA = [0x05, 0x10, 0x0a]
+const FOSFORO = [0x6c, 0xff, 0x9a]
+const FOSFORO_FUNDO = [0x1f, 0x8c, 0x48]
+const LED = [0x4c, 0xe0, 0x6c]
 
 // ---- distancias com sinal, em coordenadas 0..256 ----
 // Cada distancia leva o retangulo onde ela pode ser negativa (`limite`): fora dele a pintura
@@ -60,18 +63,6 @@ function traco(pontos, largura) {
   return comLimite(d, [Math.min(...xs) - m, Math.min(...ys) - m, Math.max(...xs) + m, Math.max(...ys) + m])
 }
 
-/** Curva cubica (o "C" do SVG) virada em 48 pedacos retos. */
-function curva(p0, p1, p2, p3) {
-  return Array.from({ length: 49 }, (_, i) => {
-    const t = i / 48
-    const a = (1 - t) ** 3
-    const b = 3 * (1 - t) ** 2 * t
-    const c = 3 * (1 - t) * t ** 2
-    const d = t ** 3
-    return [a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0], a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1]]
-  })
-}
-
 /** Contorno de uma forma: a faixa de `largura` centrada na borda, como o stroke do SVG. */
 function borda(forma, largura) {
   const [x0, y0, x1, y1] = forma.limite
@@ -81,46 +72,109 @@ function borda(forma, largura) {
 
 // ---- o desenho ----
 
-/** Ardosia com degrade de cima para baixo e um fio de giz na borda. */
-const FUNDO = [
-  { d: caixa([8, 8, 240, 240], 54), cor: (_, py) => misturar(ARDOSIA_ALTO, ARDOSIA_BAIXO, (py - 8) / 240) },
-  { d: borda(caixa([9.5, 9.5, 237, 237], 52.5), 3), cor: GIZ, alfa: 0.1 },
+/** Casas que alcancam a borda andando na horizontal e na vertical sem passar por um #. */
+function casasDeFora(linhas) {
+  const alto = linhas.length
+  const largo = linhas[0].length
+  const fora = linhas.map((l) => [...l].map(() => false))
+  const fila = []
+  for (let y = 0; y < alto; y++) fila.push([0, y], [largo - 1, y])
+  for (let x = 0; x < largo; x++) fila.push([x, 0], [x, alto - 1])
+  while (fila.length) {
+    const [x, y] = fila.pop()
+    if (linhas[y]?.[x] === undefined || fora[y][x] || linhas[y][x] === '#') continue
+    fora[y][x] = true
+    fila.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1])
+  }
+  return fora
+}
+
+/**
+ * Desenho em pixels (# = contorno; o que fica preso dentro dele e o recheio). Devolve as duas
+ * formas, em celulas de `lado` a partir de (x0, y0).
+ */
+function pixels(linhas, x0, y0, lado) {
+  const alto = linhas.length
+  const largo = linhas[0].length
+  const fora = casasDeFora(linhas)
+  const casa = (teste) => {
+    const d = (px, py) => {
+      const x = Math.floor((px - x0) / lado)
+      const y = Math.floor((py - y0) / lado)
+      return x >= 0 && y >= 0 && x < largo && y < alto && teste(x, y) ? -1 : 1
+    }
+    return comLimite(d, [x0, y0, x0 + largo * lado, y0 + alto * lado])
+  }
+  return {
+    contorno: casa((x, y) => linhas[y][x] === '#'),
+    recheio: casa((x, y) => linhas[y][x] !== '#' && !fora[y][x]),
+  }
+}
+
+/** A mãozinha do cursor apontando para cima: 16 x 18 casas. */
+const MAO = [
+  '.....##.........',
+  '....#..#........',
+  '....#..#........',
+  '....#..#........',
+  '....#..#........',
+  '....#..###......',
+  '....#..#..###...',
+  '....#..#..#..#..',
+  '.####..#..#..#..',
+  '#............#..',
+  '#............#..',
+  '.#...........#..',
+  '.#...........#..',
+  '..#..........#..',
+  '..#.........#...',
+  '...#........#...',
+  '...#........#...',
+  '...##########...',
 ]
 
-/** Um quadro com fundo escuro e contorno de giz. */
-function quadro(retangulo, r) {
+/** A mesma mão cheia, em 7 x 9, para os tamanhos pequenos: o dedo fino e alto diz "apontando". */
+const MAO_PEQUENA = ['..#....', '..#....', '..#.#..', '..#####', '#.#####', '#######', '.######', '..#####', '..####.']
+
+const TELA = [46, 40, 164, 128]
+const brilhoDaTela = (px, py) => misturar(TELA_CENTRO, TELA_BORDA, Math.hypot(px - 128, (py - 104) * 1.3) / 95)
+
+/** Gabinete bege, pe e base; a tela vem por cima. */
+function monitor(simples) {
+  const corpo = caixa([22, 18, 212, 184], simples ? 30 : 24)
   return [
-    { d: caixa(retangulo, r), cor: QUADRO },
-    { d: borda(caixa(retangulo, r), 6), cor: GIZ },
+    { d: caixa([66, 206, 124, 30], 12), cor: MOLDURA },
+    { d: caixa([98, 196, 60, 20], 4), cor: SOMBRA },
+    { d: corpo, cor: (_, py) => misturar(BEGE_ALTO, BEGE_BAIXO, (py - 18) / 184) },
+    ...(simples ? [] : [{ d: borda(caixa([23.5, 19.5, 209, 181], 23), 3), cor: SOMBRA, alfa: 0.5 }]),
+    { d: caixa([TELA[0] - 8, TELA[1] - 8, TELA[2] + 16, TELA[3] + 16], 24), cor: MOLDURA },
   ]
 }
 
+/** Linhas escuras de varredura, so dentro da tela. */
+function varredura(tela) {
+  return comLimite((px, py) => Math.max(tela(px, py), (py - TELA[1]) % 5 < 1.6 ? -1 : 1), tela.limite)
+}
+
+const telaDetalhada = caixa(TELA, 20)
+const maoGrande = pixels(MAO, 128 - 8 * 5.6, 104 - 9 * 5.6, 5.6)
 const DETALHADO = [
-  ...FUNDO,
-  { d: traco(curva([112, 128], [134, 128], [130, 76], [150, 76]), 7), cor: TIME },
-  { d: traco(curva([112, 128], [134, 128], [130, 180], [150, 180]), 7), cor: TIME },
-  ...quadro([30, 90, 82, 76], 16),
-  { d: traco([[48, 114], [62, 127], [48, 140]], 8), cor: GIZ },
-  { d: traco([[70, 143], [92, 143]], 8), cor: AMBAR },
-  ...quadro([150, 44, 76, 64], 15),
-  { d: traco([[166, 68], [208, 68]], 7), cor: GIZ, alfa: 0.55 },
-  { d: traco([[166, 84], [194, 84]], 7), cor: GIZ, alfa: 0.55 },
-  ...quadro([150, 148, 76, 64], 15),
-  { d: traco([[166, 172], [208, 172]], 7), cor: GIZ, alfa: 0.55 },
-  { d: traco([[166, 188], [190, 188]], 7), cor: GIZ, alfa: 0.55 },
-  { d: circulo(112, 128, 9), cor: TIME },
-  { d: circulo(150, 76, 8), cor: TIME },
-  { d: circulo(150, 180, 8), cor: TIME },
+  ...monitor(false),
+  { d: telaDetalhada, cor: brilhoDaTela },
+  { d: maoGrande.recheio, cor: FOSFORO_FUNDO },
+  { d: maoGrande.contorno, cor: FOSFORO },
+  { d: varredura(telaDetalhada), cor: TELA_BORDA, alfa: 0.35 },
+  { d: borda(telaDetalhada, 3), cor: TELA_BORDA },
+  { d: traco([[52, 185], [104, 185]], 5), cor: SOMBRA, alfa: 0.6 },
+  { d: circulo(200, 185, 6), cor: LED },
 ]
 
+const telaSimples = caixa([42, 36, 172, 136], 22)
+const maoSimples = pixels(MAO_PEQUENA, 128 - 3.5 * 13, 104 - 4.5 * 13, 13)
 const SIMPLES = [
-  ...FUNDO,
-  { d: traco(curva([100, 128], [140, 128], [128, 70], [168, 70]), 18), cor: TIME },
-  { d: traco(curva([100, 128], [140, 128], [128, 186], [168, 186]), 18), cor: TIME },
-  { d: caixa([28, 88, 86, 80], 20), cor: GIZ },
-  { d: traco([[50, 112], [66, 128], [50, 144]], 13), cor: QUADRO },
-  { d: caixa([160, 40, 68, 60], 18), cor: GIZ },
-  { d: caixa([160, 156, 68, 60], 18), cor: GIZ },
+  ...monitor(true),
+  { d: telaSimples, cor: TELA_CENTRO },
+  { d: maoSimples.contorno, cor: FOSFORO },
 ]
 
 /** Ate 32 px vai o desenho simples. */
