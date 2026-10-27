@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { podeCompactar } from '../../../shared/compactar'
+import { podeDigitar } from '../../../shared/compactar'
 import { mensagemDe } from '../componentes/erro'
 import '../estilos/contexto.css'
 import { aoMudarPrefContexto, lerPrefContexto, vistaDoContexto, type NivelContexto } from './contexto'
@@ -80,8 +80,10 @@ export function AnelContexto({ quadroId }: { quadroId: string }): React.JSX.Elem
   const contexto = painel?.contexto ?? null
   const vista = vistaDoContexto(contexto?.usado ?? null, pref, contexto?.tamanho)
   if (!vista.visivel) return null
-  const pode = podeCompactar(estado)
-  // cinza so com o agente ocupado; sem estado ainda, a cor do nivel fica (o clique continua sem efeito)
+  // o anel so aparece com painel, e painel e a linha de status: o Claude esta pronto (D47). Sem
+  // estado ainda (recem-aberto, nada pedido), ja pode compactar; o main confere de novo
+  const pode = podeDigitar(estado, true)
+  // cinza so com o agente ocupado
   const ocupado = estado === 'trabalhando' || estado === 'esperando'
 
   return (

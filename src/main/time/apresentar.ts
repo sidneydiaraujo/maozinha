@@ -1,14 +1,14 @@
 // O time se conhece (T29.1, D39): quando o time muda, cada agente recebe quem ele e, quem sao os
 // colegas e para quem entrega. A Lousa so digita com o agente parado (como a D25).
-import { podeCompactar } from '../../shared/compactar'
+import { podeCompactar, podeDigitar } from '../../shared/compactar'
 import type { AvisoAgente } from '../../shared/model'
 import { textoDoTime, TEXTO_SAIU_DO_TIME, type DadosTime } from '../../shared/time'
 import { PAUSA_ENTER_MS } from '../agentes/compactar'
 import type { DepsAjustes } from '../agentes/ajustes'
 
 export interface DepsFila extends DepsAjustes {
-  /** O claude.exe ainda roda no terminal? (ele nao avisa quando sai; terminais/filhos.ts) */
-  temClaude(terminalId: string): Promise<boolean>
+  escrever(terminalId: string, dados: string): void
+  esperar(ms: number): Promise<void>
 }
 
 /** Montar uma arvore manda uma apresentacao so: espera o time ficar 2 s sem mudar. */
@@ -56,6 +56,16 @@ export class FilaMensagens {
   aoEstado(quadroId: string, aviso: AvisoAgente): Promise<void> {
     this.digitouAgora.delete(quadroId)
     if (!podeCompactar(aviso.estado)) return Promise.resolve()
+    return this.soltar(quadroId)
+  }
+
+  /** O Claude acabou de ficar pronto (D47): o que esperava a abertura sai agora. */
+  aoPronto(quadroId: string): Promise<void> {
+    return this.livre(quadroId) ? this.soltar(quadroId) : Promise.resolve()
+  }
+
+  /** A apresentacao pendente sai antes do repasse; um por parada. */
+  private soltar(quadroId: string): Promise<void> {
     const apresentacao = this.pendentes.get(quadroId)
     if (apresentacao !== undefined) {
       this.pendentes.delete(quadroId)
@@ -84,7 +94,9 @@ export class FilaMensagens {
 
   private livre(quadroId: string): boolean {
     return (
-      this.deps.aberto(quadroId) && podeCompactar(this.deps.aviso(quadroId)?.estado) && !this.digitouAgora.has(quadroId)
+      this.deps.aberto(quadroId) &&
+      podeDigitar(this.deps.aviso(quadroId)?.estado, this.deps.pronto(quadroId)) &&
+      !this.digitouAgora.has(quadroId)
     )
   }
 

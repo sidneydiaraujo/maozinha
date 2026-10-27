@@ -109,6 +109,20 @@ describe('ServicoTerminais', () => {
     expect(ptys[0]!.descartados).toBe(2)
   })
 
+  it('pronto (D47): so a primeira marca conta; terminal novo comeca sem; fechado nunca esta pronto', () => {
+    const { servico } = montar()
+    expect(servico.marcarPronto('t1')).toBe(false)
+    servico.abrir(pedido)
+    expect(servico.pronto('t1')).toBe(false)
+    expect(servico.marcarPronto('t1')).toBe(true)
+    expect(servico.marcarPronto('t1')).toBe(false)
+    expect(servico.pronto('t1')).toBe(true)
+    servico.fechar('t1')
+    expect(servico.pronto('t1')).toBe(false)
+    servico.abrir(pedido)
+    expect(servico.pronto('t1')).toBe(false)
+  })
+
   it('id que ja saiu abre um shell novo', () => {
     const { servico, ptys, chamadas } = montar()
     servico.abrir(pedido)

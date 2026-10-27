@@ -17,8 +17,8 @@ import { usePainel } from './usePainel'
 const LARGURA_MENU = 200
 
 const AVISO: Record<QuandoAjusta, string | null> = {
-  agora: null,
-  quandoParar: 'Vale quando o agente parar.',
+  agora: 'O agente reabriu com a troca, na mesma conversa.',
+  quandoParar: 'Vale quando o agente parar: ele reabre na mesma conversa.',
   naAbertura: 'Vale na próxima abertura do agente.',
 }
 
@@ -83,8 +83,8 @@ function Seletor<T extends string>(p: PropsSeletor<T>): React.JSX.Element {
 
 /**
  * Modelo e esforco do agente Claude no cabecalho (T19.2, D25). O rotulo diz o que o painel do
- * agente conta (Fatia 17); antes dele, o guardado no quadro, em cinza. Quem digita /model e
- * /effort e o main (agentes:ajustar); a tela so manda o valor da lista.
+ * agente conta (Fatia 17); antes dele, o guardado no quadro, em cinza. A tela so manda o valor
+ * da lista (agentes:ajustar); o main reabre o agente com ele na mesma conversa (D47).
  */
 export function ModeloDoQuadro({ quadro }: { quadro: Quadro }): React.JSX.Element {
   const painel = usePainel(quadro.id)
@@ -108,7 +108,7 @@ export function ModeloDoQuadro({ quadro }: { quadro: Quadro }): React.JSX.Elemen
         opcoes={MODELOS}
         nomes={NOME_MODELO}
         atual={modeloAtual}
-        dica="Trocar o modelo continua a mesma conversa."
+        dica="Trocar o modelo reabre o agente na mesma conversa (sem mudar o padrão da conta)."
         aoEscolher={(modelo) => ajustar({ modelo })}
       />
       <Seletor<Esforco>

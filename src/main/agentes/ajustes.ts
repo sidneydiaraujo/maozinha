@@ -1,67 +1,80 @@
-// Trocar modelo e esforco de um agente aberto (T19.1, D24). O texto sai dos enums, montado aqui
-// no main; com o agente trabalhando, o pedido espera ele parar (OSC 7501 parado ou terminou).
-import { podeCompactar } from '../../shared/compactar'
-import { ESFORCOS, MODELOS, type AjusteAgente, type AvisoAgente, type QuandoAjusta } from '../../shared/model'
-import { PAUSA_ENTER_MS } from './compactar'
-
-/** Entre um comando e o seguinte: o Claude precisa terminar o /model antes do /effort. */
-export const PAUSA_ENTRE_MS = 600
-
-/** `/model sonnet`, `/effort high`. So valores da lista viram texto. Puro. */
-export function comandosDoAjuste(m: AjusteAgente): string[] {
-  const comandos: string[] = []
-  if (m.modelo && MODELOS.includes(m.modelo)) comandos.push(`/model ${m.modelo}`)
-  if (m.esforco && ESFORCOS.includes(m.esforco)) comandos.push(`/effort ${m.esforco}`)
-  return comandos
-}
+// Trocar modelo e esforco de um agente aberto (T19.1, D25, D47). O `/model` e o `/effort` do
+// Claude gravam a escolha como padrao da CONTA (o VSCode e os outros quadros dela mudariam
+// junto); por isso a Lousa reabre o agente, ja com `--model`/`--effort` do quadro salvo, na
+// mesma conversa (`--resume`). So reabre com ele parado; trabalhando, espera ele parar.
+import { podeDigitar } from '../../shared/compactar'
+import type { AjusteAgente, AvisoAgente, QuandoAjusta } from '../../shared/model'
 
 export interface DepsAjustes {
   aberto(terminalId: string): boolean
   aviso(terminalId: string): AvisoAgente | null
-  escrever(terminalId: string, dados: string): void
-  esperar(ms: number): Promise<void>
+  /** O Claude ja desenhou a linha de status neste terminal (D47). */
+  pronto(terminalId: string): boolean
+  /** O claude.exe ainda roda no terminal? (ele nao avisa quando sai; terminais/filhos.ts) */
+  temClaude(terminalId: string): Promise<boolean>
+}
+
+export interface DepsFilaAjustes extends DepsAjustes {
+  /** Fecha o terminal do quadro e pede a tela para abrir de novo (o comando le o quadro salvo). */
+  reabrir(quadroId: string): void
 }
 
 export class FilaAjustes {
-  /** Pedidos de quem estava trabalhando, por quadro; o mais novo de cada campo vence. */
-  private readonly pendentes = new Map<string, AjusteAgente>()
+  /** Quadros com troca esperando o agente parar. O valor novo ja esta salvo no quadro. */
+  private readonly pendentes = new Set<string>()
 
-  constructor(private readonly deps: DepsAjustes) {}
+  constructor(private readonly deps: DepsFilaAjustes) {}
 
-  /** Agente fechado: so vale na abertura (o comando ja leva --model/--effort). */
-  async pedir(quadroId: string, mudanca: AjusteAgente): Promise<QuandoAjusta> {
+  /** O quadro ja guardou a mudanca; aqui so se decide quando o agente reabre com ela. */
+  async pedir(quadroId: string, _mudanca: AjusteAgente): Promise<QuandoAjusta> {
     if (!this.deps.aberto(quadroId)) {
       this.pendentes.delete(quadroId)
       return 'naAbertura'
     }
-    if (!podeCompactar(this.deps.aviso(quadroId)?.estado)) {
-      this.pendentes.set(quadroId, { ...this.pendentes.get(quadroId), ...mudanca })
-      return 'quandoParar'
+    if (await this.podeReabrir(quadroId)) {
+      this.reabrir(quadroId)
+      return 'agora'
     }
-    await this.digitar(quadroId, mudanca)
-    return 'agora'
+    this.pendentes.add(quadroId)
+    return 'quandoParar'
   }
 
-  /** Chamado a cada aviso do OSC 7501: o agente parou e tinha pedido na fila. */
+  /** Chamado a cada aviso do OSC 7501: o agente parou e tinha troca esperando. */
   aoEstado(quadroId: string, aviso: AvisoAgente): Promise<void> {
-    const pendente = this.pendentes.get(quadroId)
-    if (!pendente || !podeCompactar(aviso.estado)) return Promise.resolve()
-    this.pendentes.delete(quadroId)
-    return this.digitar(quadroId, pendente)
+    if (!this.pendentes.has(quadroId) || !podeDigitar(aviso.estado, false)) return Promise.resolve()
+    return this.tentar(quadroId)
   }
 
-  /** O terminal do quadro fechou: o pedido ja vai no comando da proxima abertura. */
+  /** O Claude acabou de ficar pronto (primeira linha de status): troca pedida na abertura vale agora. */
+  aoPronto(quadroId: string): Promise<void> {
+    return this.pendentes.has(quadroId) ? this.tentar(quadroId) : Promise.resolve()
+  }
+
+  /** O terminal do quadro fechou: a troca ja vai no comando da proxima abertura. */
   esquecer(quadroId: string): void {
     this.pendentes.delete(quadroId)
   }
 
-  private async digitar(quadroId: string, mudanca: AjusteAgente): Promise<void> {
-    const comandos = comandosDoAjuste(mudanca)
-    for (const [i, comando] of comandos.entries()) {
-      if (i > 0) await this.deps.esperar(PAUSA_ENTRE_MS)
-      this.deps.escrever(quadroId, comando)
-      await this.deps.esperar(PAUSA_ENTER_MS)
-      this.deps.escrever(quadroId, '\r')
-    }
+  pendente(quadroId: string): boolean {
+    return this.pendentes.has(quadroId)
+  }
+
+  private async tentar(quadroId: string): Promise<void> {
+    if (await this.podeReabrir(quadroId)) this.reabrir(quadroId)
+  }
+
+  /**
+   * Parado (ou pronto e ainda sem estado): reabre. Sem claude.exe (saiu, ficou o PowerShell):
+   * reabre tambem, e o agente volta com o modelo novo. Trabalhando, esperando voce ou na
+   * pergunta de confianca da pasta: nao.
+   */
+  private async podeReabrir(quadroId: string): Promise<boolean> {
+    if (!(await this.deps.temClaude(quadroId))) return true
+    return podeDigitar(this.deps.aviso(quadroId)?.estado, this.deps.pronto(quadroId))
+  }
+
+  private reabrir(quadroId: string): void {
+    this.pendentes.delete(quadroId)
+    this.deps.reabrir(quadroId)
   }
 }

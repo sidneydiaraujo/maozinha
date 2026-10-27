@@ -48,6 +48,16 @@ export interface Contexto {
   time: ApresentadorTime
   /** Passar o trabalho adiante (T30.1): `digitou` zera o freio do time. */
   repasse: Repasse
+  /** O claude.exe ainda roda no terminal do quadro? Ele nao avisa quando sai (D39). */
+  temClaude(quadroId: string): Promise<boolean>
+}
+
+/** Pergunta ao Windows se o PowerShell do quadro tem um claude.exe filho (terminais/filhos.ts). */
+function temClaudeEm(terminais: ServicoTerminais): (quadroId: string) => Promise<boolean> {
+  return async (id) => {
+    const pid = terminais.pid(id)
+    return pid !== null && temClaudeDentro(pid, rodarReal)
+  }
 }
 
 /** Fila de mensagens aos agentes e apresentador do time (T29.1). */
@@ -56,6 +66,7 @@ function montarTime(d: {
   perfis: ServicoPerfis
   terminais: ServicoTerminais
   esperar(ms: number): Promise<void>
+  temClaude(quadroId: string): Promise<boolean>
 }): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; esquecer(quadroId: string): void } {
   const { armazem, perfis, terminais } = d
   const dados = (): DadosTime => {
@@ -75,12 +86,10 @@ function montarTime(d: {
   const mensagens = new FilaMensagens({
     aberto: (id) => terminais.estaAberto(id),
     aviso: (id) => terminais.aviso(id),
+    pronto: (id) => terminais.pronto(id),
     escrever: (id, dados) => terminais.escrever(id, dados),
     esperar: d.esperar,
-    temClaude: async (id) => {
-      const pid = terminais.pid(id)
-      return pid !== null && temClaudeDentro(pid, rodarReal)
-    },
+    temClaude: d.temClaude,
   }, (id, tipo) => repasse.aoDigitar(id, tipo))
   const time = new ApresentadorTime({
     dados,
@@ -95,6 +104,28 @@ function montarTime(d: {
     repasse.esquecer(id)
   }
   return { mensagens, time, repasse, esquecer }
+}
+
+/**
+ * Troca de modelo/esforco (D47): reabrir fecha o terminal, apaga o painel velho (`esquecerPainel`)
+ * e pede a tela para abrir de novo; o comando novo le o modelo salvo no quadro e retoma a conversa.
+ */
+function montarAjustes(
+  terminais: ServicoTerminais,
+  temClaude: (quadroId: string) => Promise<boolean>,
+  esquecerPainel: (quadroId: string) => void,
+): FilaAjustes {
+  return new FilaAjustes({
+    aberto: (id) => terminais.estaAberto(id),
+    aviso: (id) => terminais.aviso(id),
+    pronto: (id) => terminais.pronto(id),
+    temClaude,
+    reabrir: (id) => {
+      terminais.fechar(id)
+      esquecerPainel(id)
+      enviarParaJanelas(IPC.agentesReabrir, { quadroId: id })
+    },
+  })
 }
 
 /** Entrega um evento a todas as janelas abertas. */
@@ -169,7 +200,7 @@ export function criarContexto(): Contexto {
     aoEstado: (terminalId, aviso) => {
       enviarParaJanelas(IPC.terminaisEstado, { terminalId, aviso })
       avisos.aoEstado(terminalId, aviso)
-      // modelo/esforco pedidos com o agente trabalhando: digita quando ele parar (T19.1)
+      // modelo/esforco pedidos com o agente trabalhando: reabre quando ele parar (T19.1, D47)
       void ajustes.aoEstado(terminalId, aviso)
       // apresentacao do time pedida com o agente ocupado: digita quando ele parar (T29.1)
       void mensagens.aoEstado(terminalId, aviso)
@@ -177,13 +208,10 @@ export function criarContexto(): Contexto {
     },
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
-  const ajustes = new FilaAjustes({
-    aberto: (id) => terminais.estaAberto(id),
-    aviso: (id) => terminais.aviso(id),
-    escrever: (id, dados) => terminais.escrever(id, dados),
-    esperar,
-  })
-  const { mensagens, time, repasse, esquecer } = montarTime({ armazem, perfis, terminais, esperar })
+  const temClaude = temClaudeEm(terminais)
+  // `agentes` e criado logo abaixo; reabrir so roda quando o Sidney troca o modelo
+  const ajustes = montarAjustes(terminais, temClaude, (id) => agentes.esquecer(id))
+  const { mensagens, time, repasse, esquecer } = montarTime({ armazem, perfis, terminais, esperar, temClaude })
   const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
   const usos = new UsoDasContas()
   // linha de status dos agentes (T17.2, D24): fica so em <userData>\agentes
@@ -193,6 +221,11 @@ export function criarContexto(): Contexto {
     agora: Date.now,
     emitir: (quadroId, painel) => {
       enviarParaJanelas(IPC.agentesPainel, { quadroId, painel })
+      // a primeira linha de status: o Claude esta pronto para receber (D47)
+      if (terminais.marcarPronto(quadroId)) {
+        void ajustes.aoPronto(quadroId)
+        void mensagens.aoPronto(quadroId)
+      }
       // os limites de uso sao da conta, nao do quadro (T20.1)
       const perfilId = contaDoQuadro(quadros, quadroId)
       const uso = perfilId ? usos.aoPainel(perfilId, painel) : null
@@ -229,5 +262,5 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes, usos, time, repasse }
+  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes, usos, time, repasse, temClaude }
 }

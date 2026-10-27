@@ -16,11 +16,12 @@ const Ajustar = DoQuadro.extend({
     .refine((m) => m.modelo !== undefined || m.esforco !== undefined, 'Nada para mudar'),
 })
 
-type Servicos = Pick<Contexto, 'agentes' | 'quadros' | 'terminais' | 'ajustes' | 'usos'>
+type Servicos = Pick<Contexto, 'agentes' | 'quadros' | 'terminais' | 'ajustes' | 'usos' | 'temClaude'>
 
-export function registrarHandlersAgentes({ agentes, quadros, terminais, ajustes, usos }: Servicos): void {
+export function registrarHandlersAgentes({ agentes, quadros, terminais, ajustes, usos, temClaude }: Servicos): void {
   handle(IPC.perfisUso, z.undefined(), () => usos.todos(Date.now()))
-  // guarda no quadro (vale na proxima abertura) e, com o agente aberto, digita /model e /effort
+  // guarda no quadro (vale na proxima abertura) e, com o agente aberto e parado, reabre ele com o
+  // modelo novo na mesma conversa (D47: o /model gravaria o padrao da conta toda)
   handle(IPC.agentesAjustar, Ajustar, ({ quadroId, mudanca }) => {
     quadros.ajustar(quadroId, mudanca)
     return ajustes.pedir(quadroId, mudanca)
@@ -33,6 +34,8 @@ export function registrarHandlersAgentes({ agentes, quadros, terminais, ajustes,
         quadro: (id) => quadros.obter(id),
         aberto: (id) => terminais.estaAberto(id),
         aviso: (id) => terminais.aviso(id),
+        pronto: (id) => terminais.pronto(id),
+        temClaude,
         escrever: (id, dados) => terminais.escrever(id, dados),
         esperar: (ms) => new Promise((r) => setTimeout(r, ms)),
       },

@@ -65,6 +65,19 @@ function temOpcao(dados: unknown, nome: string): boolean {
 
 export const desenhoDaRodada = (c: Cenario): 'dom' | 'webgl' => desenhoDasOpcoes(lerDados(c.saida))
 
+/**
+ * A opcao `sem-claude` (`rodar.mjs time sem-claude`): o agente abre so o PowerShell, sem o
+ * claude.exe de verdade, e o cenario usa o Claude falso. Rodada leve: com varios agentes de
+ * verdade abertos de uma vez (seis no `time`) o PC ficou sem memoria em 21/10.
+ */
+export const semClaude = (dados: unknown): boolean => temOpcao(dados, 'sem-claude')
+
+/** `sem-claude` nesta rodada de prova; nunca no instalador nem fora de um cenario. */
+export function semClaudeNaRodada(argv: string[], empacotado: boolean): boolean {
+  const c = lerCenario(argv, empacotado)
+  return c !== null && semClaude(lerDados(c.saida))
+}
+
 /** Nome de foto vira nome de arquivo sem caminho: so letras, numeros, - e _. */
 export function nomeDaFoto(nome: unknown): string {
   const limpo = String(nome ?? '').replace(/[^\w-]+/g, '-').slice(0, 60)

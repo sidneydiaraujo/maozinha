@@ -1,6 +1,7 @@
 import { app } from 'electron'
 import { z } from 'zod'
 import { IPC } from '../../shared/ipc'
+import { semClaudeNaRodada } from '../cenario'
 import type { Contexto } from '../contexto'
 import { handle } from '../ipc'
 import { montarAmbiente } from '../perfis/ambiente'
@@ -22,6 +23,8 @@ type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'a
 export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, agentes, repasse }: Servicos): void {
   const home = app.getPath('home')
   const dados = app.getPath('userData') // login do gh de quem tem GitHub proprio (D42)
+  // so numa prova com a opcao sem-claude: o agente abre sem o claude.exe de verdade
+  const semClaude = semClaudeNaRodada(process.argv, app.isPackaged)
   handle(IPC.terminaisAbrir, Abrir, ({ alvo, cols, rows }) => {
     const r = resolverAlvo(alvo, {
       home,
@@ -38,7 +41,7 @@ export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, 
       env: montarAmbiente(r.perfil, process.env, dados),
       cols,
       rows,
-      comandoInicial: r.comandoInicial,
+      comandoInicial: semClaude ? undefined : r.comandoInicial,
       shell: r.shell,
       status: alvo.tipo === 'quadro',
     })

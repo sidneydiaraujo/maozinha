@@ -13,6 +13,7 @@ function fila(estados: Record<string, EstadoAgente | 'fechado'>, comClaude = tru
     },
     escrever: (id, dados) => void escrito.push(`${id}:${dados}`),
     esperar: async () => {},
+    pronto: () => false,
     temClaude: async () => comClaude,
   })
   return { f, escrito }
@@ -31,6 +32,25 @@ describe('FilaMensagens', () => {
     await f.aoEstado('a', { estado: 'parado' })
     expect(escrito).toEqual([])
     expect(f.pendente('a')).toBe('oi')
+  })
+
+  it('recem-aberto (sem estado): espera a linha de status; ao ficar pronto digita (D47)', async () => {
+    const escrito: string[] = []
+    let pronto = false
+    const f = new FilaMensagens({
+      aberto: () => true,
+      aviso: () => null,
+      escrever: (id, dados) => void escrito.push(`${id}:${dados}`),
+      esperar: async () => {},
+      pronto: () => pronto,
+      temClaude: async () => true,
+    })
+    await f.mandar('a', 'oi')
+    await f.aoPronto('a')
+    expect(escrito).toEqual([])
+    pronto = true
+    await f.aoPronto('a')
+    expect(escrito).toEqual(['a:oi', 'a:\r'])
   })
 
   it('trabalhando ou sem estado: espera; a mais nova substitui; ao parar digita uma vez', async () => {
@@ -79,6 +99,7 @@ describe('FilaMensagens', () => {
         aviso: () => ({ estado: 'trabalhando' }),
         escrever: (id, dados) => void escrito.push(`${id}:${dados}`),
         esperar: async () => {},
+        pronto: () => false,
         temClaude: async () => true,
       },
       (id, tipo) => tipos.push(`${id}:${tipo}`),

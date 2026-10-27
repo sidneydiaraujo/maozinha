@@ -49,6 +49,8 @@ interface Terminal {
   ouvintes: Descartavel[]
   leitor: LeitorStatus | null
   aviso: AvisoAgente | null
+  /** O Claude ja desenhou a linha de status neste terminal (D47): pronto para receber. */
+  pronto: boolean
 }
 
 const SHELL_PADRAO = { arquivo: 'powershell.exe', args: ['-NoLogo'] }
@@ -84,6 +86,7 @@ export class ServicoTerminais {
       ouvintes: [],
       leitor: p.status ? new LeitorStatus() : null,
       aviso: null,
+      pronto: false,
     }
     terminal.ouvintes.push(
       pty.onData((dados) => {
@@ -116,6 +119,18 @@ export class ServicoTerminais {
   /** Ultimo estado do agente (a tela que remonta comeca dele). */
   aviso(terminalId: string): AvisoAgente | null {
     return this.vivo(terminalId)?.aviso ?? null
+  }
+
+  /** A linha de status do agente rodou (D47). Devolve true so na primeira vez de cada terminal. */
+  marcarPronto(terminalId: string): boolean {
+    const t = this.vivo(terminalId)
+    if (!t || t.pronto) return false
+    t.pronto = true
+    return true
+  }
+
+  pronto(terminalId: string): boolean {
+    return this.vivo(terminalId)?.pronto ?? false
   }
 
   private vivo(terminalId: string): Terminal | undefined {
