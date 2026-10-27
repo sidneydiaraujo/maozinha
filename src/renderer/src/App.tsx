@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import type { AppInfo } from '../../shared/ipc'
 import type { Quadro, Repo } from '../../shared/model'
 import { mensagemDe } from './componentes/erro'
-import { Explorador } from './explorador/Explorador'
+import { Lateral } from './lateral/Lateral'
 import { Leitor } from './leitor/Leitor'
 import { useArquivoAberto } from './leitor/useArquivoAberto'
 import { pedirFoco, pedirNovaNota, pedirNovoQuadro } from './lousa/foco'
@@ -55,7 +55,7 @@ export function App(): React.JSX.Element {
     <div className="app">
       <BarraTopo contas={contas} versao={versao} motor={motor} quadros={pastas.quadros} />
       <div className="app-corpo">
-        <Explorador
+        <Lateral
           repos={pastas.repos}
           quadros={pastas.quadros}
           perfis={contas.perfis ?? []}

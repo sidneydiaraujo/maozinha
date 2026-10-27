@@ -35,6 +35,8 @@ export interface Ampliacao {
   ampliar(quadroId: string): void
   /** Enquadra o quadro sem zoom acima de 100% (Ctrl+K, notificacao); nao volta no segundo pedido. */
   irPara(quadroId: string): void
+  /** Amplia o quadro e fica ampliado (historico da lateral, D48): o segundo pedido nao volta. */
+  mostrar(quadroId: string): void
   /** O usuario mexeu na vista: o proximo ⤢ amplia de novo, em vez de voltar a uma vista antiga (D38). */
   esquecer(): void
 }
@@ -71,14 +73,25 @@ export function useAmpliar(
     },
     [instancia, area],
   )
+  const mostrar = useCallback(
+    (quadroId: string) => {
+      const flow = instancia.current
+      const tela = area.current?.getBoundingClientRect()
+      if (!flow || !tela || !flow.getNode(quadroId)) return
+      if (ampliado.current?.id === quadroId) enquadrar(flow, tela, quadroId, AMPLIAR)
+      else ampliar(quadroId)
+    },
+    [instancia, area, ampliar],
+  )
   return useMemo(
     () => ({
       ampliar,
       irPara,
+      mostrar,
       esquecer: () => {
         ampliado.current = null
       },
     }),
-    [ampliar, irPara],
+    [ampliar, irPara, mostrar],
   )
 }

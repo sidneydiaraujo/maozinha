@@ -18,7 +18,7 @@ import { mensagemDe } from '../componentes/erro'
 import { semQuadro, textoDoFim } from './copia'
 import { BarraEnvio } from './BarraEnvio'
 import { marcarSelecionados, useUltimoQuadro } from './alvos'
-import { aoPedirAviso, aoPedirFoco, aoPedirNovoQuadro } from './foco'
+import { aoPedirAviso, aoPedirFoco, aoPedirMostrar, aoPedirNovoQuadro } from './foco'
 import { algumQuadroVisivel, montarNos, type AcoesLousa } from './nos'
 import { montarNotas, type AcoesNota, type NoLousa } from './notas'
 import { NotaNode } from './NotaNode'
@@ -28,7 +28,7 @@ import { useNotas } from './useNotas'
 import { useNovoQuadro } from './useNovoQuadro'
 import { useVistasSalvas } from './useVistasSalvas'
 import { usePanoMeio } from './usePanoMeio'
-import { useAmpliar } from './useAmpliar'
+import { useAmpliar, type Ampliacao } from './useAmpliar'
 import { comContaTrocada } from './linhas'
 import { useLigacoes } from './useLigacoes'
 import { useMapaAtencao } from './useAtencao'
@@ -159,11 +159,12 @@ function useAvisarPastas(estado: EstadoTela | null, aoMudarPastas: Props['aoMuda
  * (T8.2); "Novo quadro em <pasta>" do Ctrl+K abre a janelinha com a pasta marcada (T12.1).
  */
 function usePedidos(
-  irPara: (quadroId: string) => void,
+  { irPara, mostrar }: Pick<Ampliacao, 'irPara' | 'mostrar'>,
   abrirNoCentro: (perfilId?: string, repoId?: string) => void,
   avisar: (texto: string) => void,
 ): void {
   useEffect(() => aoPedirFoco(irPara), [irPara])
+  useEffect(() => aoPedirMostrar(mostrar), [mostrar])
   useEffect(() => aoPedirNovoQuadro((repoId) => abrirNoCentro(undefined, repoId)), [abrirNoCentro])
   // "Enviado para 2 quadros" de uma mensagem mandada pelo Ctrl+K (T25.2)
   useEffect(() => aoPedirAviso(avisar), [avisar])
@@ -264,7 +265,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
     aoFalhar: falhou,
   })
   const aoApertarMeio = usePanoMeio(instancia, aoMoverVista, ampliacao.esquecer)
-  usePedidos(ampliacao.irPara, novo.abrirNoCentro, setAviso)
+  usePedidos(ampliacao, novo.abrirNoCentro, setAviso)
   const selecionados = useAlvos(nos)
   useMontarNos(estado, { quadros: acoes, notas: notas.acoes }, setNos)
   useVistasSalvas({ instancia, estado, setEstado, nos, setNos, aoMoverVista, avisar: setAviso })
