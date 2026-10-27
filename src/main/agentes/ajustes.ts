@@ -1,4 +1,4 @@
-// Trocar modelo e esforco de um agente aberto (T19.1, D25, D48). O `/model` e o `/effort` do
+// Trocar modelo e esforco de um agente aberto (T19.1, D25, D49). O `/model` e o `/effort` do
 // Claude gravam a escolha como padrao da CONTA (o VSCode e os outros quadros dela mudariam
 // junto); por isso a Lousa reabre o agente, ja com `--model`/`--effort` do quadro salvo, na
 // mesma conversa (`--resume`). So reabre com ele parado; trabalhando, espera ele parar.
@@ -8,7 +8,7 @@ import type { AjusteAgente, AvisoAgente, QuandoAjusta } from '../../shared/model
 export interface DepsAjustes {
   aberto(terminalId: string): boolean
   aviso(terminalId: string): AvisoAgente | null
-  /** O Claude ja desenhou a linha de status neste terminal (D48). */
+  /** O Claude ja desenhou a linha de status neste terminal (D49). */
   pronto(terminalId: string): boolean
   /** O claude.exe ainda roda no terminal? (ele nao avisa quando sai; terminais/filhos.ts) */
   temClaude(terminalId: string): Promise<boolean>

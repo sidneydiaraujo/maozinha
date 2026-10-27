@@ -12,7 +12,7 @@ describe('podeCompactar', () => {
   })
 })
 
-describe('podeDigitar (D48)', () => {
+describe('podeDigitar (D49)', () => {
   it('parado ou terminou, com ou sem linha de status', () => {
     expect(podeDigitar('parado', false)).toBe(true)
     expect(podeDigitar('terminou', false)).toBe(true)

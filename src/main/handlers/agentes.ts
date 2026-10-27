@@ -21,7 +21,7 @@ type Servicos = Pick<Contexto, 'agentes' | 'quadros' | 'terminais' | 'ajustes' |
 export function registrarHandlersAgentes({ agentes, quadros, terminais, ajustes, usos, temClaude }: Servicos): void {
   handle(IPC.perfisUso, z.undefined(), () => usos.todos(Date.now()))
   // guarda no quadro (vale na proxima abertura) e, com o agente aberto e parado, reabre ele com o
-  // modelo novo na mesma conversa (D48: o /model gravaria o padrao da conta toda)
+  // modelo novo na mesma conversa (D49: o /model gravaria o padrao da conta toda)
   handle(IPC.agentesAjustar, Ajustar, ({ quadroId, mudanca }) => {
     quadros.ajustar(quadroId, mudanca)
     return ajustes.pedir(quadroId, mudanca)

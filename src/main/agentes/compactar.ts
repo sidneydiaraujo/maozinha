@@ -1,6 +1,6 @@
 // Compactar a conversa de um agente (T18.1, D24). A tela so manda o id do quadro; o texto que vai
 // para o terminal e fixo e quem decide se pode e o main, pelo ultimo estado do OSC 7501 e pelo
-// sinal de pronto (D48), e so com o claude.exe rodando (sem ele, o texto cairia no PowerShell).
+// sinal de pronto (D49), e so com o claude.exe rodando (sem ele, o texto cairia no PowerShell).
 import { podeDigitar } from '../../shared/compactar'
 import type { AvisoAgente, Quadro } from '../../shared/model'
 
@@ -12,7 +12,7 @@ export interface DepsCompactar {
   /** O terminal do quadro (id = quadroId) esta rodando? */
   aberto(terminalId: string): boolean
   aviso(terminalId: string): AvisoAgente | null
-  /** O Claude ja desenhou a linha de status neste terminal (D48). */
+  /** O Claude ja desenhou a linha de status neste terminal (D49). */
   pronto(terminalId: string): boolean
   /** O claude.exe ainda roda no terminal? Ele nao avisa quando sai (D39). */
   temClaude(terminalId: string): Promise<boolean>

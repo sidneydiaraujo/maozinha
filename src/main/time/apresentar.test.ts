@@ -34,7 +34,7 @@ describe('FilaMensagens', () => {
     expect(f.pendente('a')).toBe('oi')
   })
 
-  it('recem-aberto (sem estado): espera a linha de status; ao ficar pronto digita (D48)', async () => {
+  it('recem-aberto (sem estado): espera a linha de status; ao ficar pronto digita (D49)', async () => {
     const escrito: string[] = []
     let pronto = false
     const f = new FilaMensagens({

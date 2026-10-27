@@ -15,7 +15,7 @@ function montar(aviso: AvisoAgente | null, opcoes: { aberto?: boolean; pronto?: 
   return { fila, reabertos, estado }
 }
 
-describe('FilaAjustes (D48: reabre o agente, nunca digita /model)', () => {
+describe('FilaAjustes (D49: reabre o agente, nunca digita /model)', () => {
   it('agente parado: reabre agora', async () => {
     const { fila, reabertos } = montar({ estado: 'parado' })
     expect(await fila.pedir('q1', { modelo: 'sonnet', esforco: 'high' })).toBe('agora')

@@ -79,7 +79,7 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 
 ## Fatia 19 — modelo e esforço no quadro
 
-- [ ] 47. Num agente parado (pode ser um recém-aberto, sem ter mandado nada), clique no rótulo do modelo no cabeçalho (ex.: "Opus 5.5 ▾") e escolha Sonnet: o agente fecha e volta sozinho em poucos segundos, na mesma conversa, e o rótulo passa a dizer Sonnet (D48: o `/model` do Claude mudaria o padrão da conta inteira; agora o VSCode e os outros quadros dessa conta continuam com o modelo deles). Clique no esforço ("alto ▾") e escolha "médio": o rótulo muda. Com o agente trabalhando, troque de novo: o balão diz "Vale quando o agente parar" e a troca acontece sozinha quando ele termina. Escolha "máximo" num modelo que não aceita: depois de uns segundos aparece "⚠" e o balão "Este modelo não aceita esse nível". Feche e abra a Lousa: o quadro volta com Sonnet/médio. Fable também aparece na lista.
+- [ ] 47. Num agente parado (pode ser um recém-aberto, sem ter mandado nada), clique no rótulo do modelo no cabeçalho (ex.: "Opus 5.5 ▾") e escolha Sonnet: o agente fecha e volta sozinho em poucos segundos, na mesma conversa, e o rótulo passa a dizer Sonnet (D49: o `/model` do Claude mudaria o padrão da conta inteira; agora o VSCode e os outros quadros dessa conta continuam com o modelo deles). Clique no esforço ("alto ▾") e escolha "médio": o rótulo muda. Com o agente trabalhando, troque de novo: o balão diz "Vale quando o agente parar" e a troca acontece sozinha quando ele termina. Escolha "máximo" num modelo que não aceita: depois de uns segundos aparece "⚠" e o balão "Este modelo não aceita esse nível". Feche e abra a Lousa: o quadro volta com Sonnet/médio. Fable também aparece na lista.
 
 ## Fatia 20 — uso de cada conta
 

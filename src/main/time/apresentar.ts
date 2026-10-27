@@ -59,7 +59,7 @@ export class FilaMensagens {
     return this.soltar(quadroId)
   }
 
-  /** O Claude acabou de ficar pronto (D48): o que esperava a abertura sai agora. */
+  /** O Claude acabou de ficar pronto (D49): o que esperava a abertura sai agora. */
   aoPronto(quadroId: string): Promise<void> {
     return this.livre(quadroId) ? this.soltar(quadroId) : Promise.resolve()
   }
