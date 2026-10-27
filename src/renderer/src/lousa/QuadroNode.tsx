@@ -4,6 +4,7 @@ import type { Perfil, Quadro, Repo } from '../../../shared/model'
 import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
+import '../estilos/cabecalho.css'
 import { AnelContexto } from './AnelContexto'
 import { brilhoDoQuadro, chamaAtencao, seloDoAviso } from './atencao'
 import { BolinhasTime } from './BolinhasTime'
@@ -175,7 +176,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
             </button>
           )}
           <button
-            className="botao-ampliar nodrag"
+            className="botao-ampliar botao-acao botao-acao-ampliar nodrag"
             title="Ampliar na tela (de novo para voltar)"
             aria-label={`Ampliar ${rotulo}`}
             onClick={() => acoes.ampliar(quadro.id)}
@@ -183,7 +184,8 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
             ⤢
           </button>
           <button
-            className="botao-fechar nodrag"
+            className="botao-fechar botao-acao botao-acao-fechar nodrag"
+            title="Fechar o quadro"
             aria-label={`Fechar ${rotulo}`}
             onClick={() => acoes.removerQuadro(quadro.id)}
           >

@@ -1,0 +1,114 @@
+/*
+ * Cabecalho do quadro (D47, pedido do Sidney em 27/10/2026): 10% maior que o de antes, letra
+ * Bahnschrift (vem com o Windows) mais viva, e os botoes de ampliar e fechar com fundo na cor
+ * da acao para achar de relance. Tudo dentro de .cabecalho-quadro: o resto do app nao muda.
+ */
+.cabecalho-quadro {
+  gap: 9px;
+  min-height: 31px;
+  padding: 4px 9px 4px 11px;
+  font-family: var(--cabecalho-fonte);
+  font-size: 13px;
+  color: var(--cabecalho-texto);
+  /* um toque da cor da conta no alto, sumindo para o cartao */
+  background: linear-gradient(180deg, color-mix(in srgb, var(--cor) 16%, var(--cartao)), var(--cartao));
+  border-bottom: 1px solid color-mix(in srgb, var(--cor) 30%, var(--borda));
+  box-sizing: border-box;
+}
+
+.cabecalho-quadro .quadro-pasta {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--cabecalho-texto);
+}
+
+.cabecalho-quadro button,
+.cabecalho-quadro input {
+  font-family: inherit;
+}
+
+/* pilulas (terminal, papel, modelo, esforco): borda e letra mais fortes */
+.cabecalho-quadro .etiqueta,
+.cabecalho-quadro .papel-quadro,
+.cabecalho-quadro .quadro-modelo {
+  padding: 1px 9px;
+  font-size: 12px;
+  color: var(--cabecalho-texto);
+  border-color: var(--borda-forte);
+}
+
+.cabecalho-quadro .papel-vazio {
+  color: var(--apagado);
+}
+
+.cabecalho-quadro .quadro-modelo-alerta {
+  color: var(--ambar);
+  border-color: var(--ambar);
+}
+
+.cabecalho-quadro .quadro-conta {
+  padding: 1px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  border-width: 1.5px;
+  background: color-mix(in srgb, var(--cor) 12%, transparent);
+}
+
+.cabecalho-quadro .selo-agente {
+  font-size: 12px;
+}
+
+/* 📎 colar print: mais claro que o cinza de antes */
+.cabecalho-quadro .botao-print {
+  color: var(--cabecalho-texto);
+}
+
+/* Botoes de acao: quadrado com fundo na cor da acao (azul amplia, vermelho fecha) */
+.cabecalho-quadro .botao-acao {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  padding: 0;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1;
+  border: 1px solid;
+  border-radius: var(--raio-m);
+  cursor: pointer;
+  transition:
+    background 0.12s,
+    color 0.12s;
+}
+
+.cabecalho-quadro .botao-acao-ampliar {
+  color: var(--acao-ampliar);
+  background: color-mix(in srgb, var(--acao-ampliar) 18%, transparent);
+  border-color: color-mix(in srgb, var(--acao-ampliar) 55%, transparent);
+}
+
+.cabecalho-quadro .botao-acao-ampliar:hover {
+  color: var(--principal-texto);
+  background: var(--acao-ampliar);
+}
+
+.cabecalho-quadro .botao-acao-fechar {
+  font-size: 19px;
+  color: var(--acao-fechar);
+  background: color-mix(in srgb, var(--acao-fechar) 18%, transparent);
+  border-color: color-mix(in srgb, var(--acao-fechar) 55%, transparent);
+}
+
+.cabecalho-quadro .botao-acao-fechar:hover {
+  color: var(--principal-texto);
+  background: var(--acao-fechar);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cabecalho-quadro .botao-acao {
+    transition: none;
+  }
+}

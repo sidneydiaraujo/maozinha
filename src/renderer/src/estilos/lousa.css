@@ -46,9 +46,13 @@
   width: 100%;
   height: 100%;
   background: var(--terminal-fundo, var(--quadro));
-  border: 1px solid var(--cor);
-  border-top: 3px solid var(--cor);
-  border-radius: var(--raio);
+  /* borda mais marcada (D47): o terminal se destaca da lousa */
+  border: 2px solid var(--cor);
+  border-top: 4px solid var(--cor);
+  border-radius: var(--raio-g);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--cor) 25%, transparent),
+    0 10px 28px color-mix(in srgb, black 45%, transparent);
   overflow: hidden;
 }
 

@@ -63,6 +63,12 @@
   --vidro: color-mix(in srgb, var(--painel) 82%, transparent);
   --vidro-filtro: blur(12px) saturate(1.2);
 
+  /* cabecalho do quadro (D47): letra mais viva e botoes com fundo na cor da acao */
+  --cabecalho-texto: #f6f3ea;
+  --cabecalho-fonte: Bahnschrift, 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif;
+  --acao-ampliar: #6fb8ff;
+  --acao-fechar: #ff6b5e;
+
   /* raios */
   --raio-p: 4px;
   --raio-m: 6px;
