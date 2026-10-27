@@ -14,6 +14,8 @@ import type { Contas } from './useContas'
 interface Props {
   contas: Contas
   versao: string
+  /** Dica do mouse na versao: o motor por baixo (D45). */
+  motor: string
   /** Na ordem da lousa: o botao "esperando voce" enquadra um por vez (T8.2). */
   quadros: Quadro[]
 }
@@ -42,7 +44,7 @@ function ChamadasAtencao({ quadros }: { quadros: Quadro[] }): React.JSX.Element 
   )
 }
 
-export function BarraTopo({ contas, versao, quadros }: Props): React.JSX.Element {
+export function BarraTopo({ contas, versao, motor, quadros }: Props): React.JSX.Element {
   const [painel, setPainel] = useState(false)
   const [abertoId, setAbertoId] = useState<string | null>(null)
   const fecharBalao = useCallback(() => setAbertoId(null), [])
@@ -75,8 +77,10 @@ export function BarraTopo({ contas, versao, quadros }: Props): React.JSX.Element
         {contas.erro && <span className="erro">{contas.erro}</span>}
       </div>
       <ChamadasAtencao quadros={quadros} />
-      <span className="topo-marca">Lousa.ia</span>
-      <span className="topo-versao">{versao}</span>
+      <span className="topo-marca">Salazar</span>
+      <span className="topo-versao" title={motor}>
+        {versao}
+      </span>
       {painel && <PainelContas contas={contas} aoFechar={fecharPainel} />}
     </header>
   )

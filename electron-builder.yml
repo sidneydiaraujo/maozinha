@@ -1,5 +1,6 @@
 appId: ia.lousa.app
-productName: Lousa.ia
+# nome que aparece no Windows (D45); o appId fica o mesmo para o instalador atualizar a Lousa.ia ja instalada
+productName: Salazar
 directories:
   output: release
 files:

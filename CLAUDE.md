@@ -1,6 +1,7 @@
-# Lousa.ia — instruções para o Claude
+# Salazar (antiga Lousa.ia) — instruções para o Claude
 
-App de desktop (Windows, Electron) com uma lousa onde cada quadro é um terminal
+O nome visível é **Salazar** (D45); no código, no repositório e na pasta de dados continua
+`lousa-ia`. App de desktop (Windows, Electron) com uma lousa onde cada quadro é um terminal
 de IA. Cada quadro pertence a uma **conta** (Claude Code ou Codex/ChatGPT) e já nasce
 nela; o repositório só tem a conta padrão. Dor nº 1 a resolver: usar duas contas
 lado a lado, no mesmo repo ou em repos diferentes, sem configuração
@@ -56,7 +57,7 @@ nunca só na memória de uma conta.
 | `npm run check` | Tipos + lint + testes. Obrigatório antes de commitar |
 | `npm run smoke` | Build + prova sem janela: terminal real e tela falando com o main. Usa a pasta de dados `%TEMP%\lousa-ia-smoke`, nunca a da Lousa instalada |
 | `npm run build` | Só compila para `out/` |
-| `node provas/rodar.mjs <cenario>` | Prova na janela real (escondida) com estado de teste: `fatia8`, `colar-e-reabrir`, `vivo`, `desempenho`, `copias`, `juntar`, `paleta`, `envio`, `prontas`, `anel`, `notas`, `vistas`, `selecao`, `ampliar`, `modelo`, `uso`, `git-conta`, `repasse`, `juntar-time`. Ver `provas/README.md` |
+| `node provas/rodar.mjs <cenario>` | Prova na janela real (escondida) com estado de teste: `fatia8`, `colar-e-reabrir`, `vivo`, `desempenho`, `copias`, `juntar`, `paleta`, `envio`, `prontas`, `anel`, `notas`, `vistas`, `selecao`, `ampliar`, `modelo`, `uso`, `git-conta`, `repasse`, `juntar-time`, `zoom-de-cima`. Ver `provas/README.md` |
 
 Sempre pelos scripts do npm (ou pelo `provas/rodar.mjs`): eles removem
 `ELECTRON_RUN_AS_NODE`, que vem ligado quando o terminal é do VS Code e faz o

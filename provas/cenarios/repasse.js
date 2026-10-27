@@ -63,7 +63,7 @@
     await ate(() => /Limite/.test(rotulo() ?? ''), 80)
     await espera(1500)
     r.recebidosAntesDoFreio = recebidos()
-    r.textoDoRepasse = semEspaco('a2').includes('RECEBI1:[Lousa]SeucolegaClaude1terminouedisse:"construiologin1".')
+    r.textoDoRepasse = semEspaco('a2').includes('RECEBI1:[Salazar]SeucolegaClaude1terminouedisse:"construiologin1".')
     r.rotuloLimite = rotulo()
     r.pausadaNoMain = (await linha())?.pausada === true
     await prova.foto('2-limite')

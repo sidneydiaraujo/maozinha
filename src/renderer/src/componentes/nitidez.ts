@@ -3,19 +3,36 @@
 // estica ou encolhe a imagem pronta e a letra borra (print de 20/10/2026). Aqui o terminal
 // desfaz o zoom da lousa (scale 1/zoom), ocupa o mesmo lugar na tela e desenha a letra ja no
 // tamanho final (fonte x zoom). Tambem encosta o canvas no pixel inteiro, senao borra de novo.
+// D46: so redesenha quando alguem consegue ler; com a lousa vista de cima, o terminal para.
 import type { Terminal } from '@xterm/xterm'
 
-/** Abaixo disso (lousa bem afastada) a letra nao se le de jeito nenhum: fica a imagem encolhida. */
+/**
+ * Letra na tela (px) abaixo da qual ninguem le (A1). O quadro em que o usuario esta ainda desenha
+ * nitido ate aqui; os outros param de desenhar (D46).
+ */
 export const FONTE_MINIMA_NITIDA = 6
+/** Quadro sem o foco so redesenha nitido no zoom com a letra legivel; abaixo, so a imagem (D46). */
+export const LETRA_LEGIVEL = 9
+
+/**
+ * Como o terminal se desenha neste zoom (D46). Puro.
+ * - nitido: desfaz o zoom da lousa e redesenha com a letra no tamanho da tela (A1);
+ * - imagem: a imagem de 100% esticada ou encolhida, sem redesenhar a cada zoom;
+ * - pausado: letra miuda demais (lousa vista de cima): o xterm para de desenhar e o quadro mostra
+ *   a capa. O quadro com o foco (onde o usuario esta) nunca pausa e e nitido desde a minima.
+ */
+export type Desenho = 'nitido' | 'imagem' | 'pausado'
+
+export function desenhoNoZoom(zoom: number, fonte: number, ativo: boolean): Desenho {
+  if (!(zoom > 0)) return 'imagem'
+  const naTela = fonte * zoom
+  if (naTela < FONTE_MINIMA_NITIDA) return ativo ? 'imagem' : 'pausado'
+  if (Math.abs(zoom - 1) < 0.005) return 'imagem'
+  return naTela >= (ativo ? FONTE_MINIMA_NITIDA : LETRA_LEGIVEL) ? 'nitido' : 'imagem'
+}
 
 /** Margem do terminal a 100% (igual ao terminal.css): em cima e a esquerda, em px. */
 const MARGEM = { topo: 6, esquerda: 8 }
-
-/** Zoom a desfazer, ou null quando nao precisa (100%) ou nao adianta (letra miuda demais). Puro. */
-export function zoomACompensar(zoom: number, fonte: number): number | null {
-  if (!(zoom > 0) || Math.abs(zoom - 1) < 0.005) return null
-  return fonte * zoom < FONTE_MINIMA_NITIDA ? null : zoom
-}
 
 /** Tamanho da letra ja na tela, em meios pixels (o xterm mede a celula com ele). Puro. */
 export function fonteNaTela(fonte: number, zoom: number): number {
@@ -34,15 +51,28 @@ export interface Nitidez {
   /** Tamanho da letra a 100% (Ctrl+roda, Aparencia). */
   fonte(base: number): void
   base(): number
+  /** O usuario entrou ou saiu deste terminal (foco do teclado). */
+  ativo(ativo: boolean): void
   /** A lousa foi arrastada: encosta o canvas no pixel inteiro de novo. */
   alinhar(): void
 }
 
-/** `el` e o recipiente do xterm; `reajustar` recalcula colunas e linhas (acompanharTamanho). */
-export function ligarNitidez(el: HTMLElement, term: Terminal, base: number, reajustar: () => void): Nitidez {
+/**
+ * `el` e o recipiente do xterm; `reajustar` recalcula colunas e linhas (acompanharTamanho);
+ * `aoPausar` avisa a tela para mostrar ou tirar a capa do quadro.
+ */
+export function ligarNitidez(
+  el: HTMLElement,
+  term: Terminal,
+  base: number,
+  { reajustar, aoPausar }: { reajustar(): void; aoPausar(pausado: boolean): void },
+): Nitidez {
   let zoomAtual = 1
   let fonteBase = base
+  let comFoco = false
+  let pausado = false
   let compensado: number | null = null
+  let aplicado = ''
   const transformar = (z: number, dx = 0, dy = 0): void => {
     el.style.transform = `scale(${1 / z}) translate(${dx}px, ${dy}px)`
   }
@@ -53,8 +83,22 @@ export function ligarNitidez(el: HTMLElement, term: Terminal, base: number, reaj
     const dpr = window.devicePixelRatio
     transformar(compensado, ajusteSubpixel(caixa.left, dpr), ajusteSubpixel(caixa.top, dpr))
   }
+  // escondido, o xterm para de desenhar sozinho (ele observa se a tela dele aparece); o recipiente
+  // fica do mesmo tamanho, entao colunas e linhas nao mudam e o programa nao e avisado
+  const pausar = (sim: boolean): void => {
+    if (sim === pausado) return
+    pausado = sim
+    if (term.element) term.element.style.display = sim ? 'none' : ''
+    aoPausar(sim)
+  }
   const aplicar = (): void => {
-    compensado = zoomACompensar(zoomAtual, fonteBase)
+    const desenho = desenhoNoZoom(zoomAtual, fonteBase, comFoco)
+    pausar(desenho === 'pausado')
+    compensado = desenho === 'nitido' ? zoomAtual : null
+    // imagem (ou pausa) com a mesma letra nao precisa de nada: e o que poupa o zoom afastado
+    const chave = `${compensado ?? '-'}|${fonteBase}`
+    if (chave === aplicado) return
+    aplicado = chave
     const s = el.style
     if (compensado === null) {
       s.width = s.height = s.padding = s.transform = s.transformOrigin = ''
@@ -81,6 +125,11 @@ export function ligarNitidez(el: HTMLElement, term: Terminal, base: number, reaj
       aplicar()
     },
     base: () => fonteBase,
+    ativo: (a) => {
+      if (a === comFoco) return
+      comFoco = a
+      aplicar()
+    },
     alinhar,
   }
 }

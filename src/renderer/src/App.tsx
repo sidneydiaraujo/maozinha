@@ -47,11 +47,13 @@ export function App(): React.JSX.Element {
   const aoMudarPastas = useCallback((repos: Repo[], quadros: Quadro[]) => setPastas({ repos, quadros }), [])
   const abrir = useCallback((repoId: string, relativo: string) => void abrirArquivo(repoId, relativo), [abrirArquivo])
 
-  // O `npm run smoke` procura "Electron <versao>" na tela: fica no canto da barra de cima.
-  const versao = info ? `v${info.version} · Electron ${info.electron}` : ''
+  // O `npm run smoke` procura "Sidi v<versao>" na tela: fica no canto da barra de cima (D45).
+  // O Electron continua por baixo; a versao dele fica na dica do mouse.
+  const versao = info ? `Sidi v${info.version}` : ''
+  const motor = info ? `Feito sobre o Electron ${info.electron}` : ''
   return (
     <div className="app">
-      <BarraTopo contas={contas} versao={versao} quadros={pastas.quadros} />
+      <BarraTopo contas={contas} versao={versao} motor={motor} quadros={pastas.quadros} />
       <div className="app-corpo">
         <Explorador
           repos={pastas.repos}

@@ -180,7 +180,7 @@ export class ServicoQuadros {
     if (!quadro) throw new Error('Quadro não encontrado')
     if (quadro.tipo !== 'agente') throw new Error('Só um agente troca de modelo')
     if (this.deps.perfis.obter(quadro.perfilId).provedor !== 'claude') {
-      throw new Error('Por enquanto só o Claude troca de modelo pela Lousa')
+      throw new Error('Por enquanto só o Claude troca de modelo pelo Salazar')
     }
     if (mudanca.modelo !== undefined && !MODELOS.includes(mudanca.modelo)) throw new Error('Modelo desconhecido')
     if (mudanca.esforco !== undefined && !ESFORCOS.includes(mudanca.esforco)) throw new Error('Esforço desconhecido')
