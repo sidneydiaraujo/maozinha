@@ -43,7 +43,7 @@ export function criarJanelaPrincipal(opcoes: Opcoes): BrowserWindow {
   const janela = new BrowserWindow({
     ...(salvo ? { x: salvo.x, y: salvo.y, width: salvo.largura, height: salvo.altura } : { width: 1400, height: 900 }),
     show: false,
-    title: 'Lousa.ia',
+    title: 'Salazar',
     backgroundColor: '#111318',
     autoHideMenuBar: true,
     webPreferences: { ...secureWebPreferences, preload: join(__dirname, '../preload/index.js') },

@@ -25,7 +25,7 @@ export async function rodarSmoke(): Promise<number> {
 async function provarTela(cenario: Cenario | null): Promise<boolean> {
   const domNaProva = cenario !== null && desenhoDaRodada(cenario) === 'dom'
   const janela = criarJanelaPrincipal({ mostrar: false, ...(domNaProva ? { desenho: 'dom' as const } : {}) })
-  const esperado = `Electron ${process.versions.electron}`
+  const esperado = `Sidi v${app.getVersion()}`
   const limite = Date.now() + (cenario ? PRAZO_TELA_CENARIO_MS : PRAZO_TELA_MS)
   while (Date.now() < limite) {
     await new Promise((r) => setTimeout(r, 300))

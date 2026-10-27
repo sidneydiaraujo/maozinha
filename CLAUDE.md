@@ -1,6 +1,7 @@
-# Lousa.ia — instruções para o Claude
+# Salazar (antiga Lousa.ia) — instruções para o Claude
 
-App de desktop (Windows, Electron) com uma lousa onde cada quadro é um terminal
+O nome visível é **Salazar** (D45); no código, no repositório e na pasta de dados continua
+`lousa-ia`. App de desktop (Windows, Electron) com uma lousa onde cada quadro é um terminal
 de IA. Cada quadro pertence a uma **conta** (Claude Code ou Codex/ChatGPT) e já nasce
 nela; o repositório só tem a conta padrão. Dor nº 1 a resolver: usar duas contas
 lado a lado, no mesmo repo ou em repos diferentes, sem configuração
