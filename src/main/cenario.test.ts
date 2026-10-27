@@ -2,7 +2,16 @@ import { join } from 'node:path'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('./log', () => ({ log: vi.fn() }))
-const { comMovimento, desenhoDasOpcoes, lerCenario, nomeDaFoto, pastaDoSmoke } = await import('./cenario')
+const { comMovimento, desenhoDasOpcoes, lerCenario, nomeDaFoto, pastaDoSmoke, usaPastaReal } = await import('./cenario')
+
+describe('usaPastaReal (D45)', () => {
+  it('so na abertura normal; smoke e provas (--user-data-dir) ficam na pasta de teste', () => {
+    expect(usaPastaReal(['electron', '.'])).toBe(true)
+    expect(usaPastaReal(['electron', '.', '--smoke'])).toBe(false)
+    expect(usaPastaReal(['electron', '.', '--smoke', '--user-data-dir=C:/prova/dados'])).toBe(false)
+    expect(usaPastaReal(['electron', '.', '--user-data-dir=C:/x'])).toBe(false)
+  })
+})
 
 describe('pastaDoSmoke', () => {
   it('npm run smoke nunca usa a pasta de dados de verdade', () => {

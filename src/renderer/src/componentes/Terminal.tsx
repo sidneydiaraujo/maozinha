@@ -24,6 +24,8 @@ interface Props {
   arquivos?: AcoesLink['arquivo']
   /** Zoom da lousa: o terminal redesenha a letra no tamanho da tela (A1). Sem ele, 100%. */
   zoom?: number
+  /** Mostrada no lugar do terminal com a lousa vista de cima (D46): o xterm para de desenhar. */
+  capa?: React.ReactNode
 }
 
 const chaveDoAlvo = (alvo: AlvoTerminal): string =>
@@ -132,15 +134,43 @@ function acompanharTamanho(
   }
 }
 
+/** O ultimo terminal em que o usuario clicou ou digitou: so ele fica nitido de longe (D46). */
+let terminalAtivo: Nitidez | null = null
+
+/**
+ * Clique ou foco aqui torna este o terminal ativo (e tira do anterior). Sair dele (clicar num
+ * botao, na lousa, dar zoom) nao tira: ativo e onde o usuario esta trabalhando. E a lousa parou
+ * de mexer: o canvas volta ao pixel inteiro.
+ */
+function ligarEventosNitidez(el: HTMLElement, nitidez: Nitidez): () => void {
+  const entrou = (): void => {
+    if (terminalAtivo === nitidez) return
+    terminalAtivo?.ativo(false)
+    terminalAtivo = nitidez
+    nitidez.ativo(true)
+  }
+  // na captura: o xterm segura alguns eventos do mouse antes de subirem
+  el.addEventListener('focusin', entrou, true)
+  el.addEventListener('pointerdown', entrou, true)
+  window.addEventListener(EVENTO_VISTA_PAROU, nitidez.alinhar)
+  return () => {
+    if (terminalAtivo === nitidez) terminalAtivo = null
+    window.removeEventListener(EVENTO_VISTA_PAROU, nitidez.alinhar)
+    el.removeEventListener('focusin', entrou, true)
+    el.removeEventListener('pointerdown', entrou, true)
+  }
+}
+
 /**
  * Terminal xterm.js ligado a um terminal que vive no main (D8): desmontar
  * este componente NAO fecha o terminal, so para de mostrá-lo.
  */
-export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1 }: Props): React.JSX.Element {
+export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1, capa }: Props): React.JSX.Element {
   const recipiente = useRef<HTMLDivElement>(null)
   const nitidez = useRef<Nitidez | null>(null)
   // Ctrl+F (T12.2): o xterm vivo fica aqui para a busca ler o historico
   const [busca, setBusca] = useState<XTerm | null>(null)
+  const [pausado, setPausado] = useState(false)
   const atual = useRef({ alvo, aoSair, aoAviso, arquivos, zoom })
   atual.current = { alvo, aoSair, aoAviso, arquivos, zoom }
   const chave = chaveDoAlvo(alvo)
@@ -182,17 +212,18 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1 }: Props): 
     const links = ligarLinks(term, acoesLink)
     const desligarSoltar = ligarSoltar(el, (texto) => term.paste(texto))
     const tamanho = acompanharTamanho(el, term, ajustar, () => terminalId)
-    const nitido = ligarNitidez(el, term, lerFonte(chave), tamanho.reajustar)
+    const nitido = ligarNitidez(el, term, lerFonte(chave), { reajustar: tamanho.reajustar, aoPausar: setPausado })
     nitido.zoom(atual.current.zoom)
+    const desligarEventos = ligarEventosNitidez(el, nitido)
     nitidez.current = nitido
-    window.addEventListener(EVENTO_VISTA_PAROU, nitido.alinhar)
     ligarFonte(term, chave, nitido)
     const pararAparencia = ligarAparencia(term, chave, nitido)
 
     return () => {
       ativo = false
       nitidez.current = null
-      window.removeEventListener(EVENTO_VISTA_PAROU, nitido.alinhar)
+      desligarEventos()
+      setPausado(false)
       pararAparencia()
       tamanho.parar()
       links.dispose()
@@ -217,6 +248,7 @@ export function Terminal({ alvo, aoSair, aoAviso, arquivos, zoom = 1 }: Props): 
   return (
     <div className="terminal-moldura">
       <div ref={recipiente} className="terminal nodrag nowheel" />
+      {pausado && capa}
       {busca && <BuscaTerminal term={busca} aoFechar={() => setBusca(null)} />}
     </div>
   )

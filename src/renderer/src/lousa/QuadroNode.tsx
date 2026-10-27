@@ -28,6 +28,22 @@ function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | nul
 }
 
 /**
+ * Lousa vista de cima (D46): o terminal para de desenhar e o quadro diz, em letra grande, quem e,
+ * onde trabalha e o estado do agente. Le-se mesmo com a lousa bem afastada.
+ */
+function CapaQuadro({ quadro, repo }: { quadro: Quadro; repo: Repo }): React.JSX.Element {
+  const aviso = useAtencao(quadro.id)?.aviso
+  const selo = aviso ? seloDoAviso(aviso) : null
+  return (
+    <div className="quadro-capa" aria-hidden="true">
+      <strong>{quadro.papel || quadro.titulo}</strong>
+      <span>{repo.nome}</span>
+      {selo && <span className={`quadro-capa-estado ${selo.classe}`}>{selo.texto}</span>}
+    </div>
+  )
+}
+
+/**
  * So no agente com o terminal aberto: modelo e esforco (T19.2, so Claude), anel de contexto
  * (T18.1) e 📎 colar print (T16.1).
  */
@@ -79,6 +95,7 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
         aoAviso={(aviso) => atencao.aplicar(quadro.id, aviso)}
         arquivos={arquivos}
         zoom={zoom}
+        capa={<CapaQuadro quadro={quadro} repo={repo} />}
       />
       {encerrado && (
         <div className="quadro-encerrado nodrag" role="status">

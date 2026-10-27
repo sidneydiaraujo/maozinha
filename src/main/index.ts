@@ -2,7 +2,7 @@ import { app, BrowserWindow, session } from 'electron'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { AvisosDoWindows } from './avisos/notificar'
-import { pastaDoSmoke } from './cenario'
+import { pastaDoSmoke, usaPastaReal } from './cenario'
 import { criarContexto, type Contexto } from './contexto'
 import { rodarGitReal } from './copias/git'
 import { registrarHandlersAgentes } from './handlers/agentes'
@@ -95,8 +95,8 @@ function focarJanelaExistente(): void {
 }
 
 // O nome no Windows virou Salazar (D45), mas os dados (estado, contas, logins do gh) continuam em
-// %APPDATA%/lousa-ia: fixado aqui para nao depender do nome do pacote. O smoke troca logo abaixo.
-app.setPath('userData', join(app.getPath('appData'), 'lousa-ia'))
+// %APPDATA%/lousa-ia, fixado para nao depender do nome do pacote (nunca no smoke nem nas provas)
+if (usaPastaReal(process.argv)) app.setPath('userData', join(app.getPath('appData'), 'lousa-ia'))
 
 if (process.argv.includes('--smoke')) {
   // antes de registrarCanais: o contexto le o estado de dentro da pasta de dados

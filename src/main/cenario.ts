@@ -44,6 +44,14 @@ export function pastaDoSmoke(argv: string[], temporaria: string): string | null 
   return argv.some((a) => a.startsWith('--user-data-dir')) ? null : join(temporaria, 'lousa-ia-smoke')
 }
 
+/**
+ * A pasta de dados real fica fixa em %APPDATA%/lousa-ia (D45) so na abertura normal: no smoke e nas
+ * provas (--user-data-dir) vale a pasta de teste, e a real nunca pode ser tocada. Puro.
+ */
+export function usaPastaReal(argv: string[]): boolean {
+  return !argv.some((a) => a === '--smoke' || a.startsWith('--user-data-dir'))
+}
+
 /** O `dados.json` que o provas/rodar.mjs grava na saida (caminhos e opcoes da rodada). */
 function lerDados(saida: string): unknown {
   const arquivo = join(saida, 'dados.json')
