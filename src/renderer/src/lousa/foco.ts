@@ -11,6 +11,18 @@ export function aoPedirFoco(cb: (quadroId: string) => void): () => void {
   return () => ouvintes.delete(cb)
 }
 
+// Clique num terminal do historico da lateral (D48): a lousa leva ate ele, ampliado.
+const ouvintesMostrar = new Set<(quadroId: string) => void>()
+
+export function pedirMostrar(quadroId: string): void {
+  for (const ouvinte of ouvintesMostrar) ouvinte(quadroId)
+}
+
+export function aoPedirMostrar(cb: (quadroId: string) => void): () => void {
+  ouvintesMostrar.add(cb)
+  return () => ouvintesMostrar.delete(cb)
+}
+
 // Ctrl+K "Novo quadro em <pasta>" (T12.1): a lousa abre a janelinha com a pasta marcada.
 const ouvintesNovo = new Set<(repoId: string) => void>()
 

@@ -21,6 +21,10 @@ interface Props {
   selecionado: Selecao | null
   aviso: string | null
   aoAbrir(repoId: string, relativo: string): void
+  /** As abas "Pastas | Historico" no alto (D48). */
+  abas: React.ReactNode
+  /** Com a aba "Historico" a mostra: fica montada (a arvore guarda o que estava aberto). */
+  oculto: boolean
 }
 
 /** Uma bolinha na cor da conta de cada quadro aberto nesta pasta. */
@@ -80,7 +84,8 @@ function LinhaArvore({ linha, selecionada, extra, aoClicar }: LinhaProps): React
   )
 }
 
-export function Explorador({ repos, quadros, perfis, selecionado, aviso, aoAbrir }: Props): React.JSX.Element {
+export function Explorador(props: Props): React.JSX.Element {
+  const { repos, quadros, perfis, selecionado, aviso, aoAbrir } = props
   const { linhas, alternar, recolherTudo, aoMudarArquivos } = useArvore(repos)
 
   useEffect(() => window.lousa.arquivos.aoMudar(aoMudarArquivos), [aoMudarArquivos])
@@ -95,9 +100,9 @@ export function Explorador({ repos, quadros, perfis, selecionado, aviso, aoAbrir
   useEffect(() => () => vigiarPastas('arvore', []), [])
 
   return (
-    <aside className="explorador" aria-label="Pastas">
+    <aside className="explorador" aria-label="Pastas" hidden={props.oculto}>
       <header className="explorador-topo">
-        <h2 className="barra-titulo">Pastas</h2>
+        {props.abas}
         {repos.length > 0 && (
           <button className="botao-pequeno" title="Fechar todas as pastas" onClick={recolherTudo}>
             Recolher

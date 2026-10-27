@@ -1,0 +1,99 @@
+/* Abas da lateral e a aba "Historico" (D48). */
+.explorador[hidden] {
+  display: none;
+}
+
+.abas-lateral {
+  display: flex;
+  gap: 2px;
+  padding: 10px 10px 6px;
+}
+
+.aba-lateral {
+  padding: 4px 8px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--apagado);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+}
+
+.aba-lateral:hover {
+  color: var(--texto);
+}
+
+.aba-lateral-ativa {
+  color: var(--texto);
+  border-bottom-color: var(--destaque);
+}
+
+.historico-lista {
+  flex: 1;
+  margin: 0;
+  padding: 4px 0 12px;
+  overflow: auto;
+  list-style: none;
+}
+
+.historico-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 14px;
+  font: inherit;
+  text-align: left;
+  color: var(--texto);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.historico-item:hover:not(:disabled) {
+  background: var(--cartao);
+}
+
+.historico-item:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.historico-item .bolinha {
+  margin-top: 5px;
+}
+
+.historico-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.historico-nome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historico-tipo {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--apagado);
+}
+
+.historico-detalhe {
+  font-size: 11px;
+  color: var(--apagado);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -218,3 +218,9 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Cabeçalho ~10% maior:** de ~28 para 31 a 32 px de altura, letra de 12 para 13 px e o nome da pasta de 13 para 15 px.
   - **Letra Bahnschrift:** vem com o Windows 10 e 11, então não entra dependência nem arquivo de fonte; sem ela, cai para Segoe UI. Só no cabeçalho do quadro: o resto do app segue em Segoe UI.
   - **Botões com fundo na cor da ação:** ⤢ azul (`--acao-ampliar`) e × vermelho (`--acao-fechar`), em quadrados de 23 px; ao passar o mouse, o fundo enche. Pílulas (terminal, papel, modelo, conta) com letra e borda mais fortes, e um degradê da cor da conta no alto do cabeçalho.
+- **D48 (27/10/2026, Sidney: "ao lado de PASTAS quero uma aba de histórico de sessão do programa… clicar na linha… lançado para onde estiver o terminal no espaço de modo expandido"):** aba **Histórico** na lateral.
+  - **Sessão = desde que o programa abriu**, só na memória da tela (não grava nada). Os quadros que já estavam na lousa entram na abertura.
+  - **Cada linha:** bolinha na cor da conta, nome (papel no time ou título), "agente"/"terminal" e, embaixo, "pasta · conta · estado do agente · há 5 min". O mais recente em cima: sobe quando o agente muda de estado (na hora) ou quando o terminal mostra algo (anotado e aplicado a cada 5 s, para a lateral não redesenhar a cada pedaço de saída).
+  - **Clique = ir até o terminal, ampliado** (`mostrar` no `useAmpliar`, o mesmo enquadramento do ⤢); clicar de novo não volta (o ⤢ do quadro continua voltando para a vista de antes).
+  - **Fechado fica no fim**, apagado e sem clique, com "fechado há X": é registro do que passou pela sessão. Desfazer o fechamento reabre a linha.
+  - **As duas abas ficam montadas** e só uma aparece: a árvore guarda as pastas abertas e o histórico continua acompanhando enquanto está escondido.
