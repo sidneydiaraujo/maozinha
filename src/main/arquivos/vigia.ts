@@ -58,6 +58,11 @@ export class VigiaArquivos {
     }
   }
 
+  /** Arquivo que o proprio main criou (o KANBAN.md, D52): a tela rele a pasta mesmo que o vigia dela ainda nao rodasse. */
+  avisarAgora(repoId: string, caminhos: string[]): void {
+    this.avisar(repoId, caminhos)
+  }
+
   fecharTodos(): void {
     for (const chave of [...this.vigiadas.keys()]) this.parar(chave)
     if (this.relogio) clearTimeout(this.relogio)

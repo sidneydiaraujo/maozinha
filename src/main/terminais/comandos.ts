@@ -17,6 +17,16 @@ export interface ExtrasAgente {
   settings?: string
   modelo?: Modelo
   esforco?: Esforco
+  /** Texto acrescentado as instrucoes do Claude (o kanban, D52); vira uma linha so. */
+  regra?: string
+}
+
+/** `--append-system-prompt` com a regra numa linha so; vazia, nada. */
+function argumentoRegra(regra: string | undefined): string | null {
+  // caractere de controle no meio viraria Enter: o resto da linha seria outro comando
+  // eslint-disable-next-line no-control-regex
+  const linha = regra?.replace(/[\u0000-\u001f\u007f]/g, ' ').trim()
+  return linha ? `--append-system-prompt ${literalPowerShell(linha)}` : null
 }
 
 /** Com conversa: retoma se ja existe, senao abre uma nova com o id que o Lousa escolheu. */
@@ -26,6 +36,8 @@ export function comandoAgente(provedor: Provedor, sessao?: SessaoAgente, extras:
   if (extras.settings) partes.push(`--settings ${literalPowerShell(extras.settings)}`)
   if (extras.modelo && MODELOS.includes(extras.modelo)) partes.push(`--model ${extras.modelo}`)
   if (extras.esforco && ESFORCOS.includes(extras.esforco)) partes.push(`--effort ${extras.esforco}`)
+  const regra = argumentoRegra(extras.regra)
+  if (regra) partes.push(regra)
   const base = partes.join(' ')
   if (!sessao || !FORMATO_SESSAO.test(sessao.id)) return `${base}\r`
   return sessao.existe ? `${base} --resume ${sessao.id}\r` : `${base} --session-id ${sessao.id}\r`

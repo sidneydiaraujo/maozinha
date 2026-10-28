@@ -21,19 +21,24 @@ export interface DepsAlvo {
   existeSessao(configDir: string, sessaoId: string): boolean
   /** Grava o settings da linha de status do agente (T17.2) e devolve o caminho; null = sem painel. */
   settingsDoAgente?(quadroId: string): string | null
+  /** Garante o KANBAN.md do projeto (D52) e devolve a regra para o agente; null = sem kanban. */
+  kanbanDoQuadro?(quadro: Quadro): string | null
 }
 
-/** So o agente Claude ganha a linha de status: o Codex nao tem `--settings`. */
+/** So o agente Claude ganha a linha de status e a regra do kanban: o Codex nao tem as opcoes. */
 function comandoDoQuadro(quadro: Quadro, perfil: Perfil, deps: DepsAlvo): string | undefined {
   if (quadro.tipo !== 'agente') return undefined
   const sessao = quadro.sessaoId
     ? { id: quadro.sessaoId, existe: deps.existeSessao(perfil.configDir, quadro.sessaoId) }
     : undefined
   const settings = perfil.provedor === 'claude' ? deps.settingsDoAgente?.(quadro.id) : null
+  // todo agente garante o kanban do projeto; so o Claude recebe a regra (o Codex nao tem a opcao)
+  const regra = deps.kanbanDoQuadro?.(quadro) ?? null
   return comandoAgente(perfil.provedor, sessao, {
     settings: settings ?? undefined,
     modelo: quadro.modelo,
     esforco: quadro.esforco,
+    regra: perfil.provedor === 'claude' ? (regra ?? undefined) : undefined,
   })
 }
 

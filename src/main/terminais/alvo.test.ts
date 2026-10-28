@@ -162,3 +162,37 @@ describe('resolverAlvo: modelo e esforco (T19.1)', () => {
     expect(comando('q10')).toBe('codex\r')
   })
 })
+
+describe('resolverAlvo: regra do kanban (D52)', () => {
+  const pedidos: string[] = []
+  const comKanban: DepsAlvo = {
+    ...deps,
+    kanbanDoQuadro: (quadro) => {
+      pedidos.push(quadro.id)
+      return quadro.id === 'q9' ? null : `Use o C:\\p\\O'Neil\\KANBAN.md.\r\nSeu nome: ${quadro.titulo}.`
+    },
+  }
+  const comando = (quadroId: string): string | undefined =>
+    resolverAlvo({ tipo: 'quadro', quadroId }, comKanban).comandoInicial
+
+  it('o Claude abre com a regra em texto literal, numa linha so, antes do --resume', () => {
+    expect(comando('q5')).toBe(
+      `claude --append-system-prompt 'Use o C:\\p\\O''Neil\\KANBAN.md.  Seu nome: app.' --resume ${SESSAO}\r`,
+    )
+  })
+
+  it('o Enter so existe no fim do comando, mesmo com \\r\\n na regra', () => {
+    expect(comando('q8')?.split('\r')).toHaveLength(2)
+  })
+
+  it('o Codex garante o kanban mas nao recebe a regra; terminal comum nem garante', () => {
+    pedidos.length = 0
+    expect(comando('q3')).toBe('codex\r')
+    expect(comando('q4')).toBeUndefined()
+    expect(pedidos).toEqual(['q3'])
+  })
+
+  it('sem kanban (falhou o disco): abre como antes', () => {
+    expect(comando('q9')).toBe('claude --effort max\r')
+  })
+})

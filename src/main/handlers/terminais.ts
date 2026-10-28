@@ -4,6 +4,8 @@ import { IPC } from '../../shared/ipc'
 import { semClaudeNaRodada } from '../cenario'
 import type { Contexto } from '../contexto'
 import { handle } from '../ipc'
+import { prepararKanban } from '../kanban/disco'
+import { ARQUIVO_KANBAN } from '../kanban/kanban'
 import { montarAmbiente } from '../perfis/ambiente'
 import { acharSessao } from '../quadros/sessoes'
 import { resolverAlvo } from '../terminais/alvo'
@@ -18,9 +20,10 @@ const Abrir = z.object({ alvo: Alvo, ...Tamanho })
 const Escrever = z.object({ terminalId: z.string().min(1), dados: z.string().max(1_000_000) })
 const Redimensionar = z.object({ terminalId: z.string().min(1), ...Tamanho })
 
-type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'agentes' | 'repasse'>
+type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'agentes' | 'repasse' | 'vigia'>
 
-export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, agentes, repasse }: Servicos): void {
+export function registrarHandlersTerminais(servicos: Servicos): void {
+  const { terminais, perfis, quadros, repos, agentes, repasse, vigia } = servicos
   const home = app.getPath('home')
   const dados = app.getPath('userData') // login do gh de quem tem GitHub proprio (D42)
   // so numa prova com a opcao sem-claude: o agente abre sem o claude.exe de verdade
@@ -34,6 +37,13 @@ export function registrarHandlersTerminais({ terminais, perfis, quadros, repos, 
       existeSessao: (configDir, sessaoId) => acharSessao(configDir, sessaoId) !== null,
       // linha de status do agente (T17.2): grava o settings em <userData>\agentes
       settingsDoAgente: (quadroId) => agentes.preparar(quadroId),
+      // KANBAN.md do projeto (D52): criado quando um agente abre, a regra vai para o Claude
+      kanbanDoQuadro: (quadro) =>
+        prepararKanban(
+          quadro,
+          (id) => repos.obter(id),
+          (repoId) => vigia.avisarAgora(repoId, [ARQUIVO_KANBAN]),
+        ),
     })
     const { bufferInicial } = terminais.abrir({
       terminalId: r.terminalId,

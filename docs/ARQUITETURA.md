@@ -48,6 +48,7 @@ src/main/terminais/        servico.ts, spawnReal.ts, smokePty.ts
 src/main/quadros/          servico.ts, sessoes.ts
 src/main/copias/           regras.ts, git.ts, servico.ts, juntar.ts (cópia separada, T10 e T11)
 src/main/arquivos/         regras.ts, servico.ts, vigia.ts, disco.ts (T7.1)
+src/main/kanban/           kanban.ts (puro), disco.ts: KANBAN.md do projeto e a regra do agente (D52)
 src/main/handlers/         app, perfis, terminais, repos, quadros, lousa, arquivos
 src/preload/index.ts       ponte
 src/renderer/src/          App.tsx, topo/, explorador/, leitor/, componentes/, lousa/, estilos/
