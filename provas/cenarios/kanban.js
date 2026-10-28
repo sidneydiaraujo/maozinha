@@ -1,6 +1,6 @@
 // estado: time
 // Fatia 33 (D52), rodar com a opcao sem-claude: os agentes abrem so o PowerShell.
-// - abrir um agente cria o KANBAN.md na pasta do projeto (app e api), com as seis etapas;
+// - abrir um agente cria o KANBAN.md na pasta do projeto (app e api), com as sete etapas (Pendente ... Concluído, com o bloqueio);
 // - o kanban fica fora do git: `git check-ignore` o acha e o `git status` nao o lista;
 // - o leitor abre o KANBAN.md e mostra a mudanca sozinho quando um "agente" (o PowerShell do a1)
 //   cria um card e depois o move;
@@ -33,7 +33,7 @@
         "Write-Output ('K' + 'IGN=' + (git check-ignore KANBAN.md)); " +
         "Write-Output ('K' + 'ST=' + ((git status --porcelain) -join ',') + '|')\r",
     )
-    r.secoes = await ate(() => /KSECOES=6/.test(limpo()))
+    r.secoes = await ate(() => /KSECOES=7/.test(limpo()))
     await ate(() => /KST=[^\n]*\|/.test(limpo()))
     r.foraDoGit = /KIGN=KANBAN\.md/.test(limpo()) && !/KST=[^\n|]*KANBAN/.test(limpo())
 
@@ -46,7 +46,7 @@
     }
 
     todos('.arvore-linha[title="KANBAN.md"]')[0].click()
-    r.abriuNoLeitor = await ate(() => leitor().includes('Esperando o commit'))
+    r.abriuNoLeitor = await ate(() => leitor().includes('Bloqueado / aguardando decisão'))
 
     // um "agente" cria um card...
     await window.lousa.terminais.escrever('a1', "Add-Content KANBAN.md '- **Testador** card-da-prova'\r")
@@ -59,7 +59,7 @@
     )
     r.cardMudou = await ate(() => leitor().includes('card-movido') && !leitor().includes('card-da-prova'))
     // emoji e acento continuam inteiros depois que um agente mexeu no arquivo
-    r.letrasInteiras = leitor().includes('⏳ Esperando o commit') && leitor().includes('Mãozinha')
+    r.letrasInteiras = leitor().includes('⏳ Aguardando commit') && leitor().includes('Mãozinha')
     r.seloAtualizado = !!q('.leitor-atualizado')
     await prova.foto('2-movido')
 

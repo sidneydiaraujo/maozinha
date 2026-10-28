@@ -9,8 +9,10 @@ que o usuário deu ao terminal, e o mesmo terminal retoma o próprio card.
 ## Como funciona
 
 - `KANBAN.md` na raiz da **pasta original** do projeto (cópia separada usa o da original).
-- Etapas (seções `##`): 📋 A fazer · 🔍 Entendendo · 🛠️ Fazendo · 🧪 Testando ·
-  ⏳ Esperando o commit · ✅ Feito.
+- Etapas (seções `##`, trocadas pelo Sidney em 28/10): 📋 Pendente · 🔍 Em definição · 🛠️ Executando ·
+  🧪 Testando · 🚧 Bloqueado / aguardando decisão · ⏳ Aguardando commit · ✅ Concluído. O bloqueio
+  serve para o que travou ou depende de uma decisão do usuário: o card leva o motivo e volta à
+  etapa em que estava quando destravar.
 - Card: `- **<nome>** · <tarefa> · <HH:MM>`. Nome = `nomeNoTime` (papel, senão apelido da
   cópia, senão o título).
 - Quem escreve são os agentes. O Mãozinha só cria o arquivo e entrega a regra.

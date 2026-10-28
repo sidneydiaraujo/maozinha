@@ -51,7 +51,8 @@ describe('modeloKanban', () => {
     expect(texto.startsWith('# Kanban · app\n')).toBe(true)
     const secoes = [...texto.matchAll(/^## (.+)$/gm)].map((m) => m[1])
     expect(secoes).toEqual([...ETAPAS])
-    expect(ETAPAS.at(-2)).toBe('⏳ Esperando o commit')
+    expect(ETAPAS.at(-2)).toBe('⏳ Aguardando commit')
+    expect(ETAPAS).toHaveLength(7)
   })
 })
 
@@ -73,7 +74,12 @@ describe('regraDoKanban', () => {
   it('diz o arquivo, o nome do card, as etapas e retomar o proprio card', () => {
     expect(regra).toContain('C:\\p\\app\\KANBAN.md')
     expect(regra).toContain('"- **Revisor** · tarefa em poucas palavras · HH:MM"')
-    expect(regra).toContain('A fazer, Entendendo, Fazendo, Testando, Esperando o commit, Feito')
+    expect(regra).toContain(
+      'Pendente, Em definição, Executando, Testando, Bloqueado / aguardando decisão, Aguardando commit, Concluído',
+    )
+    // travou ou depende do usuario: etapa propria, com o motivo no card
+    expect(regra).toContain('depender de uma decisão do usuário, mova o card para "Bloqueado / aguardando decisão"')
+    expect(regra).toContain('escreva no card o motivo')
     expect(regra).toContain('mova esse em vez de criar outro')
     expect(regra).toContain('nunca apague os dos outros')
     // o PowerShell 5 le arquivo sem BOM como ANSI e estraga emoji e acento (prova kanban)

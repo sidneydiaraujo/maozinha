@@ -6,14 +6,18 @@ import type { Quadro, Repo } from '../../shared/model'
 
 export const ARQUIVO_KANBAN = 'KANBAN.md'
 
-/** As etapas ate a espera do commit, na ordem: cada uma e uma secao `##` do arquivo. */
+/**
+ * As etapas ate a espera do commit, na ordem: cada uma e uma secao `##` do arquivo (28/10, Sidney).
+ * O bloqueio e uma etapa propria: travou ou depende de uma decisao do usuario.
+ */
 export const ETAPAS = [
-  '📋 A fazer',
-  '🔍 Entendendo',
-  '🛠️ Fazendo',
+  '📋 Pendente',
+  '🔍 Em definição',
+  '🛠️ Executando',
   '🧪 Testando',
-  '⏳ Esperando o commit',
-  '✅ Feito',
+  '🚧 Bloqueado / aguardando decisão',
+  '⏳ Aguardando commit',
+  '✅ Concluído',
 ] as const
 
 /** O arquivo novo: titulo, como ler e as secoes vazias. Puro. */
@@ -52,7 +56,9 @@ export function regraDoKanban(caminho: string, nome: string): string {
     `Ao começar uma tarefa, crie um card na seção da etapa, no formato "- **${nome}** · tarefa em poucas palavras · HH:MM". ` +
     'Antes de criar, procure um card seu da mesma tarefa: se existir, mova esse em vez de criar outro. ' +
     `A cada mudança de etapa, mova o card para a seção certa e atualize a hora. Etapas, na ordem: ${etapas}. ` +
-    'Ao terminar e esperar o commit do usuário, deixe o card em "Esperando o commit"; depois do commit, em "Feito". ' +
+    'Se a tarefa travar ou depender de uma decisão do usuário, mova o card para "Bloqueado / aguardando decisão" e escreva no card o motivo em poucas palavras; quando destravar, volte o card para a etapa em que estava. ' +
+    'Ao terminar e esperar o commit do usuário, deixe o card em "Aguardando commit"; depois do commit, em "Concluído". ' +
+    'Se faltar a seção de uma etapa no arquivo, crie-a na ordem acima. ' +
     'Releia o arquivo antes de editar, mexa só nos seus cards e nunca apague os dos outros. ' +
     'O arquivo é UTF-8: edite com a ferramenta de edição (no PowerShell, sempre com -Encoding utf8). ' +
     'Não faça commit deste arquivo nem crie outro kanban.'
