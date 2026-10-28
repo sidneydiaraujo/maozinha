@@ -7,8 +7,8 @@ interface Props {
 }
 
 /**
- * Papel do agente no time (T29.1): "Construtor", "Revisor"... Clique escreve; Enter guarda, Esc
- * desiste. Os colegas passam a chamar o agente por esse nome.
+ * Papel do agente (T29.1): "Construtor", "Revisor"... Clique escreve; Enter guarda, Esc desiste.
+ * Os colegas do time chamam o agente por esse nome, e ele assina os cards do KANBAN.md (D52).
  */
 export function PapelDoQuadro({ papel, aoSalvar }: Props): React.JSX.Element {
   const [escrevendo, setEscrevendo] = useState<string | null>(null)
@@ -16,7 +16,7 @@ export function PapelDoQuadro({ papel, aoSalvar }: Props): React.JSX.Element {
     return (
       <button
         className={`papel-quadro nodrag ${papel ? '' : 'papel-vazio'}`}
-        title="Papel no time: os colegas chamam este agente por esse nome"
+        title={'Nome do agente: assina os cards do KANBAN.md e é como os colegas do time o chamam.\nO nome novo vale quando o agente abre de novo.'}
         onClick={() => setEscrevendo(papel ?? '')}
       >
         {papel ?? '+ papel'}
@@ -31,7 +31,7 @@ export function PapelDoQuadro({ papel, aoSalvar }: Props): React.JSX.Element {
   return (
     <input
       className="papel-quadro-campo nodrag"
-      aria-label="Papel no time"
+      aria-label="Papel do agente"
       autoFocus
       maxLength={MAXIMO_LETRAS_PAPEL}
       placeholder="Revisor, QA…"

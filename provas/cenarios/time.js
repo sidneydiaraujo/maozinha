@@ -203,6 +203,9 @@
   const iguais = () => JSON.stringify(ligacoes.map((l) => l.id).sort()) === JSON.stringify(linhas().sort())
   r.salvoIgualTela = await ate(iguais, 20)
   q(`[data-quadro="${c1}"] .botao-fechar`)?.click()
+  // o x pergunta antes (BotaoFechar): espera a pergunta e confirma
+  await ate(() => q(`[data-quadro="${c1}"] .fechar-botoes .botao-perigo`), 8)
+  q(`[data-quadro="${c1}"] .fechar-botoes .botao-perigo`)?.click()
   await ate(() => !quadros().includes(c1), 40)
   await espera(800)
   r.fechouC1 = { linhasDoC1: (await salvas()).filter((l) => l.de === c1 || l.para === c1).length, naTela: linhas().length }

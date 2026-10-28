@@ -120,11 +120,10 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
   )
 }
 
-/** "terminal" no terminal comum; no agente do time, o papel dele (T29.1). */
-function EtiquetaDoQuadro(p: { quadro: Quadro; noTime: boolean; acoes: AcoesLousa }): React.JSX.Element | null {
-  const { quadro, noTime, acoes } = p
+/** "terminal" no terminal comum; no agente, o papel: nome no time (T29.1) e nos cards do kanban (D52). */
+function EtiquetaDoQuadro(p: { quadro: Quadro; acoes: AcoesLousa }): React.JSX.Element {
+  const { quadro, acoes } = p
   if (quadro.tipo === 'terminal') return <span className="etiqueta">terminal</span>
-  if (!noTime) return null
   return <PapelDoQuadro papel={quadro.papel} aoSalvar={(papel) => acoes.definirPapel(quadro.id, papel)} />
 }
 
@@ -167,7 +166,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
           >
             <span aria-hidden="true">📁</span> {rotulo}
           </span>
-          <EtiquetaDoQuadro quadro={quadro} noTime={data.noTime} acoes={acoes} />
+          <EtiquetaDoQuadro quadro={quadro} acoes={acoes} />
           <SeloAgente quadroId={quadro.id} />
           {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} />}
           <ContaDoQuadro
