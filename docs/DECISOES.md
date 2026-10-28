@@ -237,3 +237,8 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Desenho:** monitor bege com pé e base, LED verde e tela de fósforo verde com linhas de varredura; dentro, a "mãozinha" do cursor de link em pixels, que é o próprio nome do programa.
   - **Tamanhos pequenos (até 32 px):** mão cheia 7 x 9 com o dedo fino e alto, para continuar lendo "apontando" na barra de tarefas.
   - **Como:** o mesmo gerador sem dependência (`node scripts/gerar-icone.mjs`, `--amostras` para conferir os pequenos).
+- **D52 (28/10/2026, Sidney: "um md chamado kanban que todos atualizam os cards e eu consigo abrir aqui dentro do Mãozinha"):** kanban em `KANBAN.md` na raiz da pasta original do projeto, escrito pelos próprios agentes (Fatia 33).
+  - **Por quê:** o Sidney quis o mais simples: só ver as etapas até a espera do commit. Ler a lista de tarefas do Claude por gancho dependia de qual ferramenta a versão usa (`TodoWrite` ou `TaskCreate`); a regra escrita não depende.
+  - **Como:** o Mãozinha cria o arquivo quando um agente abre no projeto e entrega a regra com `--append-system-prompt` (só Claude), com o caminho do arquivo e o nome do card (`nomeNoTime`). Cópia separada escreve no arquivo da original.
+  - **Git:** `/KANBAN.md` vai no `.git/info/exclude` (local, não é commitado); nunca no `.gitignore` do usuário. Assim o "Juntar" não briga com o kanban.
+  - **Limites:** depende de o agente seguir a regra; o Codex não recebe a regra; o papel novo só vale quando o agente abre de novo.
