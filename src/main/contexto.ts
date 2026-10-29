@@ -67,6 +67,8 @@ function montarTime(d: {
   terminais: ServicoTerminais
   esperar(ms: number): Promise<void>
   temClaude(quadroId: string): Promise<boolean>
+  /** Troca de modelo esperando: a mensagem vai para o agente reaberto (A15). */
+  segurar(quadroId: string): boolean
 }): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; esquecer(quadroId: string): void } {
   const { armazem, perfis, terminais } = d
   const dados = (): DadosTime => {
@@ -90,6 +92,7 @@ function montarTime(d: {
     escrever: (id, dados) => terminais.escrever(id, dados),
     esperar: d.esperar,
     temClaude: d.temClaude,
+    segurar: d.segurar,
   }, (id, tipo) => repasse.aoDigitar(id, tipo))
   const time = new ApresentadorTime({
     dados,
@@ -211,7 +214,14 @@ export function criarContexto(): Contexto {
   const temClaude = temClaudeEm(terminais)
   // `agentes` e criado logo abaixo; reabrir so roda quando o Sidney troca o modelo
   const ajustes = montarAjustes(terminais, temClaude, (id) => agentes.esquecer(id))
-  const { mensagens, time, repasse, esquecer } = montarTime({ armazem, perfis, terminais, esperar, temClaude })
+  const { mensagens, time, repasse, esquecer } = montarTime({
+    armazem,
+    perfis,
+    terminais,
+    esperar,
+    temClaude,
+    segurar: (id) => ajustes.pendente(id),
+  })
   const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
   const usos = new UsoDasContas()
   // linha de status dos agentes (T17.2, D24): fica so em <userData>\agentes

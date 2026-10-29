@@ -34,6 +34,27 @@ describe('FilaMensagens', () => {
     expect(f.pendente('a')).toBe('oi')
   })
 
+  it('troca de modelo esperando: a mensagem segura e sai para o agente reaberto (A15)', async () => {
+    const escrito: string[] = []
+    let trocando = true
+    const f = new FilaMensagens({
+      aberto: () => true,
+      aviso: () => ({ estado: 'parado' }),
+      escrever: (id, dados) => void escrito.push(`${id}:${dados}`),
+      esperar: async () => {},
+      pronto: () => true,
+      temClaude: async () => true,
+      segurar: () => trocando,
+    })
+    await f.mandar('a', 'oi')
+    await f.aoPronto('a')
+    await f.aoEstado('a', { estado: 'parado' })
+    expect(escrito).toEqual([])
+    trocando = false // reabriu com o modelo novo
+    await f.aoPronto('a')
+    expect(escrito).toEqual(['a:oi', 'a:\r'])
+  })
+
   it('recem-aberto (sem estado): espera a linha de status; ao ficar pronto digita (D49)', async () => {
     const escrito: string[] = []
     let pronto = false

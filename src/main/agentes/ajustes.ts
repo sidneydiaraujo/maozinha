@@ -66,11 +66,12 @@ export class FilaAjustes {
   /**
    * Parado (ou pronto e ainda sem estado): reabre. Sem claude.exe (saiu, ficou o PowerShell):
    * reabre tambem, e o agente volta com o modelo novo. Trabalhando, esperando voce ou na
-   * pergunta de confianca da pasta: nao.
+   * pergunta de confianca da pasta: nao. Parado ja basta: perguntar ao Windows custa ~3 s e
+   * nao muda a resposta (A15).
    */
   private async podeReabrir(quadroId: string): Promise<boolean> {
-    if (!(await this.deps.temClaude(quadroId))) return true
-    return podeDigitar(this.deps.aviso(quadroId)?.estado, this.deps.pronto(quadroId))
+    if (podeDigitar(this.deps.aviso(quadroId)?.estado, this.deps.pronto(quadroId))) return true
+    return !(await this.deps.temClaude(quadroId))
   }
 
   private reabrir(quadroId: string): void {

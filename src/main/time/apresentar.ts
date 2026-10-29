@@ -9,6 +9,12 @@ import type { DepsAjustes } from '../agentes/ajustes'
 export interface DepsFila extends DepsAjustes {
   escrever(terminalId: string, dados: string): void
   esperar(ms: number): Promise<void>
+  /**
+   * Troca de modelo esperando (D49, A15): o agente vai reabrir, entao a mensagem espera o
+   * reaberto. Digitada antes, ou se perdia no terminal que fecha, ou fazia a troca esperar a
+   * resposta inteira.
+   */
+  segurar?(terminalId: string): boolean
 }
 
 /** Montar uma arvore manda uma apresentacao so: espera o time ficar 2 s sem mudar. */
@@ -66,6 +72,7 @@ export class FilaMensagens {
 
   /** A apresentacao pendente sai antes do repasse; um por parada. */
   private soltar(quadroId: string): Promise<void> {
+    if (this.deps.segurar?.(quadroId)) return Promise.resolve()
     const apresentacao = this.pendentes.get(quadroId)
     if (apresentacao !== undefined) {
       this.pendentes.delete(quadroId)
@@ -96,7 +103,8 @@ export class FilaMensagens {
     return (
       this.deps.aberto(quadroId) &&
       podeDigitar(this.deps.aviso(quadroId)?.estado, this.deps.pronto(quadroId)) &&
-      !this.digitouAgora.has(quadroId)
+      !this.digitouAgora.has(quadroId) &&
+      !this.deps.segurar?.(quadroId)
     )
   }
 

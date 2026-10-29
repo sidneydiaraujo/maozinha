@@ -22,6 +22,19 @@ describe('FilaAjustes (D49: reabre o agente, nunca digita /model)', () => {
     expect(reabertos).toEqual(['q1'])
   })
 
+  it('parado: nem pergunta ao Windows se o Claude roda (custa ~3 s e nao muda nada, A15)', async () => {
+    let perguntas = 0
+    const fila = new FilaAjustes({
+      aberto: () => true,
+      aviso: () => ({ estado: 'parado' }),
+      pronto: () => true,
+      temClaude: async () => (perguntas++, true),
+      reabrir: () => {},
+    })
+    expect(await fila.pedir('q1', { modelo: 'haiku' })).toBe('agora')
+    expect(perguntas).toBe(0)
+  })
+
   it('recem-aberto, sem estado mas com a linha de status: reabre agora (o bug do aceite 0.4.0)', async () => {
     const { fila, reabertos } = montar(null, { pronto: true })
     expect(await fila.pedir('q1', { modelo: 'haiku' })).toBe('agora')
