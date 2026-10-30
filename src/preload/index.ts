@@ -2,7 +2,7 @@
 // contrato em src/shared/ipc.ts; nenhuma regra mora aqui.
 import { contextBridge, ipcRenderer, webUtils, type IpcRendererEvent } from 'electron'
 import { IPC, type LousaApi } from '../shared/ipc'
-import type { AvisoAgente, EventoRepasse, PainelAgente, UsoConta } from '../shared/model'
+import type { AvisoAgente, EventoRepasse, OndeEscreve, PainelAgente, UsoConta } from '../shared/model'
 
 /** Assina um evento do main entregando so o payload (nunca o `event`); devolve o cancelar. */
 function inscrever<T>(canal: string, cb: (payload: T) => void): () => void {
@@ -106,6 +106,7 @@ const api: LousaApi = {
     compactar: (quadroId) => ipcRenderer.invoke(IPC.agentesCompactar, { quadroId }),
     prefCompactar: (pref) => ipcRenderer.invoke(IPC.agentesPrefCompactar, pref),
     ajustar: (quadroId, mudanca) => ipcRenderer.invoke(IPC.agentesAjustar, { quadroId, mudanca }),
+    aoEscrevendo: (cb) => inscrever<OndeEscreve>(IPC.agentesEscrevendo, cb),
     aoReabrir: (cb) => inscrever<{ quadroId: string }>(IPC.agentesReabrir, (p) => cb(p.quadroId)),
   },
 }

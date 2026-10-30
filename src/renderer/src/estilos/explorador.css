@@ -98,6 +98,30 @@
   gap: 3px;
 }
 
+/* A16: onde o agente esta salvando, piscando devagar (anel na cor da conta). Pisca mesmo com os
+   efeitos de animacao do Windows desligados: o Sidney pediu, e e so a opacidade, devagar. */
+.arvore-escrevendo {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 4px;
+}
+
+.bolinha-escrevendo {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--cor);
+  animation: piscar-devagar 2.4s ease-in-out infinite;
+}
+
+@keyframes piscar-devagar {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
 .arvore-aviso {
   min-height: 22px;
   font-size: 12px;

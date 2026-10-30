@@ -27,7 +27,7 @@ import { ServicoQuadros } from './quadros/servico'
 import { copiarSessao } from './quadros/sessoes'
 import { ServicoRepos } from './repos/servico'
 import { ServicoTerminais } from './terminais/servico'
-import { enviarParaJanelas, montarAjustes, montarTime, temClaudeEm } from './montagens'
+import { enviarParaJanelas, montarAjustes, montarOndeEscreve, montarTime, temClaudeEm } from './montagens'
 import { spawnReal } from './terminais/spawnReal'
 import type { ApresentadorTime } from './time/apresentar'
 import type { Repasse } from './time/repasse'
@@ -164,6 +164,8 @@ export function criarContexto(): Contexto {
       const uso = perfilId ? usos.aoPainel(perfilId, painel) : null
       if (uso) enviarParaJanelas(IPC.perfisUsoMudou, uso)
     },
+    // onde o agente salvou (A16): a bolinha da pasta do projeto na lateral
+    aoEscrever: (id, arquivo) => ondeEscreve.aoEscrever(id, arquivo),
     adiar: adiarReal,
   })
   // fechar o terminal de um quadro (removido, repo fechado, trocou de conta) leva o painel junto
@@ -172,6 +174,7 @@ export function criarContexto(): Contexto {
     agentes.esquecer(id)
     ajustes.esquecer(id)
     compactarSozinho.esquecer(id)
+    ondeEscreve.esquecer(id)
     esquecer(id)
   }
   const repos = new ServicoRepos({
@@ -219,6 +222,12 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
+  const ondeEscreve = montarOndeEscreve({
+    quadros,
+    repos,
+    existe: existsSync,
+    avisarArvore: (repoId, caminhos) => vigia.avisarAgora(repoId, caminhos),
+  })
   return {
     perfis,
     repos,

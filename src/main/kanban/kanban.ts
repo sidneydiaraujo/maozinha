@@ -49,9 +49,27 @@ const CONTROLE = /[\u0000-\u001f\u007f]/g
  * e caractere de controle viraria Enter no terminal. Puro.
  */
 export function regraDoKanban(caminho: string, nome: string): string {
+  return regra(`mantenha o arquivo ${caminho} sempre atualizado.`, nome)
+}
+
+/**
+ * A pasta aberta nao e um projeto (a home, uma pasta de varios projetos; A16): o kanban fica na
+ * pasta do projeto em que o agente trabalha, que o Mãozinha cria quando ele salva o primeiro arquivo.
+ */
+export function regraDoKanbanNoProjeto(raiz: string, nome: string): string {
+  return regra(
+    `a pasta ${raiz} não é ela mesma um projeto: cada projeto dentro dela tem o seu ${ARQUIVO_KANBAN} na raiz do projeto ` +
+      '(a pasta mais próxima dos arquivos que você edita com .git, package.json ou CLAUDE.md). ' +
+      `Mantenha sempre atualizado o ${ARQUIVO_KANBAN} do projeto em que você trabalha; se ele ainda não existir, ` +
+      'crie-o com o título "# Kanban · <nome da pasta>" e uma seção "## " para cada etapa abaixo.',
+    nome,
+  )
+}
+
+function regra(onde: string, nome: string): string {
   const etapas = ETAPAS.map((e) => e.replace(/^\S+\s/, '')).join(', ')
   const texto =
-    `Quadro de tarefas do projeto (Mãozinha): mantenha o arquivo ${caminho} sempre atualizado. ` +
+    `Quadro de tarefas do projeto (Mãozinha): ${onde} ` +
     `Seu nome nos cards: ${nome}. ` +
     `Ao começar uma tarefa, crie um card na seção da etapa, no formato "- **${nome}** · tarefa em poucas palavras · HH:MM". ` +
     'Antes de criar, procure um card seu da mesma tarefa: se existir, mova esse em vez de criar outro. ' +
@@ -61,7 +79,7 @@ export function regraDoKanban(caminho: string, nome: string): string {
     'Se faltar a seção de uma etapa no arquivo, crie-a na ordem acima. ' +
     'Releia o arquivo antes de editar, mexa só nos seus cards e nunca apague os dos outros. ' +
     'O arquivo é UTF-8: edite com a ferramenta de edição (no PowerShell, sempre com -Encoding utf8). ' +
-    'Não faça commit deste arquivo nem crie outro kanban.'
+    'Não faça commit deste arquivo nem crie um segundo kanban no mesmo projeto.'
   return texto.replace(CONTROLE, ' ')
 }
 

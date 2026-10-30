@@ -21,6 +21,7 @@ import type {
   ModoLigacao,
   Nota,
   PainelAgente,
+  OndeEscreve,
   PerfilComConta,
   PrefCompactar,
   Posicao,
@@ -100,6 +101,7 @@ export const IPC = {
   agentesCompactar: 'agentes:compactar',
   agentesPrefCompactar: 'agentes:prefCompactar', // a tela conta a escolha de compactar sozinho (A17)
   agentesAjustar: 'agentes:ajustar',
+  agentesEscrevendo: 'agentes:escrevendo', // evento main -> tela: a pasta do projeto onde o agente salvou (A16)
   agentesReabrir: 'agentes:reabrir', // evento main -> tela: o main fechou o agente; abra de novo (D49)
 } as const
 
@@ -262,6 +264,8 @@ export interface LousaApi {
     prefCompactar(pref: PrefCompactar): Promise<void>
     /** Guarda modelo/esforco no quadro (T19.1) e diz quando passa a valer no agente aberto. */
     ajustar(quadroId: string, mudanca: AjusteAgente): Promise<QuandoAjusta>
+    /** O agente salvou um arquivo: a pasta do projeto dele (A16), para a bolinha da lateral. */
+    aoEscrevendo(cb: (onde: OndeEscreve) => void): () => void
     /** O main fechou o agente para ele voltar com o modelo novo na mesma conversa (D49). */
     aoReabrir(cb: (quadroId: string) => void): () => void
   }

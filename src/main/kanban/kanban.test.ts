@@ -9,6 +9,7 @@ import {
   modeloKanban,
   repoDoKanban,
   regraDoKanban,
+  regraDoKanbanNoProjeto,
   type DiscoKanban,
 } from './kanban'
 
@@ -88,6 +89,18 @@ describe('regraDoKanban', () => {
 
   it('uma linha so: nada de Enter, nem vindo do caminho ou do nome', () => {
     const r = regraDoKanban('C:\\a\r\nb\\KANBAN.md', 'Re\rvisor\n')
+    // eslint-disable-next-line no-control-regex
+    expect(r).not.toMatch(/[\u0000-\u001f]/)
+  })
+})
+
+describe('regraDoKanbanNoProjeto (A16)', () => {
+  it('pasta que nao e projeto: o kanban de cada projeto, criado se faltar, com as mesmas etapas', () => {
+    const r = regraDoKanbanNoProjeto('C:\\Users\\x', 'Analista')
+    expect(r).toContain('não é ela mesma um projeto')
+    expect(r).toContain('KANBAN.md do projeto em que você trabalha')
+    expect(r).toContain('"- **Analista** · tarefa em poucas palavras · HH:MM"')
+    expect(r).toContain('Bloqueado / aguardando decisão')
     // eslint-disable-next-line no-control-regex
     expect(r).not.toMatch(/[\u0000-\u001f]/)
   })

@@ -1,7 +1,7 @@
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { Quadro, Repo } from '../../shared/model'
-import { prepararKanban } from './disco'
+import { kanbanNaPastaDoProjeto, prepararKanban } from './disco'
 import type { DiscoKanban } from './kanban'
 
 const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
@@ -21,8 +21,9 @@ const obter = (id: string): Repo => {
 const quadro = (q: Partial<Quadro>): Quadro => ({
   id: 'q1', repoId: 'r1', perfilId: 'principal', tipo: 'agente', titulo: 'app 2', caixa, ...q,
 })
-const memoria = (): DiscoKanban & { gravados: string[] } => {
-  const arquivos: Record<string, string> = {}
+/** O app e um projeto (tem package.json); `semProjeto` = a home, que junta varios. */
+const memoria = (semProjeto = false): DiscoKanban & { gravados: string[] } => {
+  const arquivos: Record<string, string> = semProjeto ? {} : { [join(original.caminho, 'package.json')]: '{}' }
   const gravados: string[] = []
   return {
     gravados,
@@ -57,8 +58,32 @@ describe('prepararKanban', () => {
     expect(regra).toContain('Seu nome nos cards: claude-2.')
   })
 
+  it('pasta que nao e projeto (a home, A16): nao cria na raiz; a regra manda usar o kanban do projeto', () => {
+    const disco = memoria(true)
+    const criados: string[] = []
+    const regra = prepararKanban(quadro({ papel: 'Analista' }), obter, (id) => criados.push(id), disco)
+    expect(criados).toEqual([])
+    expect(disco.gravados).toEqual([])
+    expect(regra).toContain('KANBAN.md do projeto em que você trabalha')
+    expect(regra).toContain('Seu nome nos cards: Analista.')
+  })
+
   it('disco falhou: null, e o terminal abre sem a regra', () => {
     const disco = { ...memoria(), escrever: () => { throw new Error('EPERM') } }
     expect(prepararKanban(quadro({}), obter, undefined, disco)).toBeNull()
+  })
+})
+
+describe('kanbanNaPastaDoProjeto (A16)', () => {
+  it('cria o kanban na pasta do projeto uma vez so; disco falhou nao lanca', () => {
+    const disco = memoria(true)
+    let avisos = 0
+    const pasta = 'C:\\Users\\x\\tdv'
+    kanbanNaPastaDoProjeto(pasta, () => avisos++, disco)
+    kanbanNaPastaDoProjeto(pasta, () => avisos++, disco)
+    expect(disco.gravados).toEqual([join(pasta, 'KANBAN.md')])
+    expect(avisos).toBe(1)
+    const quebrado = { ...memoria(true), escrever: () => { throw new Error('EPERM') } }
+    expect(() => kanbanNaPastaDoProjeto(pasta, () => avisos++, quebrado)).not.toThrow()
   })
 })

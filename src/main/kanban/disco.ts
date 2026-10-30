@@ -3,7 +3,15 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'no
 import { basename } from 'node:path'
 import type { Quadro, Repo } from '../../shared/model'
 import { log } from '../log'
-import { garantirKanban, nomeDoCard, regraDoKanban, repoDoKanban, type DiscoKanban } from './kanban'
+import {
+  garantirKanban,
+  nomeDoCard,
+  regraDoKanban,
+  regraDoKanbanNoProjeto,
+  repoDoKanban,
+  type DiscoKanban,
+} from './kanban'
+import { ehProjeto } from './projeto'
 
 export const discoKanban: DiscoKanban = {
   existe: (c) => existsSync(c),
@@ -26,11 +34,22 @@ export function prepararKanban(
   try {
     const repo = obterRepo(quadro.repoId)
     const projeto = repoDoKanban(repo, obterRepo)
+    // a home ou uma pasta de varios projetos: o kanban nasce na pasta do projeto, na 1a escrita (A16)
+    if (!ehProjeto(projeto.caminho, disco.existe)) return regraDoKanbanNoProjeto(projeto.caminho, nomeDoCard(quadro, repo))
     const { arquivo, criado } = garantirKanban(projeto.caminho, basename(projeto.caminho), disco)
     if (criado) aoCriar(projeto.id)
     return regraDoKanban(arquivo, nomeDoCard(quadro, repo))
   } catch (e) {
     log('warn', `kanban: não deu para preparar o ${quadro.id}: ${e instanceof Error ? e.message : String(e)}`)
     return null
+  }
+}
+
+/** O agente salvou num projeto dentro de uma pasta que nao e projeto: o kanban nasce la (A16). */
+export function kanbanNaPastaDoProjeto(pasta: string, aoCriar: () => void, disco: DiscoKanban = discoKanban): void {
+  try {
+    if (garantirKanban(pasta, basename(pasta), disco).criado) aoCriar()
+  } catch (e) {
+    log('warn', `kanban: não deu para criar em ${pasta}: ${e instanceof Error ? e.message : String(e)}`)
   }
 }

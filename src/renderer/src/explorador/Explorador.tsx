@@ -5,7 +5,8 @@ import { useEffect, useMemo, type CSSProperties } from 'react'
 import type { PerfilComConta, Quadro, Repo } from '../../../shared/model'
 import '../estilos/explorador.css'
 import { SimboloArquivo, SimboloPasta } from '../topo/Simbolos'
-import type { Linha } from './arvore'
+import { bolinhasDeEscrita, chavePasta, type Linha } from './arvore'
+import { useEscritas } from './useEscritas'
 import { useArvore } from './useArvore'
 import { vigiarPastas } from './vigiar'
 
@@ -37,8 +38,24 @@ function ContasDaPasta({ quadros, perfis }: { quadros: Quadro[]; perfis: PerfilC
         <span
           key={q.id}
           className="bolinha"
-          style={{ '--cor': perfis.find((p) => p.id === q.perfilId)?.cor ?? '#666' } as CSSProperties}
+          style={{ '--cor': corDa(q, perfis) } as CSSProperties}
         />
+      ))}
+    </span>
+  )
+}
+
+const corDa = (q: Quadro | undefined, perfis: PerfilComConta[]): string =>
+  perfis.find((p) => p.id === q?.perfilId)?.cor ?? '#666'
+
+/** A16: uma bolinha piscando devagar por agente que esta salvando nesta pasta (o projeto dele). */
+function EscrevendoAqui(p: { ids: string[]; quadros: Quadro[]; perfis: PerfilComConta[] }): React.JSX.Element {
+  const deles = p.ids.map((id) => p.quadros.find((q) => q.id === id))
+  const nomes = deles.map((q) => q?.papel || q?.titulo || 'agente')
+  return (
+    <span className="arvore-escrevendo" title={`Salvando aqui: ${nomes.join(', ')}`}>
+      {deles.map((q, i) => (
+        <span key={p.ids[i]} className="bolinha bolinha-escrevendo" style={{ '--cor': corDa(q, p.perfis) } as CSSProperties} />
       ))}
     </span>
   )
@@ -90,6 +107,13 @@ export function Explorador(props: Props): React.JSX.Element {
 
   useEffect(() => window.lousa.arquivos.aoMudar(aoMudarArquivos), [aoMudarArquivos])
 
+  // so agentes que ainda estao na lousa
+  const escritas = useEscritas()
+  const bolinhas = useMemo(
+    () => bolinhasDeEscrita(linhas, escritas.filter((e) => quadros.some((q) => q.id === e.quadroId))),
+    [linhas, escritas, quadros],
+  )
+
   // o main vigia so as pastas abertas que aparecem na arvore
   // (o vigiarPastas ja ignora pedido igual ao anterior)
   const abertas = useMemo(
@@ -121,9 +145,14 @@ export function Explorador(props: Props): React.JSX.Element {
             linha={l}
             selecionada={selecionado?.repoId === l.repoId && selecionado.relativo === l.relativo}
             extra={
-              l.nivel === 0 ? (
-                <ContasDaPasta quadros={quadros.filter((q) => q.repoId === l.repoId)} perfis={perfis} />
-              ) : undefined
+              <>
+                {l.nivel === 0 && (
+                  <ContasDaPasta quadros={quadros.filter((q) => q.repoId === l.repoId)} perfis={perfis} />
+                )}
+                {bolinhas.has(chavePasta(l.repoId, l.relativo)) && (
+                  <EscrevendoAqui ids={bolinhas.get(chavePasta(l.repoId, l.relativo)) ?? []} quadros={quadros} perfis={perfis} />
+                )}
+              </>
             }
             aoClicar={() => (l.pasta ? alternar(l.repoId, l.relativo) : aoAbrir(l.repoId, l.relativo))}
           />

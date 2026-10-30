@@ -1,12 +1,20 @@
 // Montagens do contexto (A17: saiu de contexto.ts pelo teto de linhas): a fila de mensagens e o
-// apresentador do time (T29.1), o repasse (T30.1), a troca de modelo (D49) e o aviso as janelas.
+// apresentador do time (T29.1), o repasse (T30.1), a troca de modelo (D49), onde cada agente salva
+// (A16) e o aviso as janelas.
 import { BrowserWindow } from 'electron'
 import { randomUUID } from 'node:crypto'
+import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
+import type { Repo } from '../shared/model'
 import type { DadosTime } from '../shared/time'
 import { FilaAjustes } from './agentes/ajustes'
 import type { Armazem } from './estado/armazem'
+import { kanbanNaPastaDoProjeto } from './kanban/disco'
+import { ARQUIVO_KANBAN } from './kanban/kanban'
+import { ehProjeto, pastaDoProjeto } from './kanban/projeto'
 import type { ServicoPerfis } from './perfis/servico'
+import type { ServicoQuadros } from './quadros/servico'
+import type { ServicoRepos } from './repos/servico'
 import type { ServicoTerminais } from './terminais/servico'
 import { rodarReal, temClaudeDentro } from './terminais/filhos'
 import { ApresentadorTime, FilaMensagens } from './time/apresentar'
@@ -97,4 +105,37 @@ export function enviarParaJanelas(canal: string, payload: unknown): void {
   for (const janela of BrowserWindow.getAllWindows()) {
     if (!janela.isDestroyed()) janela.webContents.send(canal, payload)
   }
+}
+
+/**
+ * Onde cada agente salva (A16): o gancho de escrita da ponte traz o arquivo; daqui sai a pasta do
+ * projeto para a bolinha da lateral (so quando muda). Pasta aberta que nao e projeto (a home): o
+ * kanban nasce na pasta do projeto (D52).
+ */
+export function montarOndeEscreve(d: {
+  quadros: ServicoQuadros
+  repos: ServicoRepos
+  existe(caminho: string): boolean
+  avisarArvore(repoId: string, caminhos: string[]): void
+}): { aoEscrever(quadroId: string, arquivo: string): void; esquecer(quadroId: string): void } {
+  const ultimos = new Map<string, string>()
+  const aoEscrever = (quadroId: string, arquivo: string): void => {
+    let repo: Repo
+    try {
+      repo = d.repos.obter(d.quadros.obter(quadroId).repoId)
+    } catch {
+      return // o quadro ou a pasta sairam da lousa
+    }
+    const relativo = pastaDoProjeto(arquivo, repo.caminho, d.existe)
+    if (relativo === null) return
+    if (!ehProjeto(repo.caminho, d.existe)) {
+      const kanban = relativo ? `${relativo}/${ARQUIVO_KANBAN}` : ARQUIVO_KANBAN
+      kanbanNaPastaDoProjeto(join(repo.caminho, relativo), () => d.avisarArvore(repo.id, [kanban]))
+    }
+    const chave = `${repo.id}|${relativo}`
+    if (ultimos.get(quadroId) === chave) return
+    ultimos.set(quadroId, chave)
+    enviarParaJanelas(IPC.agentesEscrevendo, { quadroId, repoId: repo.id, relativo })
+  }
+  return { aoEscrever, esquecer: (id) => void ultimos.delete(id) }
 }

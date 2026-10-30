@@ -1,6 +1,7 @@
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { PainelAgente } from '../../shared/model'
+import { ganchoDeEscrita } from './escrita'
 import { caminhoServe, ESPERA_MS, linhaDeStatus, PonteAgentes, type DiscoPonte } from './ponte'
 
 const PASTA = 'C:\\Users\\x\\AppData\\Roaming\\lousa-ia\\agentes'
@@ -15,6 +16,7 @@ function montar(inicial: Record<string, string> = {}) {
   let aoMudar: ((nome: string) => void) | null = null
   let pendentes: { fn: () => void; ms: number; vivo: boolean }[] = []
   const recebidos: { quadroId: string; painel: PainelAgente }[] = []
+  const escritas: string[] = []
   const disco: DiscoPonte = {
     criarPasta: () => undefined,
     escrever: (c, t) => void arquivos.set(c, Buffer.from(t)),
@@ -35,6 +37,7 @@ function montar(inicial: Record<string, string> = {}) {
     disco,
     agora: () => 1000,
     emitir: (quadroId, painel) => recebidos.push({ quadroId, painel }),
+    aoEscrever: (quadroId, arquivo) => void escritas.push(`${quadroId}:${arquivo}`),
     adiar: (fn, ms) => {
       const p = { fn, ms, vivo: true }
       pendentes.push(p)
@@ -50,7 +53,21 @@ function montar(inicial: Record<string, string> = {}) {
     pendentes = []
     for (const p of agora) if (p.vivo) p.fn()
   }
-  return { ponte, arquivos, recebidos, claudeGrava, passarTempo, vigiando: () => aoMudar !== null, pendentes: () => pendentes }
+  const ganchoGrava = (quadroId: string, texto: string): void => {
+    arquivos.set(join(PASTA, `${quadroId}.escrita.json`), Buffer.from(texto))
+    aoMudar?.(`${quadroId}.escrita.json`)
+  }
+  return {
+    ponte,
+    arquivos,
+    recebidos,
+    escritas,
+    claudeGrava,
+    ganchoGrava,
+    passarTempo,
+    vigiando: () => aoMudar !== null,
+    pendentes: () => pendentes,
+  }
 }
 
 describe('PonteAgentes', () => {
@@ -60,6 +77,7 @@ describe('PonteAgentes', () => {
     expect(settings).toBe(join(PASTA, 'q1.settings.json'))
     expect(JSON.parse(arquivos.get(join(PASTA, 'q1.settings.json'))!.toString())).toEqual({
       statusLine: { type: 'command', command: 'findstr "^" > "C:/Users/x/AppData/Roaming/lousa-ia/agentes/q1.json"' },
+      hooks: ganchoDeEscrita(join(PASTA, 'q1.escrita.json')),
     })
   })
 
@@ -128,6 +146,36 @@ describe('PonteAgentes', () => {
     expect(vigiando()).toBe(true)
     ponte.parar()
     expect(vigiando()).toBe(false)
+  })
+})
+
+describe('PonteAgentes: onde o agente salva (A16)', () => {
+  const WRITE = JSON.stringify({ tool_name: 'Write', tool_input: { file_path: 'C:\\p\\app\\a.ts' } })
+
+  it('o gancho grava, a ponte le 250 ms depois e conta o arquivo; nao vira painel', () => {
+    const { ponte, recebidos, escritas, ganchoGrava, passarTempo } = montar()
+    ponte.iniciar([])
+    ganchoGrava('q1', WRITE)
+    ganchoGrava('q1', WRITE)
+    passarTempo()
+    expect(escritas).toEqual(['q1:C:\\p\\app\\a.ts'])
+    expect(recebidos).toEqual([])
+  })
+
+  it('esquecer apaga o arquivo da escrita e a leitura pendente', () => {
+    const { ponte, escritas, ganchoGrava, passarTempo, arquivos } = montar()
+    ponte.iniciar([])
+    ganchoGrava('q1', WRITE)
+    ponte.esquecer('q1')
+    passarTempo()
+    expect(escritas).toEqual([])
+    expect(arquivos.size).toBe(0)
+  })
+
+  it('ao iniciar, a escrita de quadro que nao existe mais vai embora', () => {
+    const { ponte, arquivos } = montar({ 'q1.escrita.json': '{}', 'velho.escrita.json': '{}' })
+    ponte.iniciar(['q1'])
+    expect([...arquivos.keys()].map((c) => c.slice(PASTA.length + 1))).toEqual(['q1.escrita.json'])
   })
 })
 
