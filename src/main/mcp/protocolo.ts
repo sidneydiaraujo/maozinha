@@ -33,7 +33,18 @@ const DESCRICAO =
   'cópia própria da pasta quando ela é git, e entrega uma tarefa a cada um. Use só quando o usuário pedir ' +
   `para montar um time ou criar novos agentes/terminais. Até ${LIMITE_COLEGAS} por pedido. O usuário confirma ` +
   'na tela antes de criar; a resposta diz se ele aceitou. Escreva cada tarefa completa, com o contexto que o ' +
-  'colega precisa, porque ele começa sem saber da sua conversa.'
+  'colega precisa, porque ele começa sem saber da sua conversa. Para colegas, quadros, terminais ou agentes ' +
+  'novos que o usuário vê, use esta ferramenta, não a ferramenta Agent/Task (os subagentes dela ficam fora do Mãozinha).'
+
+/**
+ * Vai junto da regra do kanban (`--append-system-prompt`) quando o agente tem a ferramenta: sem ela,
+ * o Claude prefere os subagentes proprios, que trabalham escondidos fora do Mãozinha.
+ */
+export const REGRA_COLEGAS =
+  'Você roda dentro do Mãozinha, uma lousa de quadros de terminal. Quando o usuário pedir novos colegas, ' +
+  `agentes, quadros, terminais ou um time, use a ferramenta ${FERRAMENTA_NO_CLAUDE}: ela cria quadros de verdade ` +
+  'no Mãozinha, ligados a você. Não use a ferramenta Agent/Task para isso, porque os subagentes dela ficam ' +
+  'escondidos fora do Mãozinha; ela segue valendo para pesquisas rápidas suas.'
 
 export const DEFINICAO_FERRAMENTA = {
   name: FERRAMENTA,

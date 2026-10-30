@@ -196,3 +196,28 @@ describe('resolverAlvo: regra do kanban (D52)', () => {
     expect(comando('q9')).toBe('claude --effort max\r')
   })
 })
+
+describe('resolverAlvo: regra dos colegas (A19)', () => {
+  const comMcp: DepsAlvo = {
+    ...deps,
+    kanbanDoQuadro: (quadro) => (quadro.id === 'q9' ? null : 'Use o KANBAN.md.'),
+    mcpDoQuadro: (id) => `C:\\dados\\agentes\\${id}.mcp.json`,
+  }
+  const comando = (quadroId: string): string =>
+    resolverAlvo({ tipo: 'quadro', quadroId }, comMcp).comandoInicial ?? ''
+
+  it('com a ferramenta, a regra diz para criar colegas por ela, depois da regra do kanban', () => {
+    const c = comando('q5')
+    expect(c).toContain(`--mcp-config 'C:\\dados\\agentes\\q5.mcp.json'`)
+    expect(c).toMatch(/--append-system-prompt 'Use o KANBAN\.md\. Você roda dentro do Mãozinha.*mcp__maozinha__criar_colegas/)
+    expect(c.split('\r')).toHaveLength(2)
+  })
+
+  it('sem kanban, a regra dos colegas vai sozinha', () => {
+    expect(comando('q9')).toMatch(/--append-system-prompt 'Você roda dentro do Mãozinha/)
+  })
+
+  it('o Codex nao recebe nada disso', () => {
+    expect(comando('q3')).toBe('codex\r')
+  })
+})

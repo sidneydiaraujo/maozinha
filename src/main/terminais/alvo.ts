@@ -1,6 +1,7 @@
 // Transforma o que a tela pede ("login da conta X", "o quadro q1") em pasta,
 // conta e comando. Quem decide e o main (D7): a tela so manda ids.
 import type { AlvoTerminal, Perfil, Quadro, Repo } from '../../shared/model'
+import { REGRA_COLEGAS } from '../mcp/protocolo'
 import { comandoAgente, shellLogin, type ExtrasAgente } from './comandos'
 
 export interface AlvoResolvido {
@@ -41,10 +42,13 @@ function comandoDoQuadro(quadro: Quadro, perfil: Perfil, deps: DepsAlvo): string
 
 /** Linha de status, ferramenta de colegas (A19) e regra do kanban: so o Claude tem as opcoes. */
 function arquivosDoClaude(quadroId: string, regra: string | null, deps: DepsAlvo): Pick<ExtrasAgente, 'settings' | 'mcp' | 'regra'> {
+  const mcp = deps.mcpDoQuadro?.(quadroId) ?? undefined
+  // com a ferramenta, o agente fica sabendo que colegas nascem por ela, nao pelos subagentes (A19)
+  const regras = [regra, mcp ? REGRA_COLEGAS : null].filter(Boolean).join(' ')
   return {
     settings: deps.settingsDoAgente?.(quadroId) ?? undefined,
-    mcp: deps.mcpDoQuadro?.(quadroId) ?? undefined,
-    regra: regra ?? undefined,
+    mcp,
+    regra: regras || undefined,
   }
 }
 
