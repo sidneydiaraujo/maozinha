@@ -22,6 +22,7 @@ import type {
   Nota,
   PainelAgente,
   PerfilComConta,
+  PrefCompactar,
   Posicao,
   Provedor,
   Quadro,
@@ -97,6 +98,7 @@ export const IPC = {
   agentesUltimoPainel: 'agentes:ultimoPainel',
   agentesPainel: 'agentes:painel', // evento main -> tela (linha de status do agente, T17.2)
   agentesCompactar: 'agentes:compactar',
+  agentesPrefCompactar: 'agentes:prefCompactar', // a tela conta a escolha de compactar sozinho (A17)
   agentesAjustar: 'agentes:ajustar',
   agentesReabrir: 'agentes:reabrir', // evento main -> tela: o main fechou o agente; abra de novo (D49)
 } as const
@@ -256,6 +258,8 @@ export interface LousaApi {
     aoPainel(cb: (quadroId: string, painel: PainelAgente) => void): () => void
     /** O main escreve /compact no agente (T18.1); lanca se ele nao estiver parado. */
     compactar(quadroId: string): Promise<void>
+    /** Compactar sozinho ao fim da tarefa acima do limite (A17); a escolha mora na tela. */
+    prefCompactar(pref: PrefCompactar): Promise<void>
     /** Guarda modelo/esforco no quadro (T19.1) e diz quando passa a valer no agente aberto. */
     ajustar(quadroId: string, mudanca: AjusteAgente): Promise<QuandoAjusta>
     /** O main fechou o agente para ele voltar com o modelo novo na mesma conversa (D49). */

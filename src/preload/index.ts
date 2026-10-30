@@ -104,6 +104,7 @@ const api: LousaApi = {
     aoPainel: (cb) =>
       inscrever<{ quadroId: string; painel: PainelAgente }>(IPC.agentesPainel, (p) => cb(p.quadroId, p.painel)),
     compactar: (quadroId) => ipcRenderer.invoke(IPC.agentesCompactar, { quadroId }),
+    prefCompactar: (pref) => ipcRenderer.invoke(IPC.agentesPrefCompactar, pref),
     ajustar: (quadroId, mudanca) => ipcRenderer.invoke(IPC.agentesAjustar, { quadroId, mudanca }),
     aoReabrir: (cb) => inscrever<{ quadroId: string }>(IPC.agentesReabrir, (p) => cb(p.quadroId)),
   },

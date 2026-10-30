@@ -1,12 +1,13 @@
 // Cria uma vez, no inicio do app, os servicos que os canais de IPC usam.
-import { app, BrowserWindow } from 'electron'
+import { app } from 'electron'
 import { randomUUID } from 'node:crypto'
 import { existsSync, mkdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
-import type { DadosTime } from '../shared/time'
 import { FilaAjustes } from './agentes/ajustes'
+import { compactar } from './agentes/compactar'
+import { CompactarSozinho } from './agentes/compactarSozinho'
 import { adiarReal, discoDaPonte } from './agentes/disco'
 import { PonteAgentes } from './agentes/ponte'
 import { UsoDasContas } from './agentes/uso'
@@ -26,11 +27,10 @@ import { ServicoQuadros } from './quadros/servico'
 import { copiarSessao } from './quadros/sessoes'
 import { ServicoRepos } from './repos/servico'
 import { ServicoTerminais } from './terminais/servico'
+import { enviarParaJanelas, montarAjustes, montarTime, temClaudeEm } from './montagens'
 import { spawnReal } from './terminais/spawnReal'
-import { rodarReal, temClaudeDentro } from './terminais/filhos'
-import { ApresentadorTime, FilaMensagens } from './time/apresentar'
-import { Repasse } from './time/repasse'
-import { provedoresDos, ServicoTime } from './time/servico'
+import type { ApresentadorTime } from './time/apresentar'
+import type { Repasse } from './time/repasse'
 
 export interface Contexto {
   perfis: ServicoPerfis
@@ -43,6 +43,10 @@ export interface Contexto {
   avisos: AvisosDoWindows
   agentes: PonteAgentes
   ajustes: FilaAjustes
+  /** Compactar sozinho ao fim da tarefa (A17): `definir` recebe a escolha da tela. */
+  compactarSozinho: CompactarSozinho
+  /** Digita /compact no agente parado (T18.1); lanca com a frase se nao puder. */
+  compactarAgora(quadroId: string): Promise<void>
   usos: UsoDasContas
   /** Time de agentes (T29.1): chame `mudou()` quando linha, colega, papel ou quadro mudar. */
   time: ApresentadorTime
@@ -50,92 +54,6 @@ export interface Contexto {
   repasse: Repasse
   /** O claude.exe ainda roda no terminal do quadro? Ele nao avisa quando sai (D39). */
   temClaude(quadroId: string): Promise<boolean>
-}
-
-/** Pergunta ao Windows se o PowerShell do quadro tem um claude.exe filho (terminais/filhos.ts). */
-function temClaudeEm(terminais: ServicoTerminais): (quadroId: string) => Promise<boolean> {
-  return async (id) => {
-    const pid = terminais.pid(id)
-    return pid !== null && temClaudeDentro(pid, rodarReal)
-  }
-}
-
-/** Fila de mensagens aos agentes e apresentador do time (T29.1). */
-function montarTime(d: {
-  armazem: Armazem
-  perfis: ServicoPerfis
-  terminais: ServicoTerminais
-  esperar(ms: number): Promise<void>
-  temClaude(quadroId: string): Promise<boolean>
-  /** Troca de modelo esperando: a mensagem vai para o agente reaberto (A15). */
-  segurar(quadroId: string): boolean
-}): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; esquecer(quadroId: string): void } {
-  const { armazem, perfis, terminais } = d
-  const dados = (): DadosTime => {
-    const e = armazem.carregar()
-    const provedores = provedoresDos(e.quadros, (id) => perfis.obter(id))
-    return { quadros: e.quadros, repos: e.repos, ligacoes: e.ligacoes ?? [], provedores }
-  }
-  const linhas = new ServicoTime({ armazem, perfis, novoId: randomUUID })
-  // a fila e criada logo abaixo; o repasse so a usa quando um agente termina
-  const repasse = new Repasse({
-    dados,
-    fila: { enfileirar: (id, texto) => mensagens.enfileirar(id, texto) },
-    aberto: (id) => terminais.estaAberto(id),
-    ajustar: (id, mudanca) => linhas.ajustar(id, mudanca),
-    avisar: (evento) => enviarParaJanelas(IPC.timeRepasse, evento),
-  })
-  const mensagens = new FilaMensagens({
-    aberto: (id) => terminais.estaAberto(id),
-    aviso: (id) => terminais.aviso(id),
-    pronto: (id) => terminais.pronto(id),
-    escrever: (id, dados) => terminais.escrever(id, dados),
-    esperar: d.esperar,
-    temClaude: d.temClaude,
-    segurar: d.segurar,
-  }, (id, tipo) => repasse.aoDigitar(id, tipo))
-  const time = new ApresentadorTime({
-    dados,
-    fila: mensagens,
-    adiar: (fn, ms) => {
-      const t = setTimeout(fn, ms)
-      return () => clearTimeout(t)
-    },
-  })
-  const esquecer = (id: string): void => {
-    mensagens.esquecer(id)
-    repasse.esquecer(id)
-  }
-  return { mensagens, time, repasse, esquecer }
-}
-
-/**
- * Troca de modelo/esforco (D49): reabrir fecha o terminal, apaga o painel velho (`esquecerPainel`)
- * e pede a tela para abrir de novo; o comando novo le o modelo salvo no quadro e retoma a conversa.
- */
-function montarAjustes(
-  terminais: ServicoTerminais,
-  temClaude: (quadroId: string) => Promise<boolean>,
-  esquecerPainel: (quadroId: string) => void,
-): FilaAjustes {
-  return new FilaAjustes({
-    aberto: (id) => terminais.estaAberto(id),
-    aviso: (id) => terminais.aviso(id),
-    pronto: (id) => terminais.pronto(id),
-    temClaude,
-    reabrir: (id) => {
-      terminais.fechar(id)
-      esquecerPainel(id)
-      enviarParaJanelas(IPC.agentesReabrir, { quadroId: id })
-    },
-  })
-}
-
-/** Entrega um evento a todas as janelas abertas. */
-function enviarParaJanelas(canal: string, payload: unknown): void {
-  for (const janela of BrowserWindow.getAllWindows()) {
-    if (!janela.isDestroyed()) janela.webContents.send(canal, payload)
-  }
 }
 
 function caminhoDoPath(): string {
@@ -205,22 +123,27 @@ export function criarContexto(): Contexto {
       avisos.aoEstado(terminalId, aviso)
       // modelo/esforco pedidos com o agente trabalhando: reabre quando ele parar (T19.1, D49)
       void ajustes.aoEstado(terminalId, aviso)
+      void repasse.aoEstado(terminalId, aviso.estado, aviso.mensagem) // fim da vez passa adiante (T30.1)
+      // depois do repasse (que ja passou a vez de verdade) e antes da fila, que espera o /compact (A17)
+      compactarSozinho.aoEstado(terminalId, aviso)
       // apresentacao do time pedida com o agente ocupado: digita quando ele parar (T29.1)
       void mensagens.aoEstado(terminalId, aviso)
-      void repasse.aoEstado(terminalId, aviso.estado, aviso.mensagem) // fim da vez passa adiante (T30.1)
     },
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
   const temClaude = temClaudeEm(terminais)
   // `agentes` e criado logo abaixo; reabrir so roda quando o Sidney troca o modelo
-  const ajustes = montarAjustes(terminais, temClaude, (id) => agentes.esquecer(id))
+  const ajustes = montarAjustes(terminais, temClaude, (id) => {
+    agentes.esquecer(id)
+    compactarSozinho.esquecer(id)
+  })
   const { mensagens, time, repasse, esquecer } = montarTime({
     armazem,
     perfis,
     terminais,
     esperar,
     temClaude,
-    segurar: (id) => ajustes.pendente(id),
+    segurar: (id) => ajustes.pendente(id) || compactarSozinho.segurando(id),
   })
   const copias = new ServicoCopias({ git: rodarGitReal, existe: existsSync, esperar })
   const usos = new UsoDasContas()
@@ -248,6 +171,7 @@ export function criarContexto(): Contexto {
     terminais.fechar(id)
     agentes.esquecer(id)
     ajustes.esquecer(id)
+    compactarSozinho.esquecer(id)
     esquecer(id)
   }
   const repos = new ServicoRepos({
@@ -269,8 +193,48 @@ export function criarContexto(): Contexto {
     copias,
   })
   const arquivos = new ServicoArquivos({ repos, ...discoReal })
+  const compactarAgora = (quadroId: string): Promise<void> =>
+    compactar(
+      {
+        quadro: (id) => quadros.obter(id),
+        aberto: (id) => terminais.estaAberto(id),
+        aviso: (id) => terminais.aviso(id),
+        pronto: (id) => terminais.pronto(id),
+        temClaude,
+        escrever: (id, dados) => terminais.escrever(id, dados),
+        esperar,
+      },
+      quadroId,
+    )
+  const compactarSozinho = new CompactarSozinho({
+    usado: (id) => agentes.ultimo(id)?.contexto?.usado ?? null,
+    ocupado: (id) => ajustes.pendente(id),
+    compactar: compactarAgora,
+    aoCompactar: (id) => repasse.aoDigitar(id, 'compactar'),
+    aoDesistir: (id, e) => {
+      log('info', `compactar sozinho nao rolou em ${id}: ${String(e)}`)
+      void mensagens.aoPronto(id)
+    },
+  })
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  return { perfis, repos, quadros, armazem, terminais, arquivos, vigia, avisos, agentes, ajustes, usos, time, repasse, temClaude }
+  return {
+    perfis,
+    repos,
+    quadros,
+    armazem,
+    terminais,
+    arquivos,
+    vigia,
+    avisos,
+    agentes,
+    ajustes,
+    compactarSozinho,
+    compactarAgora,
+    usos,
+    time,
+    repasse,
+    temClaude,
+  }
 }

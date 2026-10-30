@@ -80,7 +80,35 @@ function Opcoes({ pref, mudar }: { pref: PrefContexto; mudar(parte: Partial<Pref
         menos={perigo - 5 > alerta ? () => mudar({ perigo: perigo - 5 }) : null}
         mais={perigo < 100 ? () => mudar({ perigo: perigo + 5 }) : null}
       />
+      <CompactarSozinho pref={pref} mudar={mudar} />
     </div>
+  )
+}
+
+const DICA_SOZINHO = 'Nunca no meio do trabalho: uma tarefa grande passa do limite e só compacta quando acaba.'
+
+/** A17: marcada, o agente compacta sozinho quando termina a tarefa acima do limite. */
+function CompactarSozinho({ pref, mudar }: { pref: PrefContexto; mudar(parte: Partial<PrefContexto>): void }): React.JSX.Element {
+  const limite = pref.limiteCompactar
+  return (
+    <>
+      <label className="aparencia-linha" title={DICA_SOZINHO}>
+        <span className="aparencia-rotulo">Compactar sozinho ao fim da tarefa</span>
+        <input
+          type="checkbox"
+          checked={pref.compactarSozinho}
+          onChange={(e) => mudar({ compactarSozinho: e.target.checked })}
+        />
+      </label>
+      {pref.compactarSozinho && (
+        <Passo
+          rotulo="Compacta com"
+          texto={`${limite}%`}
+          menos={limite > 10 ? () => mudar({ limiteCompactar: limite - 10 }) : null}
+          mais={limite < 90 ? () => mudar({ limiteCompactar: limite + 10 }) : null}
+        />
+      )}
+    </>
   )
 }
 
@@ -109,6 +137,7 @@ export function ContextoConfig(): React.JSX.Element {
       </div>
       <p className="aparencia-dica apagado">
         O anel fica no cabeçalho de cada agente. O clique oferece compactar a conversa.
+        {pref.compactarSozinho && ' Com o compactar sozinho, o Claude compacta quando termina a tarefa acima do limite.'}
         {!padrao && (
           <button className="botao-pequeno" onClick={() => mudar(PREF_CONTEXTO_PADRAO)}>
             Voltar ao padrão

@@ -5,6 +5,7 @@ import { mensagemDe } from './componentes/erro'
 import { Lateral } from './lateral/Lateral'
 import { Leitor } from './leitor/Leitor'
 import { useArquivoAberto } from './leitor/useArquivoAberto'
+import { useContarCompactar } from './lousa/useContarCompactar'
 import { pedirFoco, pedirNovaNota, pedirNovoQuadro } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
 import { mandarAosAlvos } from './lousa/mandar'
@@ -28,6 +29,7 @@ export function App(): React.JSX.Element {
   const arquivo = useArquivoAberto()
   const { aberto, fechar, abrir: abrirArquivo, avisar } = arquivo
   const paleta = usePaleta()
+  useContarCompactar(setErro)
 
   useEffect(() => {
     window.lousa

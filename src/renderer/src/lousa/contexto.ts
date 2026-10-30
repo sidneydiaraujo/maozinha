@@ -13,6 +13,10 @@ export interface PrefContexto {
   alerta: number
   /** Vermelho a partir disto (% usado). */
   perigo: number
+  /** A17: compactar sozinho quando o agente termina a vez acima de `limiteCompactar`. */
+  compactarSozinho: boolean
+  /** % usado; so vale com `compactarSozinho`. Nunca no meio do trabalho. */
+  limiteCompactar: number
 }
 
 export const PREF_CONTEXTO_PADRAO: PrefContexto = {
@@ -21,6 +25,8 @@ export const PREF_CONTEXTO_PADRAO: PrefContexto = {
   mostrarRestante: false,
   alerta: 70,
   perigo: 90,
+  compactarSozinho: false,
+  limiteCompactar: 40,
 }
 
 export type NivelContexto = 'ok' | 'alerta' | 'perigo'
@@ -59,6 +65,18 @@ const CHAVE = 'lousa.contexto'
 const inteiro = (v: unknown, padrao: number): number =>
   typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 100 ? v : padrao
 
+/** O main so aceita de 10 a 90 (handlers/agentes.ts). */
+const limiteDe = (v: unknown, padrao: number): number => {
+  const n = inteiro(v, padrao)
+  return n >= 10 && n <= 90 ? n : padrao
+}
+
+/** O que o main precisa saber para compactar sozinho (A17). */
+export const prefCompactarDe = (p: PrefContexto): { ligado: boolean; limite: number } => ({
+  ligado: p.compactarSozinho,
+  limite: p.limiteCompactar,
+})
+
 /** Valor ruim volta ao padrao so no proprio campo (como a Aparencia). */
 export function prefContextoDe(texto: string | null): PrefContexto {
   let salvo: Record<string, unknown>
@@ -76,6 +94,8 @@ export function prefContextoDe(texto: string | null): PrefContexto {
     mostrar,
     aPartirDe: inteiro(salvo.aPartirDe, p.aPartirDe),
     mostrarRestante: typeof salvo.mostrarRestante === 'boolean' ? salvo.mostrarRestante : p.mostrarRestante,
+    compactarSozinho: typeof salvo.compactarSozinho === 'boolean' ? salvo.compactarSozinho : p.compactarSozinho,
+    limiteCompactar: limiteDe(salvo.limiteCompactar, p.limiteCompactar),
     // vermelho antes do ambar nao faz sentido: volta os dois ao padrao
     ...(alerta < perigo ? { alerta, perigo } : { alerta: p.alerta, perigo: p.perigo }),
   }

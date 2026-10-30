@@ -45,7 +45,8 @@ export class Repasse {
 
   /** A fila digitou algo da Lousa no agente (FilaMensagens). */
   aoDigitar(quadroId: string, tipo: TipoMensagem): void {
-    if (tipo === 'apresentacao') this.vezDaLousa.add(quadroId)
+    // a resposta a uma apresentacao e o resumo do /compact (A17) nao sao trabalho para passar
+    if (tipo !== 'repasse') this.vezDaLousa.add(quadroId)
   }
 
   /** O Sidney digitou neste quadro: o freio do time dele zera. */

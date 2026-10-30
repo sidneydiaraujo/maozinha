@@ -134,6 +134,8 @@ export type Modelo = (typeof MODELOS)[number]
 export interface AjusteAgente { modelo?: Modelo; esforco?: Esforco }
 /** agora = o main ja digitou; quandoParar = digita quando o agente parar; naAbertura = vale ao abrir. */
 export type QuandoAjusta = 'agora' | 'quandoParar' | 'naAbertura'
+/** Compactar sozinho ao fim da tarefa (A17): escolha da engrenagem, que a tela conta ao main. */
+export interface PrefCompactar { ligado: boolean; limite: number }  // limite em % usado
 export interface Limite { usado: number; zeraEm: number | null }  // usado 0-100; zeraEm em ms
 export interface PainelAgente {
   modelo: { id: string; nome: string } | null

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PREF_CONTEXTO_PADRAO, prefContextoDe, tokensPorExtenso, vistaDoContexto } from './contexto'
+import { PREF_CONTEXTO_PADRAO, prefCompactarDe, prefContextoDe, tokensPorExtenso, vistaDoContexto } from './contexto'
 
 const P = PREF_CONTEXTO_PADRAO
 
@@ -69,6 +69,19 @@ describe('prefContextoDe', () => {
       mostrar: 'sempre',
       alerta: 60,
     })
+  })
+
+  it('compactar sozinho (A17): desligado e 40% por padrao; limite fora de 10-90 volta ao padrao', () => {
+    expect(P).toMatchObject({ compactarSozinho: false, limiteCompactar: 40 })
+    expect(prefContextoDe('{"compactarSozinho":true,"limiteCompactar":60}')).toMatchObject({
+      compactarSozinho: true,
+      limiteCompactar: 60,
+    })
+    expect(prefContextoDe('{"compactarSozinho":"sim","limiteCompactar":95}')).toMatchObject({
+      compactarSozinho: false,
+      limiteCompactar: 40,
+    })
+    expect(prefCompactarDe({ ...P, compactarSozinho: true })).toEqual({ ligado: true, limite: 40 })
   })
 
   it('alerta >= perigo: os dois voltam ao padrao', () => {

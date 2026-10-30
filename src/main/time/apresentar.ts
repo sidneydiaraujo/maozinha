@@ -21,7 +21,7 @@ export interface DepsFila extends DepsAjustes {
 export const ESPERA_APRESENTAR_MS = 2000
 
 /** De onde veio o que a Lousa digitou: a resposta a uma apresentacao nao passa adiante (T30.1). */
-export type TipoMensagem = 'apresentacao' | 'repasse'
+export type TipoMensagem = 'apresentacao' | 'repasse' | 'compactar'
 
 /**
  * Mensagens da Lousa para os agentes. A apresentacao (`mandar`) e uma por agente: a mais nova
