@@ -1,23 +1,26 @@
 // Montagens do contexto (A17: saiu de contexto.ts pelo teto de linhas): a fila de mensagens e o
 // apresentador do time (T29.1), o repasse (T30.1), a troca de modelo (D49), onde cada agente salva
 // (A16) e o aviso as janelas.
-import { BrowserWindow } from 'electron'
+import { app, BrowserWindow } from 'electron'
 import { randomUUID } from 'node:crypto'
 import { join } from 'node:path'
 import { IPC } from '../shared/ipc'
-import type { Repo } from '../shared/model'
-import type { DadosTime } from '../shared/time'
+import type { ColegaPedido, Repo } from '../shared/model'
+import { nomeNoTime, type DadosTime } from '../shared/time'
 import { FilaAjustes } from './agentes/ajustes'
 import type { Armazem } from './estado/armazem'
 import { kanbanNaPastaDoProjeto } from './kanban/disco'
 import { ARQUIVO_KANBAN } from './kanban/kanban'
 import { ehProjeto, pastaDoProjeto } from './kanban/projeto'
+import { ServidorMcp } from './mcp/servidor'
 import type { ServicoPerfis } from './perfis/servico'
 import type { ServicoQuadros } from './quadros/servico'
 import type { ServicoRepos } from './repos/servico'
 import type { ServicoTerminais } from './terminais/servico'
 import { rodarReal, temClaudeDentro } from './terminais/filhos'
 import { ApresentadorTime, FilaMensagens } from './time/apresentar'
+import { criarColega, type DepsColega } from './time/colega'
+import { PedidosDeColegas, textoDaTarefa } from './time/pedidos'
 import { Repasse } from './time/repasse'
 import { provedoresDos, ServicoTime } from './time/servico'
 
@@ -138,4 +141,58 @@ export function montarOndeEscreve(d: {
     enviarParaJanelas(IPC.agentesEscrevendo, { quadroId, repoId: repo.id, relativo })
   }
   return { aoEscrever, esquecer: (id) => void ultimos.delete(id) }
+}
+
+/** Folga entre os colegas pedidos, empilhados a direita de quem pediu. */
+const FOLGA_COLEGAS = 40
+
+/**
+ * Colegas pedidos pelo agente (A19, D56): o servidor MCP recebe o pedido, a tela pergunta, e so
+ * com o aceite o colega nasce (mesma conta, copia propria, ligado), com o papel e a tarefa na fila.
+ */
+export function montarPedidos(d: {
+  armazem: Armazem
+  perfis: ServicoPerfis
+  quadros: ServicoQuadros
+  mensagens: Pick<FilaMensagens, 'enfileirar'>
+  time: Pick<ApresentadorTime, 'mudou'>
+}): { pedidos: PedidosDeColegas; mcp: ServidorMcp } {
+  const { armazem, perfis, quadros } = d
+  const deps: DepsColega = {
+    armazem,
+    quadros,
+    time: new ServicoTime({ armazem, perfis, novoId: randomUUID }),
+    ehClaude: (perfilId) => perfis.obter(perfilId).provedor === 'claude',
+  }
+  const nome = (id: string): string => {
+    const e = armazem.carregar()
+    return nomeNoTime({ quadros: e.quadros, repos: e.repos, ligacoes: e.ligacoes ?? [], provedores: {} }, id)
+  }
+  const criar = async (quadroId: string, colegas: ColegaPedido[]): Promise<string[]> => {
+    const { caixa } = quadros.obter(quadroId)
+    const nomes: string[] = []
+    for (const [i, c] of colegas.entries()) {
+      const posicao = { x: caixa.x + caixa.largura + FOLGA_COLEGAS, y: caixa.y + i * (caixa.altura + FOLGA_COLEGAS) }
+      const novo = await criarColega(deps, quadroId, { posicao })
+      const quadro = quadros.definirPapel(novo.quadro.id, c.papel)
+      enviarParaJanelas(IPC.timeColegaCriado, { ...novo, quadro })
+      // a tarefa espera o colega abrir e ficar pronto (a apresentacao do time sai antes)
+      void d.mensagens.enfileirar(quadro.id, textoDaTarefa(nome(quadroId), c.tarefa))
+      nomes.push(quadro.papel ?? quadro.titulo)
+    }
+    d.time.mudou()
+    return nomes
+  }
+  const pedidos = new PedidosDeColegas({
+    nome,
+    avisarTela: (aviso) => enviarParaJanelas(IPC.timePedidoColegas, aviso),
+    criar,
+    adiar: (fn, ms) => {
+      const t = setTimeout(fn, ms)
+      return () => clearTimeout(t)
+    },
+    novoId: randomUUID,
+  })
+  const mcp = new ServidorMcp({ versao: app.getVersion(), chamar: (id, colegas) => pedidos.pedir(id, colegas) })
+  return { pedidos, mcp }
 }

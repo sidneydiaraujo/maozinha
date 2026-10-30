@@ -8,6 +8,7 @@ import type {
   AjusteAgente,
   AlvoTerminal,
   AvisoAgente,
+  AvisoPedidoColegas,
   Caixa,
   DiffArquivo,
   ConteudoArquivo,
@@ -75,6 +76,9 @@ export const IPC = {
   timeDesligar: 'time:desligar',
   timeColega: 'time:colega',
   timeSeparar: 'time:separar',
+  timePedidoColegas: 'time:pedidoColegas', // evento main -> tela: o agente pediu colegas (A19)
+  timeResponderPedido: 'time:responderPedido',
+  timeColegaCriado: 'time:colegaCriado', // evento main -> tela: colega que o agente pediu nasceu (A19)
   timeJuntar: 'time:juntar', // juntar as copias do time na original, em ordem (T31.1)
   timePassar: 'time:passar', // botao da linha: passar agora ou continuar depois do freio (T30.1)
   timeRepasse: 'time:repasse', // evento main -> tela: o que aconteceu na linha (T30.1)
@@ -209,6 +213,12 @@ export interface LousaApi {
     colega(quadroId: string, posicao?: Posicao): Promise<ColegaNovo>
     /** Linha ambar: colega numa copia no lugar do `para`; o quadro antigo fica aberto. */
     separar(ligacaoId: string): Promise<ColegaNovo>
+    /** O agente pediu colegas pela ferramenta do Mãozinha (A19): mostrar e tirar a pergunta. */
+    aoPedidoColegas(cb: (aviso: AvisoPedidoColegas) => void): () => void
+    /** O clique na pergunta: so com `aceitar` o main cria os colegas. */
+    responderPedido(pedidoId: string, aceitar: boolean): Promise<void>
+    /** Colega que o agente pediu e o usuario aceitou: entra na lousa. */
+    aoColegaCriado(cb: (colega: ColegaNovo) => void): () => void
     /** Junta as copias do time da linha na pasta original, na ordem de entrega (T31.1). */
     juntar(ligacaoId: string): Promise<ResultadoJuntarTime>
     /** Passa o trabalho do `de` agora (perguntar, ou Continuar depois do freio); retoma a linha. */

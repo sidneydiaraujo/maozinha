@@ -20,10 +20,10 @@ const Abrir = z.object({ alvo: Alvo, ...Tamanho })
 const Escrever = z.object({ terminalId: z.string().min(1), dados: z.string().max(1_000_000) })
 const Redimensionar = z.object({ terminalId: z.string().min(1), ...Tamanho })
 
-type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'agentes' | 'repasse' | 'vigia'>
+type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'agentes' | 'repasse' | 'vigia' | 'mcp'>
 
 export function registrarHandlersTerminais(servicos: Servicos): void {
-  const { terminais, perfis, quadros, repos, agentes, repasse, vigia } = servicos
+  const { terminais, perfis, quadros, repos, agentes, repasse, vigia, mcp } = servicos
   const home = app.getPath('home')
   const dados = app.getPath('userData') // login do gh de quem tem GitHub proprio (D42)
   // so numa prova com a opcao sem-claude: o agente abre sem o claude.exe de verdade
@@ -37,6 +37,11 @@ export function registrarHandlersTerminais(servicos: Servicos): void {
       existeSessao: (configDir, sessaoId) => acharSessao(configDir, sessaoId) !== null,
       // linha de status do agente (T17.2): grava o settings em <userData>\agentes
       settingsDoAgente: (quadroId) => agentes.preparar(quadroId),
+      // a ferramenta de criar colegas (A19): url e chave do servidor do Mãozinha, so neste PC
+      mcpDoQuadro: (quadroId) => {
+        const config = mcp.configDo(quadroId)
+        return config ? agentes.prepararMcp(quadroId, config) : null
+      },
       // KANBAN.md do projeto (D52): criado quando um agente abre, a regra vai para o Claude
       kanbanDoQuadro: (quadro) =>
         prepararKanban(

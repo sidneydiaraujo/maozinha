@@ -27,9 +27,11 @@ import { ServicoQuadros } from './quadros/servico'
 import { copiarSessao } from './quadros/sessoes'
 import { ServicoRepos } from './repos/servico'
 import { ServicoTerminais } from './terminais/servico'
-import { enviarParaJanelas, montarAjustes, montarOndeEscreve, montarTime, temClaudeEm } from './montagens'
+import type { ServidorMcp } from './mcp/servidor'
+import { enviarParaJanelas, montarAjustes, montarOndeEscreve, montarPedidos, montarTime, temClaudeEm } from './montagens'
 import { spawnReal } from './terminais/spawnReal'
 import type { ApresentadorTime } from './time/apresentar'
+import type { PedidosDeColegas } from './time/pedidos'
 import type { Repasse } from './time/repasse'
 
 export interface Contexto {
@@ -48,6 +50,10 @@ export interface Contexto {
   /** Digita /compact no agente parado (T18.1); lanca com a frase se nao puder. */
   compactarAgora(quadroId: string): Promise<void>
   usos: UsoDasContas
+  /** Colegas que o proprio agente pede (A19): a tela responde com `responder`. */
+  pedidos: PedidosDeColegas
+  /** Servidor da ferramenta do agente (A19): `iniciar` no comeco do app. */
+  mcp: ServidorMcp
   /** Time de agentes (T29.1): chame `mudou()` quando linha, colega, papel ou quadro mudar. */
   time: ApresentadorTime
   /** Passar o trabalho adiante (T30.1): `digitou` zera o freio do time. */
@@ -175,6 +181,8 @@ export function criarContexto(): Contexto {
     ajustes.esquecer(id)
     compactarSozinho.esquecer(id)
     ondeEscreve.esquecer(id)
+    pedidos.esquecer(id)
+    mcp.esquecer(id)
     esquecer(id)
   }
   const repos = new ServicoRepos({
@@ -222,6 +230,7 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
+  const { pedidos, mcp } = montarPedidos({ armazem, perfis, quadros, mensagens, time })
   const ondeEscreve = montarOndeEscreve({
     quadros,
     repos,
@@ -242,6 +251,8 @@ export function criarContexto(): Contexto {
     compactarSozinho,
     compactarAgora,
     usos,
+    pedidos,
+    mcp,
     time,
     repasse,
     temClaude,

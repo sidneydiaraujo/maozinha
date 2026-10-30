@@ -17,12 +17,15 @@ const Ajustar = z.object({
 })
 const PorLinha = z.object({ ligacaoId: Id })
 const Colega = z.object({ quadroId: Id, posicao: z.object({ x: Numero, y: Numero }).optional() })
+const Resposta = z.object({ pedidoId: Id, aceitar: z.boolean() })
 
 /**
  * Linhas do time (T28.1, D39) e colega pela bolinha (T28.3): so ids de quadro e de linha. Conta,
  * pasta e copia do colega vem do quadro salvo; nada aqui digita num terminal.
  */
-export function registrarHandlersTime(contexto: Pick<Contexto, 'armazem' | 'perfis' | 'quadros' | 'repos' | 'time' | 'repasse'>): void {
+export function registrarHandlersTime(
+  contexto: Pick<Contexto, 'armazem' | 'perfis' | 'quadros' | 'repos' | 'time' | 'repasse' | 'pedidos'>,
+): void {
   const { armazem, perfis, quadros } = contexto
   // toda mudanca de linha ou colega: o time ouve de novo quem e quem (T29.1)
   const eAvisa = <T>(feito: T): T => {
@@ -51,4 +54,6 @@ export function registrarHandlersTime(contexto: Pick<Contexto, 'armazem' | 'perf
   })
   handle(IPC.timePassar, PorLinha, ({ ligacaoId }) => contexto.repasse.passar(ligacaoId))
   handle(IPC.timeSeparar, PorLinha, async ({ ligacaoId }) => eAvisa(await separarEmCopia(deps, ligacaoId)))
+  // colegas que o agente pediu (A19): so o clique do usuario cria; a tela manda so o id e o sim/nao
+  handle(IPC.timeResponderPedido, Resposta, ({ pedidoId, aceitar }) => contexto.pedidos.responder(pedidoId, aceitar))
 }

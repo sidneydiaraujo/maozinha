@@ -50,7 +50,8 @@ src/main/copias/           regras.ts, git.ts, servico.ts, juntar.ts (cópia sepa
 src/main/arquivos/         regras.ts, servico.ts, vigia.ts, disco.ts (T7.1)
 src/main/kanban/           kanban.ts (puro), disco.ts: KANBAN.md do projeto e a regra do agente (D52);
                            projeto.ts (puro): a pasta do projeto de um arquivo (A16)
-src/main/montagens.ts      fila do time, ajustes de modelo, onde cada agente salva (A16), aviso às janelas
+src/main/montagens.ts      fila do time, ajustes de modelo, onde cada agente salva (A16), pedidos de colegas (A19), aviso às janelas
+src/main/mcp/              protocolo.ts (puro), servidor.ts: a ferramenta criar_colegas por MCP, HTTP só em 127.0.0.1 (D56)
 src/main/handlers/         app, perfis, terminais, repos, quadros, lousa, arquivos
 src/preload/index.ts       ponte
 src/renderer/src/          App.tsx, topo/, explorador/, leitor/, componentes/, lousa/, estilos/
@@ -228,6 +229,9 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `agentes:compactar` | `{ quadroId }` | `void`. O main escreve `/compact`, pausa 150 ms e Enter, só com o agente parado (OSC 7501 `parado` ou `terminou`); senão lança "Espere o agente parar" | T18.1 |
 | `agentes:ajustar` | `{ quadroId, mudanca: { modelo?, esforco? } }` (só valores das listas) | `'agora' \| 'quandoParar' \| 'naAbertura'`. Guarda no quadro; com o agente aberto e parado (ou recém-aberto e pronto), o main fecha o terminal e avisa `agentes:reabrir`: a tela abre de novo e o comando leva `--model`/`--effort` com `--resume` (D49; nunca digita `/model`, que gravaria o padrão da conta); trabalhando, espera ele parar (`FilaAjustes`); fechado, vale na abertura. Terminal comum ou Codex: recusa | T19.1, D49 |
 | evento `agentes:reabrir` | — | `{ quadroId }`: o main fechou o agente para ele voltar com o modelo novo; a tela remonta o terminal | D49 |
+| `time:responderPedido` | `{ pedidoId, aceitar }` | `void`. Só com `aceitar` o main cria os colegas que o agente pediu | A19, D56 |
+| evento `time:pedidoColegas` | — | `{ tipo: 'novo', pedido: { pedidoId, quadroId, nome, colegas } }` ou `{ tipo: 'encerrado', pedidoId }` | A19, D56 |
+| evento `time:colegaCriado` | — | `ColegaNovo` (quadro com o papel, cópia, linha): o colega pedido pelo agente entra na lousa | A19, D56 |
 | `agentes:prefCompactar` | `{ ligado, limite }` (limite 10 a 90) | `void`. A escolha da engrenagem; com ela ligada o main digita `/compact` quando o agente termina a vez acima do limite | A17, D53 |
 | evento `agentes:escrevendo` | — | `{ quadroId, repoId, relativo }`: a pasta do projeto onde o agente salvou (o gancho `PostToolUse` do settings do agente grava `<dados>\agentes\<id>.escrita.json`); só quando muda | A16, D55 |
 

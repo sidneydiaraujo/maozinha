@@ -8,6 +8,7 @@ import { useArquivoAberto } from './leitor/useArquivoAberto'
 import { useContarCompactar } from './lousa/useContarCompactar'
 import { pedirFoco, pedirNovaNota, pedirNovoQuadro } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
+import { PedidoColegas } from './lousa/PedidoColegas'
 import { mandarAosAlvos } from './lousa/mandar'
 import { pedirVista } from './lousa/vistas'
 import { Paleta } from './paleta/Paleta'
@@ -80,6 +81,7 @@ export function App(): React.JSX.Element {
           <Lousa versao={versaoLousa} aoMudarPastas={aoMudarPastas} aoAbrirArquivo={abrir} />
         </main>
       </div>
+      <PedidoColegas />
       {paleta.aberta && (
         <Paleta
           repos={pastas.repos}

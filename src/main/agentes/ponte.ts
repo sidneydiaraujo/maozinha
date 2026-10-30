@@ -5,6 +5,7 @@
 // O mesmo settings leva o gancho de escrita (A16): <quadroId>.escrita.json diz onde ele salvou.
 import { join } from 'node:path'
 import type { PainelAgente } from '../../shared/model'
+import { FERRAMENTA_NO_CLAUDE } from '../mcp/protocolo'
 import { caminhoEscrito, ganchoDeEscrita } from './escrita'
 import { lerPainel, textoDoArquivo } from './painel'
 
@@ -13,8 +14,9 @@ export const ESPERA_MS = 250
 const FORMATO_ID = /^[\w-]{1,80}$/
 const SETTINGS = '.settings.json'
 const ESCRITA = '.escrita.json'
+const MCP = '.mcp.json'
 /** Do mais comprido ao mais curto: "q1.escrita.json" nao e o painel de "q1.escrita". */
-const FINS = [SETTINGS, ESCRITA, '.json']
+const FINS = [SETTINGS, ESCRITA, MCP, '.json']
 
 export interface DiscoPonte {
   criarPasta(pasta: string): void
@@ -87,8 +89,20 @@ export class PonteAgentes {
     if (!FORMATO_ID.test(quadroId) || !caminhoServe(pasta)) return null
     const settings = join(pasta, `${quadroId}${SETTINGS}`)
     const statusLine = linhaDeStatus(join(pasta, `${quadroId}.json`))
-    disco.escrever(settings, JSON.stringify({ statusLine, hooks: ganchoDeEscrita(join(pasta, `${quadroId}${ESCRITA}`)) }))
+    const hooks = ganchoDeEscrita(join(pasta, `${quadroId}${ESCRITA}`))
+    // a ferramenta de criar colegas (A19) ja pergunta na tela do Mãozinha: o Claude nao pergunta de novo
+    const permissions = { allow: [FERRAMENTA_NO_CLAUDE] }
+    disco.escrever(settings, JSON.stringify({ statusLine, hooks, permissions }))
     return settings
+  }
+
+  /** Grava o `--mcp-config` do agente (A19: a url e a chave do servidor do Mãozinha). */
+  prepararMcp(quadroId: string, config: object): string | null {
+    const { disco, pasta } = this.deps
+    if (!FORMATO_ID.test(quadroId)) return null
+    const arquivo = join(pasta, `${quadroId}${MCP}`)
+    disco.escrever(arquivo, JSON.stringify(config))
+    return arquivo
   }
 
   /** O ultimo painel do quadro, para a tela que remontou (como o aviso do agente). */
@@ -107,12 +121,13 @@ export class PonteAgentes {
     this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}.json`))
     this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}${SETTINGS}`))
     this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}${ESCRITA}`))
+    this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}${MCP}`))
   }
 
   /** O Claude grava o arquivo em mais de um passo: le 250 ms depois do ultimo aviso. */
   private mudou(nome: string): void {
     const lido = lerNome(nome)
-    if (!lido || lido.fim === SETTINGS) return
+    if (!lido || lido.fim === SETTINGS || lido.fim === MCP) return
     const { id, fim } = lido
     const chave = fim === ESCRITA ? nome : id
     this.relogios.get(chave)?.()

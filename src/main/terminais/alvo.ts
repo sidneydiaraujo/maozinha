@@ -1,7 +1,7 @@
 // Transforma o que a tela pede ("login da conta X", "o quadro q1") em pasta,
 // conta e comando. Quem decide e o main (D7): a tela so manda ids.
 import type { AlvoTerminal, Perfil, Quadro, Repo } from '../../shared/model'
-import { comandoAgente, shellLogin } from './comandos'
+import { comandoAgente, shellLogin, type ExtrasAgente } from './comandos'
 
 export interface AlvoResolvido {
   terminalId: string
@@ -23,6 +23,8 @@ export interface DepsAlvo {
   settingsDoAgente?(quadroId: string): string | null
   /** Garante o KANBAN.md do projeto (D52) e devolve a regra para o agente; null = sem kanban. */
   kanbanDoQuadro?(quadro: Quadro): string | null
+  /** Grava o `--mcp-config` do agente (A19) e devolve o caminho; null = sem a ferramenta. */
+  mcpDoQuadro?(quadroId: string): string | null
 }
 
 /** So o agente Claude ganha a linha de status e a regra do kanban: o Codex nao tem as opcoes. */
@@ -31,15 +33,19 @@ function comandoDoQuadro(quadro: Quadro, perfil: Perfil, deps: DepsAlvo): string
   const sessao = quadro.sessaoId
     ? { id: quadro.sessaoId, existe: deps.existeSessao(perfil.configDir, quadro.sessaoId) }
     : undefined
-  const settings = perfil.provedor === 'claude' ? deps.settingsDoAgente?.(quadro.id) : null
   // todo agente garante o kanban do projeto; so o Claude recebe a regra (o Codex nao tem a opcao)
   const regra = deps.kanbanDoQuadro?.(quadro) ?? null
-  return comandoAgente(perfil.provedor, sessao, {
-    settings: settings ?? undefined,
-    modelo: quadro.modelo,
-    esforco: quadro.esforco,
-    regra: perfil.provedor === 'claude' ? (regra ?? undefined) : undefined,
-  })
+  const doClaude = perfil.provedor === 'claude' ? arquivosDoClaude(quadro.id, regra, deps) : {}
+  return comandoAgente(perfil.provedor, sessao, { ...doClaude, modelo: quadro.modelo, esforco: quadro.esforco })
+}
+
+/** Linha de status, ferramenta de colegas (A19) e regra do kanban: so o Claude tem as opcoes. */
+function arquivosDoClaude(quadroId: string, regra: string | null, deps: DepsAlvo): Pick<ExtrasAgente, 'settings' | 'mcp' | 'regra'> {
+  return {
+    settings: deps.settingsDoAgente?.(quadroId) ?? undefined,
+    mcp: deps.mcpDoQuadro?.(quadroId) ?? undefined,
+    regra: regra ?? undefined,
+  }
 }
 
 export function resolverAlvo(alvo: AlvoTerminal, deps: DepsAlvo): AlvoResolvido {

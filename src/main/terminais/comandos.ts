@@ -19,6 +19,8 @@ export interface ExtrasAgente {
   esforco?: Esforco
   /** Texto acrescentado as instrucoes do Claude (o kanban, D52); vira uma linha so. */
   regra?: string
+  /** Arquivo da Lousa com o servidor de ferramentas do Mãozinha (A19: criar colegas). */
+  mcp?: string
 }
 
 /** `--append-system-prompt` com a regra numa linha so; vazia, nada. */
@@ -29,11 +31,18 @@ function argumentoRegra(regra: string | undefined): string | null {
   return linha ? `--append-system-prompt ${literalPowerShell(linha)}` : null
 }
 
+/** Os arquivos da Lousa que o Claude le: a linha de status (T17.2) e a ferramenta de colegas (A19). */
+function argumentosDeArquivo(extras: ExtrasAgente): string[] {
+  const args: string[] = []
+  if (extras.settings) args.push(`--settings ${literalPowerShell(extras.settings)}`)
+  if (extras.mcp) args.push(`--mcp-config ${literalPowerShell(extras.mcp)}`)
+  return args
+}
+
 /** Com conversa: retoma se ja existe, senao abre uma nova com o id que o Lousa escolheu. */
 export function comandoAgente(provedor: Provedor, sessao?: SessaoAgente, extras: ExtrasAgente = {}): string {
   if (provedor === 'codex') return 'codex\r'
-  const partes = ['claude']
-  if (extras.settings) partes.push(`--settings ${literalPowerShell(extras.settings)}`)
+  const partes = ['claude', ...argumentosDeArquivo(extras)]
   if (extras.modelo && MODELOS.includes(extras.modelo)) partes.push(`--model ${extras.modelo}`)
   if (extras.esforco && ESFORCOS.includes(extras.esforco)) partes.push(`--effort ${extras.esforco}`)
   const regra = argumentoRegra(extras.regra)

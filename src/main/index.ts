@@ -58,7 +58,10 @@ function registrarCanais(): void {
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)
   registrarHandlersAgentes(contexto)
   iniciarPonte(contexto)
+  // ferramenta de criar colegas (A19): sem o servidor, os agentes so abrem sem ela
+  contexto.mcp.iniciar().catch((erro: unknown) => log('warn', 'o servidor dos agentes não abriu', erro))
   app.on('before-quit', () => {
+    contexto.mcp.parar()
     contexto.terminais.fecharTodos()
     contexto.vigia.fecharTodos()
     contexto.agentes.parar()

@@ -138,6 +138,11 @@ export type QuandoAjusta = 'agora' | 'quandoParar' | 'naAbertura'
 export interface PrefCompactar { ligado: boolean; limite: number }  // limite em % usado
 /** A pasta do projeto onde o agente salvou por ultimo (A16); `relativo` com '/', '' = a raiz. */
 export interface OndeEscreve { quadroId: string; repoId: string; relativo: string }
+/** Colega que o proprio agente pediu (A19): nome no time e a tarefa que ele recebe. */
+export interface ColegaPedido { papel: string; tarefa: string }
+export interface PedidoColegas { pedidoId: string; quadroId: string; nome: string; colegas: ColegaPedido[] }
+/** novo = mostrar a pergunta; encerrado = respondido, vencido ou o agente fechou: tirar da tela. */
+export type AvisoPedidoColegas = { tipo: 'novo'; pedido: PedidoColegas } | { tipo: 'encerrado'; pedidoId: string }
 export interface Limite { usado: number; zeraEm: number | null }  // usado 0-100; zeraEm em ms
 export interface PainelAgente {
   modelo: { id: string; nome: string } | null
