@@ -148,3 +148,13 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 ## Fatia 31 — juntar o time (D39, D44)
 
 - [ ] 79. Num time de agentes em cópias separadas (ex.: Construtor → Revisor), depois que os dois fizeram commit, clique na linha → "⇢ Juntar o time". A janela lista as cópias na ordem de entrega. "Juntar N cópias" junta uma por vez na pasta original e diz o resultado de cada uma: "✓ … juntada em main", "Ficou de fora (tem alteração não salva)" para a cópia com mudança sem commit, e "Parou em …: Conflito" no primeiro conflito, com "Pedir ao agente de … para resolver". As cópias continuam abertas; feche os quadros para apagá-las.
+
+## Versão 0.4.6 — ajustes de 29 e 30/10 (A15, A16, A17, A19)
+
+- [ ] 80. (A15) Crie 3 colegas perto de um agente e troque o modelo de um deles logo que ele abrir. Parado, ele reabre na hora com o modelo novo; a apresentação do time chega **depois** de reabrir (não some).
+- [ ] 81. (A17) Engrenagem → Contexto da conversa → marque "Compactar sozinho ao fim da tarefa" (40%). Num agente acima de 40%, peça uma tarefa: ele **não** compacta no meio; quando termina, o Mãozinha digita `/compact` sozinho. Num time, o resumo do `/compact` não é passado ao colega. Desmarcado, nada acontece sozinho.
+- [ ] 82. (A16) Abra um agente numa pasta grande (ex.: a sua home) e peça para ele salvar um arquivo num projeto lá dentro. Na lateral aparece uma bolinha **piscando devagar** na pasta desse projeto (ou na pasta fechada que a contém); uma só por agente. Num agente aberto direto no projeto, a bolinha fica na raiz.
+- [ ] 83. (A16) No mesmo agente da home, o `KANBAN.md` **não** nasce na home: nasce na pasta do projeto quando ele salva o primeiro arquivo lá, e o agente usa esse.
+- [ ] 84. (A19) Num agente Claude, peça: "crie dois colegas, um Testador e um Revisor, e passe para cada um a tarefa X". Aparece "Claude N quer criar 2 colegas" com o papel e a tarefa de cada um. "Criar os 2 colegas": nascem ligados a ele, cada um com o papel, e cada um recebe a tarefa depois da apresentação. O agente fica sabendo quem nasceu.
+- [ ] 85. (A19) Repita e clique "Recusar" (ou Esc): nada nasce e o agente fica sabendo que você recusou.
+
