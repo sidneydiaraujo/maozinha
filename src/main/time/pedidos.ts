@@ -1,8 +1,10 @@
 // Colegas pedidos pelo proprio agente (A19, D56): o agente chama `criar_colegas` e o Mãozinha
 // pergunta na tela. So cria com o clique do usuario; sem resposta em 5 minutos, nada e criado.
-// Um pedido aberto por agente. Puro (o criar e o aviso a tela vem de fora).
-import type { PedidoColega, RespostaFerramenta } from '../mcp/protocolo'
+// Um pedido aberto por agente. `paralelo` (A21): o agente ia usar subagentes; a pergunta e se o
+// usuario quer ver em quadros, e a recusa manda seguir no mesmo terminal. Puro (o criar e o aviso
+// a tela vem de fora).
 import type { AvisoPedidoColegas } from '../../shared/model'
+import { ESPERAR, noClaude, type PedidoColega, type RespostaFerramenta } from '../mcp/ferramentas'
 
 export const ESPERA_RESPOSTA_MS = 5 * 60 * 1000
 
@@ -14,12 +16,40 @@ export function textoDaTarefa(de: string, tarefa: string): string {
   return `Tarefa pedida por ${de} (colega do time no Mãozinha): ${tarefa}`.replace(CONTROLE, ' ').trim()
 }
 
+const MESMO_TERMINAL = 'rode estas tarefas com os seus subagentes (Agent/Task), como faria normalmente.'
+
+/** A resposta ao agente quando o pedido acaba sem colegas. */
+function semColegas(motivo: 'recusou' | 'venceu', paralelo: boolean): RespostaFerramenta {
+  if (paralelo) {
+    const inicio = motivo === 'recusou' ? 'O usuário preferiu seguir no mesmo terminal' : 'O usuário não respondeu em 5 minutos; siga no mesmo terminal'
+    return { texto: `${inicio}: ${MESMO_TERMINAL}` }
+  }
+  return { texto: motivo === 'recusou' ? 'O usuário recusou: nenhum colega foi criado.' : 'O usuário não respondeu em 5 minutos; nenhum colega foi criado.' }
+}
+
+/** A resposta ao agente quando os colegas nasceram. */
+function comColegas(nomes: string[], paralelo: boolean): RespostaFerramenta {
+  const quem = `${nomes.length} colega(s), ${nomes.join(', ')}`
+  if (paralelo) {
+    return {
+      texto:
+        `O usuário quis ver em quadros: criei ${quem}, na mesma pasta que você. Não rode estas tarefas em subagentes. ` +
+        `Chame ${noClaude(ESPERAR)} para esperar todos terminarem e então siga o seu método (confira os arquivos de saída).`,
+    }
+  }
+  return {
+    texto:
+      `O usuário aceitou: criei ${quem}, ligados a você. Cada um recebe a tarefa assim que abrir; o que eles ` +
+      `fizerem aparece no quadro de cada um. Para saber quando terminarem, chame ${noClaude(ESPERAR)}.`,
+  }
+}
+
 export interface DepsPedidos {
   /** Como o agente aparece no time (papel, apelido da copia ou titulo). */
   nome(quadroId: string): string
   avisarTela(aviso: AvisoPedidoColegas): void
   /** Cria os colegas ligados ao quadro e entrega a tarefa; devolve o nome de cada um. */
-  criar(quadroId: string, colegas: PedidoColega[]): Promise<string[]>
+  criar(quadroId: string, colegas: PedidoColega[], paralelo: boolean): Promise<string[]>
   adiar(fn: () => void, ms: number): () => void
   novoId(): string
 }
@@ -27,6 +57,7 @@ export interface DepsPedidos {
 interface Aberto {
   quadroId: string
   colegas: PedidoColega[]
+  paralelo: boolean
   terminar(r: RespostaFerramenta): void
 }
 
@@ -35,24 +66,23 @@ export class PedidosDeColegas {
 
   constructor(private readonly deps: DepsPedidos) {}
 
-  pedir(quadroId: string, colegas: PedidoColega[]): Promise<RespostaFerramenta> {
+  pedir(quadroId: string, colegas: PedidoColega[], paralelo = false): Promise<RespostaFerramenta> {
     if ([...this.abertos.values()].some((a) => a.quadroId === quadroId)) {
       return Promise.resolve({ texto: 'Já existe um pedido seu esperando o usuário responder.', erro: true })
     }
     const pedidoId = this.deps.novoId()
     return new Promise((resolve) => {
-      const cancelar = this.deps.adiar(() => {
-        this.encerrar(pedidoId, { texto: 'O usuário não respondeu em 5 minutos; nenhum colega foi criado.' })
-      }, ESPERA_RESPOSTA_MS)
+      const cancelar = this.deps.adiar(() => this.encerrar(pedidoId, semColegas('venceu', paralelo)), ESPERA_RESPOSTA_MS)
       this.abertos.set(pedidoId, {
         quadroId,
         colegas,
+        paralelo,
         terminar: (r) => {
           cancelar()
           resolve(r)
         },
       })
-      this.deps.avisarTela({ tipo: 'novo', pedido: { pedidoId, quadroId, nome: this.deps.nome(quadroId), colegas } })
+      this.deps.avisarTela({ tipo: 'novo', pedido: { pedidoId, quadroId, nome: this.deps.nome(quadroId), colegas, paralelo } })
     })
   }
 
@@ -60,15 +90,11 @@ export class PedidosDeColegas {
   async responder(pedidoId: string, aceitar: boolean): Promise<void> {
     const aberto = this.abertos.get(pedidoId)
     if (!aberto) return
-    if (!aceitar) return this.encerrar(pedidoId, { texto: 'O usuário recusou: nenhum colega foi criado.' })
+    if (!aceitar) return this.encerrar(pedidoId, semColegas('recusou', aberto.paralelo))
     this.abertos.delete(pedidoId) // um segundo clique nao cria de novo
     try {
-      const nomes = await this.deps.criar(aberto.quadroId, aberto.colegas)
-      this.encerrar(pedidoId, {
-        texto:
-          `O usuário aceitou: criei ${nomes.length} colega(s), ${nomes.join(', ')}, ligados a você. ` +
-          'Cada um recebe a tarefa assim que abrir; o que eles fizerem aparece no quadro de cada um.',
-      }, aberto)
+      const nomes = await this.deps.criar(aberto.quadroId, aberto.colegas, aberto.paralelo)
+      this.encerrar(pedidoId, comColegas(nomes, aberto.paralelo), aberto)
     } catch (e) {
       this.encerrar(pedidoId, { texto: `Não deu para criar os colegas: ${e instanceof Error ? e.message : String(e)}`, erro: true }, aberto)
     }

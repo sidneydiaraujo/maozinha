@@ -5,14 +5,16 @@ import { randomBytes } from 'node:crypto'
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http'
 import type { AddressInfo } from 'node:net'
 import { log } from '../log'
-import { conferirPedido, NOME_SERVIDOR, responderRpc, type PedidoColega, type RespostaFerramenta } from './protocolo'
+import { NOME_SERVIDOR, type Ferramentas } from './ferramentas'
+import { conferirPedido, responderRpc } from './protocolo'
 
 /** Pedido maior que isto nao e de criar colegas. */
 const LIMITE_BYTES = 64 * 1024
 
 export interface DepsServidorMcp {
   versao: string
-  chamar(quadroId: string, colegas: PedidoColega[]): Promise<RespostaFerramenta>
+  /** As ferramentas para o quadro dono da chave. */
+  ferramentas(quadroId: string): Ferramentas
 }
 
 export class ServidorMcp {
@@ -77,7 +79,7 @@ export class ServidorMcp {
     } catch {
       return void res.writeHead(400).end()
     }
-    const resposta = await responderRpc(corpo, (c) => this.deps.chamar(conferido.quadroId, c), this.deps.versao)
+    const resposta = await responderRpc(corpo, this.deps.ferramentas(conferido.quadroId), this.deps.versao)
     if (resposta === null) return void res.writeHead(202).end()
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' }).end(JSON.stringify(resposta))
   }

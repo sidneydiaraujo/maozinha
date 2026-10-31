@@ -130,6 +130,7 @@ export function criarContexto(): Contexto {
       // modelo/esforco pedidos com o agente trabalhando: reabre quando ele parar (T19.1, D49)
       void ajustes.aoEstado(terminalId, aviso)
       void repasse.aoEstado(terminalId, aviso.estado, aviso.mensagem) // fim da vez passa adiante (T30.1)
+      espera.aoEstado(terminalId, aviso) // colega acabou a tarefa: quem pediu segue (A21)
       // depois do repasse (que ja passou a vez de verdade) e antes da fila, que espera o /compact (A17)
       compactarSozinho.aoEstado(terminalId, aviso)
       // apresentacao do time pedida com o agente ocupado: digita quando ele parar (T29.1)
@@ -143,7 +144,7 @@ export function criarContexto(): Contexto {
     agentes.esquecer(id)
     compactarSozinho.esquecer(id)
   })
-  const { mensagens, time, repasse, esquecer } = montarTime({
+  const { mensagens, time, repasse, espera, esquecer } = montarTime({
     armazem,
     perfis,
     terminais,
@@ -230,7 +231,7 @@ export function criarContexto(): Contexto {
   const vigia = new VigiaArquivos(observarReal, (repoId, caminhos) =>
     enviarParaJanelas(IPC.arquivosMudou, { repoId, caminhos }),
   )
-  const { pedidos, mcp } = montarPedidos({ armazem, perfis, quadros, mensagens, time })
+  const { pedidos, mcp } = montarPedidos({ armazem, perfis, quadros, mensagens, time, espera })
   const ondeEscreve = montarOndeEscreve({
     quadros,
     repos,

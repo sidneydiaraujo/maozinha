@@ -78,7 +78,7 @@ describe('PonteAgentes', () => {
     expect(JSON.parse(arquivos.get(join(PASTA, 'q1.settings.json'))!.toString())).toEqual({
       statusLine: { type: 'command', command: 'findstr "^" > "C:/Users/x/AppData/Roaming/lousa-ia/agentes/q1.json"' },
       hooks: ganchoDeEscrita(join(PASTA, 'q1.escrita.json')),
-      permissions: { allow: ['mcp__maozinha__criar_colegas'] },
+      permissions: { allow: ['mcp__maozinha__criar_colegas', 'mcp__maozinha__esperar_colegas'] },
     })
   })
 

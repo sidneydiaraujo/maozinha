@@ -1,6 +1,6 @@
 // Converte o estado salvo em nos do React Flow (T3.4b, D13: so quadros, soltos; D14: a pasta da o nome). Funcao pura.
 import type { Node } from '@xyflow/react'
-import type { Caixa, EstadoTela, PerfilComConta, Quadro, Repo, Viewport } from '../../../shared/model'
+import type { Caixa, EstadoTela, PerfilComConta, Quadro, Repo, TipoQuadro, Viewport } from '../../../shared/model'
 
 export interface AcoesLousa {
   removerQuadro(quadroId: string): void
@@ -11,6 +11,8 @@ export interface AcoesLousa {
   ampliar(quadroId: string): void
   /** Papel no time (T29.1); vazio tira. */
   definirPapel(quadroId: string, papel: string): Promise<void>
+  /** Agente ou terminal livre embaixo deste, na mesma pasta e conta, fora do time (A20). */
+  abrirAoLado(quadro: Quadro, tipo: TipoQuadro): Promise<void>
 }
 
 export type QuadroNo = Node<

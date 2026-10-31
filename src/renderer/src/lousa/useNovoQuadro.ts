@@ -19,7 +19,7 @@ export interface PedidoNovo {
 }
 
 /** Quadro novo na lousa; a conta dele vira a sugestao da pasta, e a copia separada (D18) entra na lista. */
-function comQuadroNovo(e: EstadoTela, quadro: Quadro, copia: Repo | null): EstadoTela {
+export function comQuadroNovo(e: EstadoTela, quadro: Quadro, copia: Repo | null): EstadoTela {
   const repos = e.repos.map((r) => (r.id === quadro.repoId ? { ...r, perfilPadraoId: quadro.perfilId } : r))
   return { ...e, quadros: [...e.quadros, quadro], repos: copia ? [...repos, copia] : repos }
 }

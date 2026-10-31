@@ -76,6 +76,15 @@ describe('criarColega (T28.3)', () => {
     expect(quadro.repoId).toBe('app')
   })
 
+  it('mesma pasta (A21): nem tenta a copia, mesmo com git, e segue ligado', async () => {
+    const { deps, quadros } = montar('não deveria tentar a cópia')
+    const origem = quadros.criar('app', 'agente', 'pessoal')
+    const { quadro, repo, ligacao } = await criarColega(deps, origem.id, { mesmaPasta: true })
+    expect(repo).toBeNull()
+    expect(quadro.repoId).toBe('app')
+    expect(ligacao).toMatchObject({ de: origem.id, para: quadro.id })
+  })
+
   it('outro erro do git sobe; terminal e Codex nao tem colega', async () => {
     const { deps, quadros } = montar('O git não criou a cópia: disco cheio')
     const origem = quadros.criar('app', 'agente', 'pessoal')

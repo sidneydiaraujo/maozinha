@@ -25,7 +25,7 @@ import { NotaNode } from './NotaNode'
 import { NovoQuadro } from './NovoQuadro'
 import { QuadroNode } from './QuadroNode'
 import { useNotas } from './useNotas'
-import { useNovoQuadro } from './useNovoQuadro'
+import { comQuadroNovo, useNovoQuadro } from './useNovoQuadro'
 import { useVistasSalvas } from './useVistasSalvas'
 import { usePanoMeio } from './usePanoMeio'
 import { useAmpliar, type Ampliacao } from './useAmpliar'
@@ -44,6 +44,8 @@ const OPCOES_FIXAS = {
   deleteKeyCode: null,
   proOptions: { hideAttribution: true },
 } as const
+/** O quadro "nesta pasta, fora do time" (A20) nasce logo embaixo de quem o abriu. */
+const FOLGA_AO_LADO = 40
 
 interface Props {
   /** Muda quando algo fora da lousa (nome de conta) mudou: a lousa recarrega. */
@@ -108,6 +110,11 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
       definirPapel: async (quadroId, papel) => {
         const novo = await window.lousa.quadros.definirPapel(quadroId, papel)
         setEstado((e) => e && comContaTrocada(e, novo))
+      },
+      abrirAoLado: async (quadro, tipo) => {
+        const posicao = { x: quadro.caixa.x, y: quadro.caixa.y + quadro.caixa.altura + FOLGA_AO_LADO }
+        const criado = await window.lousa.quadros.criar(quadro.repoId, tipo, quadro.perfilId, { posicao, separado: false })
+        setEstado((e) => e && comQuadroNovo(e, criado.quadro, null))
       },
     }),
     [falhou, abrirArquivo, ampliar, setAviso],

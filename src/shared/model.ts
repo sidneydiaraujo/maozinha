@@ -140,7 +140,8 @@ export interface PrefCompactar { ligado: boolean; limite: number }  // limite em
 export interface OndeEscreve { quadroId: string; repoId: string; relativo: string }
 /** Colega que o proprio agente pediu (A19): nome no time e a tarefa que ele recebe. */
 export interface ColegaPedido { papel: string; tarefa: string }
-export interface PedidoColegas { pedidoId: string; quadroId: string; nome: string; colegas: ColegaPedido[] }
+/** `paralelo` (A21): o agente ia usar subagentes; a pergunta e se o usuario quer ver em quadros. */
+export interface PedidoColegas { pedidoId: string; quadroId: string; nome: string; colegas: ColegaPedido[]; paralelo: boolean }
 /** novo = mostrar a pergunta; encerrado = respondido, vencido ou o agente fechou: tirar da tela. */
 export type AvisoPedidoColegas = { tipo: 'novo'; pedido: PedidoColegas } | { tipo: 'encerrado'; pedidoId: string }
 export interface Limite { usado: number; zeraEm: number | null }  // usado 0-100; zeraEm em ms

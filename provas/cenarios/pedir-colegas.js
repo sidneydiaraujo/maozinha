@@ -4,8 +4,10 @@
 // - o settings do a1 libera a ferramenta (permissions.allow) e o arquivo do --mcp-config existe;
 // - a tela pergunta "Claude 1 quer criar 1 colega" com o papel e a tarefa; nada nasce antes do clique;
 // - "Criar o colega": nasce um quadro novo, ligado ao a1, com o papel; a resposta volta ao "agente";
-// - num segundo pedido, Esc recusa: nada nasce e a resposta diz que o usuario recusou.
-// Fotos: 1-pergunta, 2-criado.
+// - num segundo pedido, Esc recusa: nada nasce e a resposta diz que o usuario recusou;
+// - paralelo (A21): "vai dividir o trabalho", "Ver em quadros" cria na mesma pasta com a linha pausada;
+// - o ＋ do quadro (A20) abre um terminal livre na mesma pasta e conta, sem linha.
+// Fotos: 1-pergunta, 2-criado, 3-paralelo, 4-mais.
 ;(async () => {
   const { espera } = prova
   const q = (s) => document.querySelector(s)
@@ -24,10 +26,10 @@
   const escrever = (t) => window.lousa.terminais.escrever('a1', t)
   const agentes = String(prova.dados.pastaDemo).replace(/\\/g, '/') + '/../dados/agentes'
   const quadros = () => todos('[data-quadro]').length
-  const pedir = (marca, papel, procura) =>
+  const pedir = (marca, papel, procura, paralelo = false) =>
     escrever(
       `$c = (Get-Content '${agentes}/a1.mcp.json' -Raw | ConvertFrom-Json).mcpServers.maozinha; ` +
-        `$b = '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"criar_colegas","arguments":{"colegas":[{"papel":"${papel}","tarefa":"testar o login"}]}}}'; ` +
+        `$b = '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"criar_colegas","arguments":{"paralelo":${paralelo},"colegas":[{"papel":"${papel}","tarefa":"testar o login"}]}}}'; ` +
         `$r = Invoke-RestMethod -Method Post -Uri $c.url -Headers @{ Authorization = $c.headers.Authorization } -ContentType 'application/json' -Body $b; ` +
         `Write-Output ('${marca}' + '=' + ($r.result.content[0].text -match '${procura}') + '|')\r`,
     )
@@ -67,6 +69,34 @@
     window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
     r.respostaRecusa = await ate(() => /RESP2=True/.test(limpo()), 80)
     r.naoCriouNaRecusa = quadros() === depois
+
+    // 3. paralelo (A21): a pergunta e ver em quadros; o colega nasce na MESMA pasta, com a linha pausada
+    const antesParalelo = quadros()
+    await pedir('RESP3', 'Pesquisador', 'mesma pasta', true)
+    r.perguntouParalelo = await ate(() => /vai dividir o trabalho/.test(q('.janela-pedido')?.textContent ?? ''), 60)
+    r.botoesParalelo = q('.janela-pedido')?.textContent ?? ''
+    await prova.foto('3-paralelo')
+    q('.janela-pedido .botao-principal')?.click()
+    r.nasceuParalelo = await ate(() => quadros() === antesParalelo + 1, 80)
+    r.respostaParalelo = await ate(() => /RESP3=True/.test(limpo()), 80)
+    const e3 = await window.lousa.lousa.carregar()
+    const a1 = e3.quadros.find((x) => x.id === 'a1')
+    const pesquisador = e3.quadros.find((x) => x.papel === 'Pesquisador')
+    r.mesmaPasta = !!pesquisador && pesquisador.repoId === a1?.repoId
+    r.linhaPausada = (e3.ligacoes ?? []).some((l) => l.de === 'a1' && l.para === pesquisador?.id && l.pausada)
+
+    // 4. o ＋ do quadro abre um terminal livre na mesma pasta, sem linha (A20)
+    const antesMais = quadros()
+    q('[data-quadro="a1"] .botao-ao-lado')?.click()
+    await ate(() => todos('.conta-menu .conta-menu-item').length === 2, 20)
+    todos('.conta-menu .conta-menu-item')[1]?.click()
+    r.nasceuTerminal = await ate(() => quadros() === antesMais + 1, 80)
+    const e4 = await window.lousa.lousa.carregar()
+    const livre = e4.quadros.find((x) => !e3.quadros.some((y) => y.id === x.id))
+    r.terminalLivre = livre?.tipo === 'terminal' && livre.repoId === a1?.repoId && livre.perfilId === a1?.perfilId
+    r.semLinha = !(e4.ligacoes ?? []).some((l) => l.para === livre?.id || l.de === livre?.id)
+    await espera(1000)
+    await prova.foto('4-mais')
   } catch (e) {
     r.erros.push(String((e && e.stack) || e))
   }
@@ -87,6 +117,16 @@
     r.ligado &&
     r.mesmaConta &&
     r.respostaRecusa &&
-    r.naoCriouNaRecusa
+    r.naoCriouNaRecusa &&
+    r.perguntouParalelo &&
+    r.botoesParalelo.includes('Ver em quadros') &&
+    r.botoesParalelo.includes('Seguir no mesmo terminal') &&
+    r.nasceuParalelo &&
+    r.respostaParalelo &&
+    r.mesmaPasta &&
+    r.linhaPausada &&
+    r.nasceuTerminal &&
+    r.terminalLivre &&
+    r.semLinha
   return r
 })()

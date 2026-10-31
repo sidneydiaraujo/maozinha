@@ -8,6 +8,7 @@ import '../estilos/cabecalho.css'
 import { AnelContexto } from './AnelContexto'
 import { brilhoDoQuadro, chamaAtencao, seloDoAviso } from './atencao'
 import { BolinhasTime } from './BolinhasTime'
+import { BotaoAoLado } from './BotaoAoLado'
 import { BotaoFechar } from './BotaoFechar'
 import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
@@ -184,6 +185,7 @@ export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.E
               Juntar
             </button>
           )}
+          <BotaoAoLado rotulo={rotulo} aoAbrir={(tipo) => acoes.abrirAoLado(quadro, tipo)} />
           <button
             className="botao-ampliar botao-acao botao-acao-ampliar nodrag"
             title="Ampliar na tela (de novo para voltar)"

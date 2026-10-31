@@ -1,7 +1,7 @@
 // Transforma o que a tela pede ("login da conta X", "o quadro q1") em pasta,
 // conta e comando. Quem decide e o main (D7): a tela so manda ids.
 import type { AlvoTerminal, Perfil, Quadro, Repo } from '../../shared/model'
-import { REGRA_COLEGAS } from '../mcp/protocolo'
+import { REGRA_COLEGAS } from '../mcp/ferramentas'
 import { comandoAgente, shellLogin, type ExtrasAgente } from './comandos'
 
 export interface AlvoResolvido {

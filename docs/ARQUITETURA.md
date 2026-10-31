@@ -51,7 +51,7 @@ src/main/arquivos/         regras.ts, servico.ts, vigia.ts, disco.ts (T7.1)
 src/main/kanban/           kanban.ts (puro), disco.ts: KANBAN.md do projeto e a regra do agente (D52);
                            projeto.ts (puro): a pasta do projeto de um arquivo (A16)
 src/main/montagens.ts      fila do time, ajustes de modelo, onde cada agente salva (A16), pedidos de colegas (A19), aviso às janelas
-src/main/mcp/              protocolo.ts (puro), servidor.ts: a ferramenta criar_colegas por MCP, HTTP só em 127.0.0.1 (D56)
+src/main/mcp/              ferramentas.ts (puro: criar_colegas, esperar_colegas e a regra), protocolo.ts (puro), servidor.ts: MCP por HTTP só em 127.0.0.1 (D56, D57)
 src/main/handlers/         app, perfis, terminais, repos, quadros, lousa, arquivos
 src/preload/index.ts       ponte
 src/renderer/src/          App.tsx, topo/, explorador/, leitor/, componentes/, lousa/, estilos/

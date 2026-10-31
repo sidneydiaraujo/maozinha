@@ -23,19 +23,22 @@ export interface DepsColega {
 /**
  * Cria o colega e liga `quadroId -> colega`. Sem `posicao`, nasce a direita do quadro. A copia
  * sai da pasta original (copia de copia copia a original). Pasta sem git: mesma pasta.
- * `exigirCopia`: sem copia possivel, lanca em vez de cair na mesma pasta.
+ * `exigirCopia`: sem copia possivel, lanca em vez de cair na mesma pasta. `mesmaPasta` (A21): o
+ * paralelismo visto em quadros trabalha onde o metodo do usuario procura as saidas, sem copia.
  */
 export async function criarColega(
   deps: DepsColega,
   quadroId: string,
-  opcoes: { posicao?: Posicao; exigirCopia?: boolean } = {},
+  opcoes: { posicao?: Posicao; exigirCopia?: boolean; mesmaPasta?: boolean } = {},
 ): Promise<ColegaNovo> {
   const origem = deps.quadros.obter(quadroId)
   if (origem.tipo !== 'agente' || !deps.ehClaude(origem.perfilId)) throw new Error(TEXTO_RECUSA.naoAgente)
   const raiz = raizDoRepo(deps.armazem.carregar().repos, origem.repoId)
   const posicao = opcoes.posicao ?? { x: origem.caixa.x + origem.caixa.largura + FOLGA, y: origem.caixa.y }
 
-  const criado = await naCopiaOuNaPasta(deps, origem, { raiz, posicao, exigirCopia: !!opcoes.exigirCopia })
+  const criado = opcoes.mesmaPasta
+    ? { quadro: deps.quadros.criar(origem.repoId, 'agente', origem.perfilId, posicao), repo: null }
+    : await naCopiaOuNaPasta(deps, origem, { raiz, posicao, exigirCopia: !!opcoes.exigirCopia })
   const quadro = herdarAjustes(deps, origem, criado.quadro)
   return { quadro, repo: criado.repo, ligacao: deps.time.ligar(origem.id, quadro.id) }
 }

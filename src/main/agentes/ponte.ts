@@ -5,7 +5,7 @@
 // O mesmo settings leva o gancho de escrita (A16): <quadroId>.escrita.json diz onde ele salvou.
 import { join } from 'node:path'
 import type { PainelAgente } from '../../shared/model'
-import { FERRAMENTA_NO_CLAUDE } from '../mcp/protocolo'
+import { FERRAMENTAS_NO_CLAUDE } from '../mcp/ferramentas'
 import { caminhoEscrito, ganchoDeEscrita } from './escrita'
 import { lerPainel, textoDoArquivo } from './painel'
 
@@ -91,7 +91,7 @@ export class PonteAgentes {
     const statusLine = linhaDeStatus(join(pasta, `${quadroId}.json`))
     const hooks = ganchoDeEscrita(join(pasta, `${quadroId}${ESCRITA}`))
     // a ferramenta de criar colegas (A19) ja pergunta na tela do Mãozinha: o Claude nao pergunta de novo
-    const permissions = { allow: [FERRAMENTA_NO_CLAUDE] }
+    const permissions = { allow: FERRAMENTAS_NO_CLAUDE }
     disco.escrever(settings, JSON.stringify({ statusLine, hooks, permissions }))
     return settings
   }

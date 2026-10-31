@@ -20,6 +20,7 @@ import type { ServicoTerminais } from './terminais/servico'
 import { rodarReal, temClaudeDentro } from './terminais/filhos'
 import { ApresentadorTime, FilaMensagens } from './time/apresentar'
 import { criarColega, type DepsColega } from './time/colega'
+import { EsperaDeColegas } from './time/espera'
 import { PedidosDeColegas, textoDaTarefa } from './time/pedidos'
 import { Repasse } from './time/repasse'
 import { provedoresDos, ServicoTime } from './time/servico'
@@ -32,6 +33,12 @@ export function temClaudeEm(terminais: ServicoTerminais): (quadroId: string) => 
   }
 }
 
+/** setTimeout que devolve como cancelar. */
+function adiarReal(fn: () => void, ms: number): () => void {
+  const t = setTimeout(fn, ms)
+  return () => clearTimeout(t)
+}
+
 /** Fila de mensagens aos agentes e apresentador do time (T29.1). */
 export function montarTime(d: {
   armazem: Armazem
@@ -41,7 +48,7 @@ export function montarTime(d: {
   temClaude(quadroId: string): Promise<boolean>
   /** Troca de modelo esperando: a mensagem vai para o agente reaberto (A15). */
   segurar(quadroId: string): boolean
-}): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; esquecer(quadroId: string): void } {
+}): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; espera: EsperaDeColegas; esquecer(quadroId: string): void } {
   const { armazem, perfis, terminais } = d
   const dados = (): DadosTime => {
     const e = armazem.carregar()
@@ -49,6 +56,8 @@ export function montarTime(d: {
     return { quadros: e.quadros, repos: e.repos, ligacoes: e.ligacoes ?? [], provedores }
   }
   const linhas = new ServicoTime({ armazem, perfis, novoId: randomUUID })
+  // quem pediu colegas espera eles terminarem a tarefa (A21)
+  const espera = new EsperaDeColegas({ nome: (id) => nomeNoTime(dados(), id), adiar: adiarReal })
   // a fila e criada logo abaixo; o repasse so a usa quando um agente termina
   const repasse = new Repasse({
     dados,
@@ -65,20 +74,21 @@ export function montarTime(d: {
     esperar: d.esperar,
     temClaude: d.temClaude,
     segurar: d.segurar,
-  }, (id, tipo) => repasse.aoDigitar(id, tipo))
+  }, (id, tipo) => {
+    repasse.aoDigitar(id, tipo)
+    espera.aoDigitar(id, tipo)
+  })
   const time = new ApresentadorTime({
     dados,
     fila: mensagens,
-    adiar: (fn, ms) => {
-      const t = setTimeout(fn, ms)
-      return () => clearTimeout(t)
-    },
+    adiar: adiarReal,
   })
   const esquecer = (id: string): void => {
     mensagens.esquecer(id)
     repasse.esquecer(id)
+    espera.esquecer(id)
   }
-  return { mensagens, time, repasse, esquecer }
+  return { mensagens, time, repasse, espera, esquecer }
 }
 
 /**
@@ -156,30 +166,38 @@ export function montarPedidos(d: {
   quadros: ServicoQuadros
   mensagens: Pick<FilaMensagens, 'enfileirar'>
   time: Pick<ApresentadorTime, 'mudou'>
+  espera: Pick<EsperaDeColegas, 'registrar' | 'esperar'>
 }): { pedidos: PedidosDeColegas; mcp: ServidorMcp } {
   const { armazem, perfis, quadros } = d
+  const linhas = new ServicoTime({ armazem, perfis, novoId: randomUUID })
   const deps: DepsColega = {
     armazem,
     quadros,
-    time: new ServicoTime({ armazem, perfis, novoId: randomUUID }),
+    time: linhas,
     ehClaude: (perfilId) => perfis.obter(perfilId).provedor === 'claude',
   }
   const nome = (id: string): string => {
     const e = armazem.carregar()
     return nomeNoTime({ quadros: e.quadros, repos: e.repos, ligacoes: e.ligacoes ?? [], provedores: {} }, id)
   }
-  const criar = async (quadroId: string, colegas: ColegaPedido[]): Promise<string[]> => {
+  const criar = async (quadroId: string, colegas: ColegaPedido[], paralelo: boolean): Promise<string[]> => {
     const { caixa } = quadros.obter(quadroId)
     const nomes: string[] = []
+    const ids: string[] = []
     for (const [i, c] of colegas.entries()) {
       const posicao = { x: caixa.x + caixa.largura + FOLGA_COLEGAS, y: caixa.y + i * (caixa.altura + FOLGA_COLEGAS) }
-      const novo = await criarColega(deps, quadroId, { posicao })
+      // paralelo (A21): na mesma pasta, onde o metodo procura as saidas, e com a linha pausada: o fim
+      // da vez de quem pediu nao vira trabalho extra para o colega
+      const novo = await criarColega(deps, quadroId, { posicao, mesmaPasta: paralelo })
       const quadro = quadros.definirPapel(novo.quadro.id, c.papel)
-      enviarParaJanelas(IPC.timeColegaCriado, { ...novo, quadro })
+      const ligacao = paralelo ? linhas.ajustar(novo.ligacao.id, { pausada: true }) : novo.ligacao
+      enviarParaJanelas(IPC.timeColegaCriado, { ...novo, quadro, ligacao })
       // a tarefa espera o colega abrir e ficar pronto (a apresentacao do time sai antes)
       void d.mensagens.enfileirar(quadro.id, textoDaTarefa(nome(quadroId), c.tarefa))
       nomes.push(quadro.papel ?? quadro.titulo)
+      ids.push(quadro.id)
     }
+    d.espera.registrar(quadroId, ids)
     d.time.mudou()
     return nomes
   }
@@ -187,12 +205,15 @@ export function montarPedidos(d: {
     nome,
     avisarTela: (aviso) => enviarParaJanelas(IPC.timePedidoColegas, aviso),
     criar,
-    adiar: (fn, ms) => {
-      const t = setTimeout(fn, ms)
-      return () => clearTimeout(t)
-    },
+    adiar: adiarReal,
     novoId: randomUUID,
   })
-  const mcp = new ServidorMcp({ versao: app.getVersion(), chamar: (id, colegas) => pedidos.pedir(id, colegas) })
+  const mcp = new ServidorMcp({
+    versao: app.getVersion(),
+    ferramentas: (id) => ({
+      criar: (colegas, paralelo) => pedidos.pedir(id, colegas, paralelo),
+      esperar: () => d.espera.esperar(id),
+    }),
+  })
   return { pedidos, mcp }
 }

@@ -10,9 +10,9 @@ function montar(falhaAoCriar = false) {
   const p = new PedidosDeColegas({
     nome: () => 'Claude 1',
     avisarTela: (a) => void avisos.push(a),
-    criar: async (_id, colegas) => {
+    criar: async (_id, colegas, paralelo) => {
       if (falhaAoCriar) throw new Error('não é um repositório git')
-      criados.push(...colegas.map((c) => c.papel))
+      criados.push(...colegas.map((c) => (paralelo ? `${c.papel}*` : c.papel)))
       return colegas.map((c) => c.papel)
     },
     adiar: (fn, ms) => {
@@ -40,11 +40,12 @@ describe('PedidosDeColegas (A19)', () => {
   it('pergunta na tela e so cria com o aceite; a resposta conta ao agente quem nasceu', async () => {
     const { p, avisos, criados } = montar()
     const resposta = p.pedir('q1', DOIS)
-    expect(avisos).toEqual([{ tipo: 'novo', pedido: { pedidoId: 'p1', quadroId: 'q1', nome: 'Claude 1', colegas: DOIS } }])
+    expect(avisos).toEqual([{ tipo: 'novo', pedido: { pedidoId: 'p1', quadroId: 'q1', nome: 'Claude 1', colegas: DOIS, paralelo: false } }])
     expect(criados).toEqual([])
     await p.responder('p1', true)
     expect(criados).toEqual(['Testador', 'Revisor'])
     expect((await resposta).texto).toContain('criei 2 colega(s), Testador, Revisor')
+    expect((await resposta).texto).toContain('mcp__maozinha__esperar_colegas')
     expect(avisos.at(-1)).toEqual({ tipo: 'encerrado', pedidoId: 'p1' })
   })
 
@@ -85,5 +86,27 @@ describe('PedidosDeColegas (A19)', () => {
     const r = p.pedir('q1', DOIS)
     await p.responder('p1', true)
     expect(await r).toEqual({ texto: 'Não deu para criar os colegas: não é um repositório git', erro: true })
+  })
+
+  it('paralelo: a tela sabe, o aceite cria e manda esperar; a recusa e o prazo mandam seguir no mesmo terminal', async () => {
+    const aceite = montar()
+    const r = aceite.p.pedir('q1', DOIS, true)
+    expect(aceite.avisos[0]).toMatchObject({ tipo: 'novo', pedido: { paralelo: true } })
+    await aceite.p.responder('p1', true)
+    expect(aceite.criados).toEqual(['Testador*', 'Revisor*'])
+    const texto = (await r).texto
+    expect(texto).toContain('na mesma pasta que você')
+    expect(texto).toContain('Não rode estas tarefas em subagentes')
+
+    const recusa = montar()
+    const r2 = recusa.p.pedir('q1', DOIS, true)
+    await recusa.p.responder('p1', false)
+    expect((await r2).texto).toContain('preferiu seguir no mesmo terminal: rode estas tarefas com os seus subagentes')
+
+    const prazo = montar()
+    const r3 = prazo.p.pedir('q1', DOIS, true)
+    prazo.relogios[0]?.fn()
+    expect((await r3).texto).toContain('siga no mesmo terminal')
+    expect(prazo.criados).toEqual([])
   })
 })

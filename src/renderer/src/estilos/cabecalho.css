@@ -95,6 +95,17 @@
   background: var(--acao-ampliar);
 }
 
+/* ＋ outro quadro nesta pasta, fora do time (A20): neutro, para nao competir com ampliar e fechar */
+.cabecalho-quadro .botao-ao-lado {
+  color: var(--cabecalho-texto);
+  background: transparent;
+  border-color: color-mix(in srgb, var(--cabecalho-texto) 40%, transparent);
+}
+
+.cabecalho-quadro .botao-ao-lado:hover {
+  background: color-mix(in srgb, var(--cabecalho-texto) 18%, transparent);
+}
+
 .cabecalho-quadro .botao-acao-fechar {
   font-size: 19px;
   color: var(--acao-fechar);

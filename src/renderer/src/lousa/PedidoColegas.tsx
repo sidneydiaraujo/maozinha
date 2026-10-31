@@ -1,5 +1,6 @@
 // Colegas pedidos pelo proprio agente (A19, D56): "Claude 1 quer criar 2 colegas". So o clique
-// aqui cria; a tela manda so o id do pedido e o sim/nao. Fechar (Esc, fora) = recusar.
+// aqui cria; a tela manda so o id do pedido e o sim/nao. Fechar (Esc, fora) = recusar. Paralelo (A21):
+// o agente ia usar subagentes; a pergunta e ver em quadros ou seguir no mesmo terminal.
 import { useEffect, useState } from 'react'
 import type { PedidoColegas as Pedido } from '../../../shared/model'
 import { mensagemDe } from '../componentes/erro'
@@ -18,6 +19,27 @@ function usePedidos(): Pedido[] {
     [],
   )
   return pedidos
+}
+
+/** O pedido comum (o usuario pediu colegas) e o paralelo (o agente ia usar subagentes, A21). */
+function textosDo(pedido: Pedido): { titulo: string; explica: string; sim: string; nao: string } {
+  const n = pedido.colegas.length
+  if (pedido.paralelo) {
+    return {
+      titulo: `${pedido.nome} vai dividir o trabalho em ${n === 1 ? '1 agente' : `${n} agentes`}`,
+      explica:
+        `Quer ver os agentes trabalhando em quadros? Eles nascem na mesma pasta e na mesma conta, ligados a ${pedido.nome}, ` +
+        `que espera todos terminarem. Sem quadros, o trabalho segue escondido no terminal de ${pedido.nome}, como sempre.`,
+      sim: 'Ver em quadros',
+      nao: 'Seguir no mesmo terminal',
+    }
+  }
+  return {
+    titulo: `${pedido.nome} quer criar ${n === 1 ? '1 colega' : `${n} colegas`}`,
+    explica: `Cada um nasce na mesma conta, numa cópia própria da pasta, ligado a ${pedido.nome}, e recebe a tarefa abaixo assim que abrir.`,
+    sim: n === 1 ? 'Criar o colega' : `Criar os ${n} colegas`,
+    nao: 'Recusar',
+  }
 }
 
 export function PedidoColegas(): React.JSX.Element | null {
@@ -50,17 +72,12 @@ export function PedidoColegas(): React.JSX.Element | null {
   })
 
   if (!pedido) return null
-  const n = pedido.colegas.length
+  const textos = textosDo(pedido)
   return (
     <div className="janela-fundo" onMouseDown={(e) => e.target === e.currentTarget && responder(false)}>
       <div className="janela janela-pedido" role="dialog" aria-label="Pedido de colegas">
-        <h2 className="janela-titulo">
-          {pedido.nome} quer criar {n === 1 ? '1 colega' : `${n} colegas`}
-        </h2>
-        <p className="apagado">
-          Cada um nasce na mesma conta, numa cópia própria da pasta, ligado a {pedido.nome}, e recebe a tarefa abaixo
-          assim que abrir.
-        </p>
+        <h2 className="janela-titulo">{textos.titulo}</h2>
+        <p className="apagado">{textos.explica}</p>
         <ol className="pedido-lista">
           {pedido.colegas.map((c, i) => (
             <li key={i}>
@@ -76,10 +93,10 @@ export function PedidoColegas(): React.JSX.Element | null {
         )}
         <div className="juntar-botoes">
           <button className="botao-principal" disabled={enviando} onClick={() => responder(true)}>
-            {n === 1 ? 'Criar o colega' : `Criar os ${n} colegas`}
+            {textos.sim}
           </button>
           <button className="botao-pequeno" disabled={enviando} autoFocus onClick={() => responder(false)}>
-            Recusar
+            {textos.nao}
           </button>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import type { PedidoColega } from './protocolo'
+import type { PedidoColega } from './ferramentas'
 import { ServidorMcp } from './servidor'
 
 let servidor: ServidorMcp | null = null
@@ -9,10 +9,13 @@ afterEach(() => servidor?.parar())
 async function ligar(chamadas: Array<{ quadroId: string; colegas: PedidoColega[] }> = []) {
   servidor = new ServidorMcp({
     versao: '0.4.6',
-    chamar: async (quadroId, colegas) => {
-      chamadas.push({ quadroId, colegas })
-      return { texto: 'O usuário aceitou' }
-    },
+    ferramentas: (quadroId) => ({
+      criar: async (colegas) => {
+        chamadas.push({ quadroId, colegas })
+        return { texto: 'O usuário aceitou' }
+      },
+      esperar: async () => ({ texto: 'Todos terminaram' }),
+    }),
   })
   await servidor.iniciar()
   const config = servidor.configDo('q1') as { mcpServers: { maozinha: { url: string; headers: { Authorization: string } } } }
@@ -37,7 +40,7 @@ describe('ServidorMcp por HTTP (A19)', () => {
     const lista = (await (await postar(url, { jsonrpc: '2.0', id: 2, method: 'tools/list' }, headers)).json()) as {
       result: { tools: Array<{ name: string }> }
     }
-    expect(lista.result.tools.map((t) => t.name)).toEqual(['criar_colegas'])
+    expect(lista.result.tools.map((t) => t.name)).toEqual(['criar_colegas', 'esperar_colegas'])
 
     const colegas = [{ papel: 'Testador', tarefa: 'testar o login' }]
     const chamada = await postar(url, { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'criar_colegas', arguments: { colegas } } }, headers)

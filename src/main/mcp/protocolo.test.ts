@@ -1,10 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { conferirPedido, FERRAMENTA, responderRpc, type PedidoColega } from './protocolo'
+import { CRIAR as FERRAMENTA, ESPERAR, type Ferramentas, type PedidoColega } from './ferramentas'
+import { conferirPedido, responderRpc } from './protocolo'
 
 const pedidos: PedidoColega[][] = []
-const chamar = async (c: PedidoColega[]) => {
-  pedidos.push(c)
-  return { texto: 'criados' }
+const paralelos: boolean[] = []
+let esperas = 0
+const chamar: Ferramentas = {
+  criar: async (c, paralelo) => {
+    pedidos.push(c)
+    paralelos.push(paralelo)
+    return { texto: 'criados' }
+  },
+  esperar: async () => {
+    esperas++
+    return { texto: 'terminaram' }
+  },
 }
 const rpc = (method: string, params?: unknown, id: unknown = 1) => responderRpc({ jsonrpc: '2.0', id, method, params }, chamar, '0.4.6')
 
@@ -18,9 +28,9 @@ describe('responderRpc (A19)', () => {
     expect(await responderRpc({ jsonrpc: '2.0', method: 'notifications/initialized' }, chamar, 'x')).toBeNull()
   })
 
-  it('tools/list: so criar_colegas, com no maximo 4', async () => {
+  it('tools/list: criar_colegas (no maximo 4) e esperar_colegas', async () => {
     const r = (await rpc('tools/list')) as { result: { tools: Array<{ name: string; inputSchema: { properties: { colegas: { maxItems: number } } } }> } }
-    expect(r.result.tools.map((t) => t.name)).toEqual([FERRAMENTA])
+    expect(r.result.tools.map((t) => t.name)).toEqual([FERRAMENTA, ESPERAR])
     expect(r.result.tools[0]?.inputSchema.properties.colegas.maxItems).toBe(4)
   })
 
@@ -29,6 +39,16 @@ describe('responderRpc (A19)', () => {
     const r = await rpc('tools/call', { name: FERRAMENTA, arguments: { colegas: [{ papel: ' Testador ', tarefa: 'testar o login' }] } })
     expect(pedidos).toEqual([[{ papel: 'Testador', tarefa: 'testar o login' }]])
     expect(r).toEqual({ jsonrpc: '2.0', id: 1, result: { content: [{ type: 'text', text: 'criados' }], isError: false } })
+  })
+
+  it('paralelo vai junto (sem ele, falso); esperar_colegas chama a espera', async () => {
+    paralelos.length = 0
+    await rpc('tools/call', { name: FERRAMENTA, arguments: { colegas: [{ papel: 'a', tarefa: 'b' }], paralelo: true } })
+    await rpc('tools/call', { name: FERRAMENTA, arguments: { colegas: [{ papel: 'a', tarefa: 'b' }] } })
+    expect(paralelos).toEqual([true, false])
+    const r = await rpc('tools/call', { name: ESPERAR, arguments: {} })
+    expect(esperas).toBe(1)
+    expect(r).toMatchObject({ result: { content: [{ text: 'terminaram' }] } })
   })
 
   it('mais de 4, papel vazio ou ferramenta desconhecida: recusa sem chamar', async () => {
