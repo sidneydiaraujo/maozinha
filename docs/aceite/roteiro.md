@@ -157,6 +157,10 @@ Vale no instalador 0.2.0 (T21.3) ou antes, com `npm run dev`.
 - [ ] 83. (A16) No mesmo agente da home, o `KANBAN.md` **não** nasce na home: nasce na pasta do projeto quando ele salva o primeiro arquivo lá, e o agente usa esse.
 - [ ] 84. (A19) Num agente Claude, peça: "crie dois colegas, um Testador e um Revisor, e passe para cada um a tarefa X". Aparece "Claude N quer criar 2 colegas" com o papel e a tarefa de cada um. "Criar os 2 colegas": nascem ligados a ele, cada um com o papel, e cada um recebe a tarefa depois da apresentação. O agente fica sabendo quem nasceu.
 - [ ] 85. (A19) Repita e clique "Recusar" (ou Esc): nada nasce e o agente fica sabendo que você recusou.
+## Versão 0.4.7 — ajustes de 31/10 (A19, A20, A21, D57)
+
+Antes: feche e reabra os agentes (a regra nova só entra num Claude aberto pela 0.4.7).
+
 - [ ] 86. (A19) Num agente reaberto, peça "crie dois colegas no Mãozinha...": ele usa a janela do Mãozinha, **não** os subagentes escondidos.
 - [ ] 87. (A21) Rode um squad do Opensquad com passo `execution: subagent`. Antes do passo aparece "Claude N vai dividir o trabalho em N agentes". "Ver em quadros": nasce um quadro na **mesma pasta** (linha tracejada), ele faz o passo e o agente principal segue o pipeline quando ele termina.
 - [ ] 88. (A21) Repita e escolha "Seguir no mesmo terminal": nada nasce e o passo roda escondido no terminal, como antes.
