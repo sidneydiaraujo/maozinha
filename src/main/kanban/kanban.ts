@@ -60,8 +60,9 @@ export function regraDoKanbanNoProjeto(raiz: string, nome: string): string {
   return regra(
     `a pasta ${raiz} não é ela mesma um projeto: cada projeto dentro dela tem o seu ${ARQUIVO_KANBAN} na raiz do projeto ` +
       '(a pasta mais próxima dos arquivos que você edita com .git, package.json ou CLAUDE.md). ' +
-      `Mantenha sempre atualizado o ${ARQUIVO_KANBAN} do projeto em que você trabalha; se ele ainda não existir, ` +
-      'crie-o com o título "# Kanban · <nome da pasta>" e uma seção "## " para cada etapa abaixo.',
+      `Mantenha sempre atualizado o ${ARQUIVO_KANBAN} do projeto em que você trabalha. Um só por projeto: antes de criar, ` +
+      `procure um ${ARQUIVO_KANBAN} nessa pasta e nas de cima até a raiz do repositório git (a pasta com .git) e use o que achar; ` +
+      'se não houver nenhum, crie-o na raiz do repositório (ou na do projeto, sem git) com o título "# Kanban · <nome da pasta>" e uma seção "## " para cada etapa abaixo.',
     nome,
   )
 }

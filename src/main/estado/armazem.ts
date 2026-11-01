@@ -47,6 +47,7 @@ const SchemaEstado = z.object({
       modelo: z.enum(MODELOS).optional().catch(undefined),
       esforco: z.enum(ESFORCOS).optional().catch(undefined),
       papel: z.string().max(40).optional(),
+      kanban: z.boolean().optional(),
     }),
   ),
   viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),

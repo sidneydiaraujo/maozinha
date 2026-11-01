@@ -5,6 +5,7 @@ import { caminhoNoRepo } from '../componentes/links'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import '../estilos/cabecalho.css'
+import '../estilos/alca.css'
 import { AnelContexto } from './AnelContexto'
 import { brilhoDoQuadro, chamaAtencao, seloDoAviso } from './atencao'
 import { BolinhasTime } from './BolinhasTime'
@@ -141,23 +142,42 @@ function useClasseQuadro(quadroId: string): { classe: string; chamando: boolean 
 }
 
 /**
+ * Redimensionar (A23): fora do `.quadro` (que corta o que passa da borda), sempre ligado: a borda
+ * inteira responde ao mouse e os cantos aparecem ao passar por cima, nao so com o quadro escolhido.
+ */
+function AlcaDoQuadro({ cor }: { cor?: string }): React.JSX.Element {
+  const estilo = { '--cor-alca': cor ?? '#8ab4ff' } as React.CSSProperties
+  return (
+    <NodeResizer
+      minWidth={360}
+      minHeight={220}
+      isVisible
+      handleClassName="alca-quadro"
+      lineClassName="borda-quadro"
+      handleStyle={estilo}
+      lineStyle={estilo}
+    />
+  )
+}
+
+/**
  * Quadro solto na lousa (D13, D14): a pasta da o nome (onde o trabalho fica) e o selo
  * diz a conta (quem paga). Trocar a conta remonta o terminal, que retoma a conversa.
  */
-export function QuadroNode({ data, selected }: NodeProps<QuadroNo>): React.JSX.Element {
+export function QuadroNode({ data }: NodeProps<QuadroNo>): React.JSX.Element {
   const { quadro, perfil, repo, rotulo, contas, acoes } = data
   const { classe, chamando } = useClasseQuadro(quadro.id)
   const [juntando, setJuntando] = useState(false)
   const [encerrado, setEncerrado] = useState(false)
   return (
     <>
+      <AlcaDoQuadro cor={perfil?.cor} />
       <div
         className={classe}
         data-quadro={quadro.id}
         style={{ '--cor': perfil?.cor ?? '#555' } as React.CSSProperties}
         onMouseDownCapture={() => chamando && atencao.marcarVisto(quadro.id)}
       >
-        <NodeResizer minWidth={360} minHeight={220} isVisible={selected} />
         {/* sem duplo clique para ampliar (A2, 20/10): clicar duas vezes no cabecalho para escolher
             ou arrastar o quadro ampliava sem querer; ampliar e so no ⤢ */}
         <header className="cabecalho-quadro" title="Ctrl+clique seleciona vários (para mandar a mesma mensagem)">

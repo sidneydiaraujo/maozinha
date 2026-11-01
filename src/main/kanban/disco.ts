@@ -1,9 +1,10 @@
 // Disco de verdade do kanban (D52): so o KANBAN.md e o .git/info/exclude da pasta do projeto.
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
-import { basename } from 'node:path'
+import { basename, join } from 'node:path'
 import type { Quadro, Repo } from '../../shared/model'
 import { log } from '../log'
 import {
+  ARQUIVO_KANBAN,
   garantirKanban,
   nomeDoCard,
   regraDoKanban,
@@ -11,7 +12,7 @@ import {
   repoDoKanban,
   type DiscoKanban,
 } from './kanban'
-import { ehProjeto } from './projeto'
+import { ehProjeto, localDoKanban } from './projeto'
 
 export const discoKanban: DiscoKanban = {
   existe: (c) => existsSync(c),
@@ -22,8 +23,10 @@ export const discoKanban: DiscoKanban = {
 }
 
 /**
- * Garante o kanban do projeto do quadro e devolve a regra do agente; falha de disco: null.
- * `aoCriar` recebe o repo do kanban quando o arquivo acabou de nascer (a arvore rele a pasta).
+ * O kanban do quadro e a regra do agente; sem kanban ou falha de disco: null. Um kanban so por
+ * projeto (A22): vale o que ja existe na pasta ou acima, ate a raiz do repositorio git. `quadro.kanban`
+ * falso: nenhum. Verdadeiro: usa o existente ou cria. Ausente (quadros de antes da A22): so usa o
+ * existente, nunca cria. `aoCriar` recebe o repo quando o arquivo nasceu na pasta dele.
  */
 export function prepararKanban(
   quadro: Quadro,
@@ -31,25 +34,45 @@ export function prepararKanban(
   aoCriar: (repoId: string) => void = () => undefined,
   disco: DiscoKanban = discoKanban,
 ): string | null {
+  if (quadro.kanban === false) return null
   try {
     const repo = obterRepo(quadro.repoId)
     const projeto = repoDoKanban(repo, obterRepo)
+    const nome = nomeDoCard(quadro, repo)
+    const local = localDoKanban(projeto.caminho, disco.existe)
+    if (local.existe) return regraDoKanban(join(local.pasta, ARQUIVO_KANBAN), nome)
+    if (quadro.kanban !== true) return null
     // a home ou uma pasta de varios projetos: o kanban nasce na pasta do projeto, na 1a escrita (A16)
-    if (!ehProjeto(projeto.caminho, disco.existe)) return regraDoKanbanNoProjeto(projeto.caminho, nomeDoCard(quadro, repo))
-    const { arquivo, criado } = garantirKanban(projeto.caminho, basename(projeto.caminho), disco)
-    if (criado) aoCriar(projeto.id)
-    return regraDoKanban(arquivo, nomeDoCard(quadro, repo))
+    if (!local.git && !ehProjeto(projeto.caminho, disco.existe)) return regraDoKanbanNoProjeto(projeto.caminho, nome)
+    const { arquivo, criado } = garantirKanban(local.pasta, basename(local.pasta), disco)
+    if (criado && local.pasta === projeto.caminho) aoCriar(projeto.id)
+    return regraDoKanban(arquivo, nome)
   } catch (e) {
     log('warn', `kanban: não deu para preparar o ${quadro.id}: ${e instanceof Error ? e.message : String(e)}`)
     return null
   }
 }
 
-/** O agente salvou num projeto dentro de uma pasta que nao e projeto: o kanban nasce la (A16). */
-export function kanbanNaPastaDoProjeto(pasta: string, aoCriar: () => void, disco: DiscoKanban = discoKanban): void {
+/** A janela "Novo quadro" (A22): o projeto desta pasta ja tem kanban? Marca a caixa sozinha. */
+export function temKanban(repo: Repo, obterRepo: (id: string) => Repo, disco: DiscoKanban = discoKanban): boolean {
   try {
-    if (garantirKanban(pasta, basename(pasta), disco).criado) aoCriar()
+    return localDoKanban(repoDoKanban(repo, obterRepo).caminho, disco.existe).existe
+  } catch {
+    return false
+  }
+}
+
+/**
+ * O agente salvou num projeto dentro de uma pasta que nao e projeto: o kanban nasce la (A16), ou
+ * na raiz do repositorio dele, se ja nao tem um (A22). Devolve a pasta onde nasceu; null = nada novo.
+ */
+export function kanbanNaPastaDoProjeto(pasta: string, disco: DiscoKanban = discoKanban): string | null {
+  try {
+    const local = localDoKanban(pasta, disco.existe)
+    if (local.existe) return null
+    return garantirKanban(local.pasta, basename(local.pasta), disco).criado ? local.pasta : null
   } catch (e) {
     log('warn', `kanban: não deu para criar em ${pasta}: ${e instanceof Error ? e.message : String(e)}`)
+    return null
   }
 }

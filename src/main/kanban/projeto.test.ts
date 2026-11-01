@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { ehProjeto, pastaDoProjeto } from './projeto'
+import { ehProjeto, localDoKanban, pastaDoProjeto } from './projeto'
 
 const HOME = 'C:\\Users\\x'
 const existe =
@@ -41,5 +41,29 @@ describe('pastaDoProjeto (A16)', () => {
   it('o KANBAN.md nao faz da pasta um projeto (e o Mãozinha que cria)', () => {
     expect(ehProjeto(HOME, existe(join(HOME, 'KANBAN.md')))).toBe(false)
     expect(ehProjeto(HOME, existe(join(HOME, 'CLAUDE.md')))).toBe(true)
+  })
+})
+
+describe('localDoKanban (A22)', () => {
+  const MONO = join(HOME, 'mono')
+  const WEB = join(MONO, 'pacotes', 'web')
+
+  it('dentro de um repositorio: o kanban que ja existe acima, ate a raiz', () => {
+    const e = existe(join(MONO, '.git'), join(MONO, 'KANBAN.md'))
+    expect(localDoKanban(WEB, e)).toEqual({ pasta: MONO, existe: true, git: true })
+  })
+
+  it('o mais perto vale primeiro; sem nenhum, a raiz do repositorio', () => {
+    expect(localDoKanban(WEB, existe(join(MONO, '.git'), join(WEB, 'KANBAN.md'))).pasta).toBe(WEB)
+    expect(localDoKanban(WEB, existe(join(MONO, '.git')))).toEqual({ pasta: MONO, existe: false, git: true })
+  })
+
+  it('fora de git: so a propria pasta (um KANBAN.md na home nao conta)', () => {
+    expect(localDoKanban(WEB, existe(join(HOME, 'KANBAN.md')))).toEqual({ pasta: WEB, existe: false, git: false })
+  })
+
+  it('nao passa da raiz do repositorio', () => {
+    const e = existe(join(MONO, '.git'), join(HOME, 'KANBAN.md'))
+    expect(localDoKanban(WEB, e)).toEqual({ pasta: MONO, existe: false, git: true })
   })
 })

@@ -1,6 +1,8 @@
 /* Time de agentes (T28.2, D39): bolinhas nos agentes e linhas com seta entre eles. */
 
 .bolinha-time.react-flow__handle {
+  /* acima da borda de redimensionar (A23, z-index 5 e 6): ligar o time continua no clique */
+  z-index: 7;
   width: 12px;
   height: 12px;
   background: var(--cartao);

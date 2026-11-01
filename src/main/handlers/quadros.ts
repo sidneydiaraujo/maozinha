@@ -10,6 +10,7 @@ const Criar = z.object({
   perfilId: z.string().min(1),
   posicao: z.object({ x: z.number().finite(), y: z.number().finite() }).optional(),
   separado: z.boolean().optional(),
+  kanban: z.boolean().optional(),
 })
 const Remover = z.object({ quadroId: z.string().min(1) })
 const TrocarConta = z.object({ quadroId: z.string().min(1), perfilId: z.string().min(1) })
@@ -21,11 +22,13 @@ export function registrarHandlersQuadros(quadros: ServicoQuadros, time: Pick<Apr
     time.mudou()
     return feito
   }
-  handle(IPC.quadrosCriar, Criar, async ({ repoId, tipo, perfilId, posicao, separado }) =>
-    separado
-      ? quadros.criarEmCopia(repoId, tipo, perfilId, posicao)
-      : { quadro: quadros.criar(repoId, tipo, perfilId, posicao), repo: null },
-  )
+  handle(IPC.quadrosCriar, Criar, async ({ repoId, tipo, perfilId, posicao, separado, kanban }) => {
+    const criado = separado
+      ? await quadros.criarEmCopia(repoId, tipo, perfilId, posicao)
+      : { quadro: quadros.criar(repoId, tipo, perfilId, posicao), repo: null }
+    // a escolha da caixa "Kanban do projeto" (A22); o agente ainda nao abriu, entao vale ja na abertura
+    return kanban === undefined ? criado : { ...criado, quadro: quadros.definirKanban(criado.quadro.id, kanban) }
+  })
   handle(IPC.quadrosRemover, Remover, async ({ quadroId }) => eAvisa(await quadros.remover(quadroId)))
   handle(IPC.quadrosTrocarConta, TrocarConta, async ({ quadroId, perfilId }) =>
     eAvisa(await quadros.trocarConta(quadroId, perfilId)),

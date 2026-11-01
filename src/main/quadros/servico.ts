@@ -136,6 +136,17 @@ export class ServicoQuadros {
     return { quadro: this.criar(repo.id, tipo, perfil.id, posicao), repo }
   }
 
+  /** Agente: segue ou nao o KANBAN.md do projeto (A22); vale quando o agente abre. Terminal: nada muda. */
+  definirKanban(quadroId: string, kanban: boolean): Quadro {
+    const estado = this.deps.armazem.carregar()
+    const quadro = estado.quadros.find((q) => q.id === quadroId)
+    if (!quadro) throw new Error('Quadro não encontrado')
+    if (quadro.tipo !== 'agente') return quadro
+    quadro.kanban = kanban
+    this.deps.armazem.salvar(estado)
+    return quadro
+  }
+
   /** O quadro, com conversa garantida se for agente do Claude (quadros de antes da T6.1 nao tinham). */
   comSessao(quadroId: string): Quadro {
     const estado = this.deps.armazem.carregar()

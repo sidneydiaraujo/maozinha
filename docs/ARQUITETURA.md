@@ -190,7 +190,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `repos:escolherPasta` | — | `{ caminho, sugestaoPerfilId } \| null` | T3.2 |
 | `repos:adicionar` | `{ caminho, perfilId }` | `Repo` (a existente, se a pasta já estava cadastrada) | T3.2, T5.1 |
 | `repos:remover` | `{ repoId }` | `FimDaCopia` (cópia separada: tenta limpar) | T3.6, T10.3 |
-| `quadros:criar` | `{ repoId, tipo, perfilId, posicao?, separado? }` | `{ quadro, repo }` (repo = cópia nova ou null) | T3.4, T5.1, T10.3 |
+| `repos:temKanban` | `{ repoId }` | `boolean`: o projeto já tem `KANBAN.md` (na pasta ou acima, até a raiz do git) | A22 |
+| `quadros:criar` | `{ repoId, tipo, perfilId, posicao?, separado?, kanban? }` | `{ quadro, repo }` (repo = cópia nova ou null) | T3.4, T5.1, T10.3 |
 | `quadros:remover` | `{ quadroId }` | `FimDaCopia` (último quadro de uma cópia: tenta limpar) | T3.4, T10.3 |
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
 | `quadros:definirPapel` | `{ quadroId, papel }` | `Quadro` (papel limpo, até 40 letras; vazio tira; o time ouve de novo) | T29.1 |

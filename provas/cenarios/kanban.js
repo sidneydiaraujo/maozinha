@@ -4,8 +4,9 @@
 // - o kanban fica fora do git: `git check-ignore` o acha e o `git status` nao o lista;
 // - o leitor abre o KANBAN.md e mostra a mudanca sozinho quando um "agente" (o PowerShell do a1)
 //   cria um card e depois o move;
-// - o campo de papel (nome do card) aparece num agente fora de time.
-// (A linha de comando com a regra e coberta pelos testes de alvo e comandos.) Fotos: 1-kanban, 2-movido.
+// - o campo de papel (nome do card) aparece num agente fora de time;
+// - A22: a caixa "Kanban do projeto" do Novo quadro vem marcada no projeto com kanban; desmarcada, o agente novo fica sem.
+// (A linha de comando com a regra e coberta pelos testes de alvo e comandos.) Fotos: 1-kanban, 2-movido, 3-novo.
 ;(async () => {
   const { espera } = prova
   const q = (s) => document.querySelector(s)
@@ -65,6 +66,31 @@
 
     // agente fora de time: tem o campo do papel (o nome nos cards)
     r.papelForaDoTime = !!q('[data-quadro="a3"] .papel-quadro')
+
+    // A22: "Novo quadro" traz a caixa do kanban, ja marcada no projeto que tem um; desmarcada, o
+    // agente novo guarda a escolha e nenhum KANBAN.md a mais aparece
+    const clicarTexto = (seletor, alvo) => todos(seletor).find((e) => e.textContent.includes(alvo))?.click()
+    clicarTexto('button', '+ Novo quadro')
+    await ate(() => !!q('.novo-quadro'))
+    todos('.pasta-escolha').find((e) => e.querySelector('strong')?.textContent === 'app')?.click()
+    const t0 = performance.now()
+    r.temKanbanApp = await window.lousa.repos.temKanban('r1')
+    r.msTemKanban = Math.round(performance.now() - t0)
+    // a resposta do main chega depois do clique na pasta: espera a frase dela
+    await ate(() => (q('.novo-kanban small')?.textContent ?? '').includes('já tem'), 20)
+    r.caixaMarcada = q('.novo-kanban input')?.checked === true
+    r.dicaKanban = q('.novo-kanban small')?.textContent ?? ''
+    await prova.foto('3-novo')
+    q('.novo-kanban input')?.click()
+    await espera(200)
+    r.desmarcou = q('.novo-kanban input')?.checked === false
+    const antes = (await window.lousa.lousa.carregar()).quadros.map((x) => x.id)
+    clicarTexto('.novo-botoes button', 'Abrir agente')
+    await ate(() => todos('[data-quadro]').length > antes.length, 40)
+    const novo = (await window.lousa.lousa.carregar()).quadros.find((x) => !antes.includes(x.id))
+    r.novoSemKanban = novo?.tipo === 'agente' && novo.kanban === false
+    await espera(1500)
+    r.umKanbanPorPasta = todos('.arvore-linha[title="KANBAN.md"]').length === r.kanbansNaArvore
   } catch (e) {
     r.erros.push(String((e && e.stack) || e))
   }
@@ -79,6 +105,12 @@
     r.cardApareceu &&
     r.cardMudou &&
     r.letrasInteiras &&
-    r.papelForaDoTime
+    r.papelForaDoTime &&
+    r.temKanbanApp &&
+    r.caixaMarcada &&
+    r.dicaKanban.includes('já tem um KANBAN.md') &&
+    r.desmarcou &&
+    r.novoSemKanban &&
+    r.umKanbanPorPasta
   return r
 })()

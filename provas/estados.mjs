@@ -125,6 +125,7 @@ export function estadoDe(nome, pastas, opcoes = []) {
       tipo: 'agente',
       titulo: `Claude ${id.slice(1)}`,
       caixa: { x, y, largura: 460, altura: 300 },
+      kanban: true, // A22: os agentes do estado time seguem o kanban do projeto
     })
     return {
       ...base,

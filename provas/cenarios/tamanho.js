@@ -5,6 +5,7 @@
 //   nem da borda de baixo, com a lousa a 80% (letra redesenhada no zoom, A1);
 // - o PowerShell sabe a largura certa: uma linha de '#' do tamanho que ele diz cabe numa linha so
 //   (o programa e o xterm concordam), e ela cresce e diminui ao puxar o canto do quadro;
+// - a alca (A23): cantos sem precisar escolher o quadro; a borda responde numa faixa larga, para fora;
 // - o × abre "Tem certeza que deseja fechar?"; Cancelar e Esc mantem o quadro; Fechar fecha.
 // Fotos: 1-normal, 2-maior, 3-pergunta.
 ;(async () => {
@@ -49,6 +50,32 @@
     await espera(800)
     r.normal = { ...cabe('t1'), ...(await larguraDoPrograma('t1')) }
     await prova.foto('1-normal')
+
+    // A23: sem escolher o quadro, os quatro cantos ja existem e a borda direita responde numa faixa
+    // larga, quase toda para fora do quadro; puxar por ela (fora do quadro) alarga o quadro
+    const no = q('.react-flow__node:has([data-quadro="t1"])')
+    const escala = no.getBoundingClientRect().width / no.offsetWidth
+    r.alcasSemEscolher = no.querySelectorAll('.react-flow__resize-control.alca-quadro').length
+    const borda = no.querySelector('.react-flow__resize-control.borda-quadro.right')
+    const caixaBorda = borda.getBoundingClientRect()
+    const caixaQuadro = q('[data-quadro="t1"]').getBoundingClientRect()
+    r.faixaDaBorda = Math.round(caixaBorda.width / escala)
+    r.bordaParaFora = caixaBorda.right > caixaQuadro.right + 4 * escala
+    const larguraAntes = no.offsetWidth
+    {
+      const x = caixaQuadro.right + 4 * escala
+      const y = caixaBorda.top + caixaBorda.height / 2
+      const ev = (tipo, alvo, px, py) =>
+        alvo.dispatchEvent(new MouseEvent(tipo, { bubbles: true, clientX: px, clientY: py, view: window, buttons: 1 }))
+      ev('mousedown', document.elementFromPoint(x, y) ?? borda, x, y)
+      for (let i = 1; i <= 8; i++) {
+        ev('mousemove', window, x + (80 * i) / 8, y)
+        await espera(30)
+      }
+      ev('mouseup', window, x + 80, y)
+      await espera(1200)
+    }
+    r.pelaBorda = no.offsetWidth - larguraAntes
 
     // arrasta o canto de baixo a direita do quadro (o NodeResizer aparece com ele selecionado)
     const puxarCanto = async (dx, dy) => {
@@ -97,6 +124,10 @@
   }
   r.ok =
     r.erros.length === 0 &&
+    r.alcasSemEscolher === 4 &&
+    r.faixaDaBorda >= 10 &&
+    r.bordaParaFora &&
+    r.pelaBorda > 40 &&
     !!r.normal?.ok && !!r.normal?.umaLinha &&
     !!r.maior?.ok && !!r.maior?.umaLinha && r.maior.largura > r.normal.largura &&
     !!r.menor?.ok && !!r.menor?.umaLinha && r.menor.largura < r.normal.largura &&

@@ -14,7 +14,7 @@ interface Props {
   repoInicial?: string
   /** Onde a janelinha aparece, em pixels da tela. */
   tela: { x: number; y: number }
-  aoCriar(repoId: string, tipo: TipoQuadro, perfilId: string, separado: boolean): Promise<void>
+  aoCriar(repoId: string, tipo: TipoQuadro, perfilId: string, opcoes: { separado: boolean; kanban: boolean }): Promise<void>
   aoNovaPasta(repo: Repo): void
   aoTirarPasta(repoId: string): Promise<void>
   aoCancelar(): void
@@ -61,6 +61,43 @@ function CaixaCopia(p: { marcada: boolean; sugerida: boolean; aoMudar(v: boolean
   )
 }
 
+/**
+ * "Kanban do projeto" (A22): o agente segue o KANBAN.md do projeto. Ja vem marcada quando o projeto
+ * tem um (o mesmo para todos os agentes dele); desmarcada, o agente abre sem kanban.
+ */
+function CaixaKanban(p: { marcada: boolean; existe: boolean; aoMudar(v: boolean): void }): React.JSX.Element {
+  return (
+    <label className="novo-copia novo-kanban" title="Um KANBAN.md por projeto, fora do git, que os agentes atualizam a cada etapa">
+      <input type="checkbox" checked={p.marcada} onChange={(e) => p.aoMudar(e.target.checked)} />
+      <span>
+        Kanban do projeto (só agente)
+        <small>
+          {p.existe
+            ? 'Este projeto já tem um KANBAN.md: o agente usa o mesmo.'
+            : 'O agente cria um KANBAN.md e anota nele o andamento das tarefas.'}
+        </small>
+      </span>
+    </label>
+  )
+}
+
+/** O projeto da pasta marcada ja tem kanban? (o main procura; a tela so manda o id) */
+function useKanbanDaPasta(repoId: string | null): boolean {
+  const [existe, setExiste] = useState<{ repoId: string; sim: boolean } | null>(null)
+  useEffect(() => {
+    if (!repoId) return
+    let valendo = true
+    window.lousa.repos
+      .temKanban(repoId)
+      .then((sim) => valendo && setExiste({ repoId, sim }))
+      .catch(() => valendo && setExiste({ repoId, sim: false }))
+    return () => {
+      valendo = false
+    }
+  }, [repoId])
+  return existe?.repoId === repoId && existe.sim
+}
+
 function BotoesAbrir(p: { desligado: boolean; aoAbrir(tipo: TipoQuadro): void }): React.JSX.Element {
   return (
     <div className="novo-botoes">
@@ -91,16 +128,32 @@ function useEscolhas({ perfis, repos, quadros, perfilInicial, repoInicial }: Pro
   // null = segue a sugestao da pasta marcada; trocar de pasta volta para a sugestao
   const [separadoEscolhido, setSeparado] = useState<boolean | null>(null)
   const sugerida = sugerirSeparado(quadros, repoId)
+  // kanban (A22): null = segue o projeto (marcada se ele ja tem um); trocar de pasta volta para isso
+  const [kanbanEscolhido, setKanban] = useState<boolean | null>(null)
+  const kanbanExiste = useKanbanDaPasta(repoId)
   const marcarPasta = (id: string): void => {
     setRepoId(id)
     setSeparado(null)
+    setKanban(null)
   }
-  return { perfilId, setPerfilId, repoId, marcarPasta, sugerida, separado: separadoEscolhido ?? sugerida, setSeparado }
+  return {
+    perfilId,
+    setPerfilId,
+    repoId,
+    marcarPasta,
+    sugerida,
+    separado: separadoEscolhido ?? sugerida,
+    setSeparado,
+    kanban: kanbanEscolhido ?? kanbanExiste,
+    kanbanExiste,
+    setKanban,
+  }
 }
 
 export function NovoQuadro(props: Props): React.JSX.Element {
   const { perfis, repos, perfilInicial, tela, aoCriar, aoNovaPasta, aoTirarPasta, aoCancelar } = props
-  const { perfilId, setPerfilId, repoId, marcarPasta, sugerida, separado, setSeparado } = useEscolhas(props)
+  const escolhas = useEscolhas(props)
+  const { perfilId, setPerfilId, repoId, marcarPasta, sugerida, separado, setSeparado } = escolhas
   const [erro, setErro] = useState<string | null>(null)
   const [ocupado, setOcupado] = useState(false)
 
@@ -109,7 +162,7 @@ export function NovoQuadro(props: Props): React.JSX.Element {
     setOcupado(true)
     setErro(null)
     try {
-      await aoCriar(repoId, tipo, perfilId, separado)
+      await aoCriar(repoId, tipo, perfilId, { separado, kanban: escolhas.kanban })
     } catch (e) {
       setErro(e instanceof Error ? e.message : String(e))
       setOcupado(false)
@@ -163,6 +216,9 @@ export function NovoQuadro(props: Props): React.JSX.Element {
           {repos.length > 0 ? 'Outra pasta…' : 'Escolher pasta…'}
         </button>
         {repoId && <CaixaCopia marcada={separado} sugerida={sugerida} aoMudar={setSeparado} />}
+        {repoId && (
+          <CaixaKanban marcada={escolhas.kanban} existe={escolhas.kanbanExiste} aoMudar={escolhas.setKanban} />
+        )}
         {erro && (
           <p className="erro" role="alert">
             {erro}

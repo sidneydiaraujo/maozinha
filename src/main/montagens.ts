@@ -3,7 +3,7 @@
 // (A16) e o aviso as janelas.
 import { app, BrowserWindow } from 'electron'
 import { randomUUID } from 'node:crypto'
-import { join } from 'node:path'
+import { join, relative } from 'node:path'
 import { IPC } from '../shared/ipc'
 import type { ColegaPedido, Repo } from '../shared/model'
 import { nomeNoTime, type DadosTime } from '../shared/time'
@@ -134,16 +134,20 @@ export function montarOndeEscreve(d: {
   const ultimos = new Map<string, string>()
   const aoEscrever = (quadroId: string, arquivo: string): void => {
     let repo: Repo
+    let comKanban: boolean
     try {
-      repo = d.repos.obter(d.quadros.obter(quadroId).repoId)
+      const quadro = d.quadros.obter(quadroId)
+      repo = d.repos.obter(quadro.repoId)
+      comKanban = quadro.kanban === true // so quem escolheu ter kanban o cria (A22)
     } catch {
       return // o quadro ou a pasta sairam da lousa
     }
     const relativo = pastaDoProjeto(arquivo, repo.caminho, d.existe)
     if (relativo === null) return
-    if (!ehProjeto(repo.caminho, d.existe)) {
-      const kanban = relativo ? `${relativo}/${ARQUIVO_KANBAN}` : ARQUIVO_KANBAN
-      kanbanNaPastaDoProjeto(join(repo.caminho, relativo), () => d.avisarArvore(repo.id, [kanban]))
+    if (comKanban && !ehProjeto(repo.caminho, d.existe)) {
+      const criadoEm = kanbanNaPastaDoProjeto(join(repo.caminho, relativo))
+      const rel = criadoEm === null ? null : relative(repo.caminho, criadoEm).replace(/\\/g, '/')
+      if (rel !== null && !rel.startsWith('..')) d.avisarArvore(repo.id, [rel ? `${rel}/${ARQUIVO_KANBAN}` : ARQUIVO_KANBAN])
     }
     const chave = `${repo.id}|${relativo}`
     if (ultimos.get(quadroId) === chave) return

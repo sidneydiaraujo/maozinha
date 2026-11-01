@@ -59,6 +59,17 @@ describe('criarColega (T28.3)', () => {
     expect(estado().ligacoes).toEqual([ligacao])
   })
 
+  it('segue o kanban do projeto como quem o criou (A22); quadro de antes, sem escolha, fica sem', async () => {
+    const { deps, quadros } = montar()
+    const com = quadros.definirKanban(quadros.criar('app', 'agente', 'pessoal').id, true)
+    expect((await criarColega(deps, com.id)).quadro.kanban).toBe(true)
+    const sem = quadros.definirKanban(quadros.criar('app', 'agente', 'pessoal').id, false)
+    expect((await criarColega(deps, sem.id)).quadro.kanban).toBe(false)
+    const antigo = quadros.criar('app', 'agente', 'pessoal')
+    expect((await criarColega(deps, antigo.id)).quadro.kanban).toBeUndefined()
+    expect(quadros.definirKanban(quadros.criar('app', 'terminal', 'pessoal').id, true).kanban).toBeUndefined()
+  })
+
   it('colega de quem ja esta numa copia sai da pasta original, nao da copia', async () => {
     const { deps, quadros } = montar()
     const primeiro = quadros.criar('app', 'agente', 'pessoal')

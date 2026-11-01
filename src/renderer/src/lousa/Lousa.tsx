@@ -113,7 +113,12 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
       },
       abrirAoLado: async (quadro, tipo) => {
         const posicao = { x: quadro.caixa.x, y: quadro.caixa.y + quadro.caixa.altura + FOLGA_AO_LADO }
-        const criado = await window.lousa.quadros.criar(quadro.repoId, tipo, quadro.perfilId, { posicao, separado: false })
+        const criado = await window.lousa.quadros.criar(quadro.repoId, tipo, quadro.perfilId, {
+          posicao,
+          separado: false,
+          // o quadro livre segue o kanban do projeto como o quadro de onde saiu (A22)
+          ...(quadro.kanban === undefined ? {} : { kanban: quadro.kanban }),
+        })
         setEstado((e) => e && comQuadroNovo(e, criado.quadro, null))
       },
     }),

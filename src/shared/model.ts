@@ -93,6 +93,7 @@ export interface Quadro {
   modelo?: Modelo     // agente Claude: escolhido no cabeçalho (T19.1); abre com --model
   esforco?: Esforco   // agente Claude: abre com --effort
   papel?: string      // nome no time de agentes ("Revisor"), até 40 letras (T29.1)
+  kanban?: boolean    // agente: segue o KANBAN.md do projeto (A22); ausente = quadro de antes, usa o que já existe
 }
 
 export interface Viewport { x: number; y: number; zoom: number }

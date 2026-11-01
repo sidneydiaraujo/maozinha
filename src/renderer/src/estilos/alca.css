@@ -1,0 +1,104 @@
+/* Alca de redimensionar do quadro (A23): a borda responde ao mouse numa faixa de 12px, quase toda
+   para fora do quadro (para nao brigar com a barra de rolagem do terminal); os cantos aparecem ao
+   passar o mouse no quadro e crescem sob o ponteiro. */
+
+.react-flow__resize-control.handle.alca-quadro {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--fundo, #0b0f14);
+  border-radius: 4px;
+  background: var(--cor-alca);
+  opacity: 0;
+  z-index: 6;
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.react-flow__node:hover .react-flow__resize-control.alca-quadro,
+.react-flow__node.selected .react-flow__resize-control.alca-quadro,
+.react-flow__resize-control.alca-quadro:hover {
+  opacity: 1;
+}
+
+.react-flow__resize-control.handle.alca-quadro:hover {
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--cor-alca) 30%, transparent);
+}
+
+.react-flow__resize-control.line.borda-quadro {
+  border-width: 0;
+  z-index: 5;
+}
+
+.react-flow__resize-control.line.borda-quadro.left,
+.react-flow__resize-control.line.borda-quadro.right {
+  width: 12px;
+  border-width: 0;
+}
+
+.react-flow__resize-control.line.borda-quadro.left {
+  transform: translate(-75%, 0);
+}
+
+.react-flow__resize-control.line.borda-quadro.right {
+  transform: translate(-25%, 0);
+}
+
+.react-flow__resize-control.line.borda-quadro.top,
+.react-flow__resize-control.line.borda-quadro.bottom {
+  height: 12px;
+  border-width: 0;
+}
+
+.react-flow__resize-control.line.borda-quadro.top {
+  transform: translate(0, -75%);
+}
+
+.react-flow__resize-control.line.borda-quadro.bottom {
+  transform: translate(0, -25%);
+}
+
+/* a linha colorida que aparece sob o ponteiro, em cima da borda do quadro */
+.react-flow__resize-control.line.borda-quadro::after {
+  content: '';
+  position: absolute;
+  border-radius: 2px;
+  background: var(--cor-alca);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.react-flow__resize-control.line.borda-quadro.left::after,
+.react-flow__resize-control.line.borda-quadro.right::after {
+  top: 8px;
+  bottom: 8px;
+  width: 3px;
+}
+
+.react-flow__resize-control.line.borda-quadro.left::after {
+  right: 2px;
+}
+
+.react-flow__resize-control.line.borda-quadro.right::after {
+  left: 2px;
+}
+
+.react-flow__resize-control.line.borda-quadro.top::after,
+.react-flow__resize-control.line.borda-quadro.bottom::after {
+  left: 8px;
+  right: 8px;
+  height: 3px;
+}
+
+.react-flow__resize-control.line.borda-quadro.top::after {
+  bottom: 2px;
+}
+
+.react-flow__resize-control.line.borda-quadro.bottom::after {
+  top: 2px;
+}
+
+.react-flow__resize-control.line.borda-quadro:hover::after {
+  opacity: 0.9;
+}

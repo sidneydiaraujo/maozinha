@@ -56,6 +56,7 @@ export const IPC = {
   reposEscolherPasta: 'repos:escolherPasta',
   reposAdicionar: 'repos:adicionar',
   reposRemover: 'repos:remover',
+  reposTemKanban: 'repos:temKanban',
   quadrosCriar: 'quadros:criar',
   quadrosRemover: 'quadros:remover',
   quadrosTrocarConta: 'quadros:trocarConta',
@@ -155,6 +156,8 @@ export interface LousaApi {
     adicionar(caminho: string, perfilId: string): Promise<Repo>
     /** Numa copia separada (D18), diz se a copia foi apagada ou mantida. */
     remover(repoId: string): Promise<FimDaCopia>
+    /** O projeto desta pasta ja tem KANBAN.md (na pasta ou acima, ate a raiz do git; A22)? */
+    temKanban(repoId: string): Promise<boolean>
   }
   quadros: {
     /**
@@ -165,7 +168,7 @@ export interface LousaApi {
       repoId: string,
       tipo: TipoQuadro,
       perfilId: string,
-      opcoes?: { posicao?: Posicao; separado?: boolean },
+      opcoes?: { posicao?: Posicao; separado?: boolean; kanban?: boolean },
     ): Promise<{ quadro: Quadro; repo: Repo | null }>
     /** Fechar o ultimo quadro de uma copia tenta limpa-la sem perder trabalho. */
     remover(quadroId: string): Promise<FimDaCopia>

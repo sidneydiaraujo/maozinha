@@ -14,7 +14,7 @@ const SEM_COPIA = ['não é um repositório git', 'só na pasta raiz de um repos
 
 export interface DepsColega {
   armazem: Armazem
-  quadros: Pick<ServicoQuadros, 'obter' | 'criar' | 'criarEmCopia' | 'ajustar'>
+  quadros: Pick<ServicoQuadros, 'obter' | 'criar' | 'criarEmCopia' | 'ajustar' | 'definirKanban'>
   time: Pick<ServicoTime, 'ligar' | 'desligar'>
   /** A conta e de agente Claude? (so ele entra num time) */
   ehClaude(perfilId: string): boolean
@@ -39,7 +39,9 @@ export async function criarColega(
   const criado = opcoes.mesmaPasta
     ? { quadro: deps.quadros.criar(origem.repoId, 'agente', origem.perfilId, posicao), repo: null }
     : await naCopiaOuNaPasta(deps, origem, { raiz, posicao, exigirCopia: !!opcoes.exigirCopia })
-  const quadro = herdarAjustes(deps, origem, criado.quadro)
+  // o colega segue o kanban do projeto se quem o criou segue (A22)
+  const comKanban = origem.kanban === undefined ? criado.quadro : deps.quadros.definirKanban(criado.quadro.id, origem.kanban)
+  const quadro = herdarAjustes(deps, origem, comKanban)
   return { quadro, repo: criado.repo, ligacao: deps.time.ligar(origem.id, quadro.id) }
 }
 

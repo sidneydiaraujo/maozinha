@@ -86,12 +86,13 @@ export function useNovoQuadro({ instancia, area, setEstado }: Opcoes) {
   )
 
   const criar = useCallback(
-    async (repoId: string, tipo: TipoQuadro, perfilId: string, separado = false) => {
+    async (repoId: string, tipo: TipoQuadro, perfilId: string, { separado = false, kanban = false } = {}) => {
       if (!novo) return
       // separado: o main cria a copia (D18) e o quadro nasce nela; `copia` e a pasta nova
       const { quadro, repo: copia } = await window.lousa.quadros.criar(repoId, tipo, perfilId, {
         posicao: novo.lousa,
         separado,
+        kanban,
       })
       setEstado((e) => e && comQuadroNovo(e, quadro, copia))
       setNovo(null)
