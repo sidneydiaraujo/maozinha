@@ -160,3 +160,28 @@
   background: var(--perigo-fundo);
   border-color: var(--perigo-borda);
 }
+
+/* Kanban do agente (A24): apagado desligado, na cor de destaque ligado */
+.cabecalho-quadro .quadro-kanban {
+  flex: none;
+  padding: 1px 8px;
+  font-size: 12px;
+  color: var(--apagado);
+  background: transparent;
+  border: 1px dashed var(--borda-forte);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cabecalho-quadro .quadro-kanban:hover {
+  color: var(--cabecalho-texto);
+  border-color: var(--destaque);
+}
+
+.cabecalho-quadro .quadro-kanban-ligado {
+  color: var(--destaque);
+  border-style: solid;
+  border-color: color-mix(in srgb, var(--destaque) 60%, transparent);
+  background: color-mix(in srgb, var(--destaque) 12%, transparent);
+}

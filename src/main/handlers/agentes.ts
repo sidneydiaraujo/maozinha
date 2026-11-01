@@ -11,8 +11,8 @@ const DoQuadro = z.object({ quadroId: z.string().min(1).max(80) })
 // so valores da lista: o texto que vai para o terminal e montado no main a partir deles
 const Ajustar = DoQuadro.extend({
   mudanca: z
-    .object({ modelo: z.enum(MODELOS).optional(), esforco: z.enum(ESFORCOS).optional() })
-    .refine((m) => m.modelo !== undefined || m.esforco !== undefined, 'Nada para mudar'),
+    .object({ modelo: z.enum(MODELOS).optional(), esforco: z.enum(ESFORCOS).optional(), kanban: z.boolean().optional() })
+    .refine((m) => m.modelo !== undefined || m.esforco !== undefined || m.kanban !== undefined, 'Nada para mudar'),
 })
 
 // a escolha de compactar sozinho (A17): limite de 10 a 90% em passos da engrenagem
@@ -27,7 +27,8 @@ export function registrarHandlersAgentes(s: Servicos): void {
   const { agentes, quadros, ajustes, usos, repasse, compactarSozinho, compactarAgora } = s
   handle(IPC.perfisUso, z.undefined(), () => usos.todos(Date.now()))
   // guarda no quadro (vale na proxima abertura) e, com o agente aberto e parado, reabre ele com o
-  // modelo novo na mesma conversa (D49: o /model gravaria o padrao da conta toda)
+  // modelo novo na mesma conversa (D49: o /model gravaria o padrao da conta toda). O kanban (A24)
+  // tambem: a regra vai na linha de comando, entao so vale reabrindo
   handle(IPC.agentesAjustar, Ajustar, ({ quadroId, mudanca }) => {
     quadros.ajustar(quadroId, mudanca)
     return ajustes.pedir(quadroId, mudanca)

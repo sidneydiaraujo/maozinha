@@ -184,7 +184,7 @@ export class ServicoQuadros {
     return quadro
   }
 
-  /** Guarda o modelo e o esforco do agente Claude (T19.1); vale na proxima abertura tambem. */
+  /** Guarda o modelo, o esforco e o kanban (A24) do agente Claude (T19.1); vale na proxima abertura tambem. */
   ajustar(quadroId: string, mudanca: AjusteAgente): Quadro {
     const estado = this.deps.armazem.carregar()
     const quadro = estado.quadros.find((q) => q.id === quadroId)
@@ -197,6 +197,7 @@ export class ServicoQuadros {
     if (mudanca.esforco !== undefined && !ESFORCOS.includes(mudanca.esforco)) throw new Error('Esforço desconhecido')
     if (mudanca.modelo) quadro.modelo = mudanca.modelo
     if (mudanca.esforco) quadro.esforco = mudanca.esforco
+    if (mudanca.kanban !== undefined) quadro.kanban = mudanca.kanban
     this.deps.armazem.salvar(estado)
     return quadro
   }

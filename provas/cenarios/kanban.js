@@ -5,8 +5,9 @@
 // - o leitor abre o KANBAN.md e mostra a mudanca sozinho quando um "agente" (o PowerShell do a1)
 //   cria um card e depois o move;
 // - o campo de papel (nome do card) aparece num agente fora de time;
-// - A22: a caixa "Kanban do projeto" do Novo quadro vem marcada no projeto com kanban; desmarcada, o agente novo fica sem.
-// (A linha de comando com a regra e coberta pelos testes de alvo e comandos.) Fotos: 1-kanban, 2-movido, 3-novo.
+// - A22: a caixa "Kanban do projeto" do Novo quadro vem marcada no projeto com kanban; desmarcada, o agente novo fica sem;
+// - A24: o botao "kanban" do cabecalho mostra a escolha (a1 ligado, o novo desligado) e liga o kanban.
+// (A linha de comando com a regra e coberta pelos testes de alvo e comandos.) Fotos: 1-kanban, 2-movido, 3-novo, 4-cabecalho.
 ;(async () => {
   const { espera } = prova
   const q = (s) => document.querySelector(s)
@@ -91,6 +92,18 @@
     r.novoSemKanban = novo?.tipo === 'agente' && novo.kanban === false
     await espera(1500)
     r.umKanbanPorPasta = todos('.arvore-linha[title="KANBAN.md"]').length === r.kanbansNaArvore
+
+    // A24: o botao "kanban" do cabecalho mostra a escolha e liga o kanban do agente novo
+    const botao = () => q(`[data-quadro="${novo?.id}"] .quadro-kanban`)
+    await ate(() => !!botao(), 20)
+    r.botaoDesligado = botao()?.getAttribute('aria-pressed') === 'false'
+    r.botaoA1Ligado = q('[data-quadro="a1"] .quadro-kanban')?.getAttribute('aria-pressed') === 'true'
+    botao()?.click()
+    r.botaoLigou = await ate(() => botao()?.getAttribute('aria-pressed') === 'true', 20)
+    await ate(() => !botao()?.disabled, 20)
+    r.avisoDoBotao = botao()?.title ?? ''
+    r.salvouLigado = (await window.lousa.lousa.carregar()).quadros.find((x) => x.id === novo?.id)?.kanban === true
+    await prova.foto('4-cabecalho')
   } catch (e) {
     r.erros.push(String((e && e.stack) || e))
   }
@@ -111,6 +124,10 @@
     r.dicaKanban.includes('já tem um KANBAN.md') &&
     r.desmarcou &&
     r.novoSemKanban &&
-    r.umKanbanPorPasta
+    r.umKanbanPorPasta &&
+    r.botaoDesligado &&
+    r.botaoA1Ligado &&
+    r.botaoLigou &&
+    r.salvouLigado
   return r
 })()

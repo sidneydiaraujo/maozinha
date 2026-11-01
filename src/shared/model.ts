@@ -132,7 +132,7 @@ export type Esforco = (typeof ESFORCOS)[number]
 // alias aponta sempre para a versao mais nova da familia; familia nova = uma linha aqui.
 export const MODELOS = ['fable', 'opus', 'sonnet', 'haiku'] as const
 export type Modelo = (typeof MODELOS)[number]
-export interface AjusteAgente { modelo?: Modelo; esforco?: Esforco }
+export interface AjusteAgente { modelo?: Modelo; esforco?: Esforco; kanban?: boolean } // kanban: A24
 /** agora = o main ja digitou; quandoParar = digita quando o agente parar; naAbertura = vale ao abrir. */
 export type QuandoAjusta = 'agora' | 'quandoParar' | 'naAbertura'
 /** Compactar sozinho ao fim da tarefa (A17): escolha da engrenagem, que a tela conta ao main. */

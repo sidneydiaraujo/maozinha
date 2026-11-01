@@ -9,6 +9,7 @@ import '../estilos/alca.css'
 import { AnelContexto } from './AnelContexto'
 import { brilhoDoQuadro, chamaAtencao, seloDoAviso } from './atencao'
 import { BolinhasTime } from './BolinhasTime'
+import { KanbanDoQuadro } from './KanbanDoQuadro'
 import { BotaoAoLado } from './BotaoAoLado'
 import { BotaoFechar } from './BotaoFechar'
 import { BotaoPrint } from './BotaoPrint'
@@ -51,10 +52,12 @@ function CapaQuadro({ quadro, repo }: { quadro: Quadro; repo: Repo }): React.JSX
  * So no agente com o terminal aberto: modelo e esforco (T19.2, so Claude), anel de contexto
  * (T18.1) e 📎 colar print (T16.1).
  */
-function ExtrasAgente({ quadro, perfil }: { quadro: Quadro; perfil: Perfil | undefined }): React.JSX.Element {
+function ExtrasAgente(p: { quadro: Quadro; perfil: Perfil | undefined; acoes: AcoesLousa }): React.JSX.Element {
+  const { quadro, perfil } = p
   return (
     <>
       {perfil?.provedor === 'claude' && <ModeloDoQuadro quadro={quadro} />}
+      {perfil?.provedor === 'claude' && <KanbanDoQuadro quadro={quadro} aoLigar={p.acoes.ligarKanban} />}
       <AnelContexto quadroId={quadro.id} />
       <BotaoPrint quadroId={quadro.id} />
     </>
@@ -189,7 +192,7 @@ export function QuadroNode({ data }: NodeProps<QuadroNo>): React.JSX.Element {
           </span>
           <EtiquetaDoQuadro quadro={quadro} acoes={acoes} />
           <SeloAgente quadroId={quadro.id} />
-          {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} />}
+          {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} acoes={acoes} />}
           <ContaDoQuadro
             perfil={perfil}
             contas={contas}

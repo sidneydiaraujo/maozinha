@@ -245,6 +245,15 @@ describe('ServicoQuadros.ajustar (T19.1)', () => {
     expect(estado().quadros[0]).toMatchObject({ modelo: 'sonnet', esforco: 'low' })
   })
 
+  it('liga e desliga o kanban do agente (A24) sem mexer no modelo', () => {
+    const { servico, estado } = montar()
+    const q = servico.criar('r1', 'agente', 'pessoal')
+    servico.ajustar(q.id, { modelo: 'opus', kanban: true })
+    expect(estado().quadros[0]).toMatchObject({ modelo: 'opus', kanban: true })
+    servico.ajustar(q.id, { kanban: false })
+    expect(estado().quadros[0]).toMatchObject({ modelo: 'opus', kanban: false })
+  })
+
   it('valor fora da lista: recusa e nao grava', () => {
     const { servico, estado } = montar()
     const q = servico.criar('r1', 'agente', 'pessoal')

@@ -121,6 +121,14 @@ function useEstadoLousa(versao: number, extras: ExtrasEstado) {
         })
         setEstado((e) => e && comQuadroNovo(e, criado.quadro, null))
       },
+      ligarKanban: async (quadroId, ligado) => {
+        const quando = await window.lousa.agentes.ajustar(quadroId, { kanban: ligado })
+        // o ＋ e o botao leem o quadro da tela: ele fica sabendo da escolha (A24)
+        setEstado(
+          (e) => e && { ...e, quadros: e.quadros.map((q) => (q.id === quadroId ? { ...q, kanban: ligado } : q)) },
+        )
+        return quando
+      },
     }),
     [falhou, abrirArquivo, ampliar, setAviso],
   )
