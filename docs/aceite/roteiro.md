@@ -166,7 +166,7 @@ Antes: feche e reabra os agentes (a regra nova só entra num Claude aberto pela 
 - [ ] 88. (A21) Repita e escolha "Seguir no mesmo terminal": nada nasce e o passo roda escondido no terminal, como antes.
 - [ ] 89. (A20) Com o time trabalhando, clique no ＋ de um quadro → Agente (e depois Terminal): nasce embaixo, na mesma pasta e conta, sem linha; o trabalho do time não é interrompido.
 
-## Ajustes de 01/11 (A22, A23, D58)
+## Versão 0.4.8 — ajustes de 01/11 (A22, A23, D58)
 
 - [ ] 90. (A22) "+ Novo quadro" numa pasta **sem** `KANBAN.md`: a caixa "Kanban do projeto (só agente)" vem desmarcada. Abra um agente assim: nenhum `KANBAN.md` nasce e o agente não fala de kanban. Abra outro com a caixa marcada: o `KANBAN.md` nasce na raiz do repositório e o agente o atualiza.
 - [ ] 91. (A22) De novo nessa pasta: a caixa já vem marcada com "Este projeto já tem um KANBAN.md: o agente usa o mesmo". Abra um agente numa **subpasta** do mesmo repositório (Outra pasta…): ele usa o kanban da raiz, sem criar outro.
