@@ -172,4 +172,7 @@ Antes: feche e reabra os agentes (a regra nova só entra num Claude aberto pela 
 - [ ] 91. (A22) De novo nessa pasta: a caixa já vem marcada com "Este projeto já tem um KANBAN.md: o agente usa o mesmo". Abra um agente numa **subpasta** do mesmo repositório (Outra pasta…): ele usa o kanban da raiz, sem criar outro.
 - [ ] 92. (A22) Colegas de um agente com kanban (bolinha, pedido do agente, ＋) também seguem o kanban; de um agente sem kanban, não.
 - [ ] 93. (A23) Passe o mouse num quadro **sem clicar nele**: os quatro cantos aparecem na cor da conta. Encoste o mouse na borda (um pouco para fora): o cursor vira a seta de redimensionar e aparece uma linha colorida; puxe e o quadro muda de tamanho. As bolinhas do time continuam ligando agentes.
+
+## Versão 0.4.9 — kanban no cabeçalho (A24)
+
 - [ ] 94. (A24) No cabeçalho de um agente Claude, o botão "▦ kanban" mostra se ele segue o kanban (colorido = ligado). Com o agente parado, clique: ele reabre na mesma conversa já com a mudança (ligado num projeto sem kanban, o `KANBAN.md` nasce na raiz). Trabalhando, a mudança vale quando ele parar. O ＋ desse quadro segue a escolha nova.
