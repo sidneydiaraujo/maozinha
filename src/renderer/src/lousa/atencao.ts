@@ -6,6 +6,8 @@ export interface Atencao {
   aviso: AvisoAgente
   /** O Sidney clicou no quadro depois do aviso: o brilho apaga, o selo fica. */
   visto: boolean
+  /** Quando o aviso chegou (ms): a fila de prontos (A26) segue a ordem em que terminaram. */
+  quando: number
 }
 
 export type MapaAtencao = ReadonlyMap<string, Atencao>
@@ -14,14 +16,17 @@ const CHAMAM = new Set(['esperando', 'terminou', 'erro'])
 
 export const chamaAtencao = (a: Atencao | undefined): boolean => !!a && !a.visto && CHAMAM.has(a.aviso.estado)
 
+/** Pede uma acao do Sidney (esperando ou erro); o "terminou" vai para a fila de prontos (A26). */
+export const pedeAcao = (a: Atencao | undefined): boolean => chamaAtencao(a) && a?.aviso.estado !== 'terminou'
+
 const iguais = (a: AvisoAgente, b: AvisoAgente): boolean =>
   a.estado === b.estado && a.motivo === b.motivo && a.mensagem === b.mensagem
 
 /** Aviso repetido nao muda nada (nem desfaz o "visto"); aviso novo volta a chamar. */
-export function aplicarAviso(mapa: MapaAtencao, id: string, aviso: AvisoAgente): MapaAtencao {
+export function aplicarAviso(mapa: MapaAtencao, id: string, aviso: AvisoAgente, agora = 0): MapaAtencao {
   const atual = mapa.get(id)
   if (atual && iguais(atual.aviso, aviso)) return mapa
-  return new Map(mapa).set(id, { aviso, visto: false })
+  return new Map(mapa).set(id, { aviso, visto: false, quando: agora })
 }
 
 export function marcarVisto(mapa: MapaAtencao, id: string): MapaAtencao {
@@ -30,9 +35,9 @@ export function marcarVisto(mapa: MapaAtencao, id: string): MapaAtencao {
   return new Map(mapa).set(id, { ...atual, visto: true })
 }
 
-/** Proximo quadro (na ordem da lousa) que pede atencao depois de `ultimo`, dando a volta. */
+/** Proximo quadro (na ordem da lousa) que pede uma acao depois de `ultimo`, dando a volta. */
 export function proximoAChamar(mapa: MapaAtencao, ordem: string[], ultimo: string | null): string | null {
-  const chamando = ordem.filter((id) => chamaAtencao(mapa.get(id)))
+  const chamando = ordem.filter((id) => pedeAcao(mapa.get(id)))
   if (chamando.length === 0) return null
   const depois = ultimo === null ? -1 : ordem.indexOf(ultimo)
   return chamando.find((id) => ordem.indexOf(id) > depois) ?? chamando[0] ?? null
@@ -74,7 +79,7 @@ export function brilhoDoQuadro(mapa: MapaAtencao, id: string): 'anima' | 'parado
 
 /** Pilula do alto: "● 2 esperando você · 3 trabalhando"; null sem nenhum dos dois. */
 export function textoDaPilula(mapa: MapaAtencao, ordem: string[]): string | null {
-  const esperando = ordem.filter((id) => chamaAtencao(mapa.get(id))).length
+  const esperando = ordem.filter((id) => pedeAcao(mapa.get(id))).length
   const ocupados = ordem.filter((id) => trabalhando(mapa.get(id))).length
   const partes = [
     ...(esperando > 0 ? [`${esperando} esperando você`] : []),

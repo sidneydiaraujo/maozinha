@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { AppInfo } from '../../shared/ipc'
-import type { Quadro, Repo } from '../../shared/model'
+import type { Ligacao, Quadro, Repo } from '../../shared/model'
 import { mensagemDe } from './componentes/erro'
 import { Lateral } from './lateral/Lateral'
 import { Leitor } from './leitor/Leitor'
@@ -19,13 +19,14 @@ import { useContas } from './topo/useContas'
 interface Pastas {
   repos: Repo[]
   quadros: Quadro[]
+  ligacoes: Ligacao[]
 }
 
 export function App(): React.JSX.Element {
   const [info, setInfo] = useState<AppInfo | null>(null)
   const [erro, setErro] = useState<string | null>(null)
   const [versaoLousa, setVersaoLousa] = useState(0)
-  const [pastas, setPastas] = useState<Pastas>({ repos: [], quadros: [] })
+  const [pastas, setPastas] = useState<Pastas>({ repos: [], quadros: [], ligacoes: [] })
   const contas = useContas(useCallback(() => setVersaoLousa((v) => v + 1), []))
   const arquivo = useArquivoAberto()
   const { aberto, fechar, abrir: abrirArquivo, avisar } = arquivo
@@ -47,7 +48,10 @@ export function App(): React.JSX.Element {
     if (aberto && !pastas.repos.some((r) => r.id === aberto.repoId)) fechar()
   }, [aberto, pastas.repos, fechar])
 
-  const aoMudarPastas = useCallback((repos: Repo[], quadros: Quadro[]) => setPastas({ repos, quadros }), [])
+  const aoMudarPastas = useCallback(
+    (repos: Repo[], quadros: Quadro[], ligacoes: Ligacao[]) => setPastas({ repos, quadros, ligacoes }),
+    [],
+  )
   const abrir = useCallback((repoId: string, relativo: string) => void abrirArquivo(repoId, relativo), [abrirArquivo])
 
   // O `npm run smoke` procura "Sidi v<versao>" na tela: fica no canto da barra de cima (D45).
@@ -56,7 +60,7 @@ export function App(): React.JSX.Element {
   const motor = info ? `Feito sobre o Electron ${info.electron}` : ''
   return (
     <div className="app">
-      <BarraTopo contas={contas} versao={versao} motor={motor} quadros={pastas.quadros} />
+      <BarraTopo contas={contas} versao={versao} motor={motor} {...pastas} />
       <div className="app-corpo">
         <Lateral
           repos={pastas.repos}

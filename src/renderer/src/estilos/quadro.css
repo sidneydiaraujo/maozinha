@@ -105,9 +105,6 @@
  * "● 2 esperando você · 3 trabalhando"; o clique enquadra o proximo que espera.
  */
 .topo-chamadas {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
   gap: 6px;

@@ -17,7 +17,7 @@ function trocar(novo: MapaAtencao): void {
 function inscrever(ouvinte: () => void): () => void {
   if (!inscrito) {
     inscrito = true
-    window.lousa.terminais.aoEstado((id, aviso) => trocar(aplicarAviso(mapa, id, aviso)))
+    window.lousa.terminais.aoEstado((id, aviso) => trocar(aplicarAviso(mapa, id, aviso, Date.now())))
   }
   ouvintes.add(ouvinte)
   return () => ouvintes.delete(ouvinte)
@@ -25,7 +25,7 @@ function inscrever(ouvinte: () => void): () => void {
 
 export const atencao = {
   /** Estado que veio junto com a abertura do terminal (a tela remontou). */
-  aplicar: (id: string, aviso: AvisoAgente): void => trocar(aplicarAviso(mapa, id, aviso)),
+  aplicar: (id: string, aviso: AvisoAgente): void => trocar(aplicarAviso(mapa, id, aviso, Date.now())),
   marcarVisto: (id: string): void => trocar(marcarVisto(mapa, id)),
 }
 

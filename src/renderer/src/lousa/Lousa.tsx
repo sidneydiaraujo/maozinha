@@ -10,7 +10,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from 'react'
-import type { EstadoTela, Quadro, Repo } from '../../../shared/model'
+import type { EstadoTela, Ligacao, Quadro, Repo } from '../../../shared/model'
 import '../estilos/lousa.css'
 import '../estilos/novo.css'
 import { chamaAtencao } from './atencao'
@@ -50,8 +50,8 @@ const FOLGA_AO_LADO = 40
 interface Props {
   /** Muda quando algo fora da lousa (nome de conta) mudou: a lousa recarrega. */
   versao: number
-  /** Pastas e quadros mudaram: a lateral (T7.3) acompanha. */
-  aoMudarPastas(repos: Repo[], quadros: Quadro[]): void
+  /** Pastas, quadros e linhas do time mudaram: a lateral (T7.3) e a fila de prontos (A26) acompanham. */
+  aoMudarPastas(repos: Repo[], quadros: Quadro[], ligacoes: Ligacao[]): void
   /** Caminho clicado num terminal (T8.3). */
   aoAbrirArquivo(repoId: string, relativo: string): void
 }
@@ -169,9 +169,10 @@ function enquadrarSeSumiu(i: ReactFlowInstance<NoLousa>, estado: EstadoTela): vo
 function useAvisarPastas(estado: EstadoTela | null, aoMudarPastas: Props['aoMudarPastas']): void {
   const repos = estado?.repos
   const quadros = estado?.quadros
+  const ligacoes = estado?.ligacoes
   useEffect(() => {
-    if (repos && quadros) aoMudarPastas(repos, quadros)
-  }, [repos, quadros, aoMudarPastas])
+    if (repos && quadros) aoMudarPastas(repos, quadros, ligacoes ?? [])
+  }, [repos, quadros, ligacoes, aoMudarPastas])
 }
 
 /**

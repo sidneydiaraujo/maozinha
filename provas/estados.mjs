@@ -137,6 +137,8 @@ export function estadoDe(nome, pastas, opcoes = []) {
         agente('a3', 'r2', 'principal', 40, 440),
         { ...terminal('t1', 'r2', 'principal', 640, 460), caixa: { x: 640, y: 440, largura: 460, altura: 300 } },
       ],
+      // opcao ligados (A26, cenario prontos): a1 lidera um time com o a2
+      ...(opcoes.includes('ligados') ? { ligacoes: [{ id: 'l1', de: 'a1', para: 'a2', modo: 'automatico' }] } : {}),
     }
   }
   if (nome === 'repasse') {

@@ -1,11 +1,12 @@
 // Barra de cima (T7.2): engrenagem (painel de contas) e um icone por conta, como os
 // icones de extensao no canto do VSCode. A versao fica a direita (o smoke procura ali).
 import { useCallback, useRef, useState } from 'react'
-import type { Quadro } from '../../../shared/model'
+import type { Ligacao, Quadro, Repo } from '../../../shared/model'
 import '../estilos/topo.css'
 import { proximoAChamar, textoDaPilula } from '../lousa/atencao'
 import { pedirFoco } from '../lousa/foco'
 import { useMapaAtencao } from '../lousa/useAtencao'
+import { FilaProntos } from './FilaProntos'
 import { IconeConta } from './IconeConta'
 import { PainelContas } from './PainelContas'
 import { Engrenagem } from './Simbolos'
@@ -18,6 +19,9 @@ interface Props {
   motor: string
   /** Na ordem da lousa: o botao "esperando voce" enquadra um por vez (T8.2). */
   quadros: Quadro[]
+  /** O projeto e o time de cada pronto (A26). */
+  repos: Repo[]
+  ligacoes: Ligacao[]
 }
 
 function ChamadasAtencao({ quadros }: { quadros: Quadro[] }): React.JSX.Element | null {
@@ -44,7 +48,7 @@ function ChamadasAtencao({ quadros }: { quadros: Quadro[] }): React.JSX.Element 
   )
 }
 
-export function BarraTopo({ contas, versao, motor, quadros }: Props): React.JSX.Element {
+export function BarraTopo({ contas, versao, motor, quadros, repos, ligacoes }: Props): React.JSX.Element {
   const [painel, setPainel] = useState(false)
   const [abertoId, setAbertoId] = useState<string | null>(null)
   const fecharBalao = useCallback(() => setAbertoId(null), [])
@@ -76,7 +80,10 @@ export function BarraTopo({ contas, versao, motor, quadros }: Props): React.JSX.
         {contas.perfis === null && !contas.erro && <span className="apagado">Lendo contas…</span>}
         {contas.erro && <span className="erro">{contas.erro}</span>}
       </div>
-      <ChamadasAtencao quadros={quadros} />
+      <div className="topo-centro">
+        <ChamadasAtencao quadros={quadros} />
+        <FilaProntos quadros={quadros} repos={repos} ligacoes={ligacoes} />
+      </div>
       <span className="topo-marca">Mãozinha</span>
       <span className="topo-versao" title={motor}>
         {versao}

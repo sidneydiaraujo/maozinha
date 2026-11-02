@@ -180,3 +180,8 @@ Antes: feche e reabra os agentes (a regra nova só entra num Claude aberto pela 
 ## Correção de 02/11 (A25)
 
 - [ ] 95. (A25) Abra um agente com kanban ligado (e reinicie um que já existia): ele abre parado, esperando você, sem "**Claude" digitado nem resposta de "mensagem cortada".
+
+## Fila de prontos (A26, D59)
+
+- [ ] 96. (A26) Deixe um agente terminar uma tarefa sem clicar nele: aparece no alto a pílula verde "1 pronto" com a mãozinha acenando (a âmbar "esperando você" não conta o que terminou). Clique: a lousa vai até o agente e a pílula some.
+- [ ] 97. (A26) Deixe dois agentes de projetos diferentes terminarem: "2 prontos". Clique: abre a lista do mais antigo ao mais novo, com o projeto de cada um; clicar numa linha leva até o agente e ele sai da lista. Num time ligado, só o líder aparece, e só depois que todos pararam.

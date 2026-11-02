@@ -39,8 +39,9 @@ describe('aplicarAviso e chamaAtencao', () => {
 describe('proximoAChamar', () => {
   it('segue a ordem da lousa e da a volta', () => {
     let m = aplicarAviso(vazio, 'b', { estado: 'esperando' })
-    m = aplicarAviso(m, 'd', { estado: 'terminou' })
+    m = aplicarAviso(m, 'd', { estado: 'erro' })
     m = aplicarAviso(m, 'c', { estado: 'trabalhando' })
+    m = aplicarAviso(m, 'a', { estado: 'terminou' }) // terminou vai para a fila de prontos (A26)
     const ordem = ['a', 'b', 'c', 'd']
     expect(proximoAChamar(m, ordem, null)).toBe('b')
     expect(proximoAChamar(m, ordem, 'b')).toBe('d')
