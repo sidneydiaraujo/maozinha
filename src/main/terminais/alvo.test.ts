@@ -181,6 +181,17 @@ describe('resolverAlvo: regra do kanban (D52)', () => {
     )
   })
 
+  it('aspas duplas viram tipograficas: o PowerShell 5.1 cortava a regra nelas (A25)', () => {
+    const c = resolverAlvo({ tipo: 'quadro', quadroId: 'q5' }, {
+      ...comKanban,
+      kanbanDoQuadro: () => 'no formato "- **Claude 2** · tarefa" e mova para "Feito".',
+    }).comandoInicial
+    expect(c).toBe(
+      `claude --append-system-prompt 'no formato “- **Claude 2** · tarefa” e mova para “Feito”.' --resume ${SESSAO}\r`,
+    )
+    expect(c).not.toContain('"')
+  })
+
   it('o Enter so existe no fim do comando, mesmo com \\r\\n na regra', () => {
     expect(comando('q8')?.split('\r')).toHaveLength(2)
   })

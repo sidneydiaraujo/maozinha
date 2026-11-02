@@ -176,3 +176,7 @@ Antes: feche e reabra os agentes (a regra nova só entra num Claude aberto pela 
 ## Versão 0.4.9 — kanban no cabeçalho (A24)
 
 - [ ] 94. (A24) No cabeçalho de um agente Claude, o botão "▦ kanban" mostra se ele segue o kanban (colorido = ligado). Com o agente parado, clique: ele reabre na mesma conversa já com a mudança (ligado num projeto sem kanban, o `KANBAN.md` nasce na raiz). Trabalhando, a mudança vale quando ele parar. O ＋ desse quadro segue a escolha nova.
+
+## Correção de 02/11 (A25)
+
+- [ ] 95. (A25) Abra um agente com kanban ligado (e reinicie um que já existia): ele abre parado, esperando você, sem "**Claude" digitado nem resposta de "mensagem cortada".

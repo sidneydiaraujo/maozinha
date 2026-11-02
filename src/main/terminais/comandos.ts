@@ -23,12 +23,24 @@ export interface ExtrasAgente {
   mcp?: string
 }
 
+/**
+ * Aspas duplas viram aspas tipograficas (A25): o PowerShell 5.1 nao as protege ao passar o texto
+ * para o claude.exe, que cortava a regra ali e recebia o resto ("**Claude") como primeira mensagem.
+ */
+function semAspasDuplas(texto: string): string {
+  let abertas = false
+  return texto.replace(/"/g, () => {
+    abertas = !abertas
+    return abertas ? '“' : '”'
+  })
+}
+
 /** `--append-system-prompt` com a regra numa linha so; vazia, nada. */
 function argumentoRegra(regra: string | undefined): string | null {
   // caractere de controle no meio viraria Enter: o resto da linha seria outro comando
   // eslint-disable-next-line no-control-regex
   const linha = regra?.replace(/[\u0000-\u001f\u007f]/g, ' ').trim()
-  return linha ? `--append-system-prompt ${literalPowerShell(linha)}` : null
+  return linha ? `--append-system-prompt ${literalPowerShell(semAspasDuplas(linha))}` : null
 }
 
 /** Os arquivos da Lousa que o Claude le: a linha de status (T17.2) e a ferramenta de colegas (A19). */
