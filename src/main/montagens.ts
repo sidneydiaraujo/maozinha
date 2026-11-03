@@ -10,6 +10,7 @@ import { nomeNoTime, type DadosTime } from '../shared/time'
 import { FilaAjustes } from './agentes/ajustes'
 import type { Armazem } from './estado/armazem'
 import { kanbanNaPastaDoProjeto } from './kanban/disco'
+import { log } from './log'
 import { ARQUIVO_KANBAN } from './kanban/kanban'
 import { ehProjeto, pastaDoProjeto } from './kanban/projeto'
 import { ServidorMcp } from './mcp/servidor'
@@ -18,10 +19,10 @@ import type { ServicoQuadros } from './quadros/servico'
 import type { ServicoRepos } from './repos/servico'
 import type { ServicoTerminais } from './terminais/servico'
 import { rodarReal, temClaudeDentro } from './terminais/filhos'
-import { ApresentadorTime, FilaMensagens } from './time/apresentar'
+import { ApresentadorTime, FilaMensagens, REVISAR_MS } from './time/apresentar'
 import { criarColega, type DepsColega } from './time/colega'
 import { EsperaDeColegas } from './time/espera'
-import { PedidosDeColegas, textoDaTarefa } from './time/pedidos'
+import { PedidosDeColegas, TEXTO_PEDIDO_NA_TELA, textoDaTarefa } from './time/pedidos'
 import { Repasse } from './time/repasse'
 import { provedoresDos, ServicoTime } from './time/servico'
 
@@ -74,10 +75,14 @@ export function montarTime(d: {
     esperar: d.esperar,
     temClaude: d.temClaude,
     segurar: d.segurar,
+    agora: Date.now,
+    aoDemorar: (id, detalhe) => log('warn', `mensagem do time esperando há 2 min no quadro ${id}: ${detalhe}`),
   }, (id, tipo) => {
     repasse.aoDigitar(id, tipo)
     espera.aoDigitar(id, tipo)
   })
+  // a fila confere sozinha: a tarefa de um colega nao depende de um aviso que pode nao vir (A27)
+  setInterval(() => void mensagens.revisar(), REVISAR_MS).unref()
   const time = new ApresentadorTime({
     dados,
     fila: mensagens,
@@ -216,7 +221,8 @@ export function montarPedidos(d: {
     versao: app.getVersion(),
     ferramentas: (id) => ({
       criar: (colegas, paralelo) => pedidos.pedir(id, colegas, paralelo),
-      esperar: () => d.espera.esperar(id),
+      // pedido ainda na tela: diz isso, nao "nenhum colega" (A27)
+      esperar: () => (pedidos.temAberto(id) ? Promise.resolve({ texto: TEXTO_PEDIDO_NA_TELA }) : d.espera.esperar(id)),
     }),
   })
   return { pedidos, mcp }

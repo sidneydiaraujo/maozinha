@@ -27,7 +27,7 @@ export interface DepsEspera {
 }
 
 const TEXTO: Record<Exclude<Situacao, 'terminou'>, string> = {
-  aguardando: 'ainda não começou a tarefa',
+  aguardando: 'ainda não recebeu a tarefa (o Mãozinha digita quando o quadro dele estiver pronto)',
   trabalhando: 'trabalhando',
   esperando: 'esperando o usuário responder no quadro dele',
   fechado: 'o quadro foi fechado antes de terminar',

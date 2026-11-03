@@ -11,6 +11,14 @@ import { conferirPedido, responderRpc } from './protocolo'
 /** Pedido maior que isto nao e de criar colegas. */
 const LIMITE_BYTES = 64 * 1024
 
+/**
+ * Prazo de cada chamada no Claude (campo `timeout` do servidor no --mcp-config, em ms; A27). Sem
+ * ele o Claude corta a chamada HTTP em 60 s ("The operation timed out."): o agente achava que o
+ * pedido tinha falhado enquanto o Sidney ainda ia clicar (ate 5 min) ou os colegas trabalhavam
+ * (ate 4 min por espera). Fica acima dos dois.
+ */
+export const PRAZO_CHAMADA_MS = 6 * 60 * 1000
+
 export interface DepsServidorMcp {
   versao: string
   /** As ferramentas para o quadro dono da chave. */
@@ -51,7 +59,12 @@ export class ServidorMcp {
       chave = randomBytes(32).toString('hex')
       this.chaves.set(chave, quadroId)
     }
-    const servidor = { type: 'http', url: `http://127.0.0.1:${this.porta}/mcp`, headers: { Authorization: `Bearer ${chave}` } }
+    const servidor = {
+      type: 'http',
+      url: `http://127.0.0.1:${this.porta}/mcp`,
+      headers: { Authorization: `Bearer ${chave}` },
+      timeout: PRAZO_CHAMADA_MS,
+    }
     return { mcpServers: { [NOME_SERVIDOR]: servidor } }
   }
 

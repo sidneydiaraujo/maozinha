@@ -15,7 +15,18 @@ export interface DepsFila extends DepsAjustes {
    * resposta inteira.
    */
   segurar?(terminalId: string): boolean
+  /** Relogio (A27); sem ele, Date.now. */
+  agora?(): number
+  /** Mensagem do time esperando ha mais de DEMORA_MS: vai para o registro do app (A27). */
+  aoDemorar?(terminalId: string, detalhe: string): void
 }
+
+/** Digitou e o agente nao deu sinal nenhum: depois disto a fila tenta de novo (A27). */
+export const SEM_SINAL_MS = 60_000
+/** De quanto em quanto tempo a fila confere sozinha quem tem mensagem esperando (A27). */
+export const REVISAR_MS = 15_000
+/** Esperando mais do que isto: o registro do app ganha uma linha com o porque. */
+export const DEMORA_MS = 2 * 60_000
 
 /** Montar uma arvore manda uma apresentacao so: espera o time ficar 2 s sem mudar. */
 export const ESPERA_APRESENTAR_MS = 2000
@@ -32,8 +43,12 @@ export type TipoMensagem = 'apresentacao' | 'repasse' | 'compactar'
 export class FilaMensagens {
   private readonly pendentes = new Map<string, string>()
   private readonly emOrdem = new Map<string, string[]>()
-  /** Ja digitou nesta parada; limpa no proximo aviso do agente. */
-  private readonly digitouAgora = new Set<string>()
+  /** Ja digitou nesta parada (quando); limpa no proximo aviso do agente ou depois de SEM_SINAL_MS. */
+  private readonly digitouAgora = new Map<string, number>()
+  /** Sem claude.exe na ultima tentativa (quando): a revisao nao pergunta ao Windows de novo logo. */
+  private readonly semClaudeEm = new Map<string, number>()
+  /** Desde quando cada agente tem mensagem esperando; se ja foi para o registro. */
+  private readonly esperandoDesde = new Map<string, { desde: number; avisou: boolean }>()
 
   constructor(
     private readonly deps: DepsFila,
@@ -84,11 +99,56 @@ export class FilaMensagens {
     return this.digitar(quadroId, repasse, 'repasse')
   }
 
+  /**
+   * A fila confere sozinha (A27): sem depender de um aviso do agente que pode nao vir, solta o que
+   * pode sair. Antes, uma tarefa de colega podia ficar parada para sempre na fila.
+   */
+  async revisar(): Promise<void> {
+    const agora = this.relogio()
+    const comEspera = new Set([...this.pendentes.keys(), ...[...this.emOrdem].filter(([, f]) => f.length > 0).map(([id]) => id)])
+    for (const id of this.esperandoDesde.keys()) if (!comEspera.has(id)) this.esperandoDesde.delete(id)
+    for (const id of comEspera) {
+      this.vigiarDemora(id, agora)
+      if (agora - (this.semClaudeEm.get(id) ?? -Infinity) < SEM_SINAL_MS) continue
+      if (this.livre(id)) await this.soltar(id)
+    }
+  }
+
   /** O quadro saiu da lousa: as mensagens dele nao valem mais. */
   esquecer(quadroId: string): void {
     this.pendentes.delete(quadroId)
     this.emOrdem.delete(quadroId)
     this.digitouAgora.delete(quadroId)
+    this.semClaudeEm.delete(quadroId)
+    this.esperandoDesde.delete(quadroId)
+  }
+
+  private relogio(): number {
+    return this.deps.agora?.() ?? Date.now()
+  }
+
+  private vigiarDemora(quadroId: string, agora: number): void {
+    const marca = this.esperandoDesde.get(quadroId)
+    if (!marca) return void this.esperandoDesde.set(quadroId, { desde: agora, avisou: false })
+    if (marca.avisou || agora - marca.desde < DEMORA_MS) return
+    marca.avisou = true
+    const digitou = this.digitouAgora.get(quadroId)
+    const detalhe = [
+      `aberto=${this.deps.aberto(quadroId)}`,
+      `estado=${this.deps.aviso(quadroId)?.estado ?? 'nenhum'}`,
+      `pronto=${this.deps.pronto(quadroId)}`,
+      `digitou=${digitou === undefined ? 'nao' : `ha ${Math.round((agora - digitou) / 1000)} s`}`,
+      `segurando=${!!this.deps.segurar?.(quadroId)}`,
+      `semClaude=${this.semClaudeEm.has(quadroId)}`,
+      `naFila=${(this.emOrdem.get(quadroId) ?? []).length + (this.pendentes.has(quadroId) ? 1 : 0)}`,
+    ].join(' ')
+    this.deps.aoDemorar?.(quadroId, detalhe)
+  }
+
+  /** Digitou nesta parada e o agente ainda nao deu sinal (vale por SEM_SINAL_MS). */
+  private digitouHaPouco(quadroId: string): boolean {
+    const quando = this.digitouAgora.get(quadroId)
+    return quando !== undefined && this.relogio() - quando < SEM_SINAL_MS
   }
 
   pendente(quadroId: string): string | undefined {
@@ -103,7 +163,7 @@ export class FilaMensagens {
     return (
       this.deps.aberto(quadroId) &&
       podeDigitar(this.deps.aviso(quadroId)?.estado, this.deps.pronto(quadroId)) &&
-      !this.digitouAgora.has(quadroId) &&
+      !this.digitouHaPouco(quadroId) &&
       !this.deps.segurar?.(quadroId)
     )
   }
@@ -113,13 +173,16 @@ export class FilaMensagens {
    * no terminal (saiu e ficou o PowerShell), nao digita: a mensagem volta para o comeco da fila.
    */
   private async digitar(quadroId: string, texto: string, tipo: TipoMensagem): Promise<void> {
-    this.digitouAgora.add(quadroId)
+    this.digitouAgora.set(quadroId, this.relogio())
     if (!(await this.deps.temClaude(quadroId))) {
       this.digitouAgora.delete(quadroId)
+      this.semClaudeEm.set(quadroId, this.relogio())
       if (tipo === 'repasse') this.emOrdem.set(quadroId, [texto, ...(this.emOrdem.get(quadroId) ?? [])])
       else if (!this.pendentes.has(quadroId)) this.pendentes.set(quadroId, texto)
       return
     }
+    this.semClaudeEm.delete(quadroId)
+    this.esperandoDesde.delete(quadroId)
     this.aoDigitar(quadroId, tipo)
     this.deps.escrever(quadroId, texto)
     await this.deps.esperar(PAUSA_ENTER_MS)

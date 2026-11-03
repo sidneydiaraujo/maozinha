@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest'
 import type { PedidoColega } from './ferramentas'
-import { ServidorMcp } from './servidor'
+import { ESPERA_COLEGAS_MS } from '../time/espera'
+import { ESPERA_RESPOSTA_MS } from '../time/pedidos'
+import { PRAZO_CHAMADA_MS, ServidorMcp } from './servidor'
 
 let servidor: ServidorMcp | null = null
 afterEach(() => servidor?.parar())
@@ -65,5 +67,11 @@ describe('ServidorMcp por HTTP (A19)', () => {
     const de = (id: string) => (servidor?.configDo(id) as { mcpServers: { maozinha: { headers: { Authorization: string } } } }).mcpServers.maozinha.headers.Authorization
     expect(de('q1')).toBe(headers.Authorization)
     expect(de('q2')).not.toBe(headers.Authorization)
+  })
+  it('o prazo de cada chamada vai no config e passa do clique e da espera: o Claude cortava em 60 s (A27)', async () => {
+    const { timeout } = (await ligar()) as unknown as { timeout: number }
+    expect(timeout).toBe(PRAZO_CHAMADA_MS)
+    expect(timeout).toBeGreaterThan(ESPERA_RESPOSTA_MS)
+    expect(timeout).toBeGreaterThan(ESPERA_COLEGAS_MS)
   })
 })

@@ -16,6 +16,14 @@ export function textoDaTarefa(de: string, tarefa: string): string {
   return `Tarefa pedida por ${de} (colega do time no Mãozinha): ${tarefa}`.replace(CONTROLE, ' ').trim()
 }
 
+/**
+ * `esperar_colegas` com o pedido ainda na tela (A27): antes dizia "nenhum colega", e o agente
+ * achava que o pedido tinha falhado e pedia de novo.
+ */
+export const TEXTO_PEDIDO_NA_TELA =
+  'O seu pedido de colegas ainda espera o usuário responder na janela do Mãozinha. Não peça de novo: ' +
+  `chame ${noClaude(ESPERAR)} outra vez daqui a pouco; os colegas nascem quando ele aceitar.`
+
 const MESMO_TERMINAL = 'rode estas tarefas com os seus subagentes (Agent/Task), como faria normalmente.'
 
 /** A resposta ao agente quando o pedido acaba sem colegas. */
@@ -67,8 +75,8 @@ export class PedidosDeColegas {
   constructor(private readonly deps: DepsPedidos) {}
 
   pedir(quadroId: string, colegas: PedidoColega[], paralelo = false): Promise<RespostaFerramenta> {
-    if ([...this.abertos.values()].some((a) => a.quadroId === quadroId)) {
-      return Promise.resolve({ texto: 'Já existe um pedido seu esperando o usuário responder.', erro: true })
+    if (this.temAberto(quadroId)) {
+      return Promise.resolve({ texto: TEXTO_PEDIDO_NA_TELA, erro: true })
     }
     const pedidoId = this.deps.novoId()
     return new Promise((resolve) => {
@@ -84,6 +92,11 @@ export class PedidosDeColegas {
       })
       this.deps.avisarTela({ tipo: 'novo', pedido: { pedidoId, quadroId, nome: this.deps.nome(quadroId), colegas, paralelo } })
     })
+  }
+
+  /** O agente tem um pedido esperando o clique do usuario? */
+  temAberto(quadroId: string): boolean {
+    return [...this.abertos.values()].some((a) => a.quadroId === quadroId)
   }
 
   /** O clique na tela. Pedido que ja acabou (respondido, vencido): nada. */

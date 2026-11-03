@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { AvisoAgente, EstadoAgente, Ligacao, Quadro, Repo } from '../../shared/model'
 import { TEXTO_SAIU_DO_TIME, type DadosTime } from '../../shared/time'
-import { ApresentadorTime, ESPERA_APRESENTAR_MS, FilaMensagens } from './apresentar'
+import { ApresentadorTime, DEMORA_MS, ESPERA_APRESENTAR_MS, FilaMensagens, REVISAR_MS, SEM_SINAL_MS } from './apresentar'
 
 function fila(estados: Record<string, EstadoAgente | 'fechado'>, comClaude = true) {
   const escrito: string[] = []
@@ -166,6 +166,80 @@ function montar() {
   })
   return { ap, mandados, adiados, mudar: (d: Partial<DadosTime>) => void (dados = { ...dados, ...d }) }
 }
+
+describe('FilaMensagens confere sozinha (A27)', () => {
+  function relogioFila(estado: { e: EstadoAgente }, comClaude = { sim: true }) {
+    const escrito: string[] = []
+    const demoras: string[] = []
+    const t = { agora: 0, perguntas: 0 }
+    const f = new FilaMensagens({
+      aberto: () => true,
+      aviso: () => ({ estado: estado.e }),
+      escrever: (id, dados) => void escrito.push(`${id}:${dados}`),
+      esperar: async () => {},
+      pronto: () => true,
+      temClaude: async () => {
+        t.perguntas++
+        return comClaude.sim
+      },
+      agora: () => t.agora,
+      aoDemorar: (id, detalhe) => void demoras.push(`${id} ${detalhe}`),
+    })
+    return { f, escrito, demoras, t }
+  }
+
+  it('a tarefa esperava um aviso que nao veio: com o agente parado, a revisao digita', async () => {
+    const estado = { e: 'trabalhando' as EstadoAgente }
+    const { f, escrito } = relogioFila(estado)
+    await f.enfileirar('a', 'tarefa')
+    await f.revisar()
+    expect(escrito).toEqual([])
+    estado.e = 'terminou' // o agente parou, mas o aviso nao chegou a fila
+    await f.revisar()
+    expect(escrito).toEqual(['a:tarefa', 'a:\r'])
+  })
+
+  it('digitou e o agente nao deu sinal: a proxima so sai depois de SEM_SINAL_MS', async () => {
+    const { f, escrito, t } = relogioFila({ e: 'parado' })
+    await f.enfileirar('a', 'apresentacao')
+    await f.enfileirar('a', 'tarefa')
+    expect(escrito).toEqual(['a:apresentacao', 'a:\r'])
+    t.agora = SEM_SINAL_MS - 1
+    await f.revisar()
+    expect(f.emEspera('a')).toEqual(['tarefa'])
+    t.agora = SEM_SINAL_MS
+    await f.revisar()
+    expect(escrito).toEqual(['a:apresentacao', 'a:\r', 'a:tarefa', 'a:\r'])
+  })
+
+  it('sem claude.exe: a revisao nao pergunta ao Windows de novo antes de SEM_SINAL_MS', async () => {
+    const comClaude = { sim: false }
+    const { f, escrito, t } = relogioFila({ e: 'parado' }, comClaude)
+    await f.enfileirar('a', 'tarefa')
+    expect(t.perguntas).toBe(1)
+    t.agora = REVISAR_MS
+    await f.revisar()
+    expect(t.perguntas).toBe(1)
+    comClaude.sim = true
+    t.agora = SEM_SINAL_MS
+    await f.revisar()
+    expect(t.perguntas).toBe(2)
+    expect(escrito).toEqual(['a:tarefa', 'a:\r'])
+  })
+
+  it('esperando ha mais de DEMORA_MS: uma linha no registro com o porque, uma vez so', async () => {
+    const { f, demoras, t } = relogioFila({ e: 'trabalhando' })
+    await f.enfileirar('a', 'tarefa')
+    await f.revisar()
+    t.agora = DEMORA_MS - 1
+    await f.revisar()
+    expect(demoras).toEqual([])
+    t.agora = DEMORA_MS
+    await f.revisar()
+    await f.revisar()
+    expect(demoras).toEqual(['a aberto=true estado=trabalhando pronto=true digitou=nao segurando=false semClaude=false naFila=1'])
+  })
+})
 
 describe('ApresentadorTime', () => {
   it('varias mudancas seguidas: uma apresentacao so, para cada agente do time', () => {

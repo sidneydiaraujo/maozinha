@@ -185,3 +185,7 @@ Antes: feche e reabra os agentes (a regra nova só entra num Claude aberto pela 
 
 - [ ] 96. (A26) Deixe um agente terminar uma tarefa sem clicar nele: aparece no alto a pílula verde "1 pronto" com a mãozinha acenando (a âmbar "esperando você" não conta o que terminou). Clique: a lousa vai até o agente e a pílula some.
 - [ ] 97. (A26) Deixe dois agentes de projetos diferentes terminarem: "2 prontos". Clique: abre a lista do mais antigo ao mais novo, com o projeto de cada um; clicar numa linha leva até o agente e ele sai da lista. Num time ligado, só o líder aparece, e só depois que todos pararam.
+
+## Colegas que recebem a tarefa (A27)
+
+- [ ] 98. (A27, com A25) Peça a um agente "crie 2 colegas para ..." e espere mais de 1 minuto antes de clicar em "Criar". O agente não diz "tempo esgotado" nem pede de novo; depois do clique, cada colega abre sem "**..." digitado, recebe a apresentação do time e logo depois a tarefa "Tarefa pedida por ...", e começa sozinho. O `esperar_colegas` do agente espera até eles terminarem.

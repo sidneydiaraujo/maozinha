@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AvisoPedidoColegas } from '../../shared/model'
-import { ESPERA_RESPOSTA_MS, PedidosDeColegas, textoDaTarefa } from './pedidos'
+import { ESPERA_RESPOSTA_MS, PedidosDeColegas, TEXTO_PEDIDO_NA_TELA, textoDaTarefa } from './pedidos'
 
 function montar(falhaAoCriar = false) {
   const avisos: AvisoPedidoColegas[] = []
@@ -76,8 +76,13 @@ describe('PedidosDeColegas (A19)', () => {
   it('um pedido aberto por agente; o agente fechou: o pedido acaba', async () => {
     const { p } = montar()
     const primeiro = p.pedir('q1', DOIS)
-    expect((await p.pedir('q1', DOIS)).erro).toBe(true)
+    expect(p.temAberto('q1')).toBe(true)
+    expect(p.temAberto('q2')).toBe(false)
+    // A27: o segundo pedido ouve que o primeiro segue na tela, e nao para pedir de novo
+    expect(await p.pedir('q1', DOIS)).toEqual({ texto: TEXTO_PEDIDO_NA_TELA, erro: true })
+    expect(TEXTO_PEDIDO_NA_TELA).toContain('Não peça de novo')
     p.esquecer('q1')
+    expect(p.temAberto('q1')).toBe(false)
     expect((await primeiro).texto).toContain('fechado')
   })
 
