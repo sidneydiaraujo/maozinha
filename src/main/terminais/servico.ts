@@ -138,6 +138,31 @@ export class ServicoTerminais {
     return t && !t.saiu ? t : undefined
   }
 
+  /**
+   * Espera a saida que chega daqui para a frente satisfazer `achou` (A28: o menu do /compact).
+   * Terminal fechado ou prazo vencido: false.
+   */
+  aguardarSaida(terminalId: string, achou: (saida: string) => boolean, ms: number): Promise<boolean> {
+    const t = this.vivo(terminalId)
+    if (!t) return Promise.resolve(false)
+    return new Promise((resolve) => {
+      let saida = ''
+      let acabou = false
+      const acabar = (r: boolean): void => {
+        if (acabou) return
+        acabou = true
+        clearTimeout(relogio)
+        escuta.dispose()
+        resolve(r)
+      }
+      const escuta = t.pty.onData((dados) => {
+        saida = (saida + dados).slice(-20_000)
+        if (achou(saida)) acabar(true)
+      })
+      const relogio = setTimeout(() => acabar(false), ms)
+    })
+  }
+
   escrever(terminalId: string, dados: string): void {
     this.vivo(terminalId)?.pty.write(dados)
   }

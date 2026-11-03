@@ -215,6 +215,7 @@ export function criarContexto(): Contexto {
         temClaude,
         escrever: (id, dados) => terminais.escrever(id, dados),
         esperar,
+        aguardarSaida: (id, achou, ms) => terminais.aguardarSaida(id, achou, ms),
       },
       quadroId,
     )

@@ -193,3 +193,17 @@ describe('ServicoTerminais', () => {
     expect(servico.aviso('t1')).toBeNull()
   })
 })
+
+describe('aguardarSaida (A28)', () => {
+  it('so olha o que chega depois; acha, para de ouvir; prazo vencido ou terminal fechado: false', async () => {
+    const { servico, ptys } = montar()
+    servico.abrir(pedido)
+    ptys[0]!.emitir('Free up context (antes de olhar)')
+    const achou = servico.aguardarSaida('t1', (s) => s.includes('Free up context'), 1000)
+    ptys[0]!.emitir('Free up ')
+    ptys[0]!.emitir('context by summarizing')
+    expect(await achou).toBe(true)
+    expect(await servico.aguardarSaida('t1', (s) => s.includes('nada'), 20)).toBe(false)
+    expect(await servico.aguardarSaida('outro', () => true, 20)).toBe(false)
+  })
+})
