@@ -30,6 +30,38 @@ describe('juntarUso', () => {
   })
 })
 
+describe('juntarUso: dado parado de outro agente da mesma conta (A29)', () => {
+  const HORA = 3_600_000
+  it('no mesmo periodo, uso menor nao faz a barra voltar nem renova o "visto"', () => {
+    const a = juntarUso(undefined, painel(100, l(23, 5 * HORA), l(38, 90 * HORA)), 'p')
+    // agente parado desde ontem redesenha a linha de status com os numeros que tinha
+    expect(juntarUso(a, painel(200, l(23, 5 * HORA), l(5, 90 * HORA)), 'p')).toBe(a)
+  })
+
+  it('periodo anterior (zerava antes) e ignorado', () => {
+    const a = juntarUso(undefined, painel(100, l(10, 10 * HORA)), 'p')
+    expect(juntarUso(a, painel(200, l(80, 5 * HORA)), 'p')).toBe(a)
+  })
+
+  it('periodo novo vence mesmo com uso menor: a sessao zerou', () => {
+    const a = juntarUso(undefined, painel(100, l(80, 5 * HORA)), 'p')
+    expect(juntarUso(a, painel(200, l(3, 10 * HORA)), 'p').cincoHoras).toEqual(l(3, 10 * HORA))
+  })
+
+  it('mesmo uso de um agente ativo renova o "visto"; hora de zerar com segundos de diferenca e o mesmo periodo', () => {
+    const a = juntarUso(undefined, painel(100, l(23, 5 * HORA)), 'p')
+    const b = juntarUso(a, painel(200, l(23, 5 * HORA + 1000)), 'p')
+    expect(b.quando).toBe(200)
+    expect(juntarUso(b, painel(300, l(24, 5 * HORA)), 'p').cincoHoras?.usado).toBe(24)
+  })
+
+  it('metade velha e metade nova: entra so a nova, o "visto" fica', () => {
+    const a = juntarUso(undefined, painel(100, l(20, 5 * HORA), l(30, 90 * HORA)), 'p')
+    const b = juntarUso(a, painel(200, l(25, 5 * HORA), l(10, 90 * HORA)), 'p')
+    expect(b).toEqual({ perfilId: 'p', cincoHoras: l(25, 5 * HORA), semana: l(30, 90 * HORA), quando: 100 })
+  })
+})
+
 describe('UsoDasContas', () => {
   it('outra conta nao mistura', () => {
     const usos = new UsoDasContas()

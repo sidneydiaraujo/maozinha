@@ -197,3 +197,7 @@ Instale por cima da 0.4.9 e reabra os agentes (a regra nova só entra num Claude
 ### Colegas que recebem a tarefa (A27)
 
 - [ ] 98. (A27, com A25) Peça a um agente "crie 2 colegas para ..." e espere mais de 1 minuto antes de clicar em "Criar". O agente não diz "tempo esgotado" nem pede de novo; depois do clique, cada colega abre sem "**..." digitado, recebe a apresentação do time e logo depois a tarefa "Tarefa pedida por ...", e começa sozinho. O `esperar_colegas` do agente espera até eles terminarem.
+
+### Barras de uso que não voltam (A29)
+
+- [ ] 100. (A29) Com dois agentes da mesma conta, um trabalhando e outro parado há horas: mude o tamanho do quadro parado. As barras de uso daquela conta no alto não voltam para um número menor; elas só sobem, ou zeram quando passa a hora de zerar.
