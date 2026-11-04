@@ -102,6 +102,21 @@
   border-color: color-mix(in srgb, var(--cabecalho-texto) 40%, transparent);
 }
 
+/* menu do ＋: nome em cima, explicacao embaixo (sem a bolinha de cor do menu de contas) */
+.ao-lado-explica {
+  margin: 0 8px 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--apagado);
+}
+
+.ao-lado-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.35;
+}
+
 .cabecalho-quadro .botao-ao-lado:hover {
   background: color-mix(in srgb, var(--cabecalho-texto) 18%, transparent);
 }

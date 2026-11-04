@@ -201,3 +201,7 @@ Instale por cima da 0.4.9 e reabra os agentes (a regra nova só entra num Claude
 ### Barras de uso que não voltam (A29)
 
 - [ ] 100. (A29) Com dois agentes da mesma conta, um trabalhando e outro parado há horas: mude o tamanho do quadro parado. As barras de uso daquela conta no alto não voltam para um número menor; elas só sobem, ou zeram quando passa a hora de zerar.
+
+### Menu do ＋ legível (A30)
+
+- [ ] 101. (A30) Clique no ＋ do cabeçalho de um agente: o menu diz "Abrir nesta pasta" e explica que o quadro novo fica à parte, fora do time; "Agente avulso" e "Terminal" aparecem com a explicação na linha de baixo, sem texto grudado.

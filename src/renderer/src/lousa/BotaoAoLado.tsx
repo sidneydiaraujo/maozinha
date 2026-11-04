@@ -6,7 +6,7 @@ import type { TipoQuadro } from '../../../shared/model'
 import { mensagemDe } from '../componentes/erro'
 import { useFecharFora } from '../componentes/useFecharFora'
 
-const LARGURA_MENU = 240
+const LARGURA_MENU = 260
 
 interface Props {
   rotulo: string
@@ -52,17 +52,18 @@ export function BotaoAoLado({ rotulo, aoAbrir }: Props): React.JSX.Element {
       {lugar &&
         createPortal(
           <div ref={menu} className="conta-menu" style={{ left: Math.max(8, lugar.x), top: lugar.y, width: LARGURA_MENU }}>
-            <p className="conta-menu-titulo">Nesta pasta, fora do time</p>
+            <p className="conta-menu-titulo">Abrir nesta pasta</p>
+            <p className="ao-lado-explica">Um quadro à parte, embaixo deste. Não entra no time e não mexe no que ele está fazendo.</p>
             <button className="conta-menu-item" disabled={ocupado} onClick={() => void abrir('agente')}>
-              <span>
-                <strong>Agente</strong>
-                <small>Mesma conta, para evoluir ou pesquisar</small>
+              <span className="ao-lado-texto">
+                <strong>Agente avulso</strong>
+                <small>Na mesma conta, para perguntar ou pesquisar enquanto o time trabalha</small>
               </span>
             </button>
             <button className="conta-menu-item" disabled={ocupado} onClick={() => void abrir('terminal')}>
-              <span>
+              <span className="ao-lado-texto">
                 <strong>Terminal</strong>
-                <small>PowerShell comum</small>
+                <small>PowerShell nesta pasta, para rodar comandos</small>
               </span>
             </button>
             {erro && (

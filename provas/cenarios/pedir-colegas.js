@@ -89,6 +89,8 @@
     const antesMais = quadros()
     q('[data-quadro="a1"] .botao-ao-lado')?.click()
     await ate(() => todos('.conta-menu .conta-menu-item').length === 2, 20)
+    await espera(300)
+    await prova.foto('4-menu')
     todos('.conta-menu .conta-menu-item')[1]?.click()
     r.nasceuTerminal = await ate(() => quadros() === antesMais + 1, 80)
     const e4 = await window.lousa.lousa.carregar()
