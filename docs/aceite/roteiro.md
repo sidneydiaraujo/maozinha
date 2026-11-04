@@ -205,3 +205,7 @@ Instale por cima da 0.4.9 e reabra os agentes (a regra nova só entra num Claude
 ### Menu do ＋ legível (A30)
 
 - [ ] 101. (A30) Clique no ＋ do cabeçalho de um agente: o menu diz "Abrir nesta pasta" e explica que o quadro novo fica à parte, fora do time; "Agente avulso" e "Terminal" aparecem com a explicação na linha de baixo, sem texto grudado.
+
+### Rolar sem disparar para cima (A31)
+
+- [ ] 102. (A31) Reabra um agente com uma conversa longa. Gire a roda do mouse para cima, devagar e depois rápido: a conversa sobe aos poucos (cerca de 3 linhas por giro), sem pular para longe; girando para baixo volta ao fim sem precisar de Page Down.

@@ -79,6 +79,8 @@ describe('PonteAgentes', () => {
       statusLine: { type: 'command', command: 'findstr "^" > "C:/Users/x/AppData/Roaming/lousa-ia/agentes/q1.json"' },
       hooks: ganchoDeEscrita(join(PASTA, 'q1.escrita.json')),
       permissions: { allow: ['mcp__maozinha__criar_colegas', 'mcp__maozinha__esperar_colegas'] },
+      // A31: sem a aceleracao do Claude, cada giro da roda rola 3 linhas
+      wheelScrollAccelerationEnabled: false,
     })
   })
 

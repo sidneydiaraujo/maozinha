@@ -15,6 +15,14 @@ const FORMATO_ID = /^[\w-]{1,80}$/
 const SETTINGS = '.settings.json'
 const ESCRITA = '.escrita.json'
 const MCP = '.mcp.json'
+/**
+ * A31: o Claude 2.1.318 roda em tela cheia propria e rola a conversa sozinho com a roda. O xterm
+ * nao diz quem e, e no Windows o Claude liga uma curva de aceleracao: giros com menos de 80 ms
+ * entre si chegam a 36 linhas cada, e uma girada rapida joga centenas de linhas para cima. Sem
+ * ela, cada giro rola 3 linhas ("wheel accel: decay · base=3 · accelDisabled" no log do Claude).
+ * Vale so para este agente, pelo --settings da Lousa; a pasta da conta nao muda.
+ */
+const ROLAGEM = { wheelScrollAccelerationEnabled: false }
 /** Do mais comprido ao mais curto: "q1.escrita.json" nao e o painel de "q1.escrita". */
 const FINS = [SETTINGS, ESCRITA, MCP, '.json']
 
@@ -92,7 +100,7 @@ export class PonteAgentes {
     const hooks = ganchoDeEscrita(join(pasta, `${quadroId}${ESCRITA}`))
     // a ferramenta de criar colegas (A19) ja pergunta na tela do Mãozinha: o Claude nao pergunta de novo
     const permissions = { allow: FERRAMENTAS_NO_CLAUDE }
-    disco.escrever(settings, JSON.stringify({ statusLine, hooks, permissions }))
+    disco.escrever(settings, JSON.stringify({ statusLine, hooks, permissions, ...ROLAGEM }))
     return settings
   }
 
