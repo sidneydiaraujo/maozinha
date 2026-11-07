@@ -25,7 +25,8 @@ node provas/rodar.mjs <cenario> [--sem-build] [opções do cenário]
   (código -1073740791) com os terminais do cenário abertos: o resultado já foi gravado, e o
   `rodar.mjs` avisa para conferir o `ok`.
 - Ao final, mostra o `resultado.json`. As fotos ficam em
-  `provas/saida/<cenario>-<data>/`.
+  `provas/saida/<cenario>-<data>/`. Antes de cada rodada, só as 10 mais novas ficam (R3.14,
+  `scripts/limpeza.mjs`); copie para fora a rodada que quiser guardar.
 - `Error: AttachConsole failed` no fim do log é ruído do node-pty ao fechar a janela com
   terminais abertos. Não afeta o resultado.
 - Só funciona fora do instalador: o `--cenario` do smoke é ignorado no app empacotado.

@@ -7,6 +7,7 @@ import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, w
 import { homedir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { RODADAS_GUARDADAS, limpar } from '../scripts/limpeza.mjs'
 import { estadoDe, prepararPastas } from './estados.mjs'
 
 const AQUI = dirname(fileURLToPath(import.meta.url))
@@ -28,6 +29,9 @@ const carimbo = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19)
 const saida = join(AQUI, 'saida', `${nome}-${carimbo}`)
 const dados = join(saida, 'dados')
 const pastaDemo = join(saida, 'pasta-demo')
+
+// R3.14: so as rodadas mais novas ficam (com esta, RODADAS_GUARDADAS)
+limpar('provas', RODADAS_GUARDADAS - 1)
 
 // a pasta de exemplo guarda .git e node_modules com outro nome (o git nao aceita guardar os dois)
 cpSync(join(AQUI, 'pasta-demo'), pastaDemo, { recursive: true })

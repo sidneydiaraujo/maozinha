@@ -35,8 +35,17 @@ describe('iniciarRegistros', () => {
     gravar('linha 2\n')
     expect(readFileSync(join(pasta, 'lousa-2026-10-18.log'), 'utf8')).toBe('linha 1\n')
     expect(readFileSync(join(pasta, 'lousa-2026-10-19.log'), 'utf8')).toBe('linha 2\n')
-    // o velho criado depois de iniciar so sai na proxima abertura; outros arquivos ficam sempre
-    iniciarRegistros(pasta, () => agora)
+    // R3.14: o velho sai na virada do dia, com o app aberto; outros arquivos ficam sempre
     expect(readdirSync(pasta).sort()).toEqual(['anotacao.txt', 'lousa-2026-10-18.log', 'lousa-2026-10-19.log'])
+  })
+
+  it('no mesmo dia nao varre a pasta de novo a cada linha', () => {
+    const pasta = join(mkdtempSync(join(tmpdir(), 'lousa-reg-')), 'logs')
+    const agora = new Date(2026, 9, 18, 10, 0)
+    const gravar = iniciarRegistros(pasta, () => agora)
+    gravar('linha 1\n')
+    writeFileSync(join(pasta, 'lousa-2026-09-01.log'), 'velho\n')
+    gravar('linha 2\n')
+    expect(readdirSync(pasta)).toContain('lousa-2026-09-01.log')
   })
 })

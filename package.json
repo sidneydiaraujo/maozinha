@@ -10,7 +10,7 @@
     "dev": "node scripts/sem-run-as-node.mjs electron-vite dev",
     "build": "electron-vite build",
     "start": "node scripts/sem-run-as-node.mjs electron-vite preview",
-    "dist": "electron-vite build && electron-builder --win --publish never",
+    "dist": "electron-vite build && electron-builder --win --publish never && node scripts/limpeza.mjs release",
     "smoke": "electron-vite build && node scripts/sem-run-as-node.mjs electron . --smoke",
     "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "lint": "eslint .",

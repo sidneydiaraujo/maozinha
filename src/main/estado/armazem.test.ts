@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { EstadoSalvo } from '../../shared/model'
-import { criarArmazem, ESTADO_PADRAO } from './armazem'
+import { copiasVelhas, criarArmazem, ESTADO_PADRAO } from './armazem'
 
 const pasta = (): string => mkdtempSync(join(tmpdir(), 'lousa-'))
 const caixa = { x: 1, y: 2, largura: 300, altura: 200 }
@@ -77,6 +77,20 @@ describe('criarArmazem: item ruim nao apaga a lousa (R1.2)', () => {
     expect(lido.notas).toEqual(completo.notas)
     expect(existsSync(arquivo)).toBe(true)
     expect(readdirSync(dir).filter((n) => n.startsWith('estado.json.antes-'))).toHaveLength(1)
+  })
+
+  it('o carregar roda a cada operacao: o mesmo arquivo ruim vira uma copia so, nao uma por leitura (R3.14)', () => {
+    const ruim = { ...completo.quadros[1], sessaoId: 'nao-e-uuid' }
+    const { dir, arquivo } = gravar({ ...completo, quadros: [completo.quadros[0], ruim], ligacoes: [] })
+    const armazem = criarArmazem(arquivo)
+    for (let i = 0; i < 3; i++) armazem.carregar()
+    expect(readdirSync(dir).filter((n) => n.startsWith('estado.json.antes-'))).toHaveLength(1)
+  })
+
+  it('copiasVelhas: so as 5 mais novas de cada estado ficam (R3.14)', () => {
+    const nomes = [1, 2, 3, 4, 5, 6, 7].map((n) => `estado.json.antes-${n}000`)
+    nomes.push('estado.json.corrompido-8000', 'estado.json', 'estado.json.tmp', 'outro.json.antes-1')
+    expect(copiasVelhas(nomes, 'estado.json').sort()).toEqual(['estado.json.antes-1000', 'estado.json.antes-2000', 'estado.json.antes-3000'])
   })
 
   it('linha de uma versao futura (modo novo) sai; os quadros ficam', () => {

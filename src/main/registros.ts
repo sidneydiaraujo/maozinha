@@ -54,6 +54,8 @@ export function iniciarRegistros(pasta: string, agora: () => Date = () => new Da
   return (linha) => {
     const caminho = join(pasta, nomeDoDia(agora()))
     if (caminho !== arquivo) {
+      // R3.14: o app fica aberto por dias; a virada do dia tambem apaga os velhos (antes, so ao abrir)
+      if (arquivo) apagarVelhos(pasta, agora())
       arquivo = caminho
       tamanho = tamanhoAtual(caminho)
     }
