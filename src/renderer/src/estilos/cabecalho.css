@@ -23,6 +23,12 @@
   color: var(--cabecalho-texto);
 }
 
+/* R2.10: agente na pasta do usuario */
+.cabecalho-quadro .quadro-pasta-ampla {
+  color: var(--ambar);
+  cursor: help;
+}
+
 .cabecalho-quadro button,
 .cabecalho-quadro input {
   font-family: inherit;

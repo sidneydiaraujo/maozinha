@@ -20,6 +20,7 @@ import { ModeloDoQuadro } from './ModeloDoQuadro'
 import { PapelDoQuadro } from './PapelDoQuadro'
 import type { AcoesLousa, QuadroNo } from './nos'
 import { atencao, useAtencao, useMapaAtencao } from './useAtencao'
+import { SinalPastaAmpla } from './PastaAmpla'
 
 /** "esperando você", "terminou"... no cabecalho (T8.2); a frase do Claude aparece ao parar o mouse. */
 function SeloAgente({ quadroId }: { quadroId: string }): React.JSX.Element | null {
@@ -134,6 +135,18 @@ function EtiquetaDoQuadro(p: { quadro: Quadro; acoes: AcoesLousa }): React.JSX.E
   return <PapelDoQuadro papel={quadro.papel} aoSalvar={(papel) => acoes.definirPapel(quadro.id, papel)} />
 }
 
+/** O nome da pasta no cabecalho; no agente aberto na pasta do usuario, o ⚠ (R2.10). */
+function PastaDoQuadro(p: { repo: Repo; rotulo: string; agente: boolean }): React.JSX.Element {
+  const { repo } = p
+  const titulo = repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho
+  return (
+    <span className="quadro-pasta" title={titulo}>
+      <span aria-hidden="true">📁</span> {p.rotulo}
+      <SinalPastaAmpla repoId={p.agente ? repo.id : null} />
+    </span>
+  )
+}
+
 /** Classe do quadro: ambar parado pedindo atencao; brilho na borda trabalhando (T21.2, D36). */
 function useClasseQuadro(quadroId: string): { classe: string; chamando: boolean } {
   const mapa = useMapaAtencao()
@@ -186,12 +199,7 @@ export function QuadroNode({ data }: NodeProps<QuadroNo>): React.JSX.Element {
         {/* sem duplo clique para ampliar (A2, 20/10): clicar duas vezes no cabecalho para escolher
             ou arrastar o quadro ampliava sem querer; ampliar e so no ⤢ */}
         <header className="cabecalho-quadro" title="Ctrl+clique seleciona vários (para mandar a mesma mensagem)">
-          <span
-            className="quadro-pasta"
-            title={repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho}
-          >
-            <span aria-hidden="true">📁</span> {rotulo}
-          </span>
+          <PastaDoQuadro repo={repo} rotulo={rotulo} agente={quadro.tipo === 'agente'} />
           <EtiquetaDoQuadro quadro={quadro} acoes={acoes} />
           <SeloAgente quadroId={quadro.id} />
           {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} acoes={acoes} />}

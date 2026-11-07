@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { PerfilComConta, Quadro, Repo, TipoQuadro } from '../../../shared/model'
 import { sugerirSeparado } from './copia'
 import { PastasRecentes } from './PastasRecentes'
+import { AvisoPastaAmpla } from './PastaAmpla'
 
 interface Props {
   perfis: PerfilComConta[]
@@ -236,6 +237,7 @@ export function NovoQuadro(props: Props): React.JSX.Element {
         <button className="botao-pequeno" onClick={() => void outraPasta()}>
           {repos.length > 0 ? 'Outra pasta…' : 'Escolher pasta…'}
         </button>
+        <AvisoPastaAmpla repoId={repoId} />
         {repoId && (
           <CaixaCopia marcada={separado} sugerida={sugerida} aceita={escolhas.aceitaCopia} aoMudar={setSeparado} />
         )}

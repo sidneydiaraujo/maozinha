@@ -57,6 +57,7 @@ export const IPC = {
   reposAdicionar: 'repos:adicionar',
   reposRemover: 'repos:remover',
   reposTemKanban: 'repos:temKanban',
+  reposPastaAmpla: 'repos:pastaAmpla', // a pasta e a do usuario ou acima dela? (R2.10)
   quadrosCriar: 'quadros:criar',
   quadrosRemover: 'quadros:remover',
   quadrosTrocarConta: 'quadros:trocarConta',
@@ -160,6 +161,8 @@ export interface LousaApi {
     remover(repoId: string): Promise<FimDaCopia>
     /** O projeto desta pasta ja tem KANBAN.md (na pasta ou acima, ate a raiz do git; A22)? */
     temKanban(repoId: string): Promise<boolean>
+    /** A pasta e a do usuario (ou acima dela)? Um agente ali enxerga as pastas das contas (R2.10). */
+    pastaAmpla(repoId: string): Promise<boolean>
   }
   quadros: {
     /**

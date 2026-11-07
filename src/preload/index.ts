@@ -45,6 +45,7 @@ const api: LousaApi = {
     adicionar: (caminho, perfilId) => ipcRenderer.invoke(IPC.reposAdicionar, { caminho, perfilId }),
     remover: (repoId) => ipcRenderer.invoke(IPC.reposRemover, { repoId }),
     temKanban: (repoId) => ipcRenderer.invoke(IPC.reposTemKanban, { repoId }),
+    pastaAmpla: (repoId) => ipcRenderer.invoke(IPC.reposPastaAmpla, { repoId }),
   },
   quadros: {
     criar: (repoId, tipo, perfilId, opcoes) =>

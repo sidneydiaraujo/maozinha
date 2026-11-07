@@ -116,3 +116,15 @@
   color: var(--apagado);
   font-size: 11px;
 }
+
+/* R2.10: pasta do usuario (ou acima dela): o agente enxerga as pastas das contas */
+.novo-aviso-ampla {
+  margin: 6px 0 2px;
+  padding: 6px 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--ambar);
+  background: color-mix(in srgb, var(--ambar) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ambar) 45%, transparent);
+  border-radius: 6px;
+}
