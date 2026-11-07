@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { IPC } from '../../shared/ipc'
 import type { RodarGit } from '../copias/git'
+import { apagarBranchesJuntadas, listarBranchesJuntadas } from '../copias/fantasmas'
 import { diffDoArquivo, juntarCopia, resumirCopia } from '../copias/juntar'
 import { raizDaCopia } from '../copias/servico'
 import { handle } from '../ipc'
@@ -19,5 +20,12 @@ export function registrarHandlersCopias(repos: ServicoRepos, git: RodarGit): voi
   handle(IPC.copiasAceita, Copia, async ({ repoId }) => {
     const repo = repos.obter(repoId)
     return (await raizDaCopia(git, repo.copia ? repos.obter(repo.copia.origemId) : repo)) === 'ok'
+  })
+  // R3.16: a tela manda so o id da pasta original; quais branches saem, o main recalcula
+  handle(IPC.copiasBranchesJuntadas, z.undefined(), () => listarBranchesJuntadas(git, repos.listar()))
+  handle(IPC.copiasApagarBranches, Copia, ({ repoId }) => {
+    const origem = repos.obter(repoId)
+    if (origem.copia) throw new Error('Só na pasta original')
+    return apagarBranchesJuntadas(git, origem, repos.listar())
   })
 }

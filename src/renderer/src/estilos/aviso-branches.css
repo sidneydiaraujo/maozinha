@@ -1,0 +1,33 @@
+/* R3.16: faixa das branches de copias antigas, embaixo no meio (entre os botoes de zoom e o mapa) */
+.aviso-branches {
+  position: absolute;
+  z-index: 6;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  max-width: min(720px, calc(100% - 32px));
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--texto);
+  background: var(--painel);
+  border: 1px solid var(--borda-forte);
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 35%);
+}
+
+.aviso-branches code {
+  font-size: 12px;
+}
+
+.aviso-branches > span:first-child {
+  flex: 1 1 260px;
+}
+
+.aviso-branches button {
+  flex: 0 0 auto;
+  width: auto;
+}

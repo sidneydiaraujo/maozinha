@@ -68,6 +68,7 @@ node provas/rodar.mjs <cenario> [--sem-build] [opções do cenário]
 | `navegar` | demo | R2.7: tenta levar a janela para outro arquivo local, uma pasta de rede e um site; o main recusa as três (`navegação recusada` no registro), a lousa fica e o `window.lousa` segue respondendo | 1-ficou |
 | `pasta-ampla` | casa | R2.10: o main diz que a pasta do usuário é ampla e a do projeto não; o Novo quadro mostra o aviso âmbar só na pasta do usuário, com os botões ligados; o terminal comum aberto ali não ganha o ⚠ | 1-aviso, 2-projeto |
 | `atalhos` | demo | R2.11: cria pelo terminal duas junções na pasta-demo da rodada; a que leva para fora é recusada ao ler e listar ("Arquivo fora da pasta"), a que aponta para `docs` lista e lê; adicionar pasta com ficha inventada ou com um caminho no lugar da ficha é recusado e a lista de pastas não muda | — |
+| `fantasmas` | fantasmas | R3.16: na abertura, c-sumiu, c-vazia e c-trabalho (sem quadro, pasta sumida ou vazia) saem da lista e a c-viva fica; o git esquece os worktrees e a pasta vazia sai; a faixa oferece só `lousa/c-sumiu` e `lousa/c-vazia` (juntadas); depois do Apagar ficam `lousa/c-trabalho` (commit nunca juntado) e `lousa/c-viva` | 1-faixa, 2-depois |
 | `repasse` | repasse | Fatia 30 (D43), Claude de verdade fechado na confiança ("No, exit", nenhuma mensagem) e depois o falso `apoio/eco-repasse.mjs` nos dois agentes já ligados a1 → a2: a1 termina 4 vezes seguidas; o a2 recebe 3 repasses com o que o a1 disse e a linha mostra "→ passou para Claude 2"; no quarto a linha pausa no main e diz "Limite de 3 repasses: Continuar?"; o clique retoma e passa (sem abrir o menu); "perguntar" mostra "▶ Passar para Claude 2" e só passa no clique; a2 encerrado: "Claude 2 está fechado" | 1-passou, 2-limite, 3-perguntar, 4-fechado |
 | `time` | time | Fatias 28 e 29, **com Claude de verdade** (ok do Sidney em 21/10; "No, exit" na confiança, nenhuma mensagem), ou com a opção `sem-claude` (sem nenhum): bolinhas só nos agentes; soltar a linha no vazio cria colega; a1→a3 recusado (contas), a1→a2 âmbar, a volta recusada; clique na bolinha cria colega na cópia; menu (perguntar, pausar, tracejada); o rótulo também abre o menu; "Abrir o colega numa cópia"; salvo = tela; fechar quadro tira as linhas; papel "Construtor"; com só o PowerShell nada é digitado, nem com "parado" fingido; com o Claude falso (`apoio/eco-time.mjs`, o node copiado como `claude.exe`) a apresentação chega | 1..5 |
 | `osc-saida` | agente | Investigação (T29.1): grava o OSC 7501 cru do `claude.exe` na confiança da pasta e depois do "No, exit". Em 21/10: só a pergunta `?`, nenhum estado | — |
@@ -95,6 +96,9 @@ travada.
   `q2` em api, longe, fora da tela. O `app` traz `docs/plano/fatia-12.md` e o mesmo nome
   dentro de `node_modules` (ignorado). Os dois nascem limpos, porque o Juntar recusa
   qualquer alteração pendente.
+- `fantasmas`: o `app` do `git` (com `q1`) e quatro cópias git de verdade na lista: `c-sumiu`
+  (pasta apagada), `c-vazia` (pasta esvaziada), `c-viva` (normal) e `c-trabalho` (pasta
+  apagada, com um commit nunca juntado). R3.16.
 - `agente`: **um agente de verdade** (`a1`, `claude.exe` da conta Pessoal) na cópia da
   `pasta-demo`. A pasta é nova, então o Claude pergunta se confia nela, com a seta em "No,
   exit"; o cenário leva a seta ao "Yes".

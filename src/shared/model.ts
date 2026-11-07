@@ -64,6 +64,8 @@ export interface ResumoCopia {
 }
 
 // O que aconteceu com a cópia ao fechar o último quadro dela (ou tirá-la da lista).
+/** R3.16: branches `lousa/*` de copias que ja se foram, ja juntadas na pasta original. */
+export interface BranchesDaPasta { repoId: string; nome: string; branches: string[] }
 export type FimDaCopia =
   | { copia: 'nenhuma' }                                  // a pasta não era cópia, ou ainda tem quadros
   | { copia: 'apagada' }

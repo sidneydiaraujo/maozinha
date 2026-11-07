@@ -200,6 +200,8 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `copias:resumo` | `{ repoId }` | `ResumoCopia` (commits e arquivos para juntar) | T11.1 |
 | `copias:juntar` | `{ repoId }` | `{ branchAlvo }` (merge; conflito desfaz e lança) | T11.1 |
 | `copias:diff` | `{ repoId, caminho }` | `DiffArquivo` (só caminho da lista do `--numstat`) | T22.1 |
+| `copias:branchesJuntadas` | — | `BranchesDaPasta[]`: branches `lousa/*` juntadas, sem worktree vivo nem cópia na lista | R3.16 |
+| `copias:apagarBranches` | `{ repoId }` (pasta original) | `number`: quantas o `git branch -d` aceitou (o main recalcula a lista) | R3.16 |
 | `mensagens:listar` | — | `string[]` (sem arquivo: as três padrão) | T25.1 |
 | `mensagens:salvar` | `{ mensagens }` | `string[]` limpa (sem vazias nem repetidas, até 30) | T25.1 |
 | `notas:criar` | `{ posicao }` | `Nota` vazia (no lugar livre mais perto) | T26.1 |

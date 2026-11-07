@@ -9,6 +9,7 @@ import type {
   AlvoTerminal,
   AvisoAgente,
   AvisoPedidoColegas,
+  BranchesDaPasta,
   Caixa,
   DiffArquivo,
   ConteudoArquivo,
@@ -67,6 +68,8 @@ export const IPC = {
   copiasJuntar: 'copias:juntar',
   copiasDiff: 'copias:diff',
   copiasAceita: 'copias:aceita', // a pasta aceita copia separada? (R1.5)
+  copiasBranchesJuntadas: 'copias:branchesJuntadas', // branches de copias que ja se foram (R3.16)
+  copiasApagarBranches: 'copias:apagarBranches',
   mensagensListar: 'mensagens:listar',
   mensagensSalvar: 'mensagens:salvar',
   notasCriar: 'notas:criar',
@@ -196,6 +199,10 @@ export interface LousaApi {
     diff(repoId: string, caminho: string): Promise<DiffArquivo>
     /** A pasta (ou a original dela) e a raiz de um repositorio git? Sem isso, nada de copia separada (R1.5). */
     aceita(repoId: string): Promise<boolean>
+    /** Pastas originais com branches `lousa/*` ja juntadas e sem copia viva (R3.16). */
+    branchesJuntadas(): Promise<BranchesDaPasta[]>
+    /** Apaga (git branch -d) as dessa pasta, recalculadas no main; devolve quantas sairam. */
+    apagarBranches(repoId: string): Promise<number>
   }
   /** Mensagens prontas (T25, D33): frases guardadas para mandar a um ou varios quadros. */
   mensagens: {

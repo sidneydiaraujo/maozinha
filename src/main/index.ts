@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { AvisosDoWindows } from './avisos/notificar'
 import { pastaDoSmoke, usaPastaReal } from './cenario'
 import { criarContexto, type Contexto } from './contexto'
+import { apagarPastaVazia, situacaoDaPasta, varrerFantasmas } from './copias/fantasmas'
 import { rodarGitReal } from './copias/git'
 import { registrarHandlersAgentes } from './handlers/agentes'
 import { registrarHandlersApp } from './handlers/app'
@@ -44,6 +45,14 @@ function ligarRegistros(): void {
 /** Registra todos os canais de IPC e garante que os terminais morrem junto com o app. */
 function registrarCanais(): void {
   const contexto: Contexto = criarContexto()
+  // R3.16: copias cuja pasta sumiu saem da lista antes da janela ler o estado
+  varrerFantasmas({
+    armazem: contexto.armazem,
+    git: rodarGitReal,
+    situacao: situacaoDaPasta,
+    apagarPastaVazia,
+    log: (m) => log('info', m),
+  }).catch((erro: unknown) => log('warn', 'a limpeza das cópias sem pasta parou', erro))
   registrarHandlersApp(pastaDosRegistros())
   registrarHandlersPerfis(contexto.perfis)
   registrarHandlersRepos(contexto.repos)

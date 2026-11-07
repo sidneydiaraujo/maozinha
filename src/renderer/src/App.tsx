@@ -5,6 +5,7 @@ import { mensagemDe } from './componentes/erro'
 import { Lateral } from './lateral/Lateral'
 import { Leitor } from './leitor/Leitor'
 import { useArquivoAberto } from './leitor/useArquivoAberto'
+import { AvisoBranches } from './lousa/AvisoBranches'
 import { useContarCompactar } from './lousa/useContarCompactar'
 import { pedirFoco, pedirNovaNota, pedirNovoQuadro } from './lousa/foco'
 import { Lousa } from './lousa/Lousa'
@@ -83,6 +84,7 @@ export function App(): React.JSX.Element {
         <main className="area-lousa">
           {erro && <p role="alert">Falha ao falar com o processo principal: {erro}</p>}
           <Lousa versao={versaoLousa} aoMudarPastas={aoMudarPastas} aoAbrirArquivo={abrir} />
+          <AvisoBranches />
         </main>
       </div>
       <PedidoColegas repos={pastas.repos} quadros={pastas.quadros} perfis={contas.perfis ?? []} />

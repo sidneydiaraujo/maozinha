@@ -5,11 +5,13 @@
 // juntar, Ctrl+K e mensagem para varios quadros (Fatias 10 a 13).
 // time: tres agentes de verdade (Fatia 28) nos repositorios do git, mais um terminal comum.
 // repasse: dois agentes de verdade (Pessoal) no app, ja ligados a1 -> a2 (Fatia 30).
+// fantasmas: o app com quatro copias (R3.16): c-sumiu (pasta apagada), c-vazia (pasta esvaziada),
+// c-viva (normal) e c-trabalho (pasta apagada, com um commit que nunca foi juntado).
 // juntar-time: tres agentes de verdade (Pessoal), cada um numa copia do app, ligados a1 -> a2 -> a3 (Fatia 31).
 // agente: UM AGENTE DE VERDADE (claude.exe, conta Pessoal) na copia da pasta de exemplo, para a
 // linha de status (Fatia 17). Pede o ok do Sidney; o cenario nao manda mensagem nenhuma.
 import { execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const caixa = (x, largura) => ({ x, y: 40, largura, altura: 380 })
@@ -25,7 +27,7 @@ const terminal = (id, repoId, perfilId, x, largura) => ({
 
 const repo = (id, nome, caminho) => ({ id, nome, caminho, perfilPadraoId: 'principal' })
 
-export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time', 'repasse', 'juntar-time']
+export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time', 'repasse', 'juntar-time', 'fantasmas']
 
 /** Repositorio git com um commit; identidade e fim de linha locais (o autocrlf do PC nao vale aqui). */
 function criarRepo(pasta) {
@@ -42,12 +44,28 @@ function criarRepo(pasta) {
   return git
 }
 
+/** R3.16: copias de verdade que depois somem ou ficam vazias, como as do PC do Sidney. */
+function criarCopiasFantasmas(git, app, saida) {
+  const pastas = {}
+  for (const nome of ['c-sumiu', 'c-vazia', 'c-viva', 'c-trabalho']) {
+    pastas[nome] = join(saida, 'app.copias', nome)
+    git('worktree', 'add', '-q', '-b', `lousa/${nome}`, pastas[nome])
+  }
+  writeFileSync(join(pastas['c-trabalho'], 'novo.md'), '# trabalho que nao foi juntado\n')
+  execFileSync('git', ['add', 'novo.md'], { cwd: pastas['c-trabalho'] })
+  execFileSync('git', ['commit', '-qm', 'trabalho'], { cwd: pastas['c-trabalho'] })
+  rmSync(pastas['c-sumiu'], { recursive: true, force: true })
+  rmSync(pastas['c-trabalho'], { recursive: true, force: true })
+  for (const item of readdirSync(pastas['c-vazia'])) rmSync(join(pastas['c-vazia'], item), { recursive: true, force: true })
+  return pastas
+}
+
 /**
  * Pastas que o estado `git` precisa, criadas dentro da saida da rodada. O `app` tem um arquivo
  * em subpasta (Ctrl+K acha) e o mesmo nome dentro de node_modules (Ctrl+K nao pode achar).
  */
 export function prepararPastas(nome, saida) {
-  if (!['git', 'time', 'repasse', 'juntar-time'].includes(nome)) return {}
+  if (!['git', 'time', 'repasse', 'juntar-time', 'fantasmas'].includes(nome)) return {}
   const app = join(saida, 'app')
   const api = join(saida, 'api')
   const git = criarRepo(app)
@@ -60,6 +78,7 @@ export function prepararPastas(nome, saida) {
   writeFileSync(join(app, '.gitignore'), 'node_modules/\n')
   git('add', '.')
   git('commit', '-qm', 'docs')
+  if (nome === 'fantasmas') return { app, api, ...criarCopiasFantasmas(git, app, saida) }
   return nome === 'juntar-time' ? { app, api, ...criarCopiasDoTime(git, app, saida) } : { app, api }
 }
 
@@ -103,6 +122,17 @@ export function estadoDe(nome, pastas, opcoes = []) {
         terminal('t2', 'rd', 'principal', 680, 520),
         ...(opcoes.includes('brilho') ? [1220, 1760, 2300].map((x, i) => terminal(`t${i + 3}`, 'rd', 'pessoal', x, 520)) : []),
       ],
+    }
+  }
+  if (nome === 'fantasmas') {
+    const copia = (n) => ({
+      ...repo(n, 'app', pastas[n]),
+      copia: { origemId: 'r1', branch: `lousa/${n}`, apelido: n },
+    })
+    return {
+      ...base,
+      repos: [repo('r1', 'app', pastas.app), ...['c-sumiu', 'c-vazia', 'c-viva', 'c-trabalho'].map(copia)],
+      quadros: [terminal('q1', 'r1', 'principal', 40, 560)],
     }
   }
   if (nome === 'git') {
