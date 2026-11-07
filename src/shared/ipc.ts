@@ -101,6 +101,7 @@ export const IPC = {
   arquivosAbrirLink: 'arquivos:abrirLink',
   arquivosVigiar: 'arquivos:vigiar',
   arquivosBuscar: 'arquivos:buscar',
+  arquivosResolver: 'arquivos:resolver', // caminho citado no terminal -> arquivo que existe (R1.6)
   arquivosMudou: 'arquivos:mudou', // evento main -> tela
   agentesUltimoPainel: 'agentes:ultimoPainel',
   agentesPainel: 'agentes:painel', // evento main -> tela (linha de status do agente, T17.2)
@@ -267,6 +268,8 @@ export interface LousaApi {
     vigiar(pastas: Array<{ repoId: string; relativo: string }>): Promise<void>
     /** Ctrl+K (T12.1): arquivos das pastas da lista cujo nome combina (ate 30). */
     buscar(texto: string): Promise<Array<{ repoId: string; relativo: string }>>
+    /** Caminho citado no terminal: o arquivo que existe na pasta (ele mesmo ou o unico que termina com ele); null = nao e link. */
+    resolver(repoId: string, relativo: string): Promise<string | null>
     aoMudar(cb: (repoId: string, caminhos: string[]) => void): () => void
   }
   /** O que cada agente Claude conta pela linha de status: modelo, esforco, contexto, uso (T17.2, D24). */

@@ -83,3 +83,30 @@ describe('ServicoArquivos', () => {
     expect(mostrados).toEqual([exe])
   })
 })
+
+describe('ServicoArquivos.resolver (R1.6)', () => {
+  const { servico } = montar(
+    { [join(RAIZ, 'docs', 'ESTADO.md')]: texto('x'), [join(RAIZ, 'leia.md')]: texto('y') },
+    {
+      [RAIZ]: [
+        { nome: 'docs', pasta: true },
+        { nome: 'leia.md', pasta: false },
+      ],
+      [join(RAIZ, 'docs')]: [{ nome: 'ESTADO.md', pasta: false }],
+    },
+  )
+
+  it('existe como foi citado: ele mesmo, com barra normal', () => {
+    expect(servico.resolver('r1', 'docs\\ESTADO.md')).toBe('docs/ESTADO.md')
+    expect(servico.resolver('r1', 'leia.md')).toBe('leia.md')
+  })
+
+  it('nome solto que mora numa subpasta: o unico que termina com ele', () => {
+    expect(servico.resolver('r1', 'ESTADO.md')).toBe('docs/ESTADO.md')
+  })
+
+  it('nao existe, ou sai da pasta: null (nao vira link)', () => {
+    expect(servico.resolver('r1', 'sumiu.md')).toBeNull()
+    expect(servico.resolver('r1', '../fora.md')).toBeNull()
+  })
+})

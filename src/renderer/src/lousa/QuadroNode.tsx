@@ -2,6 +2,7 @@ import { NodeResizer, useStore, type NodeProps } from '@xyflow/react'
 import { useEffect, useState } from 'react'
 import type { Perfil, Quadro, Repo } from '../../../shared/model'
 import { caminhoNoRepo } from '../componentes/links'
+import { resolverArquivo } from '../componentes/resolverLink'
 import { Terminal } from '../componentes/Terminal'
 import '../estilos/quadro.css'
 import '../estilos/cabecalho.css'
@@ -94,13 +95,14 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
       }),
     [quadro.id],
   )
-  // caminho citado no terminal: so os de dentro da pasta do quadro viram link (T8.3)
+  // caminho citado no terminal: so os de dentro da pasta do quadro viram link (T8.3), e so se o
+  // arquivo existe (R1.6: 35 cliques em "Arquivo não encontrado" em duas semanas)
   const arquivos = {
-    aceita: (texto: string) => caminhoNoRepo(repo.caminho, texto) !== null,
-    abrir: (texto: string) => {
+    resolver: async (texto: string) => {
       const relativo = caminhoNoRepo(repo.caminho, texto)
-      if (relativo) acoes.abrirArquivo(repo.id, relativo)
+      return relativo ? resolverArquivo(repo.id, relativo) : null
     },
+    abrir: (relativo: string) => acoes.abrirArquivo(repo.id, relativo),
   }
   return (
     <div className="quadro-corpo">

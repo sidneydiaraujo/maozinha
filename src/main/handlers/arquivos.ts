@@ -17,6 +17,7 @@ const Buscar = z.object({ texto: z.string().max(200) })
 
 export function registrarHandlersArquivos(arquivos: ServicoArquivos, vigia: VigiaArquivos, repos: ServicoRepos): void {
   handle(IPC.arquivosListar, Alvo, ({ repoId, relativo }) => arquivos.listar(repoId, relativo))
+  handle(IPC.arquivosResolver, Alvo, ({ repoId, relativo }) => arquivos.resolver(repoId, relativo))
   handle(IPC.arquivosAbrir, Alvo, ({ repoId, relativo }) => arquivos.abrir(repoId, relativo))
   handle(IPC.arquivosLer, Alvo, ({ repoId, relativo }) => arquivos.ler(repoId, relativo))
   handle(IPC.arquivosAbrirFora, Alvo, ({ repoId, relativo }) => arquivos.abrirFora(repoId, relativo))

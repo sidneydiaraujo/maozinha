@@ -2,6 +2,7 @@
 // o caminho absoluto e montado aqui, a partir do repo salvo, e nunca sai da pasta dele.
 import type { Abertura, ConteudoArquivo, ItemArquivo } from '../../shared/model'
 import type { ServicoRepos } from '../repos/servico'
+import { acharUnicoPeloFim } from './busca'
 import {
   BYTES_AMOSTRA,
   LIMITE_TEXTO,
@@ -81,5 +82,18 @@ export class ServicoArquivos {
 
   mostrarNaPasta(repoId: string, relativo: string): void {
     this.deps.mostrarNaPasta(this.absoluto(repoId, relativo))
+  }
+
+  /**
+   * R1.6: o caminho que o agente citou, como arquivo que existe nesta pasta; null = nao vira link.
+   * Existe como esta: ele mesmo. Senao, o unico arquivo da pasta que termina com ele.
+   */
+  resolver(repoId: string, relativo: string): string | null {
+    try {
+      if (this.deps.tamanho(this.absoluto(repoId, relativo)) !== null) return relativo.replace(/\\/g, '/')
+    } catch {
+      return null // fora da pasta
+    }
+    return acharUnicoPeloFim(repoId, relativo, (r, rel) => this.listar(r, rel))
   }
 }

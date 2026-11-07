@@ -33,6 +33,8 @@ setTimeout(() => {
   status('state=working:app=claude-code:id=subagente-1')
   process.stdout.write('Lendo docs/notas.md e https://example.com/guia.\r\n')
   process.stdout.write(`Arquivo: ${pasta}\\src\\app.ts:2\r\n`)
+  // R1.6: nome solto que mora em docs/ (abre) e arquivo que nao existe (nao vira link)
+  process.stdout.write('Solto: notas.md; falta: sumiu.md\r\n')
   setTimeout(() => {
     fase = 'esperando'
     status(`state=blocked:app=claude-code:kind=permission:msg=${b64('Editar src/app.ts')}`)

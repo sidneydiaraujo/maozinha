@@ -38,7 +38,11 @@ const abrirUrl = (url: string): void => void window.lousa.arquivos.abrirLink(url
 function abrirUri(uri: string, acoes: AcoesLink): void {
   const arquivo = arquivoDeUri(uri)
   if (arquivo === null) acoes.abrirUrl(uri)
-  else if (acoes.arquivo?.aceita(arquivo)) acoes.arquivo.abrir(arquivo)
+  else
+    void acoes.arquivo
+      ?.resolver(arquivo)
+      .then((relativo) => relativo && acoes.arquivo?.abrir(relativo))
+      .catch(() => undefined)
 }
 
 /** Linhas que a rolagem guarda (T8.4): uma sessao longa do Claude passa das 1.000 do padrao. */

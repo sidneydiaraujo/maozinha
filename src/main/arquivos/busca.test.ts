@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ItemArquivo, Repo } from '../../shared/model'
-import { buscarArquivos } from './busca'
+import { acharUnicoPeloFim, buscarArquivos } from './busca'
 
 const repo = (id: string): Repo => ({ id, nome: id, caminho: `C:/${id}`, perfilPadraoId: 'p' })
 
@@ -54,5 +54,32 @@ describe('buscarArquivos', () => {
 
   it('pasta que falha ao listar e pulada', () => {
     expect(buscarArquivos([repo('nada')], 'leia', listar)).toEqual([])
+  })
+})
+
+describe('acharUnicoPeloFim (R1.6)', () => {
+  const { listar } = arvore({
+    'a:': ['docs/', 'src/', 'node_modules/', 'leia.md'],
+    'a:docs': ['ESTADO.md', 'plano/'],
+    'a:docs/plano': ['fatia-12.md', 'leia.md'],
+    'a:src': ['main/'],
+    'a:src/main': ['x.ts'],
+    'a:node_modules': ['ESTADO.md'],
+  })
+
+  it('nome solto ou pedaco do caminho: acha o unico, sem olhar node_modules, sem ligar para maiusculas', () => {
+    expect(acharUnicoPeloFim('a', 'estado.md', listar)).toBe('docs/ESTADO.md')
+    expect(acharUnicoPeloFim('a', 'main/x.ts', listar)).toBe('src/main/x.ts')
+    expect(acharUnicoPeloFim('a', '.\\plano\\fatia-12.md', listar)).toBe('docs/plano/fatia-12.md')
+  })
+
+  it('dois candidatos, nenhum, ou saindo da pasta: null', () => {
+    expect(acharUnicoPeloFim('a', 'leia.md', listar)).toBeNull()
+    expect(acharUnicoPeloFim('a', 'sumiu.md', listar)).toBeNull()
+    expect(acharUnicoPeloFim('a', '../fora.md', listar)).toBeNull()
+  })
+
+  it('para no teto de visitas', () => {
+    expect(acharUnicoPeloFim('a', 'x.ts', listar, 3)).toBeNull()
   })
 })

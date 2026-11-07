@@ -82,22 +82,35 @@
   })
 
   await passo('3 links', async () => {
-    let p = ponto('t1', 'docs/notas.md')
-    await prova.eventos([{ type: 'mouseMove', x: p.x, y: p.y }])
-    await espera(700)
-    r.ponteiroNoArquivo = !!q('[data-quadro="t1"] .xterm-cursor-pointer')
+    // R1.6: o link de arquivo chega depois que o main confere que o arquivo existe; como uma pessoa,
+    // a prova passa o mouse, espera e so entao clica (antes clicava no mesmo instante do movimento)
+    const passar = async (alvo) => {
+      const p = ponto('t1', alvo)
+      await prova.eventos([{ type: 'mouseMove', x: p.x - 40, y: p.y + 120 }, { type: 'mouseMove', x: p.x, y: p.y }])
+      await espera(800)
+      return p
+    }
+    const ponteiro = () => !!q('[data-quadro="t1"] .xterm-cursor-pointer')
+    const titulo = () => q('.leitor-titulo')?.innerText.replace(/\n/g, ' | ') ?? null
+    let p = await passar('docs/notas.md')
+    r.ponteiroNoArquivo = ponteiro()
     await prova.foto('c-link-arquivo')
     await prova.eventos(clicar(p))
     await espera(1500)
-    r.leitorRelativo = q('.leitor-titulo')?.innerText.replace(/\n/g, ' | ') ?? null
-    p = ponto('t1', 'src\\app.ts:2')
+    r.leitorRelativo = titulo()
+    p = await passar('src\\app.ts:2')
     await prova.eventos(clicar(p))
     await espera(1500)
-    r.leitorAbsoluto = q('.leitor-titulo')?.innerText.replace(/\n/g, ' | ') ?? null
-    p = ponto('t1', 'example.com/guia')
-    await prova.eventos([{ type: 'mouseMove', x: p.x - 40, y: p.y + 60 }, { type: 'mouseMove', x: p.x, y: p.y }])
-    await espera(700)
-    r.ponteiroNaUrl = !!q('[data-quadro="t1"] .xterm-cursor-pointer')
+    r.leitorAbsoluto = titulo()
+    // so vira link o arquivo que existe; o nome solto acha o unico da pasta
+    await passar('sumiu.md')
+    r.ponteiroNoQueFalta = ponteiro()
+    p = await passar('notas.md; falta')
+    await prova.eventos(clicar(p))
+    await espera(1500)
+    r.leitorSolto = titulo()
+    await passar('example.com/guia')
+    r.ponteiroNaUrl = ponteiro()
     await prova.foto('d-link-url')
     q('.leitor-topo button:last-child')?.click()
     await espera(500)

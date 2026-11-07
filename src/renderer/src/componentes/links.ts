@@ -128,8 +128,20 @@ function partesDaLinha(buffer: { getLine(i: number): LinhaLida | undefined }, in
 
 export interface AcoesLink {
   abrirUrl(url: string): void
-  /** Ausente (terminal de login): caminhos nao viram link. */
-  arquivo?: { aceita(texto: string): boolean; abrir(texto: string): void }
+  /**
+   * Ausente (terminal de login): caminhos nao viram link. R1.6: `resolver` diz qual arquivo da pasta
+   * o texto citado e (null = nao existe ou e de fora: sem sublinhado); `abrir` recebe esse relativo.
+   */
+  arquivo?: { resolver(texto: string): Promise<string | null>; abrir(relativo: string): void }
+}
+
+/** Um link achado na linha vira link do xterm; arquivo so se o main achou o arquivo. */
+async function paraXterm(l: LinkAchado, range: ILink['range'], acoes: () => AcoesLink): Promise<ILink | null> {
+  if (l.tipo === 'url') return { range, text: l.texto, activate: (_e, t) => acoes().abrirUrl(t) }
+  const relativo = await acoes()
+    .arquivo?.resolver(l.texto)
+    .catch(() => null)
+  return relativo ? { range, text: l.texto, activate: () => acoes().arquivo?.abrir(relativo) } : null
 }
 
 export function ligarLinks(term: Terminal, acoes: () => AcoesLink): IDisposable {
@@ -138,18 +150,17 @@ export function ligarLinks(term: Terminal, acoes: () => AcoesLink): IDisposable 
       const partes = partesDaLinha(term.buffer.active, y - 1)
       if (partes.length === 0) return devolver(undefined)
       const { texto, inicio, fim } = textoDaLinhaLogica(partes, term.cols)
-      const atuais = acoes()
-      const links: ILink[] = acharLinks(texto)
-        .filter((l) => l.tipo === 'url' || atuais.arquivo?.aceita(l.texto))
-        .map((l) => ({
-          range: { start: inicio[l.inicio] ?? { x: 1, y }, end: fim[l.fim - 1] ?? { x: 1, y } },
-          text: l.texto,
-          activate: (_evento: MouseEvent, t: string) =>
-            l.tipo === 'url' ? acoes().abrirUrl(t) : acoes().arquivo?.abrir(t),
-        }))
+      const comArquivo = !!acoes().arquivo
+      const achados = acharLinks(texto)
+        .filter((l) => l.tipo === 'url' || comArquivo)
+        .map((l) => ({ l, range: { start: inicio[l.inicio] ?? { x: 1, y }, end: fim[l.fim - 1] ?? { x: 1, y } } }))
         // o xterm pergunta linha a linha: so os links que passam por esta linha
-        .filter((link) => link.range.start.y <= y && link.range.end.y >= y)
-      devolver(links.length > 0 ? links : undefined)
+        .filter(({ range }) => range.start.y <= y && range.end.y >= y)
+      if (achados.length === 0) return devolver(undefined)
+      void Promise.all(achados.map(({ l, range }) => paraXterm(l, range, acoes))).then((links) => {
+        const validos = links.filter((x): x is ILink => x !== null)
+        devolver(validos.length > 0 ? validos : undefined)
+      })
     },
   })
 }

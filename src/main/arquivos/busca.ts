@@ -35,24 +35,33 @@ function listarOuNada(listar: Listar, repoId: string, relativo: string): ItemArq
   }
 }
 
-/** Uma pasta da lista, em largura, ate `teto` itens visitados. */
-function andarNoRepo(repoId: string, texto: string, listar: Listar, teto: number): Nota[] {
-  const achados: Nota[] = []
+/**
+ * Anda numa pasta da lista em largura (a raiz primeiro), pulando git, dependencias e builds, ate
+ * `teto` itens visitados. `aoArquivo` recebe cada arquivo; devolver false para a caminhada.
+ */
+function percorrer(repoId: string, listar: Listar, teto: number, aoArquivo: (relativo: string, nome: string) => boolean): void {
   const fila = ['']
   let visitas = 0
   while (fila.length > 0 && visitas < teto) {
     const pasta = fila.shift() as string
     for (const item of listarOuNada(listar, repoId, pasta)) {
-      if (++visitas > teto) break // pasta enorme: o teto vale dentro dela tambem
+      if (++visitas > teto) return // pasta enorme: o teto vale dentro dela tambem
       const relativo = pasta ? `${pasta}/${item.nome}` : item.nome
-      if (item.pasta) {
-        if (entraNaBusca(item.nome)) fila.push(relativo)
-        continue
-      }
-      const nota = notaDe(texto, item.nome, relativo)
-      if (nota !== null) achados.push({ repoId, relativo, nota })
+      if (!item.pasta) {
+        if (!aoArquivo(relativo, item.nome)) return
+      } else if (entraNaBusca(item.nome)) fila.push(relativo)
     }
   }
+}
+
+/** Uma pasta da lista: os arquivos que combinam, com nota. */
+function andarNoRepo(repoId: string, texto: string, listar: Listar, teto: number): Nota[] {
+  const achados: Nota[] = []
+  percorrer(repoId, listar, teto, (relativo, nome) => {
+    const nota = notaDe(texto, nome, relativo)
+    if (nota !== null) achados.push({ repoId, relativo, nota })
+    return true
+  })
   return achados
 }
 
@@ -65,4 +74,24 @@ export function buscarArquivos(repos: Repo[], texto: string, listar: Listar, lim
     .sort((a, b) => b.nota - a.nota)
     .slice(0, limites.resultados)
     .map(({ repoId, relativo }) => ({ repoId, relativo }))
+}
+
+/**
+ * R1.6: o arquivo que o agente citou e nao existe a partir da pasta do quadro ("ESTADO.md" quando
+ * ele esta em docs/, "main/x.ts" quando o quadro e a raiz). Procura quem termina com esse caminho,
+ * em largura e com o mesmo teto da busca; devolve o relativo so se houver exatamente um.
+ */
+export function acharUnicoPeloFim(repoId: string, citado: string, listar: Listar, teto = PADRAO.visitas): string | null {
+  const fim = citado
+    .replace(/\\/g, '/')
+    .replace(/^(\.\/)+/, '')
+    .toLowerCase()
+  if (!fim || fim.startsWith('../')) return null
+  const achados: string[] = []
+  percorrer(repoId, listar, teto, (relativo) => {
+    const baixo = relativo.toLowerCase()
+    if (baixo === fim || baixo.endsWith(`/${fim}`)) achados.push(relativo)
+    return achados.length < 2 // dois candidatos: nao adivinha
+  })
+  return achados.length === 1 ? (achados[0] ?? null) : null
 }
