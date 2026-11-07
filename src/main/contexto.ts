@@ -178,6 +178,7 @@ export function criarContexto(): Contexto {
   // fechar o terminal de um quadro (removido, repo fechado, trocou de conta) leva o painel junto
   const fecharQuadro = (id: string): void => {
     terminais.fechar(id)
+    avisos.esquecer(id)
     agentes.esquecer(id)
     ajustes.esquecer(id)
     compactarSozinho.esquecer(id)

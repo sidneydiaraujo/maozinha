@@ -49,6 +49,17 @@ export class AvisosDoWindows {
     notificacao.show()
   }
 
+  /**
+   * R3.17: o quadro saiu da lousa (fechado, pasta tirada, trocou de conta). A notificacao dele sai da
+   * Central de Avisos do Windows e da memoria; antes ficava viva e o clique levava a um quadro que nao
+   * existe mais.
+   */
+  esquecer(terminalId: string): void {
+    const aberta = this.abertas.get(terminalId)
+    this.abertas.delete(terminalId)
+    aberta?.close()
+  }
+
   /** A janela voltou ao foco: para de piscar na barra de tarefas. */
   static pararDePiscar(janela: BrowserWindow): void {
     if (!janela.isDestroyed()) janela.flashFrame(false)
