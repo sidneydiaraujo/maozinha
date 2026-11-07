@@ -22,7 +22,7 @@ import { rodarReal, temClaudeDentro } from './terminais/filhos'
 import { ApresentadorTime, FilaMensagens, REVISAR_MS } from './time/apresentar'
 import { criarColega, type DepsColega } from './time/colega'
 import { EsperaDeColegas } from './time/espera'
-import { PedidosDeColegas, TEXTO_PEDIDO_NA_TELA, textoDaTarefa } from './time/pedidos'
+import { CriacaoParcial, PedidosDeColegas, TEXTO_PEDIDO_NA_TELA, textoDaTarefa } from './time/pedidos'
 import { Repasse } from './time/repasse'
 import { provedoresDos, ServicoTime } from './time/servico'
 
@@ -193,21 +193,30 @@ export function montarPedidos(d: {
     const { caixa } = quadros.obter(quadroId)
     const nomes: string[] = []
     const ids: string[] = []
-    for (const [i, c] of colegas.entries()) {
-      const posicao = { x: caixa.x + caixa.largura + FOLGA_COLEGAS, y: caixa.y + i * (caixa.altura + FOLGA_COLEGAS) }
-      // paralelo (A21): na mesma pasta, onde o metodo procura as saidas, e com a linha pausada: o fim
-      // da vez de quem pediu nao vira trabalho extra para o colega
-      const novo = await criarColega(deps, quadroId, { posicao, mesmaPasta: paralelo })
-      const quadro = quadros.definirPapel(novo.quadro.id, c.papel)
-      const ligacao = paralelo ? linhas.ajustar(novo.ligacao.id, { pausada: true }) : novo.ligacao
-      enviarParaJanelas(IPC.timeColegaCriado, { ...novo, quadro, ligacao })
-      // a tarefa espera o colega abrir e ficar pronto (a apresentacao do time sai antes)
-      void d.mensagens.enfileirar(quadro.id, textoDaTarefa(nome(quadroId), c.tarefa))
-      nomes.push(quadro.papel ?? quadro.titulo)
-      ids.push(quadro.id)
+    try {
+      for (const [i, c] of colegas.entries()) {
+        const posicao = { x: caixa.x + caixa.largura + FOLGA_COLEGAS, y: caixa.y + i * (caixa.altura + FOLGA_COLEGAS) }
+        // paralelo (A21): na mesma pasta, onde o metodo procura as saidas, e com a linha pausada: o fim
+        // da vez de quem pediu nao vira trabalho extra para o colega
+        const novo = await criarColega(deps, quadroId, { posicao, mesmaPasta: paralelo })
+        const quadro = quadros.definirPapel(novo.quadro.id, c.papel)
+        const ligacao = paralelo ? linhas.ajustar(novo.ligacao.id, { pausada: true }) : novo.ligacao
+        enviarParaJanelas(IPC.timeColegaCriado, { ...novo, quadro, ligacao })
+        // a tarefa espera o colega abrir e ficar pronto (a apresentacao do time sai antes)
+        void d.mensagens.enfileirar(quadro.id, textoDaTarefa(nome(quadroId), c.tarefa))
+        nomes.push(quadro.papel ?? quadro.titulo)
+        ids.push(quadro.id)
+      }
+    } catch (e) {
+      // R1.3: quem ja nasceu entra na espera e no time; o agente fica sabendo deles
+      if (ids.length === 0) throw e
+      throw new CriacaoParcial(nomes, e instanceof Error ? e.message : String(e))
+    } finally {
+      if (ids.length > 0) {
+        d.espera.registrar(quadroId, ids)
+        d.time.mudou()
+      }
     }
-    d.espera.registrar(quadroId, ids)
-    d.time.mudou()
     return nomes
   }
   const pedidos = new PedidosDeColegas({

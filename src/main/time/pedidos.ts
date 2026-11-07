@@ -24,7 +24,20 @@ export const TEXTO_PEDIDO_NA_TELA =
   'O seu pedido de colegas ainda espera o usuário responder na janela do Mãozinha. Não peça de novo: ' +
   `chame ${noClaude(ESPERAR)} outra vez daqui a pouco; os colegas nascem quando ele aceitar.`
 
-const MESMO_TERMINAL = 'rode estas tarefas com os seus subagentes (Agent/Task), como faria normalmente.'
+/**
+ * R1.3: o `criar` falhou depois de alguns colegas ja terem nascido (a copia do git do 2o, por
+ * exemplo). Leva os nomes de quem nasceu; quem criou ja os registrou na espera e no time.
+ */
+export class CriacaoParcial extends Error {
+  constructor(
+    readonly nomes: string[],
+    motivo: string,
+  ) {
+    super(motivo)
+  }
+}
+
+const MESMO_TERMINAL ='rode estas tarefas com os seus subagentes (Agent/Task), como faria normalmente.'
 
 /** A resposta ao agente quando o pedido acaba sem colegas. */
 function semColegas(motivo: 'recusou' | 'venceu', paralelo: boolean): RespostaFerramenta {
@@ -109,7 +122,14 @@ export class PedidosDeColegas {
       const nomes = await this.deps.criar(aberto.quadroId, aberto.colegas, aberto.paralelo)
       this.encerrar(pedidoId, comColegas(nomes, aberto.paralelo), aberto)
     } catch (e) {
-      this.encerrar(pedidoId, { texto: `Não deu para criar os colegas: ${e instanceof Error ? e.message : String(e)}`, erro: true }, aberto)
+      const motivo = e instanceof Error ? e.message : String(e)
+      // R1.3: alguns nasceram antes da falha: o agente fica sabendo deles e pode esperar por eles
+      const nasceram = e instanceof CriacaoParcial ? e.nomes : []
+      const texto =
+        nasceram.length > 0
+          ? `${comColegas(nasceram, aberto.paralelo).texto} Os outros colegas pedidos não nasceram: ${motivo}`
+          : `Não deu para criar os colegas: ${motivo}`
+      this.encerrar(pedidoId, { texto, erro: true }, aberto)
     }
   }
 

@@ -40,7 +40,16 @@ function inicio(params: unknown, versaoApp: string): object {
   }
 }
 
+/** R1.3: ferramenta que lanca vira erro JSON-RPC na hora; sem isso o agente esperava o prazo inteiro. */
 async function chamarFerramenta(id: unknown, params: unknown, ferramentas: Ferramentas): Promise<object> {
+  try {
+    return await executar(id, params, ferramentas)
+  } catch (e) {
+    return falha(id, -32603, `Erro no Mãozinha: ${e instanceof Error ? e.message : String(e)}`)
+  }
+}
+
+async function executar(id: unknown, params: unknown, ferramentas: Ferramentas): Promise<object> {
   const { name, arguments: args } = (params ?? {}) as { name?: unknown; arguments?: unknown }
   if (name === ESPERAR) return resultado(id, texto(await ferramentas.esperar()))
   if (name !== CRIAR) return falha(id, -32602, `Ferramenta desconhecida: ${String(name)}`)

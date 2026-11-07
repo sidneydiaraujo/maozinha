@@ -34,7 +34,14 @@ export class ServidorMcp {
 
   iniciar(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const s = createServer((req, res) => void this.atender(req, res))
+      // R1.3: erro inesperado responde 500 na hora, sem deixar o agente esperando nem promessa solta
+      const s = createServer((req, res) =>
+        this.atender(req, res).catch((e: unknown) => {
+          log('warn', `servidor dos agentes falhou num pedido: ${e instanceof Error ? e.message : String(e)}`)
+          if (!res.headersSent) res.writeHead(500)
+          res.end()
+        }),
+      )
       s.on('error', reject)
       s.listen(0, '127.0.0.1', () => {
         this.porta = (s.address() as AddressInfo).port

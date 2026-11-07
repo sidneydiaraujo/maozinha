@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import type { AvisoPedidoColegas } from '../../shared/model'
-import { ESPERA_RESPOSTA_MS, PedidosDeColegas, TEXTO_PEDIDO_NA_TELA, textoDaTarefa } from './pedidos'
+import { CriacaoParcial, ESPERA_RESPOSTA_MS, PedidosDeColegas, TEXTO_PEDIDO_NA_TELA, textoDaTarefa } from './pedidos'
 
-function montar(falhaAoCriar = false) {
+function montar(falhaAoCriar: boolean | 'parcial' = false) {
   const avisos: AvisoPedidoColegas[] = []
   const criados: string[] = []
   const relogios: Array<{ fn: () => void; ms: number; vivo: boolean }> = []
@@ -11,6 +11,7 @@ function montar(falhaAoCriar = false) {
     nome: () => 'Claude 1',
     avisarTela: (a) => void avisos.push(a),
     criar: async (_id, colegas, paralelo) => {
+      if (falhaAoCriar === 'parcial') throw new CriacaoParcial(['Testador'], 'O git não criou a cópia: fatal: x')
       if (falhaAoCriar) throw new Error('não é um repositório git')
       criados.push(...colegas.map((c) => (paralelo ? `${c.papel}*` : c.papel)))
       return colegas.map((c) => c.papel)
@@ -91,6 +92,17 @@ describe('PedidosDeColegas (A19)', () => {
     const r = p.pedir('q1', DOIS)
     await p.responder('p1', true)
     expect(await r).toEqual({ texto: 'Não deu para criar os colegas: não é um repositório git', erro: true })
+  })
+
+  it('R1.3: falhou depois de um nascer: o agente sabe quem nasceu e por que o resto nao', async () => {
+    const { p } = montar('parcial')
+    const r = p.pedir('q1', DOIS)
+    await p.responder('p1', true)
+    const { texto, erro } = await r
+    expect(erro).toBe(true)
+    expect(texto).toContain('Testador')
+    expect(texto).toContain('Os outros colegas pedidos não nasceram: O git não criou a cópia: fatal: x')
+    expect(texto).not.toContain('Não deu para criar os colegas')
   })
 
   it('paralelo: a tela sabe, o aceite cria e manda esperar; a recusa e o prazo mandam seguir no mesmo terminal', async () => {

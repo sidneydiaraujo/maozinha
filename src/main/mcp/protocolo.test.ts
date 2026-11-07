@@ -18,6 +18,29 @@ const chamar: Ferramentas = {
 }
 const rpc = (method: string, params?: unknown, id: unknown = 1) => responderRpc({ jsonrpc: '2.0', id, method, params }, chamar, '0.4.6')
 
+describe('responderRpc: ferramenta que lanca (R1.3)', () => {
+  const quebrada: Ferramentas = {
+    criar: async () => {
+      throw new Error('disco cheio')
+    },
+    esperar: async () => {
+      throw new Error('fila sumiu')
+    },
+  }
+  const chamarQuebrada = (name: string, args?: unknown) =>
+    responderRpc({ jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name, arguments: args } }, quebrada, '0.4.6')
+
+  it('responde erro JSON-RPC na hora, com o motivo, nas duas ferramentas', async () => {
+    const args = { colegas: [{ papel: 'Testador', tarefa: 'testar' }] }
+    expect(await chamarQuebrada(FERRAMENTA, args)).toEqual({
+      jsonrpc: '2.0',
+      id: 7,
+      error: { code: -32603, message: 'Erro no Mãozinha: disco cheio' },
+    })
+    expect(await chamarQuebrada(ESPERAR)).toMatchObject({ error: { message: 'Erro no Mãozinha: fila sumiu' } })
+  })
+})
+
 describe('responderRpc (A19)', () => {
   it('initialize devolve a versao pedida, a ferramenta e o nome; notificacao nao tem resposta', async () => {
     expect(await rpc('initialize', { protocolVersion: '2025-03-26' })).toEqual({
