@@ -2,6 +2,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   caminhoDentro,
+  continuaDentro,
   comoAbrir,
   decodificar,
   linkPermitido,
@@ -127,5 +128,18 @@ describe('linkPermitido', () => {
     for (const ruim of ['javascript:alert(1)', 'file:///C:/Windows/win.ini', 'ms-settings:', 'docs/a.md', '']) {
       expect(linkPermitido(ruim)).toBeNull()
     }
+  })
+})
+
+describe('continuaDentro (R2.11)', () => {
+  it('dentro da raiz, mesmo com outra caixa de letras', () => {
+    expect(continuaDentro('C:/repos/app', 'C:/repos/app')).toBe(true)
+    expect(continuaDentro('C:/repos/app', 'c:/REPOS/app/src/x.ts')).toBe(true)
+  })
+
+  it('fora da raiz, inclusive pasta vizinha com o mesmo comeco e outro disco', () => {
+    expect(continuaDentro('C:/repos/app', 'C:/Users/x/.claude/settings.json')).toBe(false)
+    expect(continuaDentro('C:/repos/app', 'C:/repos/app2/x.ts')).toBe(false)
+    expect(continuaDentro('C:/repos/app', 'D:/repos/app/x.ts')).toBe(false)
   })
 })

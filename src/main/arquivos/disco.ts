@@ -1,6 +1,6 @@
 // O disco de verdade para o ServicoArquivos e o VigiaArquivos (T7.1).
 import { shell } from 'electron'
-import { readdirSync, readFileSync, statSync, watch } from 'node:fs'
+import { readdirSync, readFileSync, realpathSync, statSync, watch } from 'node:fs'
 import { join } from 'node:path'
 import type { ItemArquivo } from '../../shared/model'
 import type { DepsArquivos } from './servico'
@@ -36,6 +36,13 @@ export const discoReal: Omit<DepsArquivos, 'repos'> = {
   lerBytes: (caminho) => readFileSync(caminho),
   abrirNoWindows: (caminho) => shell.openPath(caminho),
   mostrarNaPasta: (caminho) => shell.showItemInFolder(caminho),
+  caminhoReal: (caminho) => {
+    try {
+      return realpathSync.native(caminho)
+    } catch {
+      return null // nao existe, ou o Windows nao deixa ver (EPERM)
+    }
+  },
 }
 
 /**

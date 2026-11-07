@@ -197,7 +197,7 @@ export function NovoQuadro(props: Props): React.JSX.Element {
       const escolha = await window.lousa.repos.escolherPasta()
       if (!escolha) return
       const conta = perfilInicial ?? escolha.sugestaoPerfilId ?? perfilId
-      const repo = await window.lousa.repos.adicionar(escolha.caminho, conta)
+      const repo = await window.lousa.repos.adicionar(escolha.ficha, conta)
       aoNovaPasta(repo)
       setPerfilId(conta)
       marcarPasta(repo.id)

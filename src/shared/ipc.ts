@@ -154,9 +154,12 @@ export interface LousaApi {
     aoUso(cb: (uso: UsoConta) => void): () => void
   }
   repos: {
-    /** Abre o seletor de pasta do Windows; null se o usuario cancelar. */
-    escolherPasta(): Promise<{ caminho: string; sugestaoPerfilId: string | null } | null>
-    adicionar(caminho: string, perfilId: string): Promise<Repo>
+    /**
+     * Abre o seletor de pasta do Windows; null se o usuario cancelar. O caminho e so para mostrar:
+     * quem adiciona e a `ficha`, de uso unico (R2.11).
+     */
+    escolherPasta(): Promise<{ ficha: string; caminho: string; sugestaoPerfilId: string | null } | null>
+    adicionar(ficha: string, perfilId: string): Promise<Repo>
     /** Numa copia separada (D18), diz se a copia foi apagada ou mantida. */
     remover(repoId: string): Promise<FimDaCopia>
     /** O projeto desta pasta ja tem KANBAN.md (na pasta ou acima, ate a raiz do git; A22)? */

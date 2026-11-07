@@ -187,10 +187,11 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | evento `terminais:dados` | — | `{ terminalId, dados }` | T2.3 |
 | evento `terminais:saiu` | — | `{ terminalId, codigo }` | T2.3 |
 | evento `terminais:estado` | — | `{ terminalId, aviso: AvisoAgente }` (OSC 7501, só quando muda) | T8.1 |
-| `repos:escolherPasta` | — | `{ caminho, sugestaoPerfilId } \| null` | T3.2 |
-| `repos:adicionar` | `{ caminho, perfilId }` | `Repo` (a existente, se a pasta já estava cadastrada) | T3.2, T5.1 |
+| `repos:escolherPasta` | — | `{ ficha, caminho, sugestaoPerfilId } \| null` (o caminho é só para mostrar) | T3.2, R2.11 |
+| `repos:adicionar` | `{ ficha, perfilId }` (ficha de uso único do seletor; nunca um caminho) | `Repo` (a existente, se a pasta já estava cadastrada) | T3.2, T5.1, R2.11 |
 | `repos:remover` | `{ repoId }` | `FimDaCopia` (cópia separada: tenta limpar) | T3.6, T10.3 |
 | `repos:temKanban` | `{ repoId }` | `boolean`: o projeto já tem `KANBAN.md` (na pasta ou acima, até a raiz do git) | A22 |
+| `repos:pastaAmpla` | `{ repoId }` | `boolean`: a pasta é a do usuário ou acima dela (o Novo quadro avisa) | R2.10 |
 | `quadros:criar` | `{ repoId, tipo, perfilId, posicao?, separado?, kanban? }` | `{ quadro, repo }` (repo = cópia nova ou null) | T3.4, T5.1, T10.3 |
 | `quadros:remover` | `{ quadroId }` | `FimDaCopia` (último quadro de uma cópia: tenta limpar) | T3.4, T10.3 |
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |

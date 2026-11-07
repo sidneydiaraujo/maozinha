@@ -86,6 +86,15 @@ export function caminhoDentro(raiz: string, relativo: string): string | null {
   return alvo
 }
 
+/**
+ * R2.11: o caminho real (depois de atalhos e juncoes) continua dentro da raiz real? Sem isso, um
+ * atalho dentro do repo levava o leitor para qualquer pasta do PC. Compara sem caixa (Windows).
+ */
+export function continuaDentro(raizReal: string, alvoReal: string): boolean {
+  const rel = relative(resolve(raizReal).toLowerCase(), resolve(alvoReal).toLowerCase())
+  return rel === '' || !(rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel))
+}
+
 /** Extensao em minusculas; arquivo sem ponto usa o proprio nome (Dockerfile, Makefile). */
 export function extensao(nome: string): string {
   const base = nome.toLowerCase()

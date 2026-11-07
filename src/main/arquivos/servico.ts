@@ -7,6 +7,7 @@ import {
   BYTES_AMOSTRA,
   LIMITE_TEXTO,
   caminhoDentro,
+  continuaDentro,
   comoAbrir,
   decodificar,
   ordenar,
@@ -25,6 +26,8 @@ export interface DepsArquivos {
   /** shell.openPath: '' deu certo; senao a mensagem do Windows. */
   abrirNoWindows(caminho: string): Promise<string>
   mostrarNaPasta(caminho: string): void
+  /** Caminho depois de atalhos e juncoes; null se nao existe ou o Windows nao deixa ver. */
+  caminhoReal(caminho: string): string | null
 }
 
 const FORA_DA_PASTA = 'Arquivo fora da pasta'
@@ -39,8 +42,13 @@ export class ServicoArquivos {
   constructor(private readonly deps: DepsArquivos) {}
 
   private absoluto(repoId: string, relativo: string): string {
-    const caminho = caminhoDentro(this.deps.repos.obter(repoId).caminho, relativo)
+    const raiz = this.deps.repos.obter(repoId).caminho
+    const caminho = caminhoDentro(raiz, relativo)
     if (caminho === null) throw new Error(FORA_DA_PASTA)
+    // R2.11: atalho ou juncao dentro da pasta que leva para fora dela tambem e fora
+    const real = this.deps.caminhoReal(caminho)
+    const raizReal = this.deps.caminhoReal(raiz)
+    if (real !== null && raizReal !== null && !continuaDentro(raizReal, real)) throw new Error(FORA_DA_PASTA)
     return caminho
   }
 

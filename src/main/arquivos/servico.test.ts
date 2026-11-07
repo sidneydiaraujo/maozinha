@@ -7,7 +7,11 @@ const RAIZ = join('C:', 'repos', 'lousa')
 const REPO: Repo = { id: 'r1', nome: 'lousa', caminho: RAIZ, perfilPadraoId: 'principal' }
 const texto = (s: string): Uint8Array => new TextEncoder().encode(s)
 
-function montar(arquivos: Record<string, Uint8Array>, pastas: Record<string, ItemArquivo[]> = {}) {
+function montar(
+  arquivos: Record<string, Uint8Array>,
+  pastas: Record<string, ItemArquivo[]> = {},
+  atalhos: Record<string, string> = {},
+) {
   const abertos: string[] = []
   const mostrados: string[] = []
   const servico = new ServicoArquivos({
@@ -25,6 +29,7 @@ function montar(arquivos: Record<string, Uint8Array>, pastas: Record<string, Ite
       return ''
     },
     mostrarNaPasta: (caminho) => mostrados.push(caminho),
+    caminhoReal: (caminho) => atalhos[caminho] ?? caminho,
   })
   return { servico, abertos, mostrados }
 }
@@ -108,5 +113,28 @@ describe('ServicoArquivos.resolver (R1.6)', () => {
   it('nao existe, ou sai da pasta: null (nao vira link)', () => {
     expect(servico.resolver('r1', 'sumiu.md')).toBeNull()
     expect(servico.resolver('r1', '../fora.md')).toBeNull()
+  })
+})
+
+describe('ServicoArquivos e atalhos (R2.11)', () => {
+  const fora = join('C:', 'Users', 'x', '.claude')
+  const atalho = join(RAIZ, 'atalho')
+
+  it('atalho ou juncao para fora da pasta e recusado ao ler, listar e mostrar', () => {
+    const { servico } = montar(
+      { [join(fora, 'segredo.json')]: texto('{}') },
+      {},
+      { [atalho]: fora, [join(atalho, 'segredo.json')]: join(fora, 'segredo.json') },
+    )
+    expect(() => servico.ler('r1', 'atalho/segredo.json')).toThrow('Arquivo fora da pasta')
+    expect(() => servico.listar('r1', 'atalho')).toThrow('Arquivo fora da pasta')
+    expect(() => servico.mostrarNaPasta('r1', 'atalho/segredo.json')).toThrow('Arquivo fora da pasta')
+    expect(servico.resolver('r1', 'atalho/segredo.json')).toBeNull()
+  })
+
+  it('atalho que continua dentro da pasta segue valendo', () => {
+    const real = join(RAIZ, 'docs', 'notas.md')
+    const { servico } = montar({ [join(RAIZ, 'atalho', 'notas.md')]: texto('# oi') }, {}, { [atalho]: join(RAIZ, 'docs'), [join(atalho, 'notas.md')]: real })
+    expect(servico.ler('r1', 'atalho/notas.md').texto).toBe('# oi')
   })
 })
