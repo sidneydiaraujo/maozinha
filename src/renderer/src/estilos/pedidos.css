@@ -26,3 +26,18 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* R2.12: quem pede (pasta e conta do quadro dono da chave) */
+.pedido-quem {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 0 8px;
+  font-size: 13px;
+}
+
+.pedido-conta {
+  font-weight: 600;
+  color: var(--cor);
+}

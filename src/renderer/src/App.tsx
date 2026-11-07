@@ -85,7 +85,7 @@ export function App(): React.JSX.Element {
           <Lousa versao={versaoLousa} aoMudarPastas={aoMudarPastas} aoAbrirArquivo={abrir} />
         </main>
       </div>
-      <PedidoColegas />
+      <PedidoColegas repos={pastas.repos} quadros={pastas.quadros} perfis={contas.perfis ?? []} />
       {paleta.aberta && (
         <Paleta
           repos={pastas.repos}

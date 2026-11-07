@@ -48,6 +48,9 @@
     r.perguntou = await ate(() => !!q('.janela-pedido'), 60)
     r.textoDaPergunta = q('.janela-pedido')?.textContent ?? ''
     r.naoCriouAntes = quadros() === antes
+    // R2.12: a janela diz a pasta e a conta de quem pede, e mostra o quadro
+    r.quemPede = q('.janela-pedido .pedido-quem')?.textContent ?? null
+    r.temMostrar = !!q('.janela-pedido .pedido-quem button')
     await prova.foto('1-pergunta')
 
     q('.janela-pedido .botao-principal')?.click()
@@ -111,6 +114,8 @@
     r.perguntou &&
     r.textoDaPergunta.includes('Claude 1 quer criar 1 colega') &&
     r.textoDaPergunta.includes('Testador') &&
+    /Quem pede:.*app.*conta Pessoal/.test(r.quemPede ?? '') &&
+    r.temMostrar &&
     r.naoCriouAntes &&
     r.nasceu &&
     r.respostaAceite &&

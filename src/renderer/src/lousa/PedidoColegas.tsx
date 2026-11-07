@@ -2,9 +2,45 @@
 // aqui cria; a tela manda so o id do pedido e o sim/nao. Fechar (Esc, fora) = recusar. Paralelo (A21):
 // o agente ia usar subagentes; a pergunta e ver em quadros ou seguir no mesmo terminal.
 import { useEffect, useState } from 'react'
-import type { PedidoColegas as Pedido } from '../../../shared/model'
+import type { PedidoColegas as Pedido, PerfilComConta, Quadro, Repo } from '../../../shared/model'
 import { mensagemDe } from '../componentes/erro'
 import '../estilos/pedidos.css'
+import { pedirFoco } from './foco'
+
+interface Props {
+  repos: Repo[]
+  quadros: Quadro[]
+  perfis: PerfilComConta[]
+}
+
+/**
+ * R2.12: quem pede, alem do nome (dois "Claude 1" em projetos diferentes se confundiam): a pasta e
+ * a conta do quadro dono da chave, e um botao que mostra o quadro na lousa.
+ */
+function QuemPede(p: Props & { quadroId: string }): React.JSX.Element | null {
+  const quadro = p.quadros.find((q) => q.id === p.quadroId)
+  if (!quadro) return null
+  const pasta = p.repos.find((r) => r.id === quadro.repoId)
+  const conta = p.perfis.find((c) => c.id === quadro.perfilId)
+  return (
+    <p className="pedido-quem">
+      <span>
+        Quem pede: <span aria-hidden="true">📁</span> {pasta?.nome ?? 'pasta removida'}
+        {conta && (
+          <>
+            {' · conta '}
+            <span className="pedido-conta" style={{ '--cor': conta.cor } as React.CSSProperties}>
+              {conta.nome}
+            </span>
+          </>
+        )}
+      </span>
+      <button className="botao-pequeno" onClick={() => pedirFoco(quadro.id)}>
+        Mostrar na lousa
+      </button>
+    </p>
+  )
+}
 
 /** Os pedidos abertos, na ordem em que chegaram; o main tira os que acabaram. */
 function usePedidos(): Pedido[] {
@@ -42,7 +78,7 @@ function textosDo(pedido: Pedido): { titulo: string; explica: string; sim: strin
   }
 }
 
-export function PedidoColegas(): React.JSX.Element | null {
+export function PedidoColegas(props: Props): React.JSX.Element | null {
   const [pedido] = usePedidos()
   const [enviando, setEnviando] = useState(false)
   const [erro, setErro] = useState<string | null>(null)
@@ -77,6 +113,7 @@ export function PedidoColegas(): React.JSX.Element | null {
     <div className="janela-fundo" onMouseDown={(e) => e.target === e.currentTarget && responder(false)}>
       <div className="janela janela-pedido" role="dialog" aria-label="Pedido de colegas">
         <h2 className="janela-titulo">{textos.titulo}</h2>
+        <QuemPede {...props} quadroId={pedido.quadroId} />
         <p className="apagado">{textos.explica}</p>
         <ol className="pedido-lista">
           {pedido.colegas.map((c, i) => (
