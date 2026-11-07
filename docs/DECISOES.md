@@ -274,3 +274,6 @@ O Codex não estava instalado no PC em 14/10/2026: o formato do
   - **Time:** só o líder entra (quem não recebe trabalho de ninguém pelas linhas), e só quando ninguém do time está trabalhando; membro que terminou não entra.
   - **Animação reduzida no Windows (este PC):** a mãozinha segue acenando, pequena e lenta, como a bolinha de onde salva (D55); só sai o pulso em volta da pílula.
   - **Limites:** a fila vive na tela (some ao reiniciar o app, como o "esperando você"); a hora é a de quando o aviso chegou à tela.
+- **D60 (07/11/2026, Sidney: "gostei da sua analise, vamos fazer tudo"):** `markdown-it` de 14.3.2 para 14.3.3 (R1.9, revisão de 07/11).
+  - **Por quê:** o `npm audit --omit=dev` apontava duas falhas de lentidão quadrática na 14.3.2 (GHSA-gfr2-rv44-r23c, GHSA-vfgh-jcmw-g37q); a primeira vale nas opções padrão, e um `.md` feito para isso travaria a tela no leitor ou numa nota.
+  - **Como:** versão fixa (`--save-exact`), só o patch; a 14.3.3 saiu em 16/10/2026. Depois, `npm audit --omit=dev` sem nenhuma falha. As dependências de desenvolvimento não foram mexidas.
