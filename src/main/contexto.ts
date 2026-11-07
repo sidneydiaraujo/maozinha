@@ -7,6 +7,7 @@ import { IPC } from '../shared/ipc'
 import type { Perfil, StatusConta } from '../shared/model'
 import { FilaAjustes } from './agentes/ajustes'
 import { compactar } from './agentes/compactar'
+import { distribuirEstado } from './agentes/ordemDoEstado'
 import { CompactarSozinho } from './agentes/compactarSozinho'
 import { adiarReal, discoDaPonte } from './agentes/disco'
 import { PonteAgentes } from './agentes/ponte'
@@ -130,18 +131,19 @@ export function criarContexto(): Contexto {
       log('info', `terminal saiu: ${terminalId} (código ${codigo})`)
       enviarParaJanelas(IPC.terminaisSaiu, { terminalId, codigo })
     },
-    aoEstado: (terminalId, aviso) => {
-      enviarParaJanelas(IPC.terminaisEstado, { terminalId, aviso })
-      avisos.aoEstado(terminalId, aviso)
-      // modelo/esforco pedidos com o agente trabalhando: reabre quando ele parar (T19.1, D49)
-      void ajustes.aoEstado(terminalId, aviso)
-      void repasse.aoEstado(terminalId, aviso.estado, aviso.mensagem) // fim da vez passa adiante (T30.1)
-      espera.aoEstado(terminalId, aviso) // colega acabou a tarefa: quem pediu segue (A21)
-      // depois do repasse (que ja passou a vez de verdade) e antes da fila, que espera o /compact (A17)
-      compactarSozinho.aoEstado(terminalId, aviso)
-      // apresentacao do time pedida com o agente ocupado: digita quando ele parar (T29.1)
-      void mensagens.aoEstado(terminalId, aviso)
-    },
+    // a ordem e regra (R4.19): agentes/ordemDoEstado.ts diz quem vem antes de quem e por que
+    aoEstado: distribuirEstado(
+      {
+        tela: (id, aviso) => enviarParaJanelas(IPC.terminaisEstado, { terminalId: id, aviso }),
+        notificacao: (id, aviso) => avisos.aoEstado(id, aviso),
+        trocaDeModelo: (id, aviso) => ajustes.aoEstado(id, aviso),
+        repasse: (id, aviso) => repasse.aoEstado(id, aviso.estado, aviso.mensagem),
+        esperaDeColegas: (id, aviso) => espera.aoEstado(id, aviso),
+        compactarSozinho: (id, aviso) => compactarSozinho.aoEstado(id, aviso),
+        filaDoTime: (id, aviso) => mensagens.aoEstado(id, aviso),
+      },
+      (ouvinte, id, erro) => log('warn', `${ouvinte} falhou com o estado novo do quadro ${id}`, erro),
+    ),
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
   const temClaude = temClaudeEm(terminais)

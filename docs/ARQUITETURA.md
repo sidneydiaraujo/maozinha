@@ -297,6 +297,17 @@ no registro e não impede os outros.
 O terminal fecha primeiro, para nenhum aviso dele chegar a quem já esqueceu. A hibernação e o
 apresentador do time limpam sozinhos o que não está mais na lousa, a cada passada.
 
+## Quem recebe o estado do agente (`agentes/ordemDoEstado.ts`, R4.19)
+
+Cada estado novo do OSC 7501 vai, nesta ordem, para: **tela** → **notificação** → **troca de modelo** →
+**repasse** → **espera de colegas** → **compactar sozinho** → **fila do time**. A ordem é regra, com teste:
+
+- a troca de modelo vem antes do compactar e da fila, que perguntam se há troca pendente;
+- o repasse vê o fim da vez antes do `/compact` (o resumo do compact não é trabalho para passar adiante);
+- a fila do time vem por último porque espera o `/compact` terminar.
+
+Ouvinte que lança (ou cuja promessa rejeita depois) vira aviso no registro e não impede os seguintes.
+
 ## Cópia separada (Fatia 10, D18)
 
 - `git worktree add -b lousa/<apelido> <repo>.copias\<apelido> HEAD`, rodado pelo main
