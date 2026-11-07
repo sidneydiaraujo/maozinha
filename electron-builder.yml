@@ -24,3 +24,15 @@ nsis:
   uninstallerIcon: build/icon.ico
 # node-pty ja traz binarios prontos (prebuilds); nao ha compilador C++ no PC
 npmRebuild: false
+# R2.8: travas gravadas no Maozinha.exe. Sem ELECTRON_RUN_AS_NODE, NODE_OPTIONS nem --inspect, o exe
+# instalado nao vira um Node que roda qualquer script; o codigo so vem do app.asar, conferido pela
+# integridade gravada no exe. Os scripts do npm (dev, smoke, provas) usam o electron de node_modules,
+# sem estas travas. O file:// mantem os privilegios extras: a tela do build carrega dele.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableCookieEncryption: true
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
+  grantFileProtocolExtraPrivileges: true

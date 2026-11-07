@@ -13,6 +13,10 @@ const CSP = [
   "connect-src 'self'",
   "object-src 'none'",
   "base-uri 'none'",
+  // R2.8: a tela nao tem frame, formulario que envia nem worker
+  "frame-src 'none'",
+  "form-action 'none'",
+  "worker-src 'none'",
 ].join('; ')
 
 const cspNoBuild: Plugin = {
