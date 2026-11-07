@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Repo } from '../../shared/model'
 import type { RodarGit, SaidaGit } from './git'
-import { ServicoCopias } from './servico'
+import { linhaDoErro, ServicoCopias } from './servico'
 
 const origem: Repo = { id: 'r1', nome: 'app', caminho: 'C:\\x\\app', perfilPadraoId: 'p' }
 const copia: Repo = {
@@ -75,6 +75,18 @@ describe('ServicoCopias.criar', () => {
     await expect(servico(git).criar(origem, 'Claude 1', [])).rejects.toThrow(
       'O git não criou a cópia: fatal: invalid reference: HEAD',
     )
+  })
+})
+
+describe('linhaDoErro (R1.4)', () => {
+  it('pula o andamento normal do git e mostra o fatal', () => {
+    const erro = "Preparing worktree (new branch 'lousa/claude-4')\nfatal: could not create directory 'C:/x'\n"
+    expect(linhaDoErro(erro)).toBe("fatal: could not create directory 'C:/x'")
+  })
+
+  it('sem fatal nem error: a ultima linha; so espaco: vazio', () => {
+    expect(linhaDoErro('Preparing worktree\nalgo deu errado\n\n')).toBe('algo deu errado')
+    expect(linhaDoErro('  \n')).toBe('')
   })
 })
 

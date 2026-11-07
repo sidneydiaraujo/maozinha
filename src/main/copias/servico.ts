@@ -16,7 +16,18 @@ export interface DepsCopias {
 const ESPERA_PASTA_PRESA_MS = 500
 const TENTATIVAS_DE_APELIDO = 50
 
-const primeiraLinha = (texto: string): string => texto.trim().split(/\r?\n/)[0] ?? ''
+/**
+ * R1.4: a linha que explica o erro. O git escreve antes o andamento normal ("Preparing worktree
+ * (new branch ...)") e so depois o `fatal:`; a 1a linha escondia o motivo de 3 colegas que nao
+ * nasceram em 22 e 31/10. Sem `fatal:`/`error:`, a ultima linha.
+ */
+export function linhaDoErro(texto: string): string {
+  const linhas = texto
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l !== '')
+  return linhas.find((l) => /^(fatal|error):/i.test(l)) ?? linhas[linhas.length - 1] ?? ''
+}
 
 export class ServicoCopias {
   constructor(private readonly deps: DepsCopias) {}
@@ -37,7 +48,7 @@ export class ServicoCopias {
       const branch = await git(origem.caminho, ['rev-parse', '--verify', '--quiet', `refs/heads/${plano.branch}`])
       if (branch.codigo === 0) continue
       const r = await git(origem.caminho, ['worktree', 'add', '-b', plano.branch, plano.caminho, 'HEAD'])
-      if (r.codigo !== 0) throw new Error(`O git não criou a cópia: ${primeiraLinha(r.erro)}`)
+      if (r.codigo !== 0) throw new Error(`O git não criou a cópia: ${linhaDoErro(r.erro)}`)
       return { caminho: plano.caminho, copia: { origemId: origem.id, branch: plano.branch, apelido: plano.apelido } }
     }
     throw new Error('Não achei um nome livre para a cópia')
