@@ -3,8 +3,16 @@
 const MAXIMO = 50
 let enviados = 0
 
+/**
+ * R3.15: avisos do navegador que nao sao erro. O do ResizeObserver aparece quando um quadro muda de
+ * tamanho no meio do desenho (inofensivo): 324 linhas ERROR em duas semanas, gastando a cota acima.
+ */
+export function avisoInofensivo(mensagem: string): boolean {
+  return /ResizeObserver loop (completed with undelivered notifications|limit exceeded)/.test(mensagem)
+}
+
 function registrar(mensagem: string): void {
-  if (enviados >= MAXIMO) return
+  if (enviados >= MAXIMO || avisoInofensivo(mensagem)) return
   enviados++
   window.lousa.app.erroDaTela(mensagem.slice(0, 4000)).catch(() => undefined)
 }
