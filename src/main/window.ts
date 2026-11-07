@@ -3,6 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { cabeNaTela, estadoDe, lerEstadoJanela, type EstadoJanela } from './janela/estadoJanela'
 import { log } from './log'
+import { ARQUIVO_DA_TELA, paginaDoApp } from './paginaDoApp'
 import { isTrustedUrl, secureWebPreferences } from './security'
 
 interface Opcoes {
@@ -49,10 +50,15 @@ export function criarJanelaPrincipal(opcoes: Opcoes): BrowserWindow {
     webPreferences: { ...secureWebPreferences, preload: join(__dirname, '../preload/index.js') },
   })
 
-  const devUrl = process.env['ELECTRON_RENDERER_URL']
+  const pagina = paginaDoApp()
+  const devUrl = pagina.dev
   janela.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
-  janela.webContents.on('will-navigate', (evento, url) => {
-    if (!isTrustedUrl(url, devUrl)) evento.preventDefault()
+  // vale tambem para link ou arquivo solto na janela e para frames (R2.7)
+  janela.webContents.on('will-frame-navigate', (evento) => {
+    if (!isTrustedUrl(evento.url, pagina)) {
+      log('warn', `navegação recusada: ${evento.url.slice(0, 200)}`)
+      evento.preventDefault()
+    }
   })
   if (opcoes.lembrarEm) lembrarAoFechar(janela, opcoes.lembrarEm)
   if (opcoes.mostrar) {
@@ -64,6 +70,6 @@ export function criarJanelaPrincipal(opcoes: Opcoes): BrowserWindow {
 
   const query: Record<string, string> = opcoes.desenho ? { desenho: opcoes.desenho } : {}
   if (devUrl) void janela.loadURL(opcoes.desenho ? `${devUrl}?desenho=${opcoes.desenho}` : devUrl)
-  else void janela.loadFile(join(__dirname, '../renderer/index.html'), { query })
+  else void janela.loadFile(ARQUIVO_DA_TELA, { query })
   return janela
 }

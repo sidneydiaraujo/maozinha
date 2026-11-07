@@ -41,13 +41,17 @@ export function ligarSoltar(el: HTMLElement, colar: (texto: string) => void): ()
   }
 }
 
+/** Arrastando algo que o Chromium abriria no lugar da tela: arquivo ou link (R2.7). */
+export const abririaNaJanela = (tipos: readonly string[]): boolean =>
+  tipos.includes('Files') || tipos.includes('text/uri-list')
+
 /**
- * Arquivo solto fora de um terminal: sem isto o Chromium abre o arquivo NO LUGAR da Lousa (a
- * navegacao para file:// passa no will-navigate). Ligado uma vez, no inicio da tela.
+ * Arquivo ou link solto fora de um terminal: sem isto o Chromium abre o que foi solto NO LUGAR
+ * da Lousa (o main tambem recusa a navegacao, R2.7). Ligado uma vez, no inicio da tela.
  */
 export function impedirAbrirArquivoSolto(): void {
   const parar = (e: DragEvent): void => {
-    if (temArquivos(e)) e.preventDefault()
+    if (abririaNaJanela(e.dataTransfer?.types ?? [])) e.preventDefault()
   }
   document.addEventListener('dragover', parar)
   document.addEventListener('drop', parar)

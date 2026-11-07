@@ -1,7 +1,10 @@
 import { ipcMain, type IpcMainInvokeEvent } from 'electron'
 import type { z } from 'zod'
 import { log } from './log'
+import { paginaDoApp } from './paginaDoApp'
 import { isTrustedUrl } from './security'
+
+const pagina = paginaDoApp()
 
 /**
  * Registra um canal de pedido/resposta. Toda entrada vinda da tela passa pelo
@@ -14,7 +17,7 @@ export function handle<S extends z.ZodType, R>(
 ): void {
   ipcMain.handle(canal, async (evento: IpcMainInvokeEvent, bruto: unknown) => {
     const origem = evento.senderFrame?.url ?? ''
-    if (!isTrustedUrl(origem, process.env['ELECTRON_RENDERER_URL'])) {
+    if (!isTrustedUrl(origem, pagina)) {
       throw new Error(`IPC recusado: origem fora do app (${canal})`)
     }
     try {
