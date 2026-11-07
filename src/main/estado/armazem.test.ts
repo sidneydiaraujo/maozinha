@@ -26,6 +26,86 @@ const estado: EstadoSalvo = {
   ultimoPerfilId: 'principal',
 }
 
+/** Todos os campos opcionais preenchidos: campo novo esquecido no esquema some e o teste pega. */
+const completo: EstadoSalvo = {
+  ...estado,
+  perfis: {
+    ...estado.perfis,
+    pessoal: { nome: 'Pessoal', cor: '#22c55e', raizes: ['C:\\p'], git: { nome: 'S', email: 's@x', githubProprio: true } },
+  },
+  quadros: [
+    {
+      id: 'q1',
+      repoId: 'r1',
+      perfilId: 'pessoal',
+      tipo: 'agente',
+      titulo: 'Claude 1',
+      caixa,
+      sessaoId: '11111111-2222-4333-8444-555555555555',
+      modelo: 'opus',
+      esforco: 'high',
+      papel: 'Revisor',
+      kanban: true,
+    },
+    { id: 'q2', repoId: 'r2', perfilId: 'principal', tipo: 'terminal', titulo: 'app 2', caixa },
+  ],
+  notas: [{ id: 'n1', texto: 'lembrar', caixa }],
+  vistas: [{ id: 'v1', nome: 'foco', viewport: { x: 1, y: 2, zoom: 1 }, caixas: { q1: caixa } }],
+  ligacoes: [{ id: 'l1', de: 'q1', para: 'q2', modo: 'perguntar', pausada: true }],
+}
+
+describe('criarArmazem: item ruim nao apaga a lousa (R1.2)', () => {
+  const gravar = (conteudo: object): { dir: string; arquivo: string } => {
+    const dir = pasta()
+    const arquivo = join(dir, 'estado.json')
+    writeFileSync(arquivo, JSON.stringify(conteudo))
+    return { dir, arquivo }
+  }
+
+  it('todos os campos opcionais vao e voltam iguais', () => {
+    const arquivo = join(pasta(), 'estado.json')
+    criarArmazem(arquivo).salvar(completo)
+    expect(criarArmazem(arquivo).carregar()).toEqual(completo)
+  })
+
+  it('um quadro fora do formato sai sozinho; o resto abre e o arquivo como estava fica copiado', () => {
+    const ruim = { ...completo.quadros[1], sessaoId: 'nao-e-uuid' }
+    const { dir, arquivo } = gravar({ ...completo, quadros: [completo.quadros[0], ruim], ligacoes: [] })
+    const lido = criarArmazem(arquivo).carregar()
+    expect(lido.quadros.map((q) => q.id)).toEqual(['q1'])
+    expect(lido.repos).toHaveLength(2)
+    expect(lido.notas).toEqual(completo.notas)
+    expect(existsSync(arquivo)).toBe(true)
+    expect(readdirSync(dir).filter((n) => n.startsWith('estado.json.antes-'))).toHaveLength(1)
+  })
+
+  it('linha de uma versao futura (modo novo) sai; os quadros ficam', () => {
+    const futura = { id: 'l2', de: 'q1', para: 'q2', modo: 'turbo' }
+    const { arquivo } = gravar({ ...completo, ligacoes: [completo.ligacoes![0], futura] })
+    const lido = criarArmazem(arquivo).carregar()
+    expect(lido.ligacoes?.map((l) => l.id)).toEqual(['l1'])
+    expect(lido.quadros).toHaveLength(2)
+  })
+
+  it('pasta ruim sai sozinha; linha de um quadro que saiu sai junto: nada liga ao vazio', () => {
+    const repos = [completo.repos[0], { ...completo.repos[1], caminho: 42 }]
+    const quadros = [completo.quadros[0], { ...completo.quadros[1], tipo: 'planilha' }]
+    const { arquivo } = gravar({ ...completo, repos, quadros })
+    const lido = criarArmazem(arquivo).carregar()
+    expect(lido.repos.map((r) => r.id)).toEqual(['r1'])
+    expect(lido.quadros.map((q) => q.id)).toEqual(['q1'])
+    expect(lido.ligacoes).toEqual([])
+  })
+
+  it('perfil e viewport estragados: perfil sai, viewport volta ao padrao, o resto fica', () => {
+    const { arquivo } = gravar({ ...completo, perfis: { ...completo.perfis, ruim: 7 }, viewport: 'x' })
+    const lido = criarArmazem(arquivo).carregar()
+    expect(Object.keys(lido.perfis)).not.toContain('ruim')
+    expect(lido.viewport).toEqual({ x: 0, y: 0, zoom: 1 })
+    expect(lido.quadros).toHaveLength(2)
+  })
+})
+
 describe('criarArmazem', () => {
   it('guarda e le de volta o mesmo estado', () => {
     const arquivo = join(pasta(), 'estado.json')

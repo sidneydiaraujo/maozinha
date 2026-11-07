@@ -1,80 +1,10 @@
 // Guarda o estado da Lousa em um JSON pequeno, com gravacao atomica (T1.5, D5).
-import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
-import { z } from 'zod'
-import { ESFORCOS, MODELOS, type EstadoSalvo } from '../../shared/model'
+import type { EstadoSalvo } from '../../shared/model'
 import { log } from '../log'
-import { FORMATO_SESSAO } from '../quadros/sessoes'
+import { lerTolerante, SchemaEstado } from './esquema'
 import { migrar } from './migrar'
-
-const Caixa = z.object({ x: z.number(), y: z.number(), largura: z.number(), altura: z.number() })
-
-const SchemaEstado = z.object({
-  versao: z.literal(2),
-  perfis: z.record(
-    z.string(),
-    z.object({
-      nome: z.string().optional(),
-      cor: z.string().optional(),
-      raizes: z.array(z.string()).optional(),
-      provedor: z.enum(['claude', 'codex']).optional(),
-      criada: z.boolean().optional(),
-      git: z
-        .object({ nome: z.string().nullable(), email: z.string().nullable(), githubProprio: z.boolean() })
-        .optional()
-        .catch(undefined),
-    }),
-  ),
-  repos: z.array(
-    z.object({
-      id: z.string(),
-      nome: z.string(),
-      caminho: z.string(),
-      perfilPadraoId: z.string(),
-      copia: z.object({ origemId: z.string(), branch: z.string(), apelido: z.string() }).optional(),
-    }),
-  ),
-  quadros: z.array(
-    z.object({
-      id: z.string(),
-      repoId: z.string(),
-      perfilId: z.string(),
-      tipo: z.enum(['terminal', 'agente']),
-      titulo: z.string(),
-      caixa: Caixa,
-      sessaoId: z.string().regex(FORMATO_SESSAO).optional(),
-      // valor desconhecido (versao futura do CLI) vira "sem escolha", sem estragar o estado
-      modelo: z.enum(MODELOS).optional().catch(undefined),
-      esforco: z.enum(ESFORCOS).optional().catch(undefined),
-      papel: z.string().max(40).optional(),
-      kanban: z.boolean().optional(),
-    }),
-  ),
-  viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),
-  ultimoPerfilId: z.string().nullable(),
-  notas: z.array(z.object({ id: z.string(), texto: z.string().max(20000), caixa: Caixa })).optional(),
-  vistas: z
-    .array(
-      z.object({
-        id: z.string(),
-        nome: z.string(),
-        viewport: z.object({ x: z.number(), y: z.number(), zoom: z.number() }),
-        caixas: z.record(z.string(), Caixa),
-      }),
-    )
-    .optional(),
-  ligacoes: z
-    .array(
-      z.object({
-        id: z.string(),
-        de: z.string(),
-        para: z.string(),
-        modo: z.enum(['automatico', 'perguntar']),
-        pausada: z.boolean().optional(),
-      }),
-    )
-    .optional(),
-})
 
 export const ESTADO_PADRAO: EstadoSalvo = {
   versao: 2,
@@ -106,6 +36,17 @@ function isolarCorrompido(arquivo: string, motivo: string): EstadoSalvo {
   return padrao()
 }
 
+/** R1.2: alguns itens sairam; o arquivo como estava fica copiado ao lado e o registro diz quais. */
+function guardarAntesDeDescartar(arquivo: string, descartados: string[]): void {
+  const destino = `${arquivo}.antes-${Date.now()}`
+  try {
+    copyFileSync(arquivo, destino)
+    log('warn', `Estado salvo com itens fora do formato (${descartados.join(', ')}); o resto abriu. Copia em ${destino}`)
+  } catch {
+    log('warn', `Estado salvo com itens fora do formato (${descartados.join(', ')}); a copia nao foi possivel`)
+  }
+}
+
 export function criarArmazem(arquivo: string): Armazem {
   return {
     carregar() {
@@ -116,9 +57,10 @@ export function criarArmazem(arquivo: string): Armazem {
       } catch {
         return isolarCorrompido(arquivo, 'JSON quebrado')
       }
-      const lido = SchemaEstado.safeParse(migrar(bruto))
-      if (!lido.success) return isolarCorrompido(arquivo, 'formato ou versao inesperados')
-      return lido.data
+      const lido = lerTolerante(migrar(bruto))
+      if (!lido) return isolarCorrompido(arquivo, 'formato ou versao inesperados')
+      if (lido.descartados.length > 0) guardarAntesDeDescartar(arquivo, lido.descartados)
+      return lido.estado
     },
     salvar(estado) {
       const valido = SchemaEstado.parse(estado)
