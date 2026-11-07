@@ -1,6 +1,6 @@
-// R3.13 (D62): liga a hibernacao ao app. Adormecer = salvar o quadro como dormindo, fechar o
-// terminal (o claude.exe sai junto), esquecer o painel e a notificacao dele e avisar a tela, que
-// troca o terminal pela capa "Dormindo". Acordar e abrir o terminal de novo (handlers/terminais).
+// R3.13 (D62): liga a hibernacao ao app. Adormecer = salvar o quadro como dormindo, o momento
+// `dormiu` do ciclo (fecha o terminal, o claude.exe sai junto, e esquece o painel e a notificacao;
+// quadros/inscricoes.ts) e avisar a tela, que troca o terminal pela capa "Dormindo". Acordar e abrir o terminal de novo (handlers/terminais).
 import { IPC } from '../../shared/ipc'
 import type { Contexto } from '../contexto'
 import { log } from '../log'
@@ -9,7 +9,7 @@ import { Hibernacao, QUIETO_PARA_DORMIR_MS, VARREDURA_MS } from './hibernar'
 
 type Servicos = Pick<
   Contexto,
-  'quadros' | 'armazem' | 'terminais' | 'agentes' | 'ajustes' | 'compactarSozinho' | 'avisos' | 'temClaude'
+  'quadros' | 'armazem' | 'terminais' | 'ajustes' | 'compactarSozinho' | 'temClaude' | 'ciclo'
 >
 
 /** Prova com a opcao `sono-rapido`: 3 s parado e uma passada por segundo; `semClaude` dispensa o claude.exe. */
@@ -38,10 +38,7 @@ export function montarHibernacao(s: Servicos, ritmo: Ritmo = RITMO_NORMAL): { hi
       agora: Date.now,
       adormecer: (id) => {
         s.quadros.dormir(id, true)
-        s.terminais.fechar(id)
-        s.agentes.esquecer(id)
-        s.compactarSozinho.esquecer(id)
-        s.avisos.esquecer(id)
+        s.ciclo.aconteceu('dormiu', id)
         enviarParaJanelas(IPC.agentesDormiu, { quadroId: id })
         log('info', `agente dormiu (parado havia ${Math.round(ritmo.quietoMs / 60000)} min): ${id}`)
       },

@@ -84,6 +84,8 @@ export class Repasse {
     this.ultimoEstado.delete(quadroId)
     this.ultimaMensagem.delete(quadroId)
     this.vezDaLousa.delete(quadroId)
+    // o freio de um time cuja chave era este quadro (o menor id) nao serve mais a ninguem
+    this.seguidos.delete(quadroId)
   }
 
   private async passarPela(dados: DadosTime, l: Ligacao, mensagem?: string): Promise<void> {

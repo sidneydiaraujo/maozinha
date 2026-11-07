@@ -49,7 +49,7 @@ export function montarTime(d: {
   temClaude(quadroId: string): Promise<boolean>
   /** Troca de modelo esperando: a mensagem vai para o agente reaberto (A15). */
   segurar(quadroId: string): boolean
-}): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; espera: EsperaDeColegas; esquecer(quadroId: string): void } {
+}): { mensagens: FilaMensagens; time: ApresentadorTime; repasse: Repasse; espera: EsperaDeColegas } {
   const { armazem, perfis, terminais } = d
   const dados = (): DadosTime => {
     const e = armazem.carregar()
@@ -88,22 +88,18 @@ export function montarTime(d: {
     fila: mensagens,
     adiar: adiarReal,
   })
-  const esquecer = (id: string): void => {
-    mensagens.esquecer(id)
-    repasse.esquecer(id)
-    espera.esquecer(id)
-  }
-  return { mensagens, time, repasse, espera, esquecer }
+  return { mensagens, time, repasse, espera }
 }
 
 /**
- * Troca de modelo/esforco (D49): reabrir fecha o terminal, apaga o painel velho (`esquecerPainel`)
- * e pede a tela para abrir de novo; o comando novo le o modelo salvo no quadro e retoma a conversa.
+ * Troca de modelo/esforco (D49): reabrir fecha o terminal e apaga o painel velho (`fecharParaReabrir`,
+ * o momento `reabriu` do ciclo) e pede a tela para abrir de novo; o comando novo le o modelo salvo no
+ * quadro e retoma a conversa.
  */
 export function montarAjustes(
   terminais: ServicoTerminais,
   temClaude: (quadroId: string) => Promise<boolean>,
-  esquecerPainel: (quadroId: string) => void,
+  fecharParaReabrir: (quadroId: string) => void,
 ): FilaAjustes {
   return new FilaAjustes({
     aberto: (id) => terminais.estaAberto(id),
@@ -111,8 +107,7 @@ export function montarAjustes(
     pronto: (id) => terminais.pronto(id),
     temClaude,
     reabrir: (id) => {
-      terminais.fechar(id)
-      esquecerPainel(id)
+      fecharParaReabrir(id)
       enviarParaJanelas(IPC.agentesReabrir, { quadroId: id })
     },
   })

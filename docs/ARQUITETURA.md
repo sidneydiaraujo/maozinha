@@ -281,6 +281,22 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
   em contas diferentes (mesmo provedor ou não), lado a lado.
 - Fechar só quando o quadro é removido, o repo muda de conta ou o app fecha.
 
+## Ciclo de vida do quadro (`quadros/ciclo.ts`, R4.18)
+
+Todo serviço do main que guarda algo por quadro se inscreve **uma vez** em `inscreverNoCiclo`
+(`quadros/inscricoes.ts`) e diz em que momento esquece o quadro. Serviço novo com mapa por quadro:
+entra em `QuemGuardaPorQuadro` e numa linha dali (o teste conta os inscritos). Um que falha vira aviso
+no registro e não impede os outros.
+
+| Momento | Quando | Quem esquece (nesta ordem) |
+|---|---|---|
+| `saiu` | quadro removido, pasta fechada, trocou de conta | terminal, painel, compactar sozinho, notificação, troca de modelo, onde escreve, pedido de colegas, chave dos agentes, fila do time, repasse, espera de colegas |
+| `reabriu` | troca de modelo/esforço (D49) | terminal, painel, compactar sozinho |
+| `dormiu` | hibernou (R3.13, D62) | terminal, painel, compactar sozinho, notificação |
+
+O terminal fecha primeiro, para nenhum aviso dele chegar a quem já esqueceu. A hibernação e o
+apresentador do time limpam sozinhos o que não está mais na lousa, a cada passada.
+
 ## Cópia separada (Fatia 10, D18)
 
 - `git worktree add -b lousa/<apelido> <repo>.copias\<apelido> HEAD`, rodado pelo main

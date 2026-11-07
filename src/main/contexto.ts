@@ -23,6 +23,8 @@ import { montarAmbiente } from './perfis/ambiente'
 import { executarReal, lerStatusConta, localizarClaude } from './perfis/conta'
 import { depsReais, detectarPerfis } from './perfis/detectar'
 import { ServicoPerfis } from './perfis/servico'
+import { CicloDosQuadros } from './quadros/ciclo'
+import { inscreverNoCiclo } from './quadros/inscricoes'
 import { ServicoQuadros } from './quadros/servico'
 import { copiarSessao } from './quadros/sessoes'
 import { ServicoRepos } from './repos/servico'
@@ -60,6 +62,8 @@ export interface Contexto {
   repasse: Repasse
   /** O claude.exe ainda roda no terminal do quadro? Ele nao avisa quando sai (D39). */
   temClaude(quadroId: string): Promise<boolean>
+  /** Quem esquece o quadro quando ele sai, reabre ou dorme (R4.18, quadros/inscricoes.ts). */
+  ciclo: CicloDosQuadros
 }
 
 function caminhoDoPath(): string {
@@ -105,6 +109,8 @@ function ehPasta(caminho: string): boolean {
 
 export function criarContexto(): Contexto {
   const home = app.getPath('home')
+  // todo servico que guarda algo por quadro se inscreve no fim desta funcao (R4.18)
+  const ciclo = new CicloDosQuadros((nome, id, erro) => log('warn', `${nome} não esqueceu o quadro ${id}`, erro))
   const armazem = criarArmazem(join(app.getPath('userData'), 'estado.json'))
   const perfis = new ServicoPerfis({
     armazem,
@@ -139,12 +145,8 @@ export function criarContexto(): Contexto {
   })
   const esperar = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms))
   const temClaude = temClaudeEm(terminais)
-  // `agentes` e criado logo abaixo; reabrir so roda quando o Sidney troca o modelo
-  const ajustes = montarAjustes(terminais, temClaude, (id) => {
-    agentes.esquecer(id)
-    compactarSozinho.esquecer(id)
-  })
-  const { mensagens, time, repasse, espera, esquecer } = montarTime({
+  const ajustes = montarAjustes(terminais, temClaude, (id) => ciclo.aconteceu('reabriu', id))
+  const { mensagens, time, repasse, espera } = montarTime({
     armazem,
     perfis,
     terminais,
@@ -176,17 +178,7 @@ export function criarContexto(): Contexto {
     adiar: adiarReal,
   })
   // fechar o terminal de um quadro (removido, repo fechado, trocou de conta) leva o painel junto
-  const fecharQuadro = (id: string): void => {
-    terminais.fechar(id)
-    avisos.esquecer(id)
-    agentes.esquecer(id)
-    ajustes.esquecer(id)
-    compactarSozinho.esquecer(id)
-    ondeEscreve.esquecer(id)
-    pedidos.esquecer(id)
-    mcp.esquecer(id)
-    esquecer(id)
-  }
+  const fecharQuadro = (id: string): void => ciclo.aconteceu('saiu', id)
   const repos = new ServicoRepos({
     armazem,
     perfis,
@@ -240,6 +232,7 @@ export function criarContexto(): Contexto {
     existe: existsSync,
     avisarArvore: (repoId, caminhos) => vigia.avisarAgora(repoId, caminhos),
   })
+  inscreverNoCiclo(ciclo, { terminais, agentes, compactarSozinho, avisos, ajustes, ondeEscreve, pedidos, mcp, mensagens, repasse, espera })
   return {
     perfis,
     repos,
@@ -259,5 +252,6 @@ export function criarContexto(): Contexto {
     time,
     repasse,
     temClaude,
+    ciclo,
   }
 }

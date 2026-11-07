@@ -2,7 +2,8 @@
 // R3.13 (D62), com `sem-claude sono-rapido`: o Claude falso termina no a1; parado, ele hiberna em
 // ~3 s (no app de verdade, 2 h): a capa "Dormindo" fica no lugar do terminal e o estado salva
 // `dormindo`. a2 e a3 (sem estado de agente) seguem acordados. "Acordar" remonta o terminal e tira o
-// `dormindo`. Efeito no PC: nenhum.
+// `dormindo`. Por fim (R4.18) o a3 sai da lousa pelo canal do botao de fechar: o ciclo esquece o
+// quadro sem erro e o estado salvo fica sem ele. Efeito no PC: nenhum.
 ;(async () => {
   const { espera } = prova
   const { app, apoio } = prova.dados
@@ -34,6 +35,14 @@
   r.seguiuAcordado = !q('[data-quadro="a1"] .quadro-dormindo')
   await prova.foto('2-acordado')
 
+  try {
+    await window.lousa.quadros.remover('a3')
+    r.saiuSemErro = true
+  } catch (e) {
+    r.saiuSemErro = String(e)
+  }
+  r.saiuDoEstado = !(await window.lousa.lousa.carregar()).quadros.some((x) => x.id === 'a3')
+
   r.ok =
     r.esperou &&
     r.terminou &&
@@ -43,6 +52,8 @@
     r.semTerminal &&
     r.acordou &&
     r.salvoAcordado &&
-    r.seguiuAcordado
+    r.seguiuAcordado &&
+    r.saiuSemErro === true &&
+    r.saiuDoEstado
   return r
 })()
