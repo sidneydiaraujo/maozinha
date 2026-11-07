@@ -8,8 +8,13 @@ export interface SessaoAgente {
   existe: boolean
 }
 
-/** Texto literal no PowerShell: aspas simples, e a aspa simples de dentro dobrada. */
-const literalPowerShell = (texto: string): string => `'${texto.replace(/'/g, "''")}'`
+/**
+ * Texto literal no PowerShell: aspas simples, e a aspa simples de dentro dobrada. R1.1: o
+ * PowerShell tambem fecha o texto em ‘ ’ ‚ ‛ (provado em 07/11/2026: o resto virava comando); elas
+ * viram a aspa reta antes de dobrar.
+ */
+const literalPowerShell = (texto: string): string =>
+  `'${texto.replace(/[‘’‚‛]/g, "'").replace(/'/g, "''")}'`
 
 /** O que mais vai na linha do Claude. `modelo` e `esforco` vem dos enums, nunca de texto livre. */
 export interface ExtrasAgente {

@@ -192,6 +192,15 @@ describe('resolverAlvo: regra do kanban (D52)', () => {
     expect(c).not.toContain('"')
   })
 
+  it('R1.1: aspas simples curvas viram a reta dobrada; o texto nao fecha no meio', () => {
+    const c = resolverAlvo({ tipo: 'quadro', quadroId: 'q5' }, {
+      ...comKanban,
+      kanbanDoQuadro: () => 'Seu nome: x’;calc;‘ ‚y‛.',
+    }).comandoInicial
+    expect(c).toBe(`claude --append-system-prompt 'Seu nome: x'';calc;'' ''y''.' --resume ${SESSAO}\r`)
+    expect(c).not.toMatch(/[‘’‚‛]/)
+  })
+
   it('o Enter so existe no fim do comando, mesmo com \\r\\n na regra', () => {
     expect(comando('q8')?.split('\r')).toHaveLength(2)
   })

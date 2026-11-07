@@ -102,9 +102,21 @@ export const TEXTO_SAIU_DO_TIME = '[Mãozinha] Você não faz mais parte do time
 // eslint-disable-next-line no-control-regex
 const CONTROLE = /[\u0000-\u001f\u007f-\u009f]+/g
 
-/** Papel livre ("Revisor"): sem quebra de linha nem caractere de controle, ate 40 letras. */
+/**
+ * R1.1: o papel vai para o nome do card na regra do kanban, digitada no PowerShell. So letras,
+ * numeros, espaco e - _ . / ( ) +: aspas, ; $ ` e afins somem, mesmo que o escape ja proteja.
+ */
+const FORA_DO_PAPEL = /[^\p{L}\p{N} _\-./()+]+/gu
+
+/** Papel livre ("Revisor"): sem quebra de linha, controle nem simbolos, ate 40 letras. */
 export function limparPapel(papel: string): string {
-  return papel.replace(CONTROLE, ' ').replace(/\s+/g, ' ').trim().slice(0, MAXIMO_LETRAS_PAPEL).trim()
+  return papel
+    .replace(CONTROLE, ' ')
+    .replace(FORA_DO_PAPEL, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, MAXIMO_LETRAS_PAPEL)
+    .trim()
 }
 
 /** Nome do agente no time: o papel, senao o apelido da copia, senao o titulo ("Claude 3"). */
