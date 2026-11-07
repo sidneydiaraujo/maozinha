@@ -86,6 +86,16 @@ export function semClaudeNaRodada(argv: string[], empacotado: boolean): boolean 
   return c !== null && semClaude(lerDados(c.saida))
 }
 
+/**
+ * R3.13: a opcao `sono-rapido` (`rodar.mjs hibernar sem-claude sono-rapido`): o agente parado dorme em
+ * 3 s, e sem o claude.exe (sem-claude) tambem. Nunca no instalador nem fora de um cenario.
+ */
+export function sonoRapidoNaRodada(argv: string[], empacotado: boolean): { rapido: boolean; semClaude: boolean } {
+  const c = lerCenario(argv, empacotado)
+  const dados = c ? lerDados(c.saida) : {}
+  return { rapido: c !== null && temOpcao(dados, 'sono-rapido'), semClaude: c !== null && semClaude(dados) }
+}
+
 /** Nome de foto vira nome de arquivo sem caminho: so letras, numeros, - e _. */
 export function nomeDaFoto(nome: unknown): string {
   const limpo = String(nome ?? '').replace(/[^\w-]+/g, '-').slice(0, 60)

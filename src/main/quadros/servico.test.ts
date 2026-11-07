@@ -236,6 +236,18 @@ describe('ServicoQuadros.definirPapel (T29.1)', () => {
   })
 })
 
+describe('ServicoQuadros.dormir (R3.13)', () => {
+  it('marca e tira o dormindo, salvo; quadro que ja saiu nao lanca', () => {
+    const { servico, estado } = montar()
+    const q = servico.criar('r1', 'agente', 'principal')
+    servico.dormir(q.id, true)
+    expect(estado().quadros[0]?.dormindo).toBe(true)
+    servico.dormir(q.id, false)
+    expect(estado().quadros[0]).not.toHaveProperty('dormindo')
+    expect(() => servico.dormir('nada', true)).not.toThrow()
+  })
+})
+
 describe('ServicoQuadros.ajustar (T19.1)', () => {
   it('guarda modelo e esforco no agente Claude; mudar um mantem o outro', () => {
     const { servico, estado } = montar()

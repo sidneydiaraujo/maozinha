@@ -1,8 +1,9 @@
 import { app, BrowserWindow, session } from 'electron'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { montarHibernacao, RITMO_NORMAL } from './agentes/montarHibernacao'
 import { AvisosDoWindows } from './avisos/notificar'
-import { pastaDoSmoke, usaPastaReal } from './cenario'
+import { pastaDoSmoke, sonoRapidoNaRodada, usaPastaReal } from './cenario'
 import { criarContexto, type Contexto } from './contexto'
 import { apagarPastaVazia, situacaoDaPasta, varrerFantasmas } from './copias/fantasmas'
 import { rodarGitReal } from './copias/git'
@@ -63,13 +64,18 @@ function registrarCanais(): void {
   registrarHandlersVistas(contexto.armazem)
   registrarHandlersTime(contexto)
   registrarHandlersLousa(contexto)
-  registrarHandlersTerminais(contexto)
+  // R3.13: agente parado ha 2 h hiberna (na prova `sono-rapido`, em 3 s)
+  const sono = sonoRapidoNaRodada(process.argv, app.isPackaged)
+  const ritmo = sono.rapido ? { quietoMs: 3000, varreduraMs: 1000, exigirClaude: !sono.semClaude } : RITMO_NORMAL
+  const { hibernacao, parar: pararHibernacao } = montarHibernacao(contexto, ritmo)
+  registrarHandlersTerminais(contexto, (id) => hibernacao.mexeu(id))
   registrarHandlersArquivos(contexto.arquivos, contexto.vigia, contexto.repos)
   registrarHandlersAgentes(contexto)
   iniciarPonte(contexto)
   // ferramenta de criar colegas (A19): sem o servidor, os agentes so abrem sem ela
   contexto.mcp.iniciar().catch((erro: unknown) => log('warn', 'o servidor dos agentes não abriu', erro))
   app.on('before-quit', () => {
+    pararHibernacao()
     contexto.mcp.parar()
     contexto.terminais.fecharTodos()
     contexto.vigia.fecharTodos()

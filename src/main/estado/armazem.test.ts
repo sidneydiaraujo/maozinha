@@ -46,6 +46,7 @@ const completo: EstadoSalvo = {
       esforco: 'high',
       papel: 'Revisor',
       kanban: true,
+      dormindo: true,
     },
     { id: 'q2', repoId: 'r2', perfilId: 'principal', tipo: 'terminal', titulo: 'app 2', caixa },
   ],

@@ -22,13 +22,16 @@ const Redimensionar = z.object({ terminalId: z.string().min(1), ...Tamanho })
 
 type Servicos = Pick<Contexto, 'terminais' | 'perfis' | 'quadros' | 'repos' | 'agentes' | 'repasse' | 'vigia' | 'mcp'>
 
-export function registrarHandlersTerminais(servicos: Servicos): void {
+/** `mexeu`: o Sidney digitou num quadro (a hibernacao recomeca a contar, R3.13). */
+export function registrarHandlersTerminais(servicos: Servicos, mexeu: (quadroId: string) => void = () => undefined): void {
   const { terminais, perfis, quadros, repos, agentes, repasse, vigia, mcp } = servicos
   const home = app.getPath('home')
   const dados = app.getPath('userData') // login do gh de quem tem GitHub proprio (D42)
   // so numa prova com a opcao sem-claude: o agente abre sem o claude.exe de verdade
   const semClaude = semClaudeNaRodada(process.argv, app.isPackaged)
   handle(IPC.terminaisAbrir, Abrir, ({ alvo, cols, rows }) => {
+    // abrir o terminal de um agente hibernado e acorda-lo (R3.13): a tela so monta o terminal no clique
+    if (alvo.tipo === 'quadro') quadros.dormir(alvo.quadroId, false)
     const r = resolverAlvo(alvo, {
       home,
       obterPerfil: (id) => perfis.obter(id),
@@ -67,7 +70,10 @@ export function registrarHandlersTerminais(servicos: Servicos): void {
   )
   handle(IPC.terminaisEscrever, Escrever, ({ terminalId, dados }) => {
     // so a tela chega aqui: digitacao do Sidney zera o freio do time (T30.1)
-    if (ehDigitacao(dados)) repasse.digitou(terminalId)
+    if (ehDigitacao(dados)) {
+      repasse.digitou(terminalId)
+      mexeu(terminalId)
+    }
     terminais.escrever(terminalId, dados)
   })
   handle(IPC.terminaisRedimensionar, Redimensionar, ({ terminalId, cols, rows }) =>

@@ -214,6 +214,19 @@ export class ServicoQuadros {
     return quadro
   }
 
+  /**
+   * R3.13: agente hibernado (o main fechou o claude.exe) ou acordado. Salvo, para o app aberto de
+   * novo nao acordar todos de uma vez. Quadro que ja saiu: nada.
+   */
+  dormir(quadroId: string, dormindo: boolean): void {
+    const estado = this.deps.armazem.carregar()
+    const quadro = estado.quadros.find((q) => q.id === quadroId)
+    if (!quadro || !!quadro.dormindo === dormindo) return
+    if (dormindo) quadro.dormindo = true
+    else delete quadro.dormindo
+    this.deps.armazem.salvar(estado)
+  }
+
   /** Ultimo quadro de uma copia: a copia e limpa sem perder trabalho e, se saiu, deixa a lista (D18). */
   /** Quadro que ja saiu nao e erro: o segundo clique no x (ou um clique durante a limpeza da copia) nao faz nada. */
   async remover(quadroId: string): Promise<FimDaCopia> {

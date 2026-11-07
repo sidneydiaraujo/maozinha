@@ -125,6 +125,7 @@ const api: LousaApi = {
     ajustar: (quadroId, mudanca) => ipcRenderer.invoke(IPC.agentesAjustar, { quadroId, mudanca }),
     aoEscrevendo: (cb) => inscrever<OndeEscreve>(IPC.agentesEscrevendo, cb),
     aoReabrir: (cb) => inscrever<{ quadroId: string }>(IPC.agentesReabrir, (p) => cb(p.quadroId)),
+    aoDormir: (cb) => inscrever<{ quadroId: string }>(IPC.agentesDormiu, (p) => cb(p.quadroId)),
   },
 }
 

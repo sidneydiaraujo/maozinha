@@ -114,6 +114,7 @@ export const IPC = {
   agentesAjustar: 'agentes:ajustar',
   agentesEscrevendo: 'agentes:escrevendo', // evento main -> tela: a pasta do projeto onde o agente salvou (A16)
   agentesReabrir: 'agentes:reabrir', // evento main -> tela: o main fechou o agente; abra de novo (D49)
+  agentesDormiu: 'agentes:dormiu', // evento main -> tela: o agente hibernou; mostre a capa (R3.13)
 } as const
 
 /** Posicao e tamanho que a tela quer guardar. O main valida e ignora ids que nao existem. */
@@ -300,5 +301,7 @@ export interface LousaApi {
     aoEscrevendo(cb: (onde: OndeEscreve) => void): () => void
     /** O main fechou o agente para ele voltar com o modelo novo na mesma conversa (D49). */
     aoReabrir(cb: (quadroId: string) => void): () => void
+    /** O main hibernou o agente parado (R3.13): a tela troca o terminal pela capa "Dormindo". */
+    aoDormir(cb: (quadroId: string) => void): () => void
   }
 }

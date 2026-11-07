@@ -41,6 +41,7 @@ const Quadro = z.object({
   esforco: z.enum(ESFORCOS).optional().catch(undefined),
   papel: z.string().max(40).optional(),
   kanban: z.boolean().optional(),
+  dormindo: z.boolean().optional(),
 })
 
 const Nota = z.object({ id: z.string(), texto: z.string().max(20000), caixa: Caixa })

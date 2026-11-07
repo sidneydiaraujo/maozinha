@@ -15,6 +15,7 @@ import { BotaoAoLado } from './BotaoAoLado'
 import { BotaoFechar } from './BotaoFechar'
 import { BotaoPrint } from './BotaoPrint'
 import { ContaDoQuadro } from './ContaDoQuadro'
+import { CapaDormindo, useDormindo } from './Dormindo'
 import { JanelaJuntar } from './JanelaJuntar'
 import { ModeloDoQuadro } from './ModeloDoQuadro'
 import { PapelDoQuadro } from './PapelDoQuadro'
@@ -87,7 +88,9 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
   const encerrado = saida?.chave === chave
   // so o zoom (nao a posicao): arrastar a lousa nao redesenha o quadro
   const zoom = useStore((s) => s.transform[2])
-  useEffect(() => aoEncerrado(encerrado), [encerrado, aoEncerrado])
+  // hibernado (R3.13): sem terminal ate acordar; acordar remonta e o main abre de novo
+  const sono = useDormindo(quadro)
+  useEffect(() => aoEncerrado(encerrado || sono.dormindo), [encerrado, sono.dormindo, aoEncerrado])
   // o main fechou o agente para ele voltar com o modelo novo, na mesma conversa (D49)
   useEffect(
     () =>
@@ -104,6 +107,17 @@ function CorpoQuadro({ quadro, repo, acoes, aoEncerrado }: PropsCorpo): React.JS
       return relativo ? resolverArquivo(repo.id, relativo) : null
     },
     abrir: (relativo: string) => acoes.abrirArquivo(repo.id, relativo),
+  }
+  if (sono.dormindo) {
+    const acordar = (): void => {
+      sono.acordar()
+      setGeracao((g) => g + 1)
+    }
+    return (
+      <div className="quadro-corpo">
+        <CapaDormindo aoAcordar={acordar} />
+      </div>
+    )
   }
   return (
     <div className="quadro-corpo">
