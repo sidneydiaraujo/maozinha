@@ -86,6 +86,15 @@
   await ate(() => q('.novo-quadro'))
   r.pastasNaJanelinha = todos('.pasta-escolha strong').map((e) => e.textContent)
   await prova.foto('5-lista')
+  // R1.5: pasta sem git: a caixa da copia vem desligada, desmarcada e explica por que
+  todos('.pasta-escolha').find((e) => e.querySelector('strong')?.textContent === 'pasta-demo')?.click()
+  await ate(() => q('.novo-copia input')?.disabled === true, 20)
+  r.semGit = {
+    desligada: q('.novo-copia input')?.disabled === true,
+    marcada: q('.novo-copia input')?.checked === true,
+    dica: q('.novo-copia small')?.textContent ?? null,
+  }
+  await prova.foto('6-sem-git')
   q('.novo-fundo')?.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
 
   r.ok =
@@ -96,6 +105,9 @@
     r.copia1.branchNaPasta === r.copia1.branch &&
     r.fecharLimpa.pastaExiste === 'False' &&
     r.fecharSuja.pastaExiste === 'True' &&
-    r.fecharSuja.arquivoExiste === 'True'
+    r.fecharSuja.arquivoExiste === 'True' &&
+    r.semGit.desligada &&
+    !r.semGit.marcada &&
+    /git/.test(r.semGit.dica ?? '')
   return r
 })()

@@ -49,16 +49,35 @@ function ChipsConta(p: { perfis: PerfilComConta[]; marcada: string; aoMarcar(id:
 }
 
 /** "Cópia separada" (T10.4, D18): branch e pasta proprias para o quadro novo. */
-function CaixaCopia(p: { marcada: boolean; sugerida: boolean; aoMudar(v: boolean): void }): React.JSX.Element {
+function CaixaCopia(p: { marcada: boolean; sugerida: boolean; aceita: boolean; aoMudar(v: boolean): void }): React.JSX.Element {
   return (
     <label className="novo-copia" title="Uma cópia do repositório (git worktree) com uma branch só deste quadro">
-      <input type="checkbox" checked={p.marcada} onChange={(e) => p.aoMudar(e.target.checked)} />
+      <input type="checkbox" checked={p.marcada} disabled={!p.aceita} onChange={(e) => p.aoMudar(e.target.checked)} />
       <span>
         Cópia separada (branch própria)
-        {p.sugerida && <small>Já tem um quadro nesta pasta: assim um não mexe no trabalho do outro.</small>}
+        {/* R1.5: antes a caixa vinha marcada em pasta sem git e o Criar era recusado */}
+        {!p.aceita && <small>Só na pasta principal de um repositório git; esta não é.</small>}
+        {p.aceita && p.sugerida && <small>Já tem um quadro nesta pasta: assim um não mexe no trabalho do outro.</small>}
       </span>
     </label>
   )
+}
+
+/** A pasta marcada aceita copia separada? Enquanto o main nao respondeu, sim (como antes). */
+function useAceitaCopia(repoId: string | null): boolean {
+  const [resposta, setResposta] = useState<{ repoId: string; sim: boolean } | null>(null)
+  useEffect(() => {
+    if (!repoId) return
+    let valendo = true
+    window.lousa.copias
+      .aceita(repoId)
+      .then((sim) => valendo && setResposta({ repoId, sim }))
+      .catch(() => valendo && setResposta({ repoId, sim: true }))
+    return () => {
+      valendo = false
+    }
+  }, [repoId])
+  return resposta?.repoId !== repoId || resposta.sim
 }
 
 /**
@@ -127,7 +146,8 @@ function useEscolhas({ perfis, repos, quadros, perfilInicial, repoInicial }: Pro
   const repoId = repos.some((r) => r.id === escolhida) ? escolhida : pastaSugerida(repos, perfilId)
   // null = segue a sugestao da pasta marcada; trocar de pasta volta para a sugestao
   const [separadoEscolhido, setSeparado] = useState<boolean | null>(null)
-  const sugerida = sugerirSeparado(quadros, repoId)
+  const aceitaCopia = useAceitaCopia(repoId)
+  const sugerida = aceitaCopia && sugerirSeparado(quadros, repoId)
   // kanban (A22): null = segue o projeto (marcada se ele ja tem um); trocar de pasta volta para isso
   const [kanbanEscolhido, setKanban] = useState<boolean | null>(null)
   const kanbanExiste = useKanbanDaPasta(repoId)
@@ -142,7 +162,8 @@ function useEscolhas({ perfis, repos, quadros, perfilInicial, repoInicial }: Pro
     repoId,
     marcarPasta,
     sugerida,
-    separado: separadoEscolhido ?? sugerida,
+    separado: aceitaCopia && (separadoEscolhido ?? sugerida),
+    aceitaCopia,
     setSeparado,
     kanban: kanbanEscolhido ?? kanbanExiste,
     kanbanExiste,
@@ -215,7 +236,9 @@ export function NovoQuadro(props: Props): React.JSX.Element {
         <button className="botao-pequeno" onClick={() => void outraPasta()}>
           {repos.length > 0 ? 'Outra pasta…' : 'Escolher pasta…'}
         </button>
-        {repoId && <CaixaCopia marcada={separado} sugerida={sugerida} aoMudar={setSeparado} />}
+        {repoId && (
+          <CaixaCopia marcada={separado} sugerida={sugerida} aceita={escolhas.aceitaCopia} aoMudar={setSeparado} />
+        )}
         {repoId && (
           <CaixaKanban marcada={escolhas.kanban} existe={escolhas.kanbanExiste} aoMudar={escolhas.setKanban} />
         )}

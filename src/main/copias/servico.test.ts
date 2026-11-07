@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Repo } from '../../shared/model'
 import type { RodarGit, SaidaGit } from './git'
-import { linhaDoErro, ServicoCopias } from './servico'
+import { linhaDoErro, raizDaCopia, ServicoCopias } from './servico'
 
 const origem: Repo = { id: 'r1', nome: 'app', caminho: 'C:\\x\\app', perfilPadraoId: 'p' }
 const copia: Repo = {
@@ -75,6 +75,14 @@ describe('ServicoCopias.criar', () => {
     await expect(servico(git).criar(origem, 'Claude 1', [])).rejects.toThrow(
       'O git não criou a cópia: fatal: invalid reference: HEAD',
     )
+  })
+})
+
+describe('raizDaCopia (R1.5)', () => {
+  it('raiz do git: ok; subpasta: naoRaiz; sem git: semGit', async () => {
+    expect(await raizDaCopia(gitFalso([['--show-toplevel', ok('C:/x/app\n')]]).git, origem)).toBe('ok')
+    expect(await raizDaCopia(gitFalso([['--show-toplevel', ok('C:/x')]]).git, origem)).toBe('naoRaiz')
+    expect(await raizDaCopia(gitFalso([['--show-toplevel', falha('fatal: not a git repository')]]).git, origem)).toBe('semGit')
   })
 })
 

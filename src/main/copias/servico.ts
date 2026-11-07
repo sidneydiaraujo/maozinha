@@ -29,17 +29,22 @@ export function linhaDoErro(texto: string): string {
   return linhas.find((l) => /^(fatal|error):/i.test(l)) ?? linhas[linhas.length - 1] ?? ''
 }
 
+/** A pasta pode ter copia separada? So a raiz de um repositorio git (D18). */
+export async function raizDaCopia(git: RodarGit, origem: Repo): Promise<'ok' | 'semGit' | 'naoRaiz'> {
+  const topo = await git(origem.caminho, ['rev-parse', '--show-toplevel'])
+  if (topo.codigo !== 0) return 'semGit'
+  return normalizarCaminho(topo.saida.trim()) === normalizarCaminho(origem.caminho) ? 'ok' : 'naoRaiz'
+}
+
 export class ServicoCopias {
   constructor(private readonly deps: DepsCopias) {}
 
   /** `usados` = apelidos das copias que a Lousa ja conhece. Lanca com mensagem para a tela. */
   async criar(origem: Repo, titulo: string, usados: string[]): Promise<{ caminho: string; copia: Copia }> {
     const { git } = this.deps
-    const topo = await git(origem.caminho, ['rev-parse', '--show-toplevel'])
-    if (topo.codigo !== 0) throw new Error('Esta pasta não é um repositório git')
-    if (normalizarCaminho(topo.saida.trim()) !== normalizarCaminho(origem.caminho)) {
-      throw new Error('Cópia separada só na pasta raiz de um repositório git')
-    }
+    const raiz = await raizDaCopia(git, origem)
+    if (raiz === 'semGit') throw new Error('Esta pasta não é um repositório git')
+    if (raiz === 'naoRaiz') throw new Error('Cópia separada só na pasta raiz de um repositório git')
     const ocupados = [...usados]
     for (let i = 0; i < TENTATIVAS_DE_APELIDO; i++) {
       const plano = planejarCopia(origem, titulo, ocupados)

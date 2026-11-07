@@ -109,7 +109,8 @@ export function estadoDe(nome, pastas, opcoes = []) {
     // q2 (api) fica longe, fora da tela: o Ctrl+K precisa levar a vista ate ele
     return {
       ...base,
-      repos: [repo('r1', 'app', pastas.app), repo('r2', 'api', pastas.api)],
+      // pasta-demo (R1.5): pasta sem git, sem quadro: a caixa da copia vem desligada
+      repos: [repo('r1', 'app', pastas.app), repo('r2', 'api', pastas.api), demo],
       quadros: [
         terminal('q1', 'r1', 'principal', 40, 560),
         terminal('q2', 'r2', 'pessoal', 2400, 560),

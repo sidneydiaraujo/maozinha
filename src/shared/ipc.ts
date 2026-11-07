@@ -65,6 +65,7 @@ export const IPC = {
   copiasResumo: 'copias:resumo',
   copiasJuntar: 'copias:juntar',
   copiasDiff: 'copias:diff',
+  copiasAceita: 'copias:aceita', // a pasta aceita copia separada? (R1.5)
   mensagensListar: 'mensagens:listar',
   mensagensSalvar: 'mensagens:salvar',
   notasCriar: 'notas:criar',
@@ -186,6 +187,8 @@ export interface LousaApi {
     juntar(repoId: string): Promise<{ branchAlvo: string }>
     /** O que a copia mudou num arquivo da lista do resumo (T22.1); outro caminho e recusado. */
     diff(repoId: string, caminho: string): Promise<DiffArquivo>
+    /** A pasta (ou a original dela) e a raiz de um repositorio git? Sem isso, nada de copia separada (R1.5). */
+    aceita(repoId: string): Promise<boolean>
   }
   /** Mensagens prontas (T25, D33): frases guardadas para mandar a um ou varios quadros. */
   mensagens: {
