@@ -30,8 +30,8 @@
   r.perguntouConfianca = await ate(() => /trust/i.test(texto('a1')), 120)
   if (r.perguntouConfianca) {
     await window.lousa.terminais.escrever('a1', '\x1b[B')
-    await espera(800)
-    r.setaNoSim = /❯\s*(\d\.\s*)?Yes/.test(texto('a1'))
+    // a seta demora a redesenhar: espera ela chegar no "Yes" antes do Enter
+    r.setaNoSim = await ate(() => /❯\s*(\d\.\s*)?Yes/.test(texto('a1')), 20)
     if (r.setaNoSim) await window.lousa.terminais.escrever('a1', '\r')
   }
   r.linhaDeStatus = await ate(() => recebidos.some((x) => x.quadroId === 'a1' && x.painel?.modelo), 160)
@@ -82,8 +82,10 @@
   await window.lousa.terminais.escrever('a1', 'exit\r')
   parar()
 
+  // abriuComSettings so informa: o Claude em tela cheia apaga a linha do comando; a linha de status
+  // chegar ja prova que o --settings da Lousa valeu
   r.ok =
-    r.abriuComSettings &&
+    r.setaNoSim &&
     r.linhaDeStatus &&
     r.semAvisoDeSettings &&
     r.processos > 0 &&

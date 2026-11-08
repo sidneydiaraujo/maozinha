@@ -10,13 +10,9 @@ próxima tarefa, um item aberto ou um bloqueio mudam. Teto: ~120 linhas (R4.25).
 
 ## Próxima tarefa
 
-**Decisão do Sidney sobre a revisão de 07/11 (`docs/revisao/2026-11-07.md`), que está feita: blocos 1 a 4, itens 1 a 25.**
+**Aceite do Sidney com o instalador 0.4.12**, que traz a revisão de 07/11 inteira (`docs/revisao/2026-11-07.md`, blocos 1 a 4).
 
-1. **Ok para a prova `contrato-claude`** (Claude de verdade, conta Pessoal, nenhuma mensagem). Passando,
-   `VERSAO_CONFERIDA` em `src/shared/contratoClaude.ts` fica com a versão que ela gravar.
-2. **Versão e envio.** Os commits desde o último envio (0.4.11) estão só neste PC. Gerar a 0.4.12 e
-   fazer o push pedem um ok de cada vez.
-3. **Aceite do instalador 0.4.11** (`release/Maozinha Setup 0.4.11.exe`, hash em `release/SHA256.txt`):
+1. **Aceite do instalador 0.4.12** (`release/Maozinha Setup 0.4.11.exe`, hash em `release/SHA256.txt`):
    itens 80 a 102 do `docs/aceite/roteiro.md`. A16, A19, A21 e A27 ainda não foram testados com o
    Claude de verdade: se o agente não perguntar antes de paralelizar, o plano B é o gancho na
    Agent/Task (D57). Reabrir os agentes depois de instalar. Seguem valendo os itens 17 a 49 e 60 a 79.
@@ -59,8 +55,12 @@ Nenhum.
   anotar qual foi.
 - A prova `selecao` falhou uma vez logo depois da `desempenho`, na cópia com a lousa a 80%, e passou nas
   3 rodadas seguintes (08/11, R4.23). Se voltar, olhar o zoom reduzido.
-- Provas com Claude de verdade (conta Pessoal) pedem o ok do Sidney antes de rodar: `painel`, `anel`,
-  `modelo`, `time`, `osc-saida`, `repasse`, `juntar-time` e `contrato-claude` (`provas/README.md`).
+- Provas com Claude de verdade (conta Pessoal, nenhuma mensagem) rodam sem pedir o ok do Sidney desde
+  08/11 (acordo de autonomia para testes): `painel`, `anel`, `modelo`, `time`, `osc-saida`, `repasse`,
+  `juntar-time` e `contrato-claude`. Push, versão e publicação seguem pedindo o ok.
+- A `pasta-demo` das provas fica dentro do repositório lousa-ia, então o git dela enxerga as branches de
+  verdade: a faixa "branches já juntadas" (R3.16) aparece na prova com `lousa/claude-2` e `lousa/claude-4`.
+  Nenhuma prova clica nela; não clicar à mão numa prova aberta.
 
 ## Bom saber antes de testar com contas reais
 

@@ -6,8 +6,8 @@ colar, árvore viva, desempenho da digitação. Nasceram nas provas das Fatias 8
 
 Nunca usam o seu estado nem as suas contas. Cada rodada cria, em `provas/saida/` (fora do
 git), uma pasta de dados nova e uma cópia nova da `pasta-demo`. Nenhum cenário abre um
-Claude de verdade, **salvo o `painel`, o `anel`, o `modelo`, o `time`, o `osc-saida`, o `repasse`, o `juntar-time` e o `contrato-claude`** (conta Pessoal, pedem o ok
-do Sidney; não mandam mensagem). O aviso do agente usa o "Claude falso" (`apoio/falso-claude.mjs`).
+Claude de verdade, **salvo o `painel`, o `anel`, o `modelo`, o `time`, o `osc-saida`, o `repasse`, o `juntar-time` e o `contrato-claude`** (conta Pessoal; não mandam mensagem. Desde 08/11 rodam sem pedir o ok
+do Sidney: acordo de autonomia para testes). O aviso do agente usa o "Claude falso" (`apoio/falso-claude.mjs`).
 
 ## Como rodar
 
