@@ -38,6 +38,7 @@ branches `lousa/claude-2` e `lousa/claude-4`, que já foram juntadas (R3.16).
 |---|---|---|
 | T1.4b, Fatia 9 | Ler o login do Codex/ChatGPT | ⏸ espera o Sidney começar a usar o ChatGPT |
 | A18 | Renomear "lousa" para "mãozinha" no código e nas pastas | ⏸ guardado em 30/10 (D54: só o nome do app mudou) |
+| R3.13+ | Hibernação sem clique: ao abrir o programa, os agentes dormindo acordam sozinhos na mesma conversa; com o programa aberto, talvez acordar ao pôr o quadro em foco (hoje: clique em "Acordar", e quem dorme segue dormindo ao reabrir o app) | ⏸ guardado pelo Sidney em 08/11: deixar como está e avisar se incomodar |
 | Fatia 32 | Recado no meio do trabalho | ⏸ guardada; plano em `docs/plano/fatia-28-a-32-time.md` (D39) |
 | ideias V1 | Do `docs/FUNCIONALIDADES.md` | ⏸ fora do pedido atual |
 
