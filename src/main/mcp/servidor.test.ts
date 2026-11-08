@@ -75,3 +75,37 @@ describe('ServidorMcp por HTTP (A19)', () => {
     expect(timeout).toBeGreaterThan(ESPERA_COLEGAS_MS)
   })
 })
+
+describe('ServidorMcp quando algo da errado (R4.24)', () => {
+  it('a criacao do colega falha: o Claude recebe o erro na hora, com o motivo, e o servidor segue', async () => {
+    servidor = new ServidorMcp({
+      versao: '0.4.6',
+      ferramentas: () => ({
+        criar: async () => {
+          throw new Error('O git não criou a cópia')
+        },
+        esperar: async () => ({ texto: 'Todos terminaram' }),
+      }),
+    })
+    await servidor.iniciar()
+    const { url, headers } = (servidor.configDo('q1') as { mcpServers: { maozinha: { url: string; headers: Record<string, string> } } }).mcpServers.maozinha
+    const colegas = [{ papel: 'Testador', tarefa: 'testar' }]
+    const inicio = Date.now()
+    const r = await postar(url, { jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'criar_colegas', arguments: { colegas } } }, headers)
+    expect(Date.now() - inicio).toBeLessThan(5000)
+    expect(r.status).toBe(200)
+    expect(JSON.stringify(await r.json())).toContain('O git não criou a cópia')
+    // a proxima chamada ainda e atendida
+    expect((await postar(url, { jsonrpc: '2.0', id: 2, method: 'tools/list' }, headers)).status).toBe(200)
+  })
+
+  it('corpo acima de 64 KB ou JSON quebrado: recusa sem chamar a ferramenta', async () => {
+    const chamadas: Array<{ quadroId: string; colegas: PedidoColega[] }> = []
+    const { url, headers } = await ligar(chamadas)
+    const grande = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: 'x'.repeat(70 * 1024) }).catch(() => null)
+    expect(grande === null || grande.status >= 400).toBe(true)
+    const quebrado = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: '{"jsonrpc":' })
+    expect(quebrado.status).toBe(400)
+    expect(chamadas).toEqual([])
+  })
+})
