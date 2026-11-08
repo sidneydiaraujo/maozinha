@@ -18,7 +18,8 @@ nunca só na memória de uma conta.
 2. Abra o arquivo da fatia dessa tarefa em `docs/plano/` e siga a tarefa
    **à risca**: arquivos, assinaturas, testes e "Pronto quando".
 3. Uma tarefa por vez. Ao terminar: `npm run check` verde (e `npm run smoke`
-   quando a tarefa pedir), atualize `docs/ESTADO.md` e faça **um** commit.
+   quando a tarefa pedir), escreva uma linha no diário do mês (`docs/diario/AAAA-MM.md`), atualize
+   `docs/ESTADO.md` se a próxima tarefa ou um item aberto mudou, e faça **um** commit.
 4. Use a skill `dev-product-builder`. Para testes de regra, `qa-engineer`.
 
 ## Regras que não se negociam
@@ -92,7 +93,8 @@ roteiro: use um cenário em `provas/cenarios/`.
 
 ## Mapa
 
-- `docs/ESTADO.md` — onde estamos e próxima tarefa
+- `docs/ESTADO.md` — onde estamos e próxima tarefa (curto)
+- `docs/diario/` — o que foi feito, um arquivo por mês, e o histórico das tarefas
 - `docs/plano/` — tarefas por fatia (o "como")
 - `docs/ARQUITETURA.md` — partes, tipos, canais de IPC, regras do ambiente
 - `docs/DECISOES.md` — por que cada escolha foi feita
