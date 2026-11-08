@@ -213,3 +213,26 @@ A 0.4.11 traz também tudo da 0.4.10 (itens 95 a 99). Instale por cima e reabra 
 ### Rolar sem disparar para cima (A31)
 
 - [ ] 102. (A31) Reabra um agente com uma conversa longa. Gire a roda do mouse para cima, devagar e depois rápido: a conversa sobe aos poucos (cerca de 3 linhas por giro), sem pular para longe; girando para baixo volta ao fim sem precisar de Page Down.
+
+## Versão 0.4.12 — revisão de 07/11 (R1 a R4)
+
+Traz a revisão inteira (`docs/revisao/2026-11-07.md`). Instale por cima da 0.4.11 e reabra os agentes.
+
+### Ao abrir pela primeira vez
+
+- [ ] 103. (R3.16) As cópias `claude-2` e `claude-4` saíram da lista de pastas. Embaixo da lousa aparece "2 branches de cópias antigas já juntadas…": "Apagar" tira `lousa/claude-2` e `lousa/claude-4` do git; "Agora não" esconde a faixa.
+- [ ] 104. (R1.2) A lousa abre com todos os quadros de antes.
+
+### Criar quadros e colegas
+
+- [ ] 105. (R1.5) "Novo quadro" numa pasta sem git: a caixa "Cópia separada" vem desligada e diz por quê.
+- [ ] 106. (R2.10) Novo agente em `C:\Users\sidne`: aparece o aviso de que o agente vai enxergar a pasta inteira do usuário (só avisa; dá para criar assim mesmo). O quadro mostra o sinal de pasta ampla.
+- [ ] 107. (R2.12) Quando um agente pede colegas, a janela diz a pasta e a conta de quem pede, e "Mostrar na lousa" leva até ele.
+- [ ] 108. (R1.4) Se o git recusar uma cópia, a mensagem mostra o erro de verdade do git (a linha com `fatal:`), não "Preparing worktree".
+
+### No dia a dia
+
+- [ ] 109. (R1.6) No terminal, só fica sublinhado o caminho de arquivo que existe; um nome solto acha o arquivo no projeto.
+- [ ] 110. (R3.13) Deixe um agente parado por mais de 2 horas, fora de um time: ele vira "💤 Dormindo · Acordar". "Acordar" volta na mesma conversa. Um agente trabalhando, esperando você ou ligado a outro nunca dorme.
+- [ ] 111. (R3.17) Feche um quadro que tinha notificação na Central de Avisos do Windows: a notificação some junto.
+- [ ] 112. (R2.7) Arrastar um link de um `.md` para cima da janela não abre outra página.

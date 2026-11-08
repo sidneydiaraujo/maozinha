@@ -12,8 +12,8 @@ próxima tarefa, um item aberto ou um bloqueio mudam. Teto: ~120 linhas (R4.25).
 
 **Aceite do Sidney com o instalador 0.4.12**, que traz a revisão de 07/11 inteira (`docs/revisao/2026-11-07.md`, blocos 1 a 4).
 
-1. **Aceite do instalador 0.4.12** (`release/Maozinha Setup 0.4.11.exe`, hash em `release/SHA256.txt`):
-   itens 80 a 102 do `docs/aceite/roteiro.md`. A16, A19, A21 e A27 ainda não foram testados com o
+1. **Aceite do instalador 0.4.12** (`release/Maozinha Setup 0.4.12.exe`, hash em `release/SHA256.txt`):
+   itens 103 a 112 do `docs/aceite/roteiro.md` (a revisão) e, ainda sem aceite, 80 a 102 (0.4.10 e 0.4.11). A16, A19, A21 e A27 ainda não foram testados com o
    Claude de verdade: se o agente não perguntar antes de paralelizar, o plano B é o gancho na
    Agent/Task (D57). Reabrir os agentes depois de instalar. Seguem valendo os itens 17 a 49 e 60 a 79.
 
