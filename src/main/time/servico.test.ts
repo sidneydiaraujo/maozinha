@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { EstadoSalvo, Perfil, Quadro } from '../../shared/model'
 import { ESTADO_PADRAO, type Armazem } from '../estado/armazem'
-import { semLinhasInvalidas, ServicoTime } from './servico'
+import { dadosDoTime, semLinhasInvalidas, ServicoTime } from './servico'
 
 function armazemNaMemoria(inicial: Partial<EstadoSalvo> = {}): Armazem & { estado: EstadoSalvo } {
   const a = {
@@ -84,5 +84,18 @@ describe('semLinhasInvalidas', () => {
       ],
     }
     expect(semLinhasInvalidas(estado, obter).ligacoes?.map((l) => l.id)).toEqual(['1'])
+  })
+})
+
+describe('dadosDoTime (R4.20)', () => {
+  it('sem linhas salvas vira lista vazia; conta apagada fica sem provedor', () => {
+    const quadro = (id: string, perfilId: string): Quadro => ({ id, repoId: 'r', perfilId, tipo: 'agente', titulo: id, caixa: { x: 0, y: 0, largura: 1, altura: 1 } })
+    const obter = (id: string): Perfil => {
+      if (id === 'sumiu') throw new Error('Conta não encontrada')
+      return { id, nome: id, provedor: 'claude' } as unknown as Perfil
+    }
+    const dados = dadosDoTime({ quadros: [quadro('a', 'pessoal'), quadro('b', 'sumiu')], repos: [] }, obter)
+    expect(dados.ligacoes).toEqual([])
+    expect(dados.provedores).toEqual({ pessoal: 'claude' })
   })
 })

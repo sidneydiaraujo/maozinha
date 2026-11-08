@@ -4,7 +4,7 @@
 import { IPC } from '../../shared/ipc'
 import type { Contexto } from '../contexto'
 import { log } from '../log'
-import { enviarParaJanelas } from '../montagens'
+import { enviarParaJanelas } from '../montar/janelas'
 import { Hibernacao, QUIETO_PARA_DORMIR_MS, VARREDURA_MS } from './hibernar'
 
 type Servicos = Pick<

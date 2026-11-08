@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { AvisoAgente } from '../../shared/model'
-import { Hibernacao, podeDormir, QUIETO_PARA_DORMIR_MS } from './hibernar'
+import type { AvisoAgente, Ligacao, Quadro } from '../../shared/model'
+import { agentesParaHibernar, Hibernacao, podeDormir, QUIETO_PARA_DORMIR_MS } from './hibernar'
 
 const H = QUIETO_PARA_DORMIR_MS
 
@@ -76,5 +76,21 @@ describe('Hibernacao (R3.13)', () => {
     await h.varrer()
     passar(H)
     expect(await h.varrer()).toEqual([])
+  })
+})
+
+describe('agentesParaHibernar (R4.20)', () => {
+  const caixa = { x: 0, y: 0, largura: 1, altura: 1 }
+  const q = (id: string, extra: Partial<Quadro> = {}): Quadro => ({ id, repoId: 'r', perfilId: 'p', tipo: 'agente', titulo: id, caixa, sessaoId: `s-${id}`, ...extra })
+  const linha = { id: 'l', de: 'a', para: 'b', modo: 'automatico' } as Ligacao
+
+  it('so agente com conversa salva e terminal aberto; marca quem esta num time', () => {
+    const quadros = [q('a'), q('b'), q('c', { sessaoId: undefined }), q('d', { tipo: 'terminal' }), q('e')]
+    const abertos = new Set(['a', 'b', 'c', 'd'])
+    expect(agentesParaHibernar(quadros, [linha], (id) => abertos.has(id))).toEqual([
+      { id: 'a', ligado: true },
+      { id: 'b', ligado: true },
+    ])
+    expect(agentesParaHibernar([q('a')], [], () => true)).toEqual([{ id: 'a', ligado: false }])
   })
 })

@@ -1,6 +1,6 @@
 // Colega novo, ja ligado (T28.3, D39): clicar na bolinha de saida de um agente cria outro na
 // mesma conta e no mesmo repositorio, numa copia propria (D18), sem escolher nada.
-import type { ColegaNovo, Posicao, Quadro, Repo } from '../../shared/model'
+import type { Caixa, ColegaNovo, Posicao, Quadro, Repo } from '../../shared/model'
 import { raizDoRepo, TEXTO_RECUSA } from '../../shared/time'
 import type { Armazem } from '../estado/armazem'
 import type { ServicoQuadros } from '../quadros/servico'
@@ -8,6 +8,11 @@ import type { ServicoTime } from './servico'
 
 /** Folga entre o quadro e o colega que nasce a direita dele. */
 const FOLGA = 40
+
+/** Colegas pedidos pelo agente (A19): empilhados a direita de quem pediu, um embaixo do outro. */
+export function posicaoDoColega(caixa: Caixa, indice: number): Posicao {
+  return { x: caixa.x + caixa.largura + FOLGA, y: caixa.y + indice * (caixa.altura + FOLGA) }
+}
 
 /** Erros da copia que querem dizer "esta pasta nao aceita copia": o colega fica na mesma pasta. */
 const SEM_COPIA = ['não é um repositório git', 'só na pasta raiz de um repositório git']

@@ -3,6 +3,15 @@ import type { EstadoSalvo, Ligacao, ModoLigacao, Perfil, PerfilId, Provedor, Qua
 import { ligacoesValidas, podeLigar, TEXTO_RECUSA, type DadosTime } from '../../shared/time'
 import type { Armazem } from '../estado/armazem'
 
+/** O que as regras do time leem do estado salvo (as linhas e o provedor de cada conta). */
+export function dadosDoTime(
+  estado: Pick<EstadoSalvo, 'quadros' | 'repos' | 'ligacoes'>,
+  obter: (perfilId: PerfilId) => Perfil,
+): DadosTime {
+  const provedores = provedoresDos(estado.quadros, obter)
+  return { quadros: estado.quadros, repos: estado.repos, ligacoes: estado.ligacoes ?? [], provedores }
+}
+
 /** Provedor de cada conta usada pelos quadros; conta que sumiu fica de fora (nao e agente Claude). */
 export function provedoresDos(quadros: Quadro[], obter: (perfilId: PerfilId) => Perfil): Record<PerfilId, Provedor> {
   const provedores: Record<PerfilId, Provedor> = {}

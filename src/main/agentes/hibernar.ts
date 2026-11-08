@@ -2,10 +2,21 @@
 // (17 agentes, ~5,8 GB, na revisao de 07/11). O agente Claude que terminou ou esta parado ha 2 h,
 // sem ninguem digitando, fora de um time e sem nada pendente, fecha; o quadro fica "dormindo" (salvo)
 // e acordar remonta o terminal, que retoma a mesma conversa com --resume (T6.1).
-import type { AvisoAgente, EstadoAgente } from '../../shared/model'
+import type { AvisoAgente, EstadoAgente, Ligacao, Quadro } from '../../shared/model'
 
 export const QUIETO_PARA_DORMIR_MS = 2 * 60 * 60 * 1000
 export const VARREDURA_MS = 5 * 60 * 1000
+
+/** Agentes com conversa salva e terminal aberto, e se tem linha com outro quadro (time). */
+export function agentesParaHibernar(
+  quadros: Quadro[],
+  ligacoes: Ligacao[],
+  aberto: (id: string) => boolean,
+): { id: string; ligado: boolean }[] {
+  return quadros
+    .filter((q) => q.tipo === 'agente' && q.sessaoId && aberto(q.id))
+    .map((q) => ({ id: q.id, ligado: ligacoes.some((l) => l.de === q.id || l.para === q.id) }))
+}
 
 export interface CandidatoSono {
   estado: EstadoAgente | null

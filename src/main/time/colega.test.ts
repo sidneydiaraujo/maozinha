@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { EstadoSalvo, Perfil, Repo } from '../../shared/model'
 import { ESTADO_PADRAO, type Armazem } from '../estado/armazem'
 import { ServicoQuadros } from '../quadros/servico'
-import { criarColega, separarEmCopia, type DepsColega } from './colega'
+import { criarColega, posicaoDoColega, separarEmCopia, type DepsColega } from './colega'
 import { ServicoTime } from './servico'
 
 const perfil = (id: string, provedor: Perfil['provedor'] = 'claude'): Perfil => ({
@@ -126,5 +126,13 @@ describe('separarEmCopia (T28.3)', () => {
     const antiga = deps.time.ligar(a.id, b.id)
     await expect(separarEmCopia(deps, antiga.id)).rejects.toThrow('não é um repositório git')
     expect(estado().ligacoes).toEqual([antiga])
+  })
+})
+
+describe('posicaoDoColega (R4.20)', () => {
+  it('empilha os colegas a direita de quem pediu, com 40 de folga', () => {
+    const caixa = { x: 100, y: 50, largura: 640, altura: 420 }
+    expect(posicaoDoColega(caixa, 0)).toEqual({ x: 780, y: 50 })
+    expect(posicaoDoColega(caixa, 2)).toEqual({ x: 780, y: 970 })
   })
 })
