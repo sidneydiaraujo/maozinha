@@ -3,6 +3,7 @@
 // PowerShell do quadro tem um claude.exe filho. Prova de 21/10/2026: depois do "No, exit" a Lousa
 // digitava a apresentacao no PowerShell (que recusava a linha, mas nao era para chegar la).
 import { execFile } from 'node:child_process'
+import { PROCESSO_CLAUDE } from '../../shared/contratoClaude'
 
 export type RodarComando = (arquivo: string, args: string[]) => Promise<string>
 
@@ -14,7 +15,7 @@ export function argumentosDaBusca(pid: number): string[] {
     '-NoProfile',
     '-NonInteractive',
     '-Command',
-    `@(Get-CimInstance Win32_Process -Filter 'ParentProcessId=${pid}' | Where-Object { $_.Name -eq 'claude.exe' }).Count`,
+    `@(Get-CimInstance Win32_Process -Filter 'ParentProcessId=${pid}' | Where-Object { $_.Name -eq '${PROCESSO_CLAUDE}' }).Count`,
   ]
 }
 

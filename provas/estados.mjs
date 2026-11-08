@@ -8,6 +8,7 @@
 // fantasmas: o app com quatro copias (R3.16): c-sumiu (pasta apagada), c-vazia (pasta esvaziada),
 // c-viva (normal) e c-trabalho (pasta apagada, com um commit que nunca foi juntado).
 // juntar-time: tres agentes de verdade (Pessoal), cada um numa copia do app, ligados a1 -> a2 -> a3 (Fatia 31).
+// contrato: o agente de verdade do `agente` mais um terminal comum da mesma conta (R4.21).
 // agente: UM AGENTE DE VERDADE (claude.exe, conta Pessoal) na copia da pasta de exemplo, para a
 // linha de status (Fatia 17). Pede o ok do Sidney; o cenario nao manda mensagem nenhuma.
 import { execFileSync } from 'node:child_process'
@@ -27,7 +28,7 @@ const terminal = (id, repoId, perfilId, x, largura) => ({
 
 const repo = (id, nome, caminho) => ({ id, nome, caminho, perfilPadraoId: 'principal' })
 
-export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'time', 'repasse', 'juntar-time', 'fantasmas']
+export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'contrato', 'time', 'repasse', 'juntar-time', 'fantasmas']
 
 /** Repositorio git com um commit; identidade e fim de linha locais (o autocrlf do PC nao vale aqui). */
 function criarRepo(pasta) {
@@ -197,6 +198,11 @@ export function estadoDe(nome, pastas, opcoes = []) {
         { id: 'l2', de: 'a2', para: 'a3', modo: 'automatico' },
       ],
     }
+  }
+  if (nome === 'contrato') {
+    // R4.21: o agente de verdade e um terminal comum na mesma conta, para conferir o claude.exe e o --help
+    const a1 = { ...terminal('a1', 'rd', 'pessoal', 40, 900), tipo: 'agente', titulo: 'Claude 1' }
+    return { ...base, repos: [demo], quadros: [a1, terminal('t1', 'rd', 'pessoal', 980, 620)] }
   }
   if (nome === 'agente') {
     const a1 = { ...terminal('a1', 'rd', 'pessoal', 40, 900), tipo: 'agente', titulo: 'Claude 1' }

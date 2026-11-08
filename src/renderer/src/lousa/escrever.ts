@@ -1,8 +1,7 @@
 // Escrever uma mensagem num quadro como se fosse digitada (T13.1, D21): texto, pausa, Enter.
+// a pausa antes do Enter e item do contrato com o Claude (R4.21)
+import { PAUSA_ENTER_MS } from '../../../shared/contratoClaude'
 import { montarEnvio } from './envio'
-
-/** Pausa entre o texto e o Enter (ver montarEnvio). */
-const PAUSA_ENTER_MS = 150
 
 const esperar = (ms: number): Promise<void> => new Promise((r) => window.setTimeout(r, ms))
 

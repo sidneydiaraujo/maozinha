@@ -2,18 +2,13 @@
 // para o terminal e fixo e quem decide se pode e o main, pelo ultimo estado do OSC 7501 e pelo
 // sinal de pronto (D49), e so com o claude.exe rodando (sem ele, o texto cairia no PowerShell).
 import { podeDigitar } from '../../shared/compactar'
+import { GUARDAR_CAIXA, PAUSA_ENTER_MS, TEXTO_MENU_COMPACT } from '../../shared/contratoClaude'
 import type { AvisoAgente, Quadro } from '../../shared/model'
 
-/** Pausa entre o comando e o Enter: texto+Enter juntos o Claude trata como colagem (D21). */
-export const PAUSA_ENTER_MS = 150
-
-/**
- * O rascunho do Sidney fica guardado (A28): antes, o /compact entrava no fim do que ja estava
- * escrito na caixa e o Enter mandava tudo. Ctrl+S e o "stash" do Claude: guarda a caixa e a
- * limpa; depois do /compact o proprio Claude devolve o rascunho ("Draft restored"). Provado no
- * claude.exe 2.1.317 em 03/11/2026.
- */
-export const GUARDAR_CAIXA = '\x13'
+// A pausa antes do Enter (D21) e o Ctrl+S sao itens do contrato com o Claude (R4.21). O rascunho do
+// Sidney fica guardado (A28): o Ctrl+S guarda a caixa e a limpa; depois do /compact o proprio Claude
+// devolve o rascunho ("Draft restored").
+export { GUARDAR_CAIXA, PAUSA_ENTER_MS }
 const COMANDO = '/compact'
 /** Backspace, uma vez por letra do comando: desfaz o que a Lousa digitou. */
 const APAGAR = '\x7f'.repeat(COMANDO.length)
@@ -33,7 +28,7 @@ const SEQUENCIA = new RegExp(`${ESC}(\\][^${BEL}]*${BEL}|\\[[0-9;?<>=]*[ -/]*[@-
  * com "/" e o menu nao abre: a Lousa nao aperta Enter.
  */
 export function mostraMenuDoCompact(saida: string): boolean {
-  return /Free up context/.test(saida.replace(SEQUENCIA, ' ').replace(/\s+/g, ' '))
+  return saida.replace(SEQUENCIA, ' ').replace(/\s+/g, ' ').includes(TEXTO_MENU_COMPACT)
 }
 
 export interface DepsCompactar {

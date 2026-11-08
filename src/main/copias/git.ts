@@ -18,7 +18,8 @@ export const rodarGitReal: RodarGit = (cwd, args) =>
       args,
       {
         cwd,
-        env: { ...ambienteBase(process.env), GIT_TERMINAL_PROMPT: '0' },
+        // LC_ALL=C (R4.21): mensagens sempre em ingles, que e o que copias/juntar.ts e servico.ts leem
+        env: { ...ambienteBase(process.env), GIT_TERMINAL_PROMPT: '0', LC_ALL: 'C' },
         windowsHide: true,
         timeout: 30000,
         maxBuffer: 1_000_000,

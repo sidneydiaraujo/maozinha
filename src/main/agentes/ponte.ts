@@ -4,6 +4,7 @@
 // le, passa pelo lerPainel e avisa a tela. Nada vai para as pastas das contas (~/.claude*).
 // O mesmo settings leva o gancho de escrita (A16): <quadroId>.escrita.json diz onde ele salvou.
 import { join } from 'node:path'
+import { SEM_ACELERACAO_DA_RODA } from '../../shared/contratoClaude'
 import type { PainelAgente } from '../../shared/model'
 import { FERRAMENTAS_NO_CLAUDE } from '../mcp/ferramentas'
 import { caminhoEscrito, ganchoDeEscrita } from './escrita'
@@ -22,7 +23,7 @@ const MCP = '.mcp.json'
  * ela, cada giro rola 3 linhas ("wheel accel: decay · base=3 · accelDisabled" no log do Claude).
  * Vale so para este agente, pelo --settings da Lousa; a pasta da conta nao muda.
  */
-const ROLAGEM = { wheelScrollAccelerationEnabled: false }
+const ROLAGEM = SEM_ACELERACAO_DA_RODA // contrato com o Claude (R4.21)
 /** Do mais comprido ao mais curto: "q1.escrita.json" nao e o painel de "q1.escrita". */
 const FINS = [SETTINGS, ESCRITA, MCP, '.json']
 

@@ -3,6 +3,7 @@
 import { execFile } from 'node:child_process'
 import { join } from 'node:path'
 import { z } from 'zod'
+import { PROCESSO_CLAUDE } from '../../shared/contratoClaude'
 import type { StatusConta } from '../../shared/model'
 
 export interface ResultadoExec {
@@ -21,10 +22,10 @@ const SaidaStatus = z.object({
 
 /** Prefere ~/.local/bin (instalador nativo); senao procura no PATH (`;`). */
 export function localizarClaude(home: string, path: string, existe: (c: string) => boolean): string | null {
-  const nativo = join(home, '.local', 'bin', 'claude.exe')
+  const nativo = join(home, '.local', 'bin', PROCESSO_CLAUDE)
   if (existe(nativo)) return nativo
   const pastas = path.split(';').filter((p) => p !== '')
-  for (const nome of ['claude.exe', 'claude.cmd']) {
+  for (const nome of [PROCESSO_CLAUDE, 'claude.cmd']) {
     for (const pasta of pastas) {
       const candidato = join(pasta, nome)
       if (existe(candidato)) return candidato

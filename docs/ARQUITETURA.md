@@ -284,6 +284,15 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
   em contas diferentes (mesmo provedor ou não), lado a lado.
 - Fechar só quando o quadro é removido, o repo muda de conta ou o app fecha.
 
+## Contrato com o Claude (`src/shared/contratoClaude.ts`, R4.21)
+
+Tudo que o Mãozinha supõe sobre o `claude.exe` mora num arquivo só, com a versão em que cada item foi
+provado (`CONTRATO_CLAUDE`): o nome do processo, os nomes do OSC 7501, a linha de status, as opções
+da linha de comando, o texto "Free up context" do menu do `/compact`, o Ctrl+S, a pausa de 150 ms e o
+`wheelScrollAccelerationEnabled`. O código usa as constantes dali (os nomes do OSC 7501 sem tradução
+não compilam). A cada atualização do Claude: prova `contrato-claude` (com o ok do Sidney) e, se passar,
+`VERSAO_CONFERIDA` muda. O git roda com `LC_ALL=C`: as mensagens que `copias/` lê são sempre em inglês.
+
 ## Ciclo de vida do quadro (`quadros/ciclo.ts`, R4.18)
 
 Todo serviço do main que guarda algo por quadro se inscreve **uma vez** em `inscreverNoCiclo`

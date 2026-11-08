@@ -1,6 +1,7 @@
 // Program Status Protocol (OSC 7501) do Claude Code 2.1.295+ (T8.1, D16): o terminal que responde
 // a pergunta do Claude recebe "trabalhando / esperando voce / terminou". Formato lido no claude.exe
 // instalado (docs/plano/fatia-8-uma-semana.md). Funcoes puras, sem Electron.
+import type { ESTADOS_OSC_7501, MOTIVOS_OSC_7501 } from '../../shared/contratoClaude'
 import type { AvisoAgente, EstadoAgente, MotivoEspera } from '../../shared/model'
 
 const ESC = '\x1b'
@@ -13,7 +14,8 @@ const TERMINA = new RegExp(`${BEL}|${ESC}\\\\`)
 const MAIOR_SEQUENCIA = 4096
 const MAIOR_MENSAGEM = 200
 
-const ESTADOS: Record<string, EstadoAgente> = {
+// os nomes vem do contrato com o Claude (R4.21): nome novo la sem traducao aqui nao compila
+const ESTADOS: Record<(typeof ESTADOS_OSC_7501)[number], EstadoAgente> = {
   working: 'trabalhando',
   blocked: 'esperando',
   done: 'terminou',
@@ -22,7 +24,7 @@ const ESTADOS: Record<string, EstadoAgente> = {
   error: 'erro',
 }
 
-const MOTIVOS: Record<string, MotivoEspera> = { permission: 'permissao', question: 'pergunta', auth: 'login' }
+const MOTIVOS: Record<(typeof MOTIVOS_OSC_7501)[number], MotivoEspera> = { permission: 'permissao', question: 'pergunta', auth: 'login' }
 
 /**
  * Resposta a pergunta "\x1b]7501;?" escrita como teclas no win32-input-mode
@@ -58,10 +60,10 @@ export function interpretar(corpo: string): AvisoAgente | null {
     if (igual > 0) campos.set(parte.slice(0, igual), parte.slice(igual + 1))
   }
   if (campos.has('id')) return null // subagente: so o agente principal conta
-  const estado = ESTADOS[campos.get('state') ?? '']
+  const estado = (ESTADOS as Partial<Record<string, EstadoAgente>>)[campos.get('state') ?? '']
   if (!estado) return null
   const aviso: AvisoAgente = { estado }
-  const motivo = MOTIVOS[campos.get('kind') ?? '']
+  const motivo = (MOTIVOS as Partial<Record<string, MotivoEspera>>)[campos.get('kind') ?? '']
   if (estado === 'esperando' && motivo) aviso.motivo = motivo
   const msg = campos.get('msg')
   const mensagem = msg ? decodificarBase64(msg) : undefined
