@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { montarEnvio } from './envio'
+import { montarEnvio } from '../../../shared/digitar'
 import { ehConflito, pedidoDeResolver } from './resolver'
 
 describe('ehConflito', () => {

@@ -3,7 +3,7 @@
 import { podeCompactar, podeDigitar } from '../../shared/compactar'
 import type { AvisoAgente } from '../../shared/model'
 import { textoDoTime, TEXTO_SAIU_DO_TIME, type DadosTime } from '../../shared/time'
-import { PAUSA_ENTER_MS } from '../agentes/compactar'
+import { digitarMensagem } from '../../shared/digitar'
 import type { DepsAjustes } from '../agentes/ajustes'
 
 export interface DepsFila extends DepsAjustes {
@@ -184,9 +184,7 @@ export class FilaMensagens {
     this.semClaudeEm.delete(quadroId)
     this.esperandoDesde.delete(quadroId)
     this.aoDigitar(quadroId, tipo)
-    this.deps.escrever(quadroId, texto)
-    await this.deps.esperar(PAUSA_ENTER_MS)
-    this.deps.escrever(quadroId, '\r')
+    await digitarMensagem({ escrever: (dados) => this.deps.escrever(quadroId, dados), esperar: this.deps.esperar }, texto)
   }
 }
 

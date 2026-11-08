@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import '../estilos/envio.css'
-import { montarEnvio, quadrosPorExtenso } from './envio'
+import { montarEnvio } from '../../../shared/digitar'
+import { quadrosPorExtenso } from './envio'
 import { enviarMensagem } from './escrever'
 import { MensagensProntas } from './MensagensProntas'
 

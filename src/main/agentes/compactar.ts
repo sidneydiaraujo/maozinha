@@ -3,12 +3,13 @@
 // sinal de pronto (D49), e so com o claude.exe rodando (sem ele, o texto cairia no PowerShell).
 import { podeDigitar } from '../../shared/compactar'
 import { GUARDAR_CAIXA, PAUSA_ENTER_MS, TEXTO_MENU_COMPACT } from '../../shared/contratoClaude'
+import { apertarEnter } from '../../shared/digitar'
 import type { AvisoAgente, Quadro } from '../../shared/model'
 
 // A pausa antes do Enter (D21) e o Ctrl+S sao itens do contrato com o Claude (R4.21). O rascunho do
 // Sidney fica guardado (A28): o Ctrl+S guarda a caixa e a limpa; depois do /compact o proprio Claude
 // devolve o rascunho ("Draft restored").
-export { GUARDAR_CAIXA, PAUSA_ENTER_MS }
+export { GUARDAR_CAIXA }
 const COMANDO = '/compact'
 /** Backspace, uma vez por letra do comando: desfaz o que a Lousa digitou. */
 const APAGAR = '\x7f'.repeat(COMANDO.length)
@@ -67,6 +68,5 @@ export async function compactar(deps: DepsCompactar, quadroId: string): Promise<
     deps.escrever(quadro.id, GUARDAR_CAIXA)
     throw new Error(TEXTO_SEM_MENU)
   }
-  await deps.esperar(PAUSA_ENTER_MS)
-  deps.escrever(quadro.id, '\r')
+  await apertarEnter({ escrever: (dados) => deps.escrever(quadro.id, dados), esperar: deps.esperar })
 }
