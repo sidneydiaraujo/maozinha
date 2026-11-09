@@ -87,3 +87,15 @@ export function aoPedirMenuLinha(cb: (pedido: PedidoDeMenu) => void): () => void
   ouvintesMenuLinha.add(cb)
   return () => ouvintesMenuLinha.delete(cb)
 }
+
+// Clique no "excluir" de uma linha do time (09/11): a lousa fecha o quadro do colega livre.
+const ouvintesExcluir = new Set<(quadroId: string) => void>()
+
+export function pedirExcluirColega(quadroId: string): void {
+  for (const ouvinte of ouvintesExcluir) ouvinte(quadroId)
+}
+
+export function aoPedirExcluirColega(cb: (quadroId: string) => void): () => void {
+  ouvintesExcluir.add(cb)
+  return () => ouvintesExcluir.delete(cb)
+}

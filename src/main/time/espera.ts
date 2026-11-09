@@ -44,6 +44,12 @@ export class EsperaDeColegas {
     for (const id of ids) this.colegas.set(id, { lider, situacao: 'aguardando', recebeu: false, trabalhou: false })
   }
 
+  /** O colega ainda tem tarefa deste ou de outro pedido (aguardando, trabalhando ou esperando o usuario). */
+  ocupado(quadroId: string): boolean {
+    const s = this.colegas.get(quadroId)?.situacao
+    return s === 'aguardando' || s === 'trabalhando' || s === 'esperando'
+  }
+
   /** A fila digitou no colega: a tarefa entra como `repasse` (FilaMensagens.enfileirar). */
   aoDigitar(quadroId: string, tipo: TipoMensagem): void {
     const c = this.colegas.get(quadroId)

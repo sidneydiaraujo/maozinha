@@ -147,3 +147,14 @@
     animation: none;
   }
 }
+
+/* colega pedido pelo agente que terminou (09/11): o rotulo fecha o quadro dele */
+.rotulo-linha-time.rotulo-excluir {
+  color: var(--perigo);
+  border-color: var(--perigo-borda);
+}
+
+.rotulo-linha-time.rotulo-excluir:hover {
+  color: var(--texto);
+  background: var(--perigo);
+}

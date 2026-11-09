@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { EstadoTela, Ligacao, Quadro, Repo } from '../../../shared/model'
 import { mensagemDe } from '../componentes/erro'
 import { semQuadro, textoDoFim } from './copia'
+import { aoPedirExcluirColega } from './foco'
 import { comContaTrocada } from './linhas'
 import type { AcoesLousa } from './nos'
 import { comQuadroNovo } from './useNovoQuadro'
@@ -89,6 +90,8 @@ export function useEstadoLousa(versao: number, extras: ExtrasEstado) {
     },
     [setAviso],
   )
+  // "excluir" na linha de um colega livre (09/11): fecha como o × do quadro
+  useEffect(() => aoPedirExcluirColega((id) => acoes.removerQuadro(id)), [acoes])
   return { estado, setEstado, erro: erro ?? falha, limparErro: () => setFalha(null), aviso, setAviso, falhou, acoes, tirarPasta }
 }
 

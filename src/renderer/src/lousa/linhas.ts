@@ -1,7 +1,7 @@
 // Linhas do time de agentes na lousa (T28.2, D39): de ligacao salva para aresta do React Flow.
 // Funcoes puras; as regras de quem pode ligar ficam em shared/time.ts.
 import { MarkerType, type Edge } from '@xyflow/react'
-import type { ColegaNovo, EstadoTela, Ligacao, PerfilId, Provedor, Quadro } from '../../../shared/model'
+import type { AvisoAgente, ColegaNovo, EstadoTela, Ligacao, PerfilId, Provedor, Quadro } from '../../../shared/model'
 import { ligacoesValidas, mesmaPasta, timeDe, type DadosTime } from '../../../shared/time'
 
 /** Quantas cores de time existem em tokens.css (--time-1 a --time-5). */
@@ -11,6 +11,7 @@ export interface DadosLinha extends Record<string, unknown> {
   ligacao: Ligacao
   cor: number          // 1 a CORES_DE_TIME
   mesmaPasta: boolean  // os dois na mesma pasta: podem se atrapalhar (linha ambar)
+  dormindo: boolean    // o quadro que recebe esta hibernado (R3.13)
 }
 export type ArestaTime = Edge<DadosLinha, 'time'>
 
@@ -38,6 +39,14 @@ function coresDosTimes(quadros: Quadro[], ligacoes: Ligacao[]): Map<string, numb
   return cores
 }
 
+/**
+ * Colega pedido pelo agente que acabou a tarefa (terminou ou dormindo, 09/11): a linha oferece
+ * "excluir". Parado nao conta: o colega recem-aberto fica parado ate a tarefa chegar.
+ */
+export function colegaLivre(d: DadosLinha | undefined, estadoDoColega: AvisoAgente['estado'] | undefined): boolean {
+  return !!d?.ligacao.pedida && (d.dormindo || estadoDoColega === 'terminou')
+}
+
 /** Cor da linha (e da seta): pausada fica apagada; mesma pasta, ambar; senao a do time. */
 export function corDaLinha(d: DadosLinha): string {
   if (d.ligacao.pausada) return 'var(--apagado-2)'
@@ -55,7 +64,12 @@ export function montarArestas(e: EstadoTela): ArestaTime[] {
   const ligacoes = e.ligacoes ?? []
   const cores = coresDosTimes(e.quadros, ligacoes)
   return ligacoes.map((ligacao) => {
-    const data = { ligacao, cor: cores.get(ligacao.de) ?? 1, mesmaPasta: mesmaPasta(e.quadros, ligacao.de, ligacao.para) }
+    const data = {
+      ligacao,
+      cor: cores.get(ligacao.de) ?? 1,
+      mesmaPasta: mesmaPasta(e.quadros, ligacao.de, ligacao.para),
+      dormindo: !!e.quadros.find((q) => q.id === ligacao.para)?.dormindo,
+    }
     return {
       id: ligacao.id,
       type: 'time',
@@ -84,8 +98,14 @@ export function comLigacao(e: EstadoTela, id: string, nova: Ligacao | null): Est
   return { ...e, ligacoes: existe ? ligacoes.map((l) => (l.id === id ? nova : l)) : [...ligacoes, nova] }
 }
 
-/** Colega criado pela bolinha (T28.3): o quadro, a copia nova (se houver) e a linha entram juntos. */
+/**
+ * Colega criado pela bolinha (T28.3): o quadro, a copia nova (se houver) e a linha entram juntos.
+ * Colega reaproveitado pelo lider (09/11): o quadro ja existe e so troca (papel novo).
+ */
 export function comColega(e: EstadoTela, c: ColegaNovo): EstadoTela {
+  if (e.quadros.some((q) => q.id === c.quadro.id)) {
+    return comLigacao({ ...e, quadros: e.quadros.map((q) => (q.id === c.quadro.id ? c.quadro : q)) }, c.ligacao.id, c.ligacao)
+  }
   const novaPasta = c.repo && !e.repos.some((r) => r.id === c.repo?.id) ? [c.repo] : []
   const depois = { ...e, repos: [...e.repos, ...novaPasta], quadros: [...e.quadros, c.quadro] }
   return comLigacao(depois, c.ligacao.id, c.ligacao)

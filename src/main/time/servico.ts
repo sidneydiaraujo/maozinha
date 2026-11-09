@@ -62,12 +62,13 @@ export class ServicoTime {
   }
 
   /** Lanca 'Linha não encontrada'. */
-  ajustar(ligacaoId: string, mudanca: { modo?: ModoLigacao; pausada?: boolean }): Ligacao {
+  ajustar(ligacaoId: string, mudanca: { modo?: ModoLigacao; pausada?: boolean; pedida?: boolean }): Ligacao {
     const estado = this.deps.armazem.carregar()
     const atual = (estado.ligacoes ?? []).find((l) => l.id === ligacaoId)
     if (!atual) throw new Error('Linha não encontrada')
     const nova: Ligacao = { ...atual, ...mudanca }
     if (!nova.pausada) delete nova.pausada
+    if (!nova.pedida) delete nova.pedida
     this.deps.armazem.salvar({
       ...estado,
       ligacoes: (estado.ligacoes ?? []).map((l) => (l.id === ligacaoId ? nova : l)),

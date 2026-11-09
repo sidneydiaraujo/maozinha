@@ -77,6 +77,18 @@ describe('EsperaDeColegas (A21)', () => {
     expect((await e.esperar('a1')).texto).toContain('Nenhum colega')
   })
 
+  it('ocupado do registro ate terminar; terminou ou desconhecido fica livre para outro pedido', () => {
+    const { e } = montar()
+    expect(e.ocupado('c1')).toBe(false)
+    e.registrar('a1', ['c1'])
+    expect(e.ocupado('c1')).toBe(true)
+    e.aoDigitar('c1', 'repasse')
+    e.aoEstado('c1', { estado: 'trabalhando' })
+    expect(e.ocupado('c1')).toBe(true)
+    e.aoEstado('c1', { estado: 'terminou' })
+    expect(e.ocupado('c1')).toBe(false)
+  })
+
   it('quem pediu fechou: o grupo dele acaba', async () => {
     const { e } = montar()
     e.registrar('a1', ['c1'])

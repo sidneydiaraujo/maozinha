@@ -136,12 +136,11 @@ export function useLigacoes(deps: Deps) {
   const inicio = useRef<Posicao | null>(null)
   const acoes = useMemo(() => acoesDoTime(setEstado, avisar), [setEstado, avisar])
   useEffect(() => aoPedirColega((quadroId) => void acoes.colega(quadroId)), [acoes])
-  // colega que o proprio agente pediu e o Sidney aceitou (A19): entra como o da bolinha
+  // colega que o proprio agente pediu e o Sidney aceitou (A19): entra como o da bolinha; o
+  // reaproveitado (09/11) so troca o papel
   useEffect(
     () =>
-      window.lousa.time.aoColegaCriado((c) =>
-        setEstado((e) => (e && !e.quadros.some((q) => q.id === c.quadro.id) ? comColega(e, c) : e)),
-      ),
+      window.lousa.time.aoColegaCriado((c) => setEstado((e) => e && comColega(e, c))),
     [setEstado],
   )
   // o freio do repasse pausa a linha no main (T30.1): a tela pega a linha como ficou

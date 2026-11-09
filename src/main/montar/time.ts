@@ -12,6 +12,7 @@ import { ServidorMcp } from '../mcp/servidor'
 import { ApresentadorTime, FilaMensagens, REVISAR_MS, type TipoMensagem } from '../time/apresentar'
 import { criarColega, posicaoDoColega, type DepsColega } from '../time/colega'
 import { EsperaDeColegas } from '../time/espera'
+import { colegasLivres } from '../time/reaproveitar'
 import { CriacaoParcial, PedidosDeColegas, TEXTO_PEDIDO_NA_TELA, textoDaTarefa } from '../time/pedidos'
 import { Repasse } from '../time/repasse'
 import { dadosDoTime, ServicoTime } from '../time/servico'
@@ -87,21 +88,32 @@ function montarPedidos(
     ehClaude: (perfilId) => b.perfis.obter(perfilId).provedor === 'claude',
   }
   const nome = (id: string): string => nomeNoTime(d.dados(), id)
+  // livre: terminal aberto, parado ou terminou, sem tarefa de outro pedido (09/11)
+  const livre = (id: string): boolean => {
+    const estado = b.terminais.aviso(id)?.estado
+    return b.terminais.estaAberto(id) && (estado === 'terminou' || estado === 'parado') && !d.espera.ocupado(id)
+  }
   const criar = async (quadroId: string, colegas: ColegaPedido[], paralelo: boolean): Promise<string[]> => {
     const { caixa } = b.quadros.obter(quadroId)
+    const estado = b.armazem.carregar()
+    const livres = colegasLivres({ quadros: estado.quadros, ligacoes: estado.ligacoes ?? [] }, quadroId, paralelo, livre)
     const nomes: string[] = []
     const ids: string[] = []
     try {
       for (const [i, c] of colegas.entries()) {
-        // paralelo (A21): na mesma pasta, onde o metodo procura as saidas, e com a linha pausada: o fim
-        // da vez de quem pediu nao vira trabalho extra para o colega
-        const novo = await criarColega(deps, quadroId, { posicao: posicaoDoColega(caixa, i), mesmaPasta: paralelo })
+        // o lider reaproveita os colegas livres antes de abrir quadros novos (09/11). Paralelo (A21): na
+        // mesma pasta, onde o metodo procura as saidas, e com a linha pausada: o fim da vez de quem
+        // pediu nao vira trabalho extra para o colega
+        const velho = livres.shift()
+        const novo = velho
+          ? { quadro: velho.quadro, repo: null, ligacao: velho.ligacao }
+          : await criarColega(deps, quadroId, { posicao: posicaoDoColega(caixa, i), mesmaPasta: paralelo })
         const quadro = b.quadros.definirPapel(novo.quadro.id, c.papel)
-        const ligacao = paralelo ? d.linhas.ajustar(novo.ligacao.id, { pausada: true }) : novo.ligacao
+        const ligacao = d.linhas.ajustar(novo.ligacao.id, { pedida: true, ...(paralelo ? { pausada: true } : {}) })
         enviarParaJanelas(IPC.timeColegaCriado, { ...novo, quadro, ligacao })
         // a tarefa espera o colega abrir e ficar pronto (a apresentacao do time sai antes)
         void d.mensagens.enfileirar(quadro.id, textoDaTarefa(nome(quadroId), c.tarefa))
-        nomes.push(quadro.papel ?? quadro.titulo)
+        nomes.push(`${quadro.papel ?? quadro.titulo}${velho ? ' (reaproveitado)' : ''}`)
         ids.push(quadro.id)
       }
     } catch (e) {

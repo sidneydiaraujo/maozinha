@@ -54,6 +54,7 @@ const Ligacao = z.object({
   para: z.string(),
   modo: z.enum(['automatico', 'perguntar']),
   pausada: z.boolean().optional(),
+  pedida: z.boolean().optional(),
 })
 
 /** O formato inteiro: o `salvar` confere com ele antes de gravar. */

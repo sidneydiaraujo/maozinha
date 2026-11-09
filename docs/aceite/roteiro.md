@@ -247,3 +247,11 @@ Instale por cima da 0.4.12 e **reabra todos os agentes** (os abertos antes não 
 - [ ] 116. Saia do Claude num quadro (`/exit`): o selo some e ele não conta mais como trabalhando.
 - [ ] 117. Um agente que dormiu e foi acordado não fica com o selo de antes.
 - [ ] 118. Time: quando um agente termina a vez, o colega recebe o repasse (estava parado sem o estado).
+
+## Próxima versão — líder reaproveita colegas e "excluir" na linha (D64)
+
+Reabra o líder depois de instalar (a regra nova vai no início do agente).
+
+- [ ] 119. Peça ao líder uma tarefa com colegas; depois que eles terminarem, peça outra: o líder usa os mesmos quadros (o papel muda) em vez de abrir novos.
+- [ ] 120. Colega pedido pelo agente que terminou mostra "✕ excluir" no meio da linha; um clique fecha o quadro dele. Enquanto trabalha, não mostra.
+- [ ] 121. Linhas que você mesmo puxou entre agentes nunca mostram "excluir".

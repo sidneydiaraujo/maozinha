@@ -186,6 +186,8 @@ export interface Ligacao {
   para: string        // quadroId que recebe
   modo: ModoLigacao   // nova nasce 'automatico' (D39)
   pausada?: boolean
+  /** Colega pedido pelo agente (criar_colegas): reaproveitado quando livre; a linha oferece "excluir". */
+  pedida?: boolean
 }
 
 /**

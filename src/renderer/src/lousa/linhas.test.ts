@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { EstadoTela, Ligacao, PerfilComConta, Quadro } from '../../../shared/model'
 import { semQuadro } from './copia'
-import { comColega, comContaTrocada, comLigacao, montarArestas } from './linhas'
+import { colegaLivre, comColega, comContaTrocada, comLigacao, montarArestas } from './linhas'
 
 const conta = { logado: true, email: null, plano: null, erro: null }
 const perfil = (id: string): PerfilComConta => ({
@@ -77,5 +77,34 @@ describe('comColega (T28.3)', () => {
     expect(depois.ligacoes).toEqual([linha('a', 'b')])
     const mesmaPasta = comColega(e, { quadro: agente('b', 'app'), repo: null, ligacao: linha('a', 'b') })
     expect(mesmaPasta.repos).toHaveLength(2)
+  })
+
+  it('colega reaproveitado (09/11): o quadro troca de papel e a linha fica marcada, sem duplicar', () => {
+    const e = estado([agente('a', 'app'), agente('b', 'app')], [linha('a', 'b')])
+    const pedida = { ...linha('a', 'b'), pedida: true }
+    const depois = comColega(e, { quadro: { ...agente('b', 'app'), papel: 'Revisor' }, repo: null, ligacao: pedida })
+    expect(depois.quadros.map((q) => [q.id, q.papel])).toEqual([['a', undefined], ['b', 'Revisor']])
+    expect(depois.ligacoes).toEqual([pedida])
+  })
+})
+
+describe('colegaLivre (09/11)', () => {
+  const [pedida] = montarArestas(estado([agente('a', 'app'), agente('b', 'app')], [{ ...linha('a', 'b'), pedida: true }]))
+  const [dormindo] = montarArestas(estado([agente('a', 'app'), { ...agente('b', 'app'), dormindo: true }], [{ ...linha('a', 'b'), pedida: true }]))
+  const [feitaPeloUsuario] = montarArestas(estado([agente('a', 'app'), agente('b', 'app')], [linha('a', 'b')]))
+
+  it('colega pedido que terminou ou dorme: excluir', () => {
+    expect(colegaLivre(pedida?.data, 'terminou')).toBe(true)
+    expect(colegaLivre(dormindo?.data, undefined)).toBe(true)
+  })
+
+  it('trabalhando, esperando ou parado (recem-aberto, antes da tarefa): nao', () => {
+    for (const estadoDoColega of ['trabalhando', 'esperando', 'parado', undefined] as const) {
+      expect(colegaLivre(pedida?.data, estadoDoColega)).toBe(false)
+    }
+  })
+
+  it('linha feita pelo usuario nunca oferece excluir', () => {
+    expect(colegaLivre(feitaPeloUsuario?.data, 'terminou')).toBe(false)
   })
 })

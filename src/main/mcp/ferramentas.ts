@@ -42,6 +42,8 @@ const DESCRICAO_CRIAR =
   'método do usuário manda (como os passos "execution: subagent" do Opensquad): chame ANTES, com paralelo ' +
   'verdadeiro e as mesmas tarefas. Se o usuário quiser ver, os colegas trabalham na MESMA pasta que você e você ' +
   `espera com ${ESPERAR}; se ele preferir o mesmo terminal, use os seus subagentes normalmente. ` +
+  'Antes de abrir quadros novos, o Mãozinha reaproveita os colegas que você já criou e estão livres (terminaram a ' +
+  'tarefa), com o papel e a tarefa novos; peça de novo em vez de deixar o time crescer. ' +
   `Até ${LIMITE_COLEGAS} por pedido. Escreva cada tarefa completa (persona, instruções e o caminho exato de cada ` +
   'arquivo de saída), porque o colega começa sem saber da sua conversa. Para quadros que o usuário vê, use esta ' +
   'ferramenta, nunca a Agent/Task.'
@@ -97,4 +99,5 @@ export const REGRA_COLEGAS =
   `aceitar, não rode esses subagentes: chame ${ESPERAR} até todos terminarem e siga o seu método como se os ` +
   'subagentes tivessem terminado (confira os arquivos de saída). Se ele preferir o mesmo terminal, rode os ' +
   'subagentes como sempre. Buscas rápidas suas que não são parte do trabalho (explorar o código, procurar um ' +
-  'arquivo) seguem com Agent/Task sem perguntar.'
+  'arquivo) seguem com Agent/Task sem perguntar. Você é o líder: além de distribuir, confira o trabalho de cada ' +
+  'colega e junte tudo no fim. Colegas livres que você já criou são reaproveitados no próximo pedido.'

@@ -1,8 +1,14 @@
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from '@xyflow/react'
 import '../estilos/time.css'
-import { pedirMenuLinha } from './foco'
-import type { ArestaTime } from './linhas'
+import { pedirExcluirColega, pedirMenuLinha } from './foco'
+import { colegaLivre, type ArestaTime } from './linhas'
 import { guardarRepasse, limparRepasse, rotuloDoRepasse, useRepasse } from './repasses'
+import { useAtencao } from './useAtencao'
+
+const EXCLUIR = {
+  texto: '✕ excluir',
+  dica: 'Este colega terminou a tarefa. O líder reaproveita colegas livres no próximo pedido; se não for mais usar, clique para fechar o quadro dele.',
+}
 
 /** O que a linha diz no meio dela; linha normal (automatica, pastas separadas) fica muda. */
 function rotuloDa(d: ArestaTime['data']): { texto: string; dica: string } | null {
@@ -20,11 +26,13 @@ export function LinhaTime(p: EdgeProps<ArestaTime>): React.JSX.Element {
   const [caminho, x, y] = getBezierPath(p)
   const repasse = useRepasse(p.id)
   const doRepasse = repasse && rotuloDoRepasse(repasse)
-  const rotulo = doRepasse ?? rotuloDa(p.data)
+  const livre = colegaLivre(p.data, useAtencao(p.target)?.aviso.estado)
+  const rotulo = doRepasse ?? (livre ? EXCLUIR : rotuloDa(p.data))
   // "Passar para…" e "Continuar?" passam o trabalho; o resto abre o menu da linha (T30.1)
   const clicou = (e: React.MouseEvent): void => {
     // o rotulo e um portal, mas o clique sobe pela arvore do React ate a linha (onEdgeClick)
     e.stopPropagation()
+    if (livre && !doRepasse) return pedirExcluirColega(p.target)
     if (!repasse || !doRepasse?.passa) return pedirMenuLinha({ ligacaoId: p.id, x: e.clientX, y: e.clientY })
     window.lousa.time.passar(p.id).then(
       () => limparRepasse(p.id),
@@ -37,7 +45,7 @@ export function LinhaTime(p: EdgeProps<ArestaTime>): React.JSX.Element {
       {rotulo && (
         <EdgeLabelRenderer>
           <div
-            className={`rotulo-linha-time nodrag nopan${repasse ? ` repasse-${repasse.tipo}` : ''}`}
+            className={`rotulo-linha-time nodrag nopan${repasse ? ` repasse-${repasse.tipo}` : livre ? ' rotulo-excluir' : ''}`}
             data-linha={p.id}
             title={rotulo.dica}
             onClick={clicou}
