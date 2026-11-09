@@ -236,3 +236,14 @@ Traz a revisão inteira (`docs/revisao/2026-11-07.md`). Instale por cima da 0.4.
 - [ ] 110. (R3.13) Deixe um agente parado por mais de 2 horas, fora de um time: ele vira "💤 Dormindo · Acordar". "Acordar" volta na mesma conversa. Um agente trabalhando, esperando você ou ligado a outro nunca dorme.
 - [ ] 111. (R3.17) Feche um quadro que tinha notificação na Central de Avisos do Windows: a notificação some junto.
 - [ ] 112. (R2.7) Arrastar um link de um `.md` para cima da janela não abre outra página.
+
+## Versão 0.4.13 — estado dos agentes pelos ganchos do Claude (D63)
+
+Instale por cima da 0.4.12 e **reabra todos os agentes** (os abertos antes não têm os ganchos).
+
+- [ ] 113. Mande uma tarefa a um agente: o selo vira "trabalhando" e o cabeçalho conta "1 trabalhando"; no fim, "terminou" (e o agente entra na fila de prontos).
+- [ ] 114. Agente pedindo permissão ou fazendo uma pergunta: "esperando você"; depois de responder, volta a "trabalhando".
+- [ ] 115. Interrompa um agente com Esc ou Ctrl+C: em até ~40 s ele sai do "trabalhando" e da contagem do cabeçalho.
+- [ ] 116. Saia do Claude num quadro (`/exit`): o selo some e ele não conta mais como trabalhando.
+- [ ] 117. Um agente que dormiu e foi acordado não fica com o selo de antes.
+- [ ] 118. Time: quando um agente termina a vez, o colega recebe o repasse (estava parado sem o estado).
