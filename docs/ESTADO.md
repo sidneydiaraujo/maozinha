@@ -14,8 +14,8 @@ próxima tarefa, um item aberto ou um bloqueio mudam. Teto: ~120 linhas (R4.25).
 agentes depois de instalar e seguir os itens 113 a 118 do `docs/aceite/roteiro.md` (estado dos agentes
 pelos ganchos do Claude, D63). A 0.4.13 traz também tudo da 0.4.12.
 
-**D64 (líder reaproveita colegas e "excluir" na linha)** está no código, ainda sem instalador: a versão
-nova pede o ok do Sidney. Aceite: itens 119 a 121 do roteiro.
+**Instalador 0.4.14** (`release/Maozinha Setup 0.4.14.exe`) traz a D64 (o líder reaproveita colegas
+livres e "✕ excluir" na linha): itens 119 a 121 do roteiro, além dos 113 a 118.
 
 **Aceite do Sidney com o instalador 0.4.12**, que traz a revisão de 07/11 inteira (`docs/revisao/2026-11-07.md`, blocos 1 a 4).
 

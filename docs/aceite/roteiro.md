@@ -248,7 +248,7 @@ Instale por cima da 0.4.12 e **reabra todos os agentes** (os abertos antes não 
 - [ ] 117. Um agente que dormiu e foi acordado não fica com o selo de antes.
 - [ ] 118. Time: quando um agente termina a vez, o colega recebe o repasse (estava parado sem o estado).
 
-## Próxima versão — líder reaproveita colegas e "excluir" na linha (D64)
+## Versão 0.4.14 — líder reaproveita colegas e "excluir" na linha (D64)
 
 Reabra o líder depois de instalar (a regra nova vai no início do agente).
 
