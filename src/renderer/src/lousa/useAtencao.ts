@@ -2,7 +2,7 @@
 // daqui. Fica fora do React (uma inscricao so no main) e o React le com useSyncExternalStore.
 import { useSyncExternalStore } from 'react'
 import type { AvisoAgente } from '../../../shared/model'
-import { aplicarAviso, marcarVisto, type Atencao, type MapaAtencao } from './atencao'
+import { aplicarAviso, esquecerAviso, marcarVisto, type Atencao, type MapaAtencao } from './atencao'
 
 let mapa: MapaAtencao = new Map()
 const ouvintes = new Set<() => void>()
@@ -18,6 +18,9 @@ function inscrever(ouvinte: () => void): () => void {
   if (!inscrito) {
     inscrito = true
     window.lousa.terminais.aoEstado((id, aviso) => trocar(aplicarAviso(mapa, id, aviso, Date.now())))
+    // terminal encerrado ou agente dormindo: o "trabalhando" ou o "terminou" de antes nao fica preso
+    window.lousa.terminais.aoSair((id) => trocar(esquecerAviso(mapa, id)))
+    window.lousa.agentes.aoDormir((id) => trocar(esquecerAviso(mapa, id)))
   }
   ouvintes.add(ouvinte)
   return () => ouvintes.delete(ouvinte)

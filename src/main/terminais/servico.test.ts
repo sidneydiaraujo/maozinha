@@ -36,7 +36,7 @@ class PtyFalso implements PtyLike {
   }
 }
 
-function montar(limite?: number) {
+function montar(limite?: number, agora: () => number = Date.now) {
   const ptys: PtyFalso[] = []
   const chamadas: Array<{ arquivo: string; args: string[]; cwd: string; cols: number; rows: number }> = []
   const spawn: Spawner = (arquivo, args, o) => {
@@ -56,6 +56,7 @@ function montar(limite?: number) {
       aoEstado: (id, a) => void estados.push([id, a]),
     },
     limite,
+    agora,
   )
   return { servico, ptys, chamadas, dados, saidas, estados }
 }
@@ -182,6 +183,52 @@ describe('ServicoTerminais', () => {
       ['t1', { estado: 'esperando', motivo: 'pergunta' }],
     ])
     expect(servico.aviso('t1')).toEqual({ estado: 'esperando', motivo: 'pergunta' })
+  })
+
+  it('estado pelo gancho (D63): avisa uma vez; mesmo estado com outro texto nao repete; seEstiver filtra', () => {
+    const { servico, ptys, estados } = montar()
+    servico.abrir({ ...pedido, status: true })
+    servico.anotarAviso('t1', { estado: 'parado' }, ['trabalhando']) // nada antes: nao vale
+    servico.anotarAviso('t1', { estado: 'trabalhando' })
+    servico.anotarAviso('t1', { estado: 'trabalhando' })
+    servico.anotarAviso('t1', { estado: 'parado' }, ['trabalhando'])
+    servico.anotarAviso('t1', { estado: 'terminou', mensagem: 'a' })
+    ptys[0]!.emitir(']7501;state=done:msg=Yg==') // o OSC traz o mesmo terminou com outro texto
+    servico.anotarAviso('t1', { estado: 'parado' }, ['trabalhando']) // idle_prompt depois do fim: nada
+    expect(estados).toEqual([
+      ['t1', { estado: 'trabalhando' }],
+      ['t1', { estado: 'parado' }],
+      ['t1', { estado: 'terminou', mensagem: 'a' }],
+      ['t1', { estado: 'terminou', mensagem: 'b' }],
+    ])
+  })
+
+  it('trabalhando e quieto por 30 s: parado (Esc e Ctrl+C nao avisam); saida nova recomeca a contar', () => {
+    let relogio = 0
+    const { servico, ptys, estados } = montar(undefined, () => relogio)
+    servico.abrir({ ...pedido, status: true })
+    servico.abrir({ ...pedido, terminalId: 't2', status: true })
+    servico.anotarAviso('t1', { estado: 'trabalhando' })
+    servico.anotarAviso('t2', { estado: 'terminou' })
+    relogio = 20_000
+    ptys[0]!.emitir('✻ (21s)')
+    relogio = 40_000
+    expect(servico.conferirSilencio(30_000)).toEqual([]) // o contador ainda girava ha 20 s
+    relogio = 50_001
+    expect(servico.conferirSilencio(30_000)).toEqual(['t1']) // t2 terminou: nao e com ele
+    expect(estados.at(-1)).toEqual(['t1', { estado: 'parado' }])
+    expect(servico.conferirSilencio(30_000)).toEqual([])
+  })
+
+  it('estado pelo gancho em terminal sem status, fechado ou desconhecido: nada', () => {
+    const { servico, ptys, estados } = montar()
+    servico.abrir(pedido)
+    servico.anotarAviso('t1', { estado: 'trabalhando' })
+    servico.abrir({ ...pedido, terminalId: 't2', status: true })
+    ptys[1]!.sair(0)
+    servico.anotarAviso('t2', { estado: 'trabalhando' })
+    servico.anotarAviso('nada', { estado: 'trabalhando' })
+    expect(estados).toEqual([])
   })
 
   it('sem status (login, padrao): nao responde nem le estados', () => {

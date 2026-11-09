@@ -276,6 +276,10 @@ Depois de filtrar, acrescenta (nunca as duas variáveis juntas):
   em pedaços (`terminais/historico.ts`): copiar tudo a cada pedaço atrasava a digitação (D17).
 - Terminal de quadro lê o OSC 7501 da saída (`terminais/status.ts`): responde à pergunta do
   Claude com texto fixo em teclas `win32-input-mode` e avisa quando o estado do agente muda (T8.1).
+  Desde o 2.1.317 o Claude desliga o OSC (o ConPTY responde o DA1 da sondagem antes da Lousa): o
+  estado vem dos ganchos do `--settings` (`agentes/estadoPorGancho.ts`, D63), que gravam
+  `<quadroId>.estado.json` na pasta da ponte; `anotarAviso` o põe no mesmo caminho do OSC. Agente
+  "trabalhando" com o terminal quieto há 30 s parou (Esc ou Ctrl+C não rodam gancho).
 - Shell: `powershell.exe -NoLogo`, `cwd` = pasta do repo (login: `USERPROFILE`).
 - Quadro tipo `agente`: depois de abrir, escreve o comando do provedor da conta
   do quadro (`claude\r` ou `codex\r`). Login: `claude auth login\r` ou `codex login\r`.
@@ -311,7 +315,7 @@ apresentador do time limpam sozinhos o que não está mais na lousa, a cada pass
 
 ## Quem recebe o estado do agente (`agentes/ordemDoEstado.ts`, R4.19)
 
-Cada estado novo do OSC 7501 vai, nesta ordem, para: **tela** → **notificação** → **troca de modelo** →
+Cada estado novo (OSC 7501 ou gancho, D63) vai, nesta ordem, para: **tela** → **notificação** → **troca de modelo** →
 **repasse** → **espera de colegas** → **compactar sozinho** → **fila do time**. A ordem é regra, com teste:
 
 - a troca de modelo vem antes do compactar e da fila, que perguntam se há troca pendente;

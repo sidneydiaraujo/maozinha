@@ -1,6 +1,7 @@
 // R3.13 (D62): liga a hibernacao ao app. Adormecer = salvar o quadro como dormindo, o momento
 // `dormiu` do ciclo (fecha o terminal, o claude.exe sai junto, e esquece o painel e a notificacao;
 // quadros/inscricoes.ts) e avisar a tela, que troca o terminal pela capa "Dormindo". Acordar e abrir o terminal de novo (handlers/terminais).
+import { SILENCIO_DE_QUEM_PAROU_MS } from '../../shared/contratoClaude'
 import { IPC } from '../../shared/ipc'
 import type { Contexto } from '../contexto'
 import { log } from '../log'
@@ -18,6 +19,8 @@ export interface Ritmo {
   varreduraMs: number
   exigirClaude: boolean
 }
+
+const CONFERIR_SILENCIO_MS = 10_000
 
 export const RITMO_NORMAL: Ritmo = { quietoMs: QUIETO_PARA_DORMIR_MS, varreduraMs: VARREDURA_MS, exigirClaude: true }
 
@@ -49,5 +52,16 @@ export function montarHibernacao(s: Servicos, ritmo: Ritmo = RITMO_NORMAL): { hi
     hibernacao.varrer().catch((e: unknown) => log('warn', 'a hibernação dos agentes falhou numa passada', e))
   }, ritmo.varreduraMs)
   relogio.unref()
-  return { hibernacao, parar: () => clearInterval(relogio) }
+  // D63: o agente interrompido com Esc ou Ctrl+C nao avisa; quieto com "trabalhando" e porque parou
+  const silencio = setInterval(() => {
+    for (const id of s.terminais.conferirSilencio(SILENCIO_DE_QUEM_PAROU_MS)) log('info', `agente quieto marcado como parado: ${id}`)
+  }, CONFERIR_SILENCIO_MS)
+  silencio.unref()
+  return {
+    hibernacao,
+    parar: () => {
+      clearInterval(relogio)
+      clearInterval(silencio)
+    },
+  }
 }

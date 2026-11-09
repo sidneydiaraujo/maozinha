@@ -7,7 +7,7 @@ import { isAbsolute, resolve } from 'node:path'
 export const FERRAMENTAS_DE_ESCRITA = 'Write|Edit|MultiEdit|NotebookEdit'
 
 /** O gancho que vai no settings: como a linha de status, `findstr` pelo Git Bash (T17.0). */
-export function ganchoDeEscrita(arquivoJson: string): Record<string, unknown> {
+export function ganchoDeEscrita(arquivoJson: string): Record<string, unknown[]> {
   const comando = `findstr "^" > "${arquivoJson.replace(/\\/g, '/')}"`
   return { PostToolUse: [{ matcher: FERRAMENTAS_DE_ESCRITA, hooks: [{ type: 'command', command: comando }] }] }
 }

@@ -2,7 +2,8 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import type { PainelAgente } from '../../shared/model'
 import { ganchoDeEscrita } from './escrita'
-import { caminhoServe, ESPERA_MS, linhaDeStatus, PonteAgentes, type DiscoPonte } from './ponte'
+import { ganchosDeEstado, juntarGanchos, type LidoDoGancho } from './estadoPorGancho'
+import { caminhoServe, ESPERA_ESTADO_MS, ESPERA_MS, linhaDeStatus, PonteAgentes, type DiscoPonte } from './ponte'
 
 const PASTA = 'C:\\Users\\x\\AppData\\Roaming\\lousa-ia\\agentes'
 const JSON_CLAUDE = JSON.stringify({
@@ -17,6 +18,7 @@ function montar(inicial: Record<string, string> = {}) {
   let pendentes: { fn: () => void; ms: number; vivo: boolean }[] = []
   const recebidos: { quadroId: string; painel: PainelAgente }[] = []
   const escritas: string[] = []
+  const estados: { quadroId: string; lido: LidoDoGancho }[] = []
   const disco: DiscoPonte = {
     criarPasta: () => undefined,
     escrever: (c, t) => void arquivos.set(c, Buffer.from(t)),
@@ -38,6 +40,7 @@ function montar(inicial: Record<string, string> = {}) {
     agora: () => 1000,
     emitir: (quadroId, painel) => recebidos.push({ quadroId, painel }),
     aoEscrever: (quadroId, arquivo) => void escritas.push(`${quadroId}:${arquivo}`),
+    aoEstado: (quadroId, lido) => void estados.push({ quadroId, lido }),
     adiar: (fn, ms) => {
       const p = { fn, ms, vivo: true }
       pendentes.push(p)
@@ -57,11 +60,17 @@ function montar(inicial: Record<string, string> = {}) {
     arquivos.set(join(PASTA, `${quadroId}.escrita.json`), Buffer.from(texto))
     aoMudar?.(`${quadroId}.escrita.json`)
   }
+  const estadoGrava = (quadroId: string, texto: string): void => {
+    arquivos.set(join(PASTA, `${quadroId}.estado.json`), Buffer.from(texto))
+    aoMudar?.(`${quadroId}.estado.json`)
+  }
   return {
     ponte,
     arquivos,
     recebidos,
     escritas,
+    estados,
+    estadoGrava,
     claudeGrava,
     ganchoGrava,
     passarTempo,
@@ -77,11 +86,40 @@ describe('PonteAgentes', () => {
     expect(settings).toBe(join(PASTA, 'q1.settings.json'))
     expect(JSON.parse(arquivos.get(join(PASTA, 'q1.settings.json'))!.toString())).toEqual({
       statusLine: { type: 'command', command: 'findstr "^" > "C:/Users/x/AppData/Roaming/lousa-ia/agentes/q1.json"' },
-      hooks: ganchoDeEscrita(join(PASTA, 'q1.escrita.json')),
+      // D63: os ganchos de estado entram junto com o de escrita, sem apagar o PostToolUse dele
+      hooks: juntarGanchos(ganchoDeEscrita(join(PASTA, 'q1.escrita.json')), ganchosDeEstado(join(PASTA, 'q1.estado.json'))),
       permissions: { allow: ['mcp__maozinha__criar_colegas', 'mcp__maozinha__esperar_colegas'] },
       // A31: sem a aceleracao do Claude, cada giro da roda rola 3 linhas
       wheelScrollAccelerationEnabled: false,
     })
+  })
+
+  it('o settings tem os dois PostToolUse: o de escrita (A16) e o de estado (D63)', () => {
+    const { ponte, arquivos } = montar()
+    ponte.preparar('q1')
+    const { hooks } = JSON.parse(arquivos.get(join(PASTA, 'q1.settings.json'))!.toString()) as { hooks: Record<string, { matcher?: string }[]> }
+    expect(hooks.PostToolUse?.map((h) => h.matcher)).toEqual(['Write|Edit|MultiEdit|NotebookEdit', '*'])
+    expect(Object.keys(hooks)).toContain('SessionEnd')
+  })
+
+  it('preparar apaga o estado da conversa anterior', () => {
+    const { ponte, arquivos } = montar({ 'q1.estado.json': '{"hook_event_name":"Stop"}' })
+    ponte.preparar('q1')
+    expect(arquivos.has(join(PASTA, 'q1.estado.json'))).toBe(false)
+  })
+
+  it('o gancho de estado grava: le logo, traduz e avisa; evento que nao muda nada fica quieto', () => {
+    const { ponte, estados, estadoGrava, passarTempo, pendentes, recebidos } = montar()
+    ponte.iniciar([])
+    estadoGrava('q1', '{"hook_event_name":"UserPromptSubmit","prompt":"oi"}')
+    expect(pendentes().map((p) => p.ms)).toEqual([ESPERA_ESTADO_MS])
+    passarTempo()
+    estadoGrava('q1', '{"hook_event_name":"SubagentStop"}')
+    passarTempo()
+    estadoGrava('q1', 'quebrado')
+    passarTempo()
+    expect(estados).toEqual([{ quadroId: 'q1', lido: { aviso: { estado: 'trabalhando' } } }])
+    expect(recebidos).toEqual([]) // nao e o painel
   })
 
   it('id fora do formato nao vira nome de arquivo', () => {

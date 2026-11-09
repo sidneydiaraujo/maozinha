@@ -51,6 +51,8 @@ interface Terminal {
   aviso: AvisoAgente | null
   /** O Claude ja desenhou a linha de status neste terminal (D49): pronto para receber. */
   pronto: boolean
+  /** Quando chegou a ultima saida (ms): trabalhando, o Claude redesenha a tela sem parar (D63). */
+  ultimaSaida: number
 }
 
 const SHELL_PADRAO = { arquivo: 'powershell.exe', args: ['-NoLogo'] }
@@ -64,6 +66,7 @@ export class ServicoTerminais {
     private readonly ouvintes: Ouvintes,
     // o bastante para a tela remontada mostrar uma sessao longa (T8.4: era 200 KB)
     private readonly limiteBuffer = 1_000_000,
+    private readonly agora: () => number = Date.now,
   ) {}
 
   /** Id ja aberto: devolve o buffer e nao abre outro shell. Id que ja saiu: abre um novo. */
@@ -87,9 +90,11 @@ export class ServicoTerminais {
       leitor: p.status ? new LeitorStatus() : null,
       aviso: null,
       pronto: false,
+      ultimaSaida: this.agora(),
     }
     terminal.ouvintes.push(
       pty.onData((dados) => {
+        terminal.ultimaSaida = this.agora()
         terminal.historico.anotar(dados)
         this.ouvintes.aoDados(p.terminalId, dados)
         this.lerStatus(p.terminalId, terminal, dados)
@@ -114,6 +119,35 @@ export class ServicoTerminais {
       t.aviso = aviso
       this.ouvintes.aoEstado?.(terminalId, aviso)
     }
+  }
+
+  /**
+   * Estado que veio pelos ganchos do Claude (D63), nao pelo OSC. So em terminal de quadro aberto.
+   * Mesmo estado e motivo: nada (o OSC e o gancho podem trazer o mesmo "terminou" com textos
+   * diferentes). `seEstiver`: so troca se o estado atual for um destes.
+   */
+  anotarAviso(terminalId: string, aviso: AvisoAgente, seEstiver?: readonly AvisoAgente['estado'][]): void {
+    const t = this.vivo(terminalId)
+    if (!t?.leitor) return
+    if (t.aviso && t.aviso.estado === aviso.estado && t.aviso.motivo === aviso.motivo) return
+    if (seEstiver && !(t.aviso && seEstiver.includes(t.aviso.estado))) return
+    t.aviso = aviso
+    this.ouvintes.aoEstado?.(terminalId, aviso)
+  }
+
+  /**
+   * Esc e Ctrl+C interrompem o Claude sem gancho nenhum (D63): "trabalhando" com o terminal quieto
+   * ha `limiteMs` vira "parado". Devolve quem parou (o relogio de montar/agentes chama).
+   */
+  conferirSilencio(limiteMs: number): string[] {
+    const pararam: string[] = []
+    const agora = this.agora()
+    for (const [id, t] of this.terminais) {
+      if (t.saiu || t.aviso?.estado !== 'trabalhando' || agora - t.ultimaSaida < limiteMs) continue
+      this.anotarAviso(id, { estado: 'parado' }, ['trabalhando'])
+      pararam.push(id)
+    }
+    return pararam
   }
 
   /** Ultimo estado do agente (a tela que remonta comeca dele). */

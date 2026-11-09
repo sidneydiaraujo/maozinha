@@ -29,6 +29,14 @@ export function aplicarAviso(mapa: MapaAtencao, id: string, aviso: AvisoAgente, 
   return new Map(mapa).set(id, { aviso, visto: false, quando: agora })
 }
 
+/** O terminal saiu ou o agente dormiu (R3.13): o ultimo estado dele nao vale mais (sem selo nem brilho). */
+export function esquecerAviso(mapa: MapaAtencao, id: string): MapaAtencao {
+  if (!mapa.has(id)) return mapa
+  const novo = new Map(mapa)
+  novo.delete(id)
+  return novo
+}
+
 export function marcarVisto(mapa: MapaAtencao, id: string): MapaAtencao {
   const atual = mapa.get(id)
   if (!atual || atual.visto) return mapa

@@ -4,6 +4,7 @@ import {
   aplicarAviso,
   brilhoDoQuadro,
   chamaAtencao,
+  esquecerAviso,
   marcarVisto,
   proximoAChamar,
   seloDoAviso,
@@ -33,6 +34,15 @@ describe('aplicarAviso e chamaAtencao', () => {
     expect(aplicarAviso(m, 'q1', { estado: 'terminou', mensagem: 'ok' })).toBe(m)
     expect(marcarVisto(m, 'q1')).toBe(m)
     expect(marcarVisto(m, 'nada')).toBe(m)
+  })
+
+  it('esquecer (terminal saiu, agente dormiu): some da pilula e do selo; quem nao estava, mesmo mapa', () => {
+    const m = aplicarAviso(aplicarAviso(vazio, 'q1', { estado: 'trabalhando' }), 'q2', { estado: 'trabalhando' })
+    expect(textoDaPilula(m, ['q1', 'q2'])).toBe('● 2 trabalhando')
+    const sem = esquecerAviso(m, 'q1')
+    expect(textoDaPilula(sem, ['q1', 'q2'])).toBe('● 1 trabalhando')
+    expect(sem.has('q1')).toBe(false)
+    expect(esquecerAviso(sem, 'q1')).toBe(sem)
   })
 })
 

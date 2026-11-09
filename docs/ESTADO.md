@@ -10,6 +10,9 @@ próxima tarefa, um item aberto ou um bloqueio mudam. Teto: ~120 linhas (R4.25).
 
 ## Próxima tarefa
 
+**Instalador com a correção D63** (estado do agente pelos ganchos do Claude; 09/11): pede o ok do Sidney
+para gerar a versão. Depois de instalar, reabrir os agentes (os abertos antes seguem sem estado).
+
 **Aceite do Sidney com o instalador 0.4.12**, que traz a revisão de 07/11 inteira (`docs/revisao/2026-11-07.md`, blocos 1 a 4).
 
 1. **Aceite do instalador 0.4.12** (`release/Maozinha Setup 0.4.12.exe`, hash em `release/SHA256.txt`):

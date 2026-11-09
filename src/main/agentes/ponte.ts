@@ -2,19 +2,24 @@
 // para um arquivo da Lousa em <userData>\agentes. A linha de status desse arquivo grava o JSON
 // do Claude em <quadroId>.json; um vigia so desta pasta (sem subpastas, sem stat, como na D17)
 // le, passa pelo lerPainel e avisa a tela. Nada vai para as pastas das contas (~/.claude*).
-// O mesmo settings leva o gancho de escrita (A16): <quadroId>.escrita.json diz onde ele salvou.
+// O mesmo settings leva o gancho de escrita (A16): <quadroId>.escrita.json diz onde ele salvou; e os
+// ganchos de estado (D63): <quadroId>.estado.json traz trabalhando, esperando, terminou ou parado.
 import { join } from 'node:path'
 import { SEM_ACELERACAO_DA_RODA } from '../../shared/contratoClaude'
 import type { PainelAgente } from '../../shared/model'
 import { FERRAMENTAS_NO_CLAUDE } from '../mcp/ferramentas'
 import { caminhoEscrito, ganchoDeEscrita } from './escrita'
+import { ganchosDeEstado, juntarGanchos, lerGancho, type LidoDoGancho } from './estadoPorGancho'
 import { lerPainel, textoDoArquivo } from './painel'
 
 export const ESPERA_MS = 250
+/** O findstr grava num passo so e o estado e o que mais aparece na tela: le logo. */
+export const ESPERA_ESTADO_MS = 60
 /** O quadroId vira nome de arquivo: so letras, numeros, - e _. */
 const FORMATO_ID = /^[\w-]{1,80}$/
 const SETTINGS = '.settings.json'
 const ESCRITA = '.escrita.json'
+const ESTADO = '.estado.json'
 const MCP = '.mcp.json'
 /**
  * A31: o Claude 2.1.318 roda em tela cheia propria e rola a conversa sozinho com a roda. O xterm
@@ -25,7 +30,9 @@ const MCP = '.mcp.json'
  */
 const ROLAGEM = SEM_ACELERACAO_DA_RODA // contrato com o Claude (R4.21)
 /** Do mais comprido ao mais curto: "q1.escrita.json" nao e o painel de "q1.escrita". */
-const FINS = [SETTINGS, ESCRITA, MCP, '.json']
+const FINS = [SETTINGS, ESCRITA, ESTADO, MCP, '.json']
+/** Arquivos que o gancho grava e que a ponte le com um relogio proprio (nao o do painel). */
+const DE_GANCHO = [ESCRITA, ESTADO]
 
 export interface DiscoPonte {
   criarPasta(pasta: string): void
@@ -44,6 +51,8 @@ export interface DepsPonte {
   emitir(quadroId: string, painel: PainelAgente): void
   /** O agente salvou este arquivo (caminho absoluto, A16). */
   aoEscrever?(quadroId: string, arquivo: string): void
+  /** O gancho de estado trouxe um estado novo (D63). */
+  aoEstado?(quadroId: string, lido: LidoDoGancho): void
   /** setTimeout que devolve o cancelar (trocado no teste). */
   adiar(fn: () => void, ms: number): () => void
 }
@@ -98,7 +107,12 @@ export class PonteAgentes {
     if (!FORMATO_ID.test(quadroId) || !caminhoServe(pasta)) return null
     const settings = join(pasta, `${quadroId}${SETTINGS}`)
     const statusLine = linhaDeStatus(join(pasta, `${quadroId}.json`))
-    const hooks = ganchoDeEscrita(join(pasta, `${quadroId}${ESCRITA}`))
+    const hooks = juntarGanchos(
+      ganchoDeEscrita(join(pasta, `${quadroId}${ESCRITA}`)),
+      ganchosDeEstado(join(pasta, `${quadroId}${ESTADO}`)),
+    )
+    // o estado da conversa anterior nao vale para este terminal
+    disco.apagar(join(pasta, `${quadroId}${ESTADO}`))
     // a ferramenta de criar colegas (A19) ja pergunta na tela do Mãozinha: o Claude nao pergunta de novo
     const permissions = { allow: FERRAMENTAS_NO_CLAUDE }
     disco.escrever(settings, JSON.stringify({ statusLine, hooks, permissions, ...ROLAGEM }))
@@ -122,7 +136,7 @@ export class PonteAgentes {
   /** Quadro fechado (ou trocou de conta): apaga os arquivos dele e o ultimo painel. */
   esquecer(quadroId: string): void {
     if (!FORMATO_ID.test(quadroId)) return
-    for (const chave of [quadroId, `${quadroId}${ESCRITA}`]) {
+    for (const chave of [quadroId, `${quadroId}${ESCRITA}`, `${quadroId}${ESTADO}`]) {
       this.relogios.get(chave)?.()
       this.relogios.delete(chave)
     }
@@ -130,6 +144,7 @@ export class PonteAgentes {
     this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}.json`))
     this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}${SETTINGS}`))
     this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}${ESCRITA}`))
+    this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}${ESTADO}`))
     this.deps.disco.apagar(join(this.deps.pasta, `${quadroId}${MCP}`))
   }
 
@@ -138,12 +153,10 @@ export class PonteAgentes {
     const lido = lerNome(nome)
     if (!lido || lido.fim === SETTINGS || lido.fim === MCP) return
     const { id, fim } = lido
-    const chave = fim === ESCRITA ? nome : id
+    const chave = DE_GANCHO.includes(fim) ? nome : id
+    const ler = fim === ESCRITA ? () => this.lerEscrita(id) : fim === ESTADO ? () => this.lerEstado(id) : () => this.ler(id)
     this.relogios.get(chave)?.()
-    this.relogios.set(
-      chave,
-      this.deps.adiar(() => (fim === ESCRITA ? this.lerEscrita(id) : this.ler(id)), ESPERA_MS),
-    )
+    this.relogios.set(chave, this.deps.adiar(ler, fim === ESTADO ? ESPERA_ESTADO_MS : ESPERA_MS))
   }
 
   private lerEscrita(quadroId: string): void {
@@ -155,6 +168,17 @@ export class PonteAgentes {
       return
     }
     if (arquivo) this.deps.aoEscrever?.(quadroId, arquivo)
+  }
+
+  private lerEstado(quadroId: string): void {
+    this.relogios.delete(`${quadroId}${ESTADO}`)
+    let lido: LidoDoGancho | null
+    try {
+      lido = lerGancho(textoDoArquivo(this.deps.disco.ler(join(this.deps.pasta, `${quadroId}${ESTADO}`))))
+    } catch {
+      return
+    }
+    if (lido) this.deps.aoEstado?.(quadroId, lido)
   }
 
   private ler(quadroId: string): void {

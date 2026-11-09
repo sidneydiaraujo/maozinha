@@ -135,6 +135,8 @@ function montarPonte(b: Base, d: { ajustes: FilaAjustes; usos: UsoDasContas; ond
     },
     // onde o agente salvou (A16): a bolinha da pasta do projeto na lateral
     aoEscrever: (id, arquivo) => d.ondeEscreve.aoEscrever(id, arquivo),
+    // o estado pelos ganchos (D63) entra pelo mesmo caminho do OSC 7501
+    aoEstado: (id, lido) => b.terminais.anotarAviso(id, lido.aviso, lido.seEstiver),
     adiar: adiarReal,
   })
 }
