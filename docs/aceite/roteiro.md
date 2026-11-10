@@ -256,7 +256,7 @@ Reabra o líder depois de instalar (a regra nova vai no início do agente).
 - [ ] 120. Colega pedido pelo agente que terminou mostra "✕ excluir" no meio da linha; um clique fecha o quadro dele. Enquanto trabalha, não mostra.
 - [ ] 121. Linhas que você mesmo puxou entre agentes nunca mostram "excluir".
 
-## Próxima versão — quadro livre e projeto identificado sozinho (D65)
+## Versão 0.4.15 — quadro livre e projeto identificado sozinho (D65) e apresentação do time (D66)
 
 - [ ] 122. Na engrenagem, no cartão de cada conta, "Pasta livre": Empresa em `C:\Users\sidne`, Pessoal em `C:\Users\sidne\pessoal`.
 - [ ] 123. "+ Novo quadro": "✦ Livre, sem projeto" vem primeiro e já marcado; "Abrir agente" abre na pasta livre da conta escolhida, sem o ⚠.
