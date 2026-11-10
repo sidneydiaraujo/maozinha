@@ -142,3 +142,9 @@
   background: var(--cartao);
   border-top: 1px solid var(--borda);
 }
+
+/* D65: a pasta do projeto que um agente acabou de achar */
+.arvore-projeto {
+  border-color: color-mix(in srgb, var(--destaque) 55%, transparent);
+  box-shadow: inset 3px 0 0 var(--destaque);
+}

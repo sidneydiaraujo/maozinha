@@ -16,6 +16,7 @@ export interface Perfil {
   ehPadrao: boolean   // true só para ~/.claude e ~/.codex: rodam SEM a variável
   raizes: string[]    // pastas cujo conteúdo pertence a esta conta (sugestão)
   git?: GitDaConta    // ausente = o terminal usa o git e o GitHub do PC (C1, D42)
+  pastaLivre?: string // onde nasce o quadro livre desta conta (D65); ausente = a conta nao tem quadro livre
 }
 
 // Git e GitHub de uma conta (C1, D42). Vira variável de ambiente; a Lousa não escreve gitconfig.
@@ -97,6 +98,7 @@ export interface Quadro {
   papel?: string      // nome no time de agentes ("Revisor"), até 40 letras (T29.1)
   kanban?: boolean    // agente: segue o KANBAN.md do projeto (A22); ausente = quadro de antes, usa o que já existe
   dormindo?: boolean  // agente hibernado (R3.13, D62): sem claude.exe ate o Sidney acordar; a conversa fica
+  projeto?: string    // repoId do projeto em que o agente mexe, achado sozinho numa pasta que nao e projeto (D65)
 }
 
 export interface Viewport { x: number; y: number; zoom: number }
@@ -167,7 +169,7 @@ export interface UsoConta {
 
 export interface EstadoSalvo {        // %APPDATA%\lousa-ia\estado.json
   versao: 2           // 1 = lousa com molduras, migrada ao carregar (estado/migrar.ts)
-  perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean; git?: GitDaConta }>
+  perfis: Record<PerfilId, { nome?: string; cor?: string; raizes?: string[]; provedor?: Provedor; criada?: boolean; git?: GitDaConta; pastaLivre?: string }>
   // só o que o usuário mudou; criada = conta criada pelo app (a pasta pode estar vazia)
   repos: Repo[]
   quadros: Quadro[]

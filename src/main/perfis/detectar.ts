@@ -84,6 +84,7 @@ export function detectarPerfis(deps: DepsDeteccao, ajustes: Ajustes): Perfil[] {
       cor: ajuste?.cor ?? PALETA[posicao % PALETA.length] ?? PALETA[0],
       raizes: ajuste?.raizes ?? p.raizes,
       ...(ajuste?.git ? { git: ajuste.git } : {}),
+      ...(ajuste?.pastaLivre ? { pastaLivre: ajuste.pastaLivre } : {}),
     }
   })
 }

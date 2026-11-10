@@ -12,6 +12,7 @@ const Perfil = z.object({
   nome: z.string().optional(),
   cor: z.string().optional(),
   raizes: z.array(z.string()).optional(),
+  pastaLivre: z.string().optional(),
   provedor: z.enum(['claude', 'codex']).optional(),
   criada: z.boolean().optional(),
   git: z
@@ -42,6 +43,7 @@ const Quadro = z.object({
   papel: z.string().max(40).optional(),
   kanban: z.boolean().optional(),
   dormindo: z.boolean().optional(),
+  projeto: z.string().optional(),
 })
 
 const Nota = z.object({ id: z.string(), texto: z.string().max(20000), caixa: Caixa })

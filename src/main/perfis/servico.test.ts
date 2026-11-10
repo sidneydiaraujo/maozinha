@@ -128,6 +128,16 @@ describe('ServicoPerfis', () => {
     expect(estado().perfis.pessoal).toEqual({ nome: 'Casa' })
   })
 
+  it('definirPastaLivre guarda a pasta do quadro livre e null tira, mantendo o resto (D65)', async () => {
+    const { servico, estado } = montar()
+    await servico.renomear('pessoal', 'Casa')
+    await servico.definirPastaLivre('pessoal', 'C:\\Users\\x\\pessoal')
+    expect(estado().perfis.pessoal).toEqual({ nome: 'Casa', pastaLivre: 'C:\\Users\\x\\pessoal' })
+    await servico.definirPastaLivre('pessoal', null)
+    expect(estado().perfis.pessoal).toEqual({ nome: 'Casa' })
+    await expect(servico.definirPastaLivre('nada', null)).rejects.toThrow('Conta não encontrada')
+  })
+
   it('definirGit recusa conta desconhecida e e-mail invalido sem gravar', async () => {
     const { servico, estado } = montar()
     await expect(servico.definirGit('nada', null)).rejects.toThrow('Conta não encontrada')

@@ -85,6 +85,18 @@ describe('ServicoRepos', () => {
     await expect(servico.remover(a.id)).rejects.toThrow('Repositório não encontrado')
   })
 
+  it('tirar a pasta de um projeto achado: o quadro que mexia nele volta a mostrar a propria pasta (D65)', async () => {
+    const { servico, armazem, estado } = montar()
+    const casa = servico.adicionar('C:\\empresa\\api', 'principal')
+    const projeto = servico.adicionar('C:\\Users\\x\\pessoal\\app', 'principal')
+    const e = estado()
+    e.quadros = [{ id: 'q1', repoId: casa.id, perfilId: 'principal', tipo: 'agente', titulo: 'Claude 1', caixa: { x: 0, y: 0, largura: 1, altura: 1 }, projeto: projeto.id }]
+    armazem.salvar(e)
+    await servico.remover(projeto.id)
+    expect(estado().quadros).toHaveLength(1)
+    expect(estado().quadros[0]?.projeto).toBeUndefined()
+  })
+
   it('tirar uma copia separada da lista tenta limpa-la', async () => {
     const { servico, armazem, limpezas, estado } = montar()
     const origem = servico.adicionar('C:\\empresa\\api', 'principal')

@@ -68,6 +68,8 @@ export class ServicoRepos {
     for (const q of estado.quadros) if (q.repoId === repoId) this.deps.fecharTerminal(q.id)
     estado.repos = estado.repos.filter((r) => r.id !== repoId)
     estado.quadros = estado.quadros.filter((q) => q.repoId !== repoId)
+    // D65: quem tinha este projeto achado volta a mostrar a propria pasta
+    for (const q of estado.quadros) if (q.projeto === repoId) delete q.projeto
     this.deps.armazem.salvar(estado)
     if (!repo.copia) return { copia: 'nenhuma' }
     const origem = estado.repos.find((r) => r.id === repo.copia?.origemId)

@@ -225,6 +225,7 @@ export function Lousa({ versao, aoMudarPastas, aoAbrirArquivo }: Props): React.J
           repoInicial={novo.novo.repoId}
           tela={novo.novo.tela}
           aoCriar={novo.criar}
+          aoCriarLivre={novo.criarLivre}
           aoNovaPasta={novo.pastaNova}
           aoTirarPasta={tirarPasta}
           aoCancelar={novo.cancelar}

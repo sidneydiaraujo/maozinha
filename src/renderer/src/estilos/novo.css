@@ -128,3 +128,8 @@
   border: 1px solid color-mix(in srgb, var(--ambar) 45%, transparent);
   border-radius: 6px;
 }
+
+/* D65: o quadro livre vem antes das pastas, separado delas */
+.novo-livre {
+  margin-bottom: 6px;
+}

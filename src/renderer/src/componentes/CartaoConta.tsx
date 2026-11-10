@@ -3,6 +3,7 @@ import type { GitDaConta, PerfilComConta, StatusConta } from '../../../shared/mo
 import { TIPO_ARRASTE_CONTA } from '../lousa/nos'
 import { GitDaContaSecao } from './GitDaConta'
 import { JanelaLogin } from './JanelaLogin'
+import { PastaLivreSecao } from './PastaLivre'
 
 interface Props {
   perfil: PerfilComConta
@@ -10,6 +11,8 @@ interface Props {
   aoAtualizar(): Promise<void>
   /** So no painel da engrenagem; o balao do icone fica sem a secao de git. */
   aoDefinirGit?(git: GitDaConta | null): Promise<void>
+  /** So no painel da engrenagem: a pasta do quadro livre (D65), pela ficha do seletor. */
+  aoDefinirPastaLivre?(ficha: string | null): Promise<void>
   /** O login terminou: a conta ja foi lida de novo. */
   aoEntrou(conta: StatusConta): void
   /** Ex.: "mesmo e-mail da conta Principal". */
@@ -150,6 +153,7 @@ export function CartaoConta(props: Props): React.JSX.Element {
       <p className="cartao-email">{email}</p>
       <Avisos perfil={perfil} aviso={aviso} falha={falha} />
       <AcoesCartao logado={conta.logado} aoAtualizar={aoAtualizar} aoEntrar={() => setEntrando(true)} />
+      {props.aoDefinirPastaLivre && <PastaLivreSecao perfil={perfil} aoSalvar={props.aoDefinirPastaLivre} />}
       {aoDefinirGit && <GitDaContaSecao perfil={perfil} aoSalvar={aoDefinirGit} />}
       {entrando && (
         <JanelaLogin

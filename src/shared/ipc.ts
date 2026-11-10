@@ -52,6 +52,7 @@ export const IPC = {
   perfisAtualizarConta: 'perfis:atualizarConta',
   perfisCriar: 'perfis:criar',
   perfisDefinirGit: 'perfis:definirGit',
+  perfisDefinirPastaLivre: 'perfis:definirPastaLivre', // onde nasce o quadro livre da conta (D65)
   perfisUso: 'perfis:uso',
   perfisUsoMudou: 'perfis:usoMudou', // evento main -> tela (uso da conta, T20.1)
   reposEscolherPasta: 'repos:escolherPasta',
@@ -60,6 +61,8 @@ export const IPC = {
   reposTemKanban: 'repos:temKanban',
   reposPastaAmpla: 'repos:pastaAmpla', // a pasta e a do usuario ou acima dela? (R2.10)
   quadrosCriar: 'quadros:criar',
+  quadrosCriarLivre: 'quadros:criarLivre', // quadro na pasta livre da conta, sem escolher pasta (D65)
+  quadrosProjeto: 'quadros:projeto', // evento main -> tela: o projeto em que o agente mexe mudou (D65)
   quadrosRemover: 'quadros:remover',
   quadrosTrocarConta: 'quadros:trocarConta',
   quadrosDefinirPapel: 'quadros:definirPapel',
@@ -153,6 +156,8 @@ export interface LousaApi {
     criar(provedor: Provedor, nome: string): Promise<PerfilComConta>
     /** Nome, e-mail e GitHub proprio da conta (C1, D42); null = usa o git do PC. */
     definirGit(perfilId: string, git: GitDaConta | null): Promise<PerfilComConta>
+    /** Pasta do quadro livre da conta (D65): a `ficha` do seletor de pasta; null tira. */
+    definirPastaLivre(perfilId: string, ficha: string | null): Promise<PerfilComConta>
     /** Uso de cada conta Claude que ja teve um agente falando (T20.1); so em memoria. */
     uso(): Promise<UsoConta[]>
     aoUso(cb: (uso: UsoConta) => void): () => void
@@ -182,6 +187,13 @@ export interface LousaApi {
       perfilId: string,
       opcoes?: { posicao?: Posicao; separado?: boolean; kanban?: boolean },
     ): Promise<{ quadro: Quadro; repo: Repo | null }>
+    /**
+     * Quadro livre (D65): nasce na pasta livre da conta, sem escolher pasta; `repo` e essa pasta
+     * (nova na lista ou a que ja estava). Conta sem pasta livre lanca.
+     */
+    criarLivre(tipo: TipoQuadro, perfilId: string, opcoes?: { posicao?: Posicao; kanban?: boolean }): Promise<{ quadro: Quadro; repo: Repo }>
+    /** O agente comecou a mexer noutro projeto (D65): o quadro com o `projeto` novo e a pasta dele. */
+    aoProjeto(cb: (mudou: { quadro: Quadro; repo: Repo }) => void): () => void
     /** Fechar o ultimo quadro de uma copia tenta limpa-la sem perder trabalho. */
     remover(quadroId: string): Promise<FimDaCopia>
     /** Mesmo quadro e pasta, outra conta: reinicia o terminal e a conversa vai junto (D14). */

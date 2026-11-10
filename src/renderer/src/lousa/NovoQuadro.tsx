@@ -16,6 +16,8 @@ interface Props {
   /** Onde a janelinha aparece, em pixels da tela. */
   tela: { x: number; y: number }
   aoCriar(repoId: string, tipo: TipoQuadro, perfilId: string, opcoes: { separado: boolean; kanban: boolean }): Promise<void>
+  /** Quadro livre (D65): na pasta livre da conta, que o main acha. */
+  aoCriarLivre(tipo: TipoQuadro, perfilId: string, opcoes: { kanban: boolean }): Promise<void>
   aoNovaPasta(repo: Repo): void
   aoTirarPasta(repoId: string): Promise<void>
   aoCancelar(): void
@@ -45,6 +47,54 @@ function ChipsConta(p: { perfis: PerfilComConta[]; marcada: string; aoMarcar(id:
           {perfil.nome}
         </button>
       ))}
+    </div>
+  )
+}
+
+/**
+ * As pastas livres das contas (D65), lidas na hora: a conta pode ter ganhado uma na engrenagem depois
+ * que a lousa carregou.
+ */
+function usePastasLivres(): ReadonlyMap<string, string> {
+  const [pastas, setPastas] = useState<ReadonlyMap<string, string>>(new Map())
+  useEffect(() => {
+    let valendo = true
+    window.lousa.perfis
+      .listar()
+      .then((ps) => valendo && setPastas(new Map(ps.flatMap((p) => (p.pastaLivre ? [[p.id, p.pastaLivre] as const] : [])))))
+      .catch(() => undefined)
+    return () => {
+      valendo = false
+    }
+  }, [])
+  return pastas
+}
+
+/**
+ * Kanban (A22): null = segue o projeto (marcada se ele ja tem um); trocar de pasta volta para isso.
+ * Livre: o kanban nasce no projeto que o agente achar (D52), so se marcar.
+ */
+function useEscolhaKanban(repoId: string | null, livre: boolean) {
+  const [escolhido, setKanban] = useState<boolean | null>(null)
+  const kanbanExiste = useKanbanDaPasta(repoId)
+  return { kanban: escolhido ?? (!livre && kanbanExiste), kanbanExiste, setKanban }
+}
+
+/** Livre (D65): a conta tem pasta livre; marcada de saida, a menos que a pasta tenha sido pedida. */
+function useLivre(perfilId: string, pastaPedida: boolean) {
+  const pastaLivre = usePastasLivres().get(perfilId) ?? null
+  const [escolhido, setLivre] = useState<boolean | null>(pastaPedida ? false : null)
+  return { livre: pastaLivre !== null && (escolhido ?? true), pastaLivre, setLivre }
+}
+
+/** "Livre" (D65): sem escolher pasta; o projeto em que o agente mexer aparece sozinho na lateral. */
+function OpcaoLivre(p: { pasta: string; marcada: boolean; aoMarcar(): void }): React.JSX.Element {
+  return (
+    <div className="novo-pastas novo-livre" role="radiogroup" aria-label="Quadro livre">
+      <button role="radio" aria-checked={p.marcada} className="pasta-escolha" title={p.pasta} onClick={p.aoMarcar}>
+        <strong>✦ Livre, sem projeto</strong>
+        <span>{p.pasta} · o projeto aparece sozinho na lateral</span>
+      </button>
     </div>
   )
 }
@@ -149,10 +199,10 @@ function useEscolhas({ perfis, repos, quadros, perfilInicial, repoInicial }: Pro
   const [separadoEscolhido, setSeparado] = useState<boolean | null>(null)
   const aceitaCopia = useAceitaCopia(repoId)
   const sugerida = aceitaCopia && sugerirSeparado(quadros, repoId)
-  // kanban (A22): null = segue o projeto (marcada se ele ja tem um); trocar de pasta volta para isso
-  const [kanbanEscolhido, setKanban] = useState<boolean | null>(null)
-  const kanbanExiste = useKanbanDaPasta(repoId)
+  const { livre, pastaLivre, setLivre } = useLivre(perfilId, !!repoInicial)
+  const { kanban, kanbanExiste, setKanban } = useEscolhaKanban(repoId, livre)
   const marcarPasta = (id: string): void => {
+    setLivre(false)
     setRepoId(id)
     setSeparado(null)
     setKanban(null)
@@ -163,14 +213,28 @@ function useEscolhas({ perfis, repos, quadros, perfilInicial, repoInicial }: Pro
     repoId,
     marcarPasta,
     sugerida,
-    separado: aceitaCopia && (separadoEscolhido ?? sugerida),
+    separado: aceitaCopia && !!(separadoEscolhido ?? sugerida),
     aceitaCopia,
     setSeparado,
-    kanban: kanbanEscolhido ?? kanbanExiste,
+    kanban,
     kanbanExiste,
     setKanban,
+    livre,
+    pastaLivre,
+    /** Tem onde abrir: a pasta marcada ou o livre. */
+    temDestino: livre || repoId !== null,
+    marcarLivre: () => {
+      setLivre(true)
+      setKanban(null)
+    },
   }
 }
+
+/** A janelinha onde foi pedida, sem sair da tela. */
+const posicaoDaJanela = (tela: { x: number; y: number }) => ({
+  left: Math.max(8, Math.min(tela.x, window.innerWidth - LARGURA - 8)),
+  top: Math.max(8, Math.min(tela.y, window.innerHeight - ALTURA_MAX - 8)),
+})
 
 export function NovoQuadro(props: Props): React.JSX.Element {
   const { perfis, repos, perfilInicial, tela, aoCriar, aoNovaPasta, aoTirarPasta, aoCancelar } = props
@@ -180,11 +244,13 @@ export function NovoQuadro(props: Props): React.JSX.Element {
   const [ocupado, setOcupado] = useState(false)
 
   async function abrir(tipo: TipoQuadro): Promise<void> {
-    if (!repoId || ocupado) return
+    if (!escolhas.temDestino || ocupado) return
     setOcupado(true)
     setErro(null)
     try {
-      await aoCriar(repoId, tipo, perfilId, { separado, kanban: escolhas.kanban })
+      await (escolhas.livre || !repoId
+        ? props.aoCriarLivre(tipo, perfilId, { kanban: escolhas.kanban })
+        : aoCriar(repoId, tipo, perfilId, { separado, kanban: escolhas.kanban }))
     } catch (e) {
       setErro(e instanceof Error ? e.message : String(e))
       setOcupado(false)
@@ -215,8 +281,7 @@ export function NovoQuadro(props: Props): React.JSX.Element {
     return () => window.removeEventListener('keydown', tecla)
   })
 
-  const left = Math.max(8, Math.min(tela.x, window.innerWidth - LARGURA - 8))
-  const top = Math.max(8, Math.min(tela.y, window.innerHeight - ALTURA_MAX - 8))
+  const { left, top } = posicaoDaJanela(tela)
   return (
     <>
       <div className="novo-fundo" onMouseDown={aoCancelar} />
@@ -224,10 +289,11 @@ export function NovoQuadro(props: Props): React.JSX.Element {
         <p className="novo-rotulo">Conta · quem paga</p>
         <ChipsConta perfis={perfis} marcada={perfilId} aoMarcar={setPerfilId} />
         <p className="novo-rotulo">Pasta · onde o trabalho fica</p>
+        {escolhas.pastaLivre && <OpcaoLivre pasta={escolhas.pastaLivre} marcada={escolhas.livre} aoMarcar={escolhas.marcarLivre} />}
         {repos.length > 0 && (
           <PastasRecentes
             repos={repos}
-            marcada={repoId}
+            marcada={escolhas.livre ? null : repoId}
             aoMarcar={marcarPasta}
             aoTirar={(id) =>
               aoTirarPasta(id).catch((e: unknown) => setErro(e instanceof Error ? e.message : String(e)))
@@ -237,19 +303,19 @@ export function NovoQuadro(props: Props): React.JSX.Element {
         <button className="botao-pequeno" onClick={() => void outraPasta()}>
           {repos.length > 0 ? 'Outra pasta…' : 'Escolher pasta…'}
         </button>
-        <AvisoPastaAmpla repoId={repoId} />
-        {repoId && (
+        <AvisoPastaAmpla repoId={escolhas.livre ? null : repoId} />
+        {repoId && !escolhas.livre && (
           <CaixaCopia marcada={separado} sugerida={sugerida} aceita={escolhas.aceitaCopia} aoMudar={setSeparado} />
         )}
-        {repoId && (
-          <CaixaKanban marcada={escolhas.kanban} existe={escolhas.kanbanExiste} aoMudar={escolhas.setKanban} />
+        {escolhas.temDestino && (
+          <CaixaKanban marcada={escolhas.kanban} existe={!escolhas.livre && escolhas.kanbanExiste} aoMudar={escolhas.setKanban} />
         )}
         {erro && (
           <p className="erro" role="alert">
             {erro}
           </p>
         )}
-        <BotoesAbrir desligado={!repoId || ocupado} aoAbrir={(tipo) => void abrir(tipo)} />
+        <BotoesAbrir desligado={!escolhas.temDestino || ocupado} aoAbrir={(tipo) => void abrir(tipo)} />
       </div>
     </>
   )

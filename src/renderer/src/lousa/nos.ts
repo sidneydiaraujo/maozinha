@@ -1,6 +1,7 @@
 // Converte o estado salvo em nos do React Flow (T3.4b, D13: so quadros, soltos; D14: a pasta da o nome). Funcao pura.
 import type { Node } from '@xyflow/react'
 import type { Caixa, EstadoTela, PerfilComConta, QuandoAjusta, Quadro, Repo, TipoQuadro, Viewport } from '../../../shared/model'
+import { projetoDo } from './projeto'
 
 export interface AcoesLousa {
   removerQuadro(quadroId: string): void
@@ -22,7 +23,9 @@ export type QuadroNo = Node<
     quadro: Quadro
     perfil: PerfilComConta | undefined
     repo: Repo
-    /** Nome no cabecalho: a pasta, numerada se tiver mais de um quadro nela. */
+    /** O projeto em que o agente mexe, achado sozinho (D65); null = a propria pasta. */
+    projeto: Repo | null
+    /** Nome no cabecalho: o projeto ou a pasta, numerado se tiver mais de um quadro nele. */
     rotulo: string
     /** Contas para onde este quadro pode ir (mesmo provedor: a conversa vai junto). */
     contas: PerfilComConta[]
@@ -55,8 +58,10 @@ export function montarNos(estado: EstadoTela, acoes: AcoesLousa): QuadroNo[] {
   return estado.quadros.flatMap((quadro): QuadroNo[] => {
     const repo = repos.get(quadro.repoId)
     if (!repo) return []
-    const ordem = (porPasta.get(repo.id) ?? 0) + 1
-    porPasta.set(repo.id, ordem)
+    const projeto = projetoDo(quadro, repos)
+    const nome = (projeto ?? repo).nome
+    const ordem = (porPasta.get(nome) ?? 0) + 1
+    porPasta.set(nome, ordem)
     const perfil = estado.perfis.find((p) => p.id === quadro.perfilId)
     return [
       {
@@ -69,7 +74,8 @@ export function montarNos(estado: EstadoTela, acoes: AcoesLousa): QuadroNo[] {
           quadro,
           perfil,
           repo,
-          rotulo: ordem === 1 ? repo.nome : `${repo.nome} ${ordem}`,
+          projeto,
+          rotulo: ordem === 1 ? nome : `${nome} ${ordem}`,
           contas: estado.perfis.filter((p) => !perfil || p.provedor === perfil.provedor),
           noTime: quadro.tipo === 'agente' && perfil?.provedor === 'claude',
           acoes,

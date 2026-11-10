@@ -255,3 +255,11 @@ Reabra o líder depois de instalar (a regra nova vai no início do agente).
 - [ ] 119. Peça ao líder uma tarefa com colegas; depois que eles terminarem, peça outra: o líder usa os mesmos quadros (o papel muda) em vez de abrir novos.
 - [ ] 120. Colega pedido pelo agente que terminou mostra "✕ excluir" no meio da linha; um clique fecha o quadro dele. Enquanto trabalha, não mostra.
 - [ ] 121. Linhas que você mesmo puxou entre agentes nunca mostram "excluir".
+
+## Próxima versão — quadro livre e projeto identificado sozinho (D65)
+
+- [ ] 122. Na engrenagem, no cartão de cada conta, "Pasta livre": Empresa em `C:\Users\sidne`, Pessoal em `C:\Users\sidne\pessoal`.
+- [ ] 123. "+ Novo quadro": "✦ Livre, sem projeto" vem primeiro e já marcado; "Abrir agente" abre na pasta livre da conta escolhida, sem o ⚠.
+- [ ] 124. Peça ao agente livre algo num projeto (ex.: "leia o README do lousa-ia"): o projeto aparece na lateral como pasta própria, aberta e marcada, e o cabeçalho do quadro mostra "✦ lousa-ia".
+- [ ] 125. Um agente aberto em "sidne" que salva num projeto lá dentro: o mesmo (o projeto vira pasta própria).
+- [ ] 126. Ler outro projeto só para consultar não troca; salvar noutro projeto troca.

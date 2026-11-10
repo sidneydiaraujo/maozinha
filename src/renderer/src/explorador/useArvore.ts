@@ -89,6 +89,12 @@ export function useArvore(repos: Repo[]) {
     [mudarGuardado],
   )
 
+  // so abre (D65: a pasta do projeto que o agente achou); aberta, fica como esta
+  const abrir = useCallback(
+    (repoId: string, relativo: string) =>
+      mudarGuardado((g) => (g.abertas.includes(chavePasta(repoId, relativo)) ? g : { ...g, abertas: [...g.abertas, chavePasta(repoId, relativo)] })),
+    [mudarGuardado],
+  )
   const recolherTudo = useCallback(() => mudarGuardado((g) => ({ ...g, abertas: [] })), [mudarGuardado])
 
   /** Junta por 150 ms e rele a pasta (ja lida) de cada coisa que mudou. */
@@ -116,5 +122,5 @@ export function useArvore(repos: Repo[]) {
   )
 
   const linhas: Linha[] = useMemo(() => linhasVisiveis(repos, filhos as Filhos, abertas), [repos, filhos, abertas])
-  return { linhas, alternar, recolherTudo, aoMudarArquivos }
+  return { linhas, alternar, abrir, recolherTudo, aoMudarArquivos }
 }

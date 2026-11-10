@@ -9,11 +9,13 @@
 // c-viva (normal) e c-trabalho (pasta apagada, com um commit que nunca foi juntado).
 // juntar-time: tres agentes de verdade (Pessoal), cada um numa copia do app, ligados a1 -> a2 -> a3 (Fatia 31).
 // contrato: o agente de verdade do `agente` mais um terminal comum da mesma conta (R4.21).
+// livre: a conta Pessoal com pasta livre na pasta da rodada (D65), que guarda o app e a api (git)
+// mas nao e projeto; nenhum quadro: o cenario abre o quadro livre.
 // agente: UM AGENTE DE VERDADE (claude.exe, conta Pessoal) na copia da pasta de exemplo, para a
 // linha de status (Fatia 17). Pede o ok do Sidney; o cenario nao manda mensagem nenhuma.
 import { execFileSync } from 'node:child_process'
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 
 const caixa = (x, largura) => ({ x, y: 40, largura, altura: 380 })
 
@@ -28,7 +30,7 @@ const terminal = (id, repoId, perfilId, x, largura) => ({
 
 const repo = (id, nome, caminho) => ({ id, nome, caminho, perfilPadraoId: 'principal' })
 
-export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'contrato', 'time', 'repasse', 'juntar-time', 'fantasmas']
+export const ESTADOS = ['demo', 'casa', 'git', 'agente', 'contrato', 'time', 'repasse', 'juntar-time', 'fantasmas', 'livre']
 
 /** Repositorio git com um commit; identidade e fim de linha locais (o autocrlf do PC nao vale aqui). */
 function criarRepo(pasta) {
@@ -66,7 +68,7 @@ function criarCopiasFantasmas(git, app, saida) {
  * em subpasta (Ctrl+K acha) e o mesmo nome dentro de node_modules (Ctrl+K nao pode achar).
  */
 export function prepararPastas(nome, saida) {
-  if (!['git', 'time', 'repasse', 'juntar-time', 'fantasmas'].includes(nome)) return {}
+  if (!['git', 'time', 'repasse', 'juntar-time', 'fantasmas', 'livre'].includes(nome)) return {}
   const app = join(saida, 'app')
   const api = join(saida, 'api')
   const git = criarRepo(app)
@@ -124,6 +126,9 @@ export function estadoDe(nome, pastas, opcoes = []) {
         ...(opcoes.includes('brilho') ? [1220, 1760, 2300].map((x, i) => terminal(`t${i + 3}`, 'rd', 'pessoal', x, 520)) : []),
       ],
     }
+  }
+  if (nome === 'livre') {
+    return { ...base, perfis: { pessoal: { pastaLivre: dirname(pastas.app) } }, ultimoPerfilId: 'pessoal', repos: [demo], quadros: [] }
   }
   if (nome === 'fantasmas') {
     const copia = (n) => ({

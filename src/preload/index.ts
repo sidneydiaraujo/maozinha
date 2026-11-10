@@ -9,6 +9,8 @@ import type {
   EventoRepasse,
   OndeEscreve,
   PainelAgente,
+  Quadro,
+  Repo,
   UsoConta,
 } from '../shared/model'
 
@@ -37,6 +39,7 @@ const api: LousaApi = {
     atualizarConta: (perfilId) => ipcRenderer.invoke(IPC.perfisAtualizarConta, { perfilId }),
     criar: (provedor, nome) => ipcRenderer.invoke(IPC.perfisCriar, { provedor, nome }),
     definirGit: (perfilId, git) => ipcRenderer.invoke(IPC.perfisDefinirGit, { perfilId, git }),
+    definirPastaLivre: (perfilId, ficha) => ipcRenderer.invoke(IPC.perfisDefinirPastaLivre, { perfilId, ficha }),
     uso: () => ipcRenderer.invoke(IPC.perfisUso),
     aoUso: (cb) => inscrever<UsoConta>(IPC.perfisUsoMudou, cb),
   },
@@ -50,6 +53,8 @@ const api: LousaApi = {
   quadros: {
     criar: (repoId, tipo, perfilId, opcoes) =>
       ipcRenderer.invoke(IPC.quadrosCriar, { repoId, tipo, perfilId, ...opcoes }),
+    criarLivre: (tipo, perfilId, opcoes) => ipcRenderer.invoke(IPC.quadrosCriarLivre, { tipo, perfilId, ...opcoes }),
+    aoProjeto: (cb) => inscrever<{ quadro: Quadro; repo: Repo }>(IPC.quadrosProjeto, cb),
     remover: (quadroId) => ipcRenderer.invoke(IPC.quadrosRemover, { quadroId }),
     trocarConta: (quadroId, perfilId) => ipcRenderer.invoke(IPC.quadrosTrocarConta, { quadroId, perfilId }),
     definirPapel: (quadroId, papel) => ipcRenderer.invoke(IPC.quadrosDefinirPapel, { quadroId, papel }),

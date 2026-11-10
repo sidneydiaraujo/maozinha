@@ -6,6 +6,7 @@ import { mensagemDe } from '../componentes/erro'
 import { semQuadro, textoDoFim } from './copia'
 import { aoPedirExcluirColega } from './foco'
 import { comContaTrocada } from './linhas'
+import { comProjeto } from './projeto'
 import type { AcoesLousa } from './nos'
 import { comQuadroNovo } from './useNovoQuadro'
 
@@ -90,6 +91,8 @@ export function useEstadoLousa(versao: number, extras: ExtrasEstado) {
     },
     [setAviso],
   )
+  // o agente comecou a mexer noutro projeto (D65): o quadro e a pasta do projeto
+  useEffect(() => window.lousa.quadros.aoProjeto(({ quadro, repo }) => setEstado((e) => e && comProjeto(e, quadro, repo))), [])
   // "excluir" na linha de um colega livre (09/11): fecha como o × do quadro
   useEffect(() => aoPedirExcluirColega((id) => acoes.removerQuadro(id)), [acoes])
   return { estado, setEstado, erro: erro ?? falha, limparErro: () => setFalha(null), aviso, setAviso, falhou, acoes, tirarPasta }

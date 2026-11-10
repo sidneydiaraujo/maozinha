@@ -85,20 +85,21 @@ export function useNovoQuadro({ instancia, area, setEstado }: Opcoes) {
     [naLousa],
   )
 
-  const criar = useCallback(
-    async (repoId: string, tipo: TipoQuadro, perfilId: string, { separado = false, kanban = false } = {}) => {
+  // separado: o main cria a copia (D18) e o quadro nasce nela; `repo` e a pasta nova. Livre (D65): o
+  // main acha a pasta livre da conta, que entra na lista se ainda nao estava.
+  const entrou = useCallback(
+    async (pedir: (posicao: Posicao) => Promise<{ quadro: Quadro; repo: Repo | null }>) => {
       if (!novo) return
-      // separado: o main cria a copia (D18) e o quadro nasce nela; `copia` e a pasta nova
-      const { quadro, repo: copia } = await window.lousa.quadros.criar(repoId, tipo, perfilId, {
-        posicao: novo.lousa,
-        separado,
-        kanban,
-      })
-      setEstado((e) => e && comQuadroNovo(e, quadro, copia))
+      const { quadro, repo } = await pedir(novo.lousa)
+      setEstado((e) => e && comQuadroNovo(e, quadro, repo && !e.repos.some((r) => r.id === repo.id) ? repo : null))
       setNovo(null)
     },
     [novo, setEstado],
   )
+  const criar = (repoId: string, tipo: TipoQuadro, perfilId: string, { separado = false, kanban = false } = {}) =>
+    entrou((posicao) => window.lousa.quadros.criar(repoId, tipo, perfilId, { posicao, separado, kanban }))
+  const criarLivre = (tipo: TipoQuadro, perfilId: string, { kanban = false } = {}) =>
+    entrou((posicao) => window.lousa.quadros.criarLivre(tipo, perfilId, { posicao, kanban }))
 
   const pastaNova = useCallback(
     (repo: Repo) =>
@@ -114,6 +115,7 @@ export function useNovoQuadro({ instancia, area, setEstado }: Opcoes) {
     aoArrastarPorCima,
     aoSoltar,
     criar,
+    criarLivre,
     pastaNova,
   }
 }

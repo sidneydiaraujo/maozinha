@@ -3,7 +3,7 @@
 // sair, o /compact nao e a vez do agente) vai pela tomada `doTime`, ligada no fim da montagem.
 import { app } from 'electron'
 import { existsSync } from 'node:fs'
-import { join, relative } from 'node:path'
+import { isAbsolute, join, relative } from 'node:path'
 import { IPC } from '../../shared/ipc'
 import type { Repo } from '../../shared/model'
 import { FilaAjustes } from '../agentes/ajustes'
@@ -21,6 +21,7 @@ import type { ServicoQuadros } from '../quadros/servico'
 import type { ServicoRepos } from '../repos/servico'
 import type { Base } from './base'
 import { enviarParaJanelas } from './janelas'
+import { montarProjetos, type ProjetosDosAgentes } from './projetos'
 import type { Tomada } from './tomada'
 
 /** O que os agentes avisam ao time. */
@@ -88,21 +89,33 @@ function montarAjustes(b: Base): FilaAjustes {
  * projeto para a bolinha da lateral (so quando muda). Pasta aberta que nao e projeto (a home): o
  * kanban nasce na pasta do projeto (D52).
  */
+/** A pasta do projeto achado (D65), se o arquivo esta dentro dela: a bolinha vai para ela. */
+function dentroDoProjeto(b: Base, projeto: string | undefined, arquivo: string): Repo | null {
+  const repo = projeto ? b.repos.listar().find((r) => r.id === projeto) : undefined
+  if (!repo) return null
+  const rel = relative(repo.caminho, arquivo)
+  return rel && !rel.startsWith('..') && !isAbsolute(rel) ? repo : null
+}
+
 function montarOndeEscreve(b: Base): OndeEscreve {
   const ultimos = new Map<string, string>()
   const aoEscrever = (quadroId: string, arquivo: string): void => {
     let repo: Repo
     let comKanban: boolean
+    let doProjeto: boolean
     try {
       const quadro = b.quadros.obter(quadroId)
-      repo = b.repos.obter(quadro.repoId)
+      const projeto = dentroDoProjeto(b, quadro.projeto, arquivo)
+      repo = projeto ?? b.repos.obter(quadro.repoId)
+      doProjeto = projeto !== null
       comKanban = quadro.kanban === true // so quem escolheu ter kanban o cria (A22)
     } catch {
       return // o quadro ou a pasta sairam da lousa
     }
     const relativo = pastaDoProjeto(arquivo, repo.caminho, existsSync)
     if (relativo === null) return
-    if (comKanban && !ehProjeto(repo.caminho, existsSync)) {
+    // o agente aberto fora do projeto (a home, o quadro livre: D52, D65) nao sabia do kanban dele
+    if (comKanban && (doProjeto || !ehProjeto(repo.caminho, existsSync))) {
       const criadoEm = kanbanNaPastaDoProjeto(join(repo.caminho, relativo))
       const rel = criadoEm === null ? null : relative(repo.caminho, criadoEm).replace(/\\/g, '/')
       if (rel !== null && !rel.startsWith('..')) b.vigia.avisarAgora(repo.id, [rel ? `${rel}/${ARQUIVO_KANBAN}` : ARQUIVO_KANBAN])
@@ -116,7 +129,10 @@ function montarOndeEscreve(b: Base): OndeEscreve {
 }
 
 /** Linha de status dos agentes (T17.2, D24): fica so em <userData>\agentes. */
-function montarPonte(b: Base, d: { ajustes: FilaAjustes; usos: UsoDasContas; ondeEscreve: OndeEscreve; doTime: Tomada<DoTime> }): PonteAgentes {
+function montarPonte(
+  b: Base,
+  d: { ajustes: FilaAjustes; usos: UsoDasContas; ondeEscreve: OndeEscreve; projetos: ProjetosDosAgentes; doTime: Tomada<DoTime> },
+): PonteAgentes {
   return new PonteAgentes({
     pasta: join(app.getPath('userData'), 'agentes'),
     disco: discoDaPonte,
@@ -133,8 +149,13 @@ function montarPonte(b: Base, d: { ajustes: FilaAjustes; usos: UsoDasContas; ond
       const uso = perfilId ? d.usos.aoPainel(perfilId, painel) : null
       if (uso) enviarParaJanelas(IPC.perfisUsoMudou, uso)
     },
-    // onde o agente salvou (A16): a bolinha da pasta do projeto na lateral
-    aoEscrever: (id, arquivo) => d.ondeEscreve.aoEscrever(id, arquivo),
+    // onde o agente salvou (A16): o projeto dele (D65) e a bolinha da pasta do projeto na lateral
+    aoEscrever: (id, arquivo) => {
+      d.projetos.aoTocar(id, arquivo, true)
+      d.ondeEscreve.aoEscrever(id, arquivo)
+    },
+    // leu ou procurou (D65): o primeiro projeto do agente
+    aoTocar: (id, caminho) => d.projetos.aoTocar(id, caminho, false),
     // o estado pelos ganchos (D63) entra pelo mesmo caminho do OSC 7501
     aoEstado: (id, lido) => b.terminais.anotarAviso(id, lido.aviso, lido.seEstiver),
     adiar: adiarReal,
@@ -166,7 +187,7 @@ export function montarAgentes(b: Base, doTime: Tomada<DoTime>): Agentes {
   const ajustes = montarAjustes(b)
   const usos = new UsoDasContas()
   const ondeEscreve = montarOndeEscreve(b)
-  const agentes = montarPonte(b, { ajustes, usos, ondeEscreve, doTime })
+  const agentes = montarPonte(b, { ajustes, usos, ondeEscreve, projetos: montarProjetos(b), doTime })
   const compactarAgora = compactarCom(b)
   const compactarSozinho = new CompactarSozinho({
     usado: (id) => agentes.ultimo(id)?.contexto?.usado ?? null,

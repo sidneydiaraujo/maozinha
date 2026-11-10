@@ -182,6 +182,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `perfis:atualizarConta` | `{ perfilId }` | `StatusConta` | T1.6 |
 | `perfis:criar` | `{ provedor, nome }` | `PerfilComConta` | T1.8 |
 | `perfis:definirGit` | `{ perfilId, git: GitDaConta \| null }` | `PerfilComConta` (texto vazio vira null; e-mail sem @ recusado) | C1, D42 |
+| `perfis:definirPastaLivre` | `{ perfilId, ficha: string | null }` | `PerfilComConta` (a ficha vem do seletor de pasta, R2.11; null tira) | D65 |
 | `perfis:uso` | — | `UsoConta[]` (só em memória; limite cuja hora de zerar passou vem com 0%) | T20.1 |
 | evento `perfis:usoMudou` | — | `UsoConta` (cada conta fica com o painel mais novo de qualquer agente dela) | T20.1 |
 | `terminais:abrir` | `{ alvo: AlvoTerminal, cols, rows }` | `{ terminalId, bufferInicial, aviso }` (aviso = último estado do agente) | T2.3, T8.1 |
@@ -196,6 +197,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | `repos:temKanban` | `{ repoId }` | `boolean`: o projeto já tem `KANBAN.md` (na pasta ou acima, até a raiz do git) | A22 |
 | `repos:pastaAmpla` | `{ repoId }` | `boolean`: a pasta é a do usuário ou acima dela (o Novo quadro avisa) | R2.10 |
 | `quadros:criar` | `{ repoId, tipo, perfilId, posicao?, separado?, kanban? }` | `{ quadro, repo }` (repo = cópia nova ou null) | T3.4, T5.1, T10.3 |
+| `quadros:criarLivre` | `{ tipo, perfilId, posicao?, kanban? }` | `{ quadro, repo }` (repo = a pasta livre da conta, nova na lista ou a que já estava); conta sem pasta livre lança | D65 |
 | `quadros:remover` | `{ quadroId }` | `FimDaCopia` (último quadro de uma cópia: tenta limpar) | T3.4, T10.3 |
 | `quadros:trocarConta` | `{ quadroId, perfilId }` | `Quadro` (fecha o terminal e copia a conversa para a outra conta) | T6.1 |
 | `quadros:definirPapel` | `{ quadroId, papel }` | `Quadro` (papel limpo, até 40 letras; vazio tira; o time ouve de novo) | T29.1 |
@@ -242,6 +244,7 @@ export interface AvisoAgente { estado: EstadoAgente; motivo?: MotivoEspera; mens
 | evento `time:colegaCriado` | — | `ColegaNovo` (quadro com o papel, cópia, linha): o colega pedido pelo agente entra na lousa | A19, D56 |
 | `agentes:prefCompactar` | `{ ligado, limite }` (limite 10 a 90) | `void`. A escolha da engrenagem; com ela ligada o main digita `/compact` quando o agente termina a vez acima do limite | A17, D53 |
 | evento `agentes:escrevendo` | — | `{ quadroId, repoId, relativo }`: a pasta do projeto onde o agente salvou (o gancho `PostToolUse` do settings do agente grava `<dados>\agentes\<id>.escrita.json`); só quando muda | A16, D55 |
+| evento `quadros:projeto` | — | `{ quadro, repo }`: o agente aberto numa pasta que não é projeto começou a mexer noutro projeto (ler ou procurar dá o primeiro; salvar troca); o terminal segue na pasta dele | D65 |
 
 `terminalId`: o id do quadro, ou `login:<perfilId>` para a tela de login (que roda como
 `powershell -NoProfile -Command "claude auth login; exit $LASTEXITCODE"`, sem terminal na tela).

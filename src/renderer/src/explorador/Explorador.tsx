@@ -1,7 +1,7 @@
 // Lateral com as pastas em uso (T7.3), em cascata como o Explorer do VSCode.
 // Sem marca de "alterado" (D17): o main so vigia as pastas abertas aqui, para a arvore
 // mostrar arquivo novo ou apagado.
-import { useEffect, useMemo, type CSSProperties } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import type { PerfilComConta, Quadro, Repo } from '../../../shared/model'
 import '../estilos/explorador.css'
 import { SimboloArquivo, SimboloPasta } from '../topo/Simbolos'
@@ -61,9 +61,30 @@ function EscrevendoAqui(p: { ids: string[]; quadros: Quadro[]; perfis: PerfilCom
   )
 }
 
+/**
+ * D65: o agente comecou a mexer num projeto: a pasta dele abre na lateral, fica marcada e rola ate
+ * aparecer. A marca fica ate outro projeto ser achado.
+ */
+function useProjetoAchado(abrir: (repoId: string, relativo: string) => void): string | null {
+  const [marcado, setMarcado] = useState<string | null>(null)
+  useEffect(
+    () =>
+      window.lousa.quadros.aoProjeto(({ repo }) => {
+        abrir(repo.id, '')
+        setMarcado(repo.id)
+        // a pasta pode entrar na lista neste mesmo aviso: rola depois de desenhar
+        window.setTimeout(() => document.querySelector(`.arvore [data-raiz="${CSS.escape(repo.id)}"]`)?.scrollIntoView({ block: 'nearest' }), 300)
+      }),
+    [abrir],
+  )
+  return marcado
+}
+
 interface LinhaProps {
   linha: Linha
   selecionada: boolean
+  /** A pasta do projeto que um agente acabou de achar (D65). */
+  projeto?: boolean
   extra?: React.ReactNode
   aoClicar(): void
 }
@@ -80,14 +101,15 @@ function AvisoArvore({ linha }: { linha: Linha }): React.JSX.Element {
   )
 }
 
-function LinhaArvore({ linha, selecionada, extra, aoClicar }: LinhaProps): React.JSX.Element {
+function LinhaArvore({ linha, selecionada, projeto, extra, aoClicar }: LinhaProps): React.JSX.Element {
   if (linha.estado) return <AvisoArvore linha={linha} />
-  const classes = ['arvore-linha', linha.nivel === 0 && 'arvore-raiz', selecionada && 'arvore-selecionada']
+  const classes = ['arvore-linha', linha.nivel === 0 && 'arvore-raiz', selecionada && 'arvore-selecionada', projeto && 'arvore-projeto']
   return (
     <button
       className={classes.filter(Boolean).join(' ')}
       style={{ paddingLeft: recuo(linha.nivel) }}
       role="treeitem"
+      data-raiz={linha.nivel === 0 ? linha.repoId : undefined}
       aria-expanded={linha.pasta ? linha.aberta : undefined}
       aria-selected={selecionada}
       title={linha.relativo || linha.nome}
@@ -103,7 +125,8 @@ function LinhaArvore({ linha, selecionada, extra, aoClicar }: LinhaProps): React
 
 export function Explorador(props: Props): React.JSX.Element {
   const { repos, quadros, perfis, selecionado, aviso, aoAbrir } = props
-  const { linhas, alternar, recolherTudo, aoMudarArquivos } = useArvore(repos)
+  const { linhas, alternar, abrir, recolherTudo, aoMudarArquivos } = useArvore(repos)
+  const projetoAchado = useProjetoAchado(abrir)
 
   useEffect(() => window.lousa.arquivos.aoMudar(aoMudarArquivos), [aoMudarArquivos])
 
@@ -144,10 +167,12 @@ export function Explorador(props: Props): React.JSX.Element {
             key={`${l.repoId}|${l.relativo}|${l.estado ?? ''}`}
             linha={l}
             selecionada={selecionado?.repoId === l.repoId && selecionado.relativo === l.relativo}
+            projeto={l.nivel === 0 && l.repoId === projetoAchado}
             extra={
               <>
                 {l.nivel === 0 && (
-                  <ContasDaPasta quadros={quadros.filter((q) => q.repoId === l.repoId)} perfis={perfis} />
+                  // o agente que mexe neste projeto (D65) tambem tem a bolinha aqui
+                  <ContasDaPasta quadros={quadros.filter((q) => q.repoId === l.repoId || q.projeto === l.repoId)} perfis={perfis} />
                 )}
                 {bolinhas.has(chavePasta(l.repoId, l.relativo)) && (
                   <EscrevendoAqui ids={bolinhas.get(chavePasta(l.repoId, l.relativo)) ?? []} quadros={quadros} perfis={perfis} />

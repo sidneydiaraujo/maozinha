@@ -10,6 +10,8 @@ export interface Contas {
   atualizar(perfil: PerfilComConta): Promise<void>
   /** C1, D42: lanca a mensagem do main ("E-mail inválido") para o formulario mostrar. */
   definirGit(perfil: PerfilComConta, git: GitDaConta | null): Promise<void>
+  /** D65: a ficha do seletor de pasta; null tira. */
+  definirPastaLivre(perfil: PerfilComConta, ficha: string | null): Promise<void>
   entrou(perfil: PerfilComConta, conta: StatusConta): void
   /** T1.8: lanca a mensagem do main ("Nome reservado"…) para a janela mostrar. */
   criar(provedor: Provedor, nome: string): Promise<void>
@@ -63,6 +65,11 @@ export function useContas(aoMudar: () => void): Contas {
     [trocar],
   )
 
+  const definirPastaLivre = useCallback(
+    async (perfil: PerfilComConta, ficha: string | null) => trocar(await window.lousa.perfis.definirPastaLivre(perfil.id, ficha)),
+    [trocar],
+  )
+
   const entrou = useCallback(
     (perfil: PerfilComConta, conta: StatusConta) => {
       trocar({ ...perfil, conta })
@@ -80,5 +87,5 @@ export function useContas(aoMudar: () => void): Contas {
     [aoMudar],
   )
 
-  return { perfis, erro, renomear, atualizar, definirGit, entrou, criar }
+  return { perfis, erro, renomear, atualizar, definirGit, definirPastaLivre, entrou, criar }
 }

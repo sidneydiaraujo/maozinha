@@ -150,12 +150,14 @@ function EtiquetaDoQuadro(p: { quadro: Quadro; acoes: AcoesLousa }): React.JSX.E
 }
 
 /** O nome da pasta no cabecalho; no agente aberto na pasta do usuario, o ⚠ (R2.10). */
-function PastaDoQuadro(p: { repo: Repo; rotulo: string; agente: boolean }): React.JSX.Element {
-  const { repo } = p
-  const titulo = repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho
+function PastaDoQuadro(p: { repo: Repo; projeto: Repo | null; rotulo: string; agente: boolean }): React.JSX.Element {
+  const { repo, projeto } = p
+  const pasta = repo.copia ? `${repo.caminho}\nCópia separada · branch ${repo.copia.branch}` : repo.caminho
+  // D65: o projeto achado sozinho; o terminal segue na pasta onde abriu
+  const titulo = projeto ? `Projeto: ${projeto.caminho}\nAberto em ${pasta}` : pasta
   return (
     <span className="quadro-pasta" title={titulo}>
-      <span aria-hidden="true">📁</span> {p.rotulo}
+      <span aria-hidden="true">{projeto ? '✦' : '📁'}</span> {p.rotulo}
       <SinalPastaAmpla repoId={p.agente ? repo.id : null} />
     </span>
   )
@@ -213,7 +215,7 @@ export function QuadroNode({ data }: NodeProps<QuadroNo>): React.JSX.Element {
         {/* sem duplo clique para ampliar (A2, 20/10): clicar duas vezes no cabecalho para escolher
             ou arrastar o quadro ampliava sem querer; ampliar e so no ⤢ */}
         <header className="cabecalho-quadro" title="Ctrl+clique seleciona vários (para mandar a mesma mensagem)">
-          <PastaDoQuadro repo={repo} rotulo={rotulo} agente={quadro.tipo === 'agente'} />
+          <PastaDoQuadro repo={repo} projeto={data.projeto} rotulo={rotulo} agente={quadro.tipo === 'agente'} />
           <EtiquetaDoQuadro quadro={quadro} acoes={acoes} />
           <SeloAgente quadroId={quadro.id} />
           {quadro.tipo === 'agente' && !encerrado && <ExtrasAgente quadro={quadro} perfil={perfil} acoes={acoes} />}

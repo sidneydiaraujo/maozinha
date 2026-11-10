@@ -147,6 +147,16 @@ export class ServicoQuadros {
     return quadro
   }
 
+  /** O projeto em que o agente mexe (D65): repoId de uma pasta da lista. O terminal segue na pasta dele. */
+  definirProjeto(quadroId: string, projeto: string): Quadro {
+    const estado = this.deps.armazem.carregar()
+    const quadro = estado.quadros.find((q) => q.id === quadroId)
+    if (!quadro) throw new Error('Quadro não encontrado')
+    quadro.projeto = projeto
+    this.deps.armazem.salvar(estado)
+    return quadro
+  }
+
   /** O quadro, com conversa garantida se for agente do Claude (quadros de antes da T6.1 nao tinham). */
   comSessao(quadroId: string): Quadro {
     const estado = this.deps.armazem.carregar()

@@ -1,4 +1,5 @@
 import { app, BrowserWindow, session } from 'electron'
+import { randomUUID } from 'node:crypto'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { montarHibernacao, RITMO_NORMAL } from './agentes/montarHibernacao'
@@ -21,6 +22,7 @@ import { registrarHandlersRepos } from './handlers/repos'
 import { registrarHandlersTerminais } from './handlers/terminais'
 import { registrarHandlersTime } from './handlers/time'
 import { gravarEm, log } from './log'
+import { FichasDePasta } from './repos/fichas'
 import { iniciarRegistros } from './registros'
 import { iniciarSmoke } from './smoke'
 import { criarJanelaPrincipal } from './window'
@@ -55,9 +57,12 @@ function registrarCanais(): void {
     log: (m) => log('info', m),
   }).catch((erro: unknown) => log('warn', 'a limpeza das cópias sem pasta parou', erro))
   registrarHandlersApp(pastaDosRegistros())
-  registrarHandlersPerfis(contexto.perfis)
-  registrarHandlersRepos(contexto.repos)
-  registrarHandlersQuadros(contexto.quadros, contexto.time)
+  // uma ficha do seletor de pasta serve para adicionar a pasta ou para a pasta livre da conta (D65)
+  const fichas = new FichasDePasta(randomUUID)
+  const pastasLivres = (): string[] => contexto.perfis.detectados().flatMap((p) => (p.pastaLivre ? [p.pastaLivre] : []))
+  registrarHandlersPerfis(contexto.perfis, fichas)
+  registrarHandlersRepos(contexto.repos, fichas, pastasLivres)
+  registrarHandlersQuadros(contexto.quadros, contexto.time, { perfis: contexto.perfis, repos: contexto.repos })
   registrarHandlersCopias(contexto.repos, rodarGitReal)
   registrarHandlersMensagens(join(app.getPath('userData'), 'mensagens.json'))
   registrarHandlersNotas(contexto.armazem)

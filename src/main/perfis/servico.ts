@@ -78,6 +78,17 @@ export class ServicoPerfis {
     return { ...perfil, conta: await this.conta(perfil) }
   }
 
+  /** Pasta do quadro livre da conta (D65); null tira. Quem confere que a pasta existe e o handler. */
+  async definirPastaLivre(perfilId: PerfilId, caminho: string | null): Promise<PerfilComConta> {
+    this.obter(perfilId)
+    const estado = this.deps.armazem.carregar()
+    const { pastaLivre: _antiga, ...resto } = estado.perfis[perfilId] ?? {}
+    estado.perfis[perfilId] = caminho ? { ...resto, pastaLivre: caminho } : resto
+    this.deps.armazem.salvar(estado)
+    const perfil = this.obter(perfilId)
+    return { ...perfil, conta: await this.conta(perfil) }
+  }
+
   /** T1.8: cria a pasta vazia da conta e marca `criada`, para ela ser detectada antes do login. */
   async criar(provedor: Provedor, nome: string): Promise<PerfilComConta> {
     const slug = slugConta(nome)

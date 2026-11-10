@@ -11,6 +11,7 @@ import { FERRAMENTAS_NO_CLAUDE } from '../mcp/ferramentas'
 import { caminhoEscrito, ganchoDeEscrita } from './escrita'
 import { ganchosDeEstado, juntarGanchos, lerGancho, type LidoDoGancho } from './estadoPorGancho'
 import { lerPainel, textoDoArquivo } from './painel'
+import { caminhoTocado } from './projeto'
 
 export const ESPERA_MS = 250
 /** O findstr grava num passo so e o estado e o que mais aparece na tela: le logo. */
@@ -53,6 +54,8 @@ export interface DepsPonte {
   aoEscrever?(quadroId: string, arquivo: string): void
   /** O gancho de estado trouxe um estado novo (D63). */
   aoEstado?(quadroId: string, lido: LidoDoGancho): void
+  /** A ferramenta leu ou procurou neste caminho (absoluto, D65): o projeto em que o agente mexe. */
+  aoTocar?(quadroId: string, caminho: string): void
   /** setTimeout que devolve o cancelar (trocado no teste). */
   adiar(fn: () => void, ms: number): () => void
 }
@@ -172,13 +175,16 @@ export class PonteAgentes {
 
   private lerEstado(quadroId: string): void {
     this.relogios.delete(`${quadroId}${ESTADO}`)
-    let lido: LidoDoGancho | null
+    let texto: string
     try {
-      lido = lerGancho(textoDoArquivo(this.deps.disco.ler(join(this.deps.pasta, `${quadroId}${ESTADO}`))))
+      texto = textoDoArquivo(this.deps.disco.ler(join(this.deps.pasta, `${quadroId}${ESTADO}`)))
     } catch {
       return
     }
+    const lido = lerGancho(texto)
     if (lido) this.deps.aoEstado?.(quadroId, lido)
+    const tocado = caminhoTocado(texto)
+    if (tocado) this.deps.aoTocar?.(quadroId, tocado)
   }
 
   private ler(quadroId: string): void {
