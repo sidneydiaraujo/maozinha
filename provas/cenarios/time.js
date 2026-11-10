@@ -242,11 +242,11 @@
     'a1',
     `New-Item -ItemType Directory -Force (Split-Path '${falso}') | Out-Null; Copy-Item (Get-Command node).Source '${falso}'; & '${falso}' '${apoio}\\eco-time.mjs'\r`,
   )
-  await ate(() => semEspaco('a1').includes('RECEBI:[Mãozinha]'), 80)
-  const t = semEspaco('a1')
-  r.apresentacao.comClaudeChegou = t.includes('RECEBI:[Mãozinha]VocêéConstrutornumtimede2agentes.')
-  r.apresentacao.colega = t.includes('Colegas:')
-  r.apresentacao.entrega = t.includes('oseutrabalhovaipara')
+  // D66: com o Claude (falso) parado e sem trabalho, a apresentacao NAO e digitada: ela vai junto do
+  // proximo trabalho (testes de FilaMensagens). Antes, cada mudanca no time gastava um "ok" de cada agente.
+  r.apresentacao.falsoPronto = await ate(() => /ECO DO TIME PRONTO/.test(texto('a1')), 80)
+  await espera(6000)
+  r.apresentacao.naoChegouSozinha = !semEspaco('a1').includes('RECEBI:[Mãozinha]')
   r.apresentacao.semPontoEVirgula = !/RECEBI: \[Lousa\][^\n]*;/.test(texto('a1'))
   await prova.foto('5-apresentacao')
   await window.lousa.terminais.escrever('a1', '\x03')
@@ -256,9 +256,8 @@
     r.papel.naTela === 'Construtor' &&
     !r.apresentacao.antesDeParar &&
     r.apresentacao.semClaudeNaoDigita &&
-    r.apresentacao.comClaudeChegou &&
-    r.apresentacao.colega &&
-    r.apresentacao.entrega &&
+    r.apresentacao.falsoPronto &&
+    r.apresentacao.naoChegouSozinha &&
     r.bolinhas.a1 === 2 &&
     r.bolinhas.a3 === 2 &&
     r.bolinhas.t1 === 0 &&

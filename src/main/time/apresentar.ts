@@ -1,8 +1,10 @@
-// O time se conhece (T29.1, D39): quando o time muda, cada agente recebe quem ele e, quem sao os
-// colegas e para quem entrega. A Lousa so digita com o agente parado (como a D25).
+// O time se conhece (T29.1, D39): quando o time muda, cada agente fica sabendo quem ele e, quem sao os
+// colegas e para quem entrega. A Lousa so digita com o agente parado (como a D25). D66: a apresentacao
+// nunca e digitada sozinha (cada uma gastava uma volta do Claude, "ok", em agente que ninguem chamou);
+// ela vai junto do proximo trabalho que o agente receber, numa mensagem so.
 import { podeCompactar, podeDigitar } from '../../shared/compactar'
 import type { AvisoAgente } from '../../shared/model'
-import { textoDoTime, TEXTO_SAIU_DO_TIME, type DadosTime } from '../../shared/time'
+import { comApresentacao, textoDoTime, TEXTO_SAIU_DO_TIME, type DadosTime } from '../../shared/time'
 import { digitarMensagem } from '../../shared/digitar'
 import type { DepsAjustes } from '../agentes/ajustes'
 
@@ -36,9 +38,10 @@ export type TipoMensagem = 'apresentacao' | 'repasse' | 'compactar'
 
 /**
  * Mensagens da Lousa para os agentes. A apresentacao (`mandar`) e uma por agente: a mais nova
- * substitui a anterior (a velha nao vale mais). O repasse (`enfileirar`, T30.1) espera em ordem.
- * Uma mensagem por parada: depois de digitar, a proxima espera o agente parar de novo. Agente
- * trabalhando, esperando voce ou fechado: espera ele parar.
+ * substitui a anterior (a velha nao vale mais), e ela so sai junto do proximo trabalho (D66). O
+ * trabalho (`enfileirar`: repasse T30.1, tarefa de colega A19) espera em ordem. Uma mensagem por
+ * parada: depois de digitar, a proxima espera o agente parar de novo. Agente trabalhando, esperando
+ * voce ou fechado: espera ele parar.
  */
 export class FilaMensagens {
   private readonly pendentes = new Map<string, string>()
@@ -55,23 +58,20 @@ export class FilaMensagens {
     private readonly aoDigitar: (quadroId: string, tipo: TipoMensagem) => void = () => {},
   ) {}
 
-  async mandar(quadroId: string, texto: string): Promise<void> {
-    if (!this.livre(quadroId)) {
-      this.pendentes.set(quadroId, texto)
-      return
-    }
-    this.pendentes.delete(quadroId)
-    await this.digitar(quadroId, texto, 'apresentacao')
+  /** Guarda a apresentacao: ela vai junto do proximo trabalho, nunca sozinha (D66). */
+  mandar(quadroId: string, texto: string): Promise<void> {
+    this.pendentes.set(quadroId, texto)
+    return Promise.resolve()
   }
 
   /** Repasse: entra no fim da fila do agente; nada substitui nada (T30.1). */
   async enfileirar(quadroId: string, texto: string): Promise<void> {
     const fila = this.emOrdem.get(quadroId) ?? []
-    if (fila.length > 0 || this.pendentes.has(quadroId) || !this.livre(quadroId)) {
+    if (fila.length > 0 || !this.livre(quadroId)) {
       this.emOrdem.set(quadroId, [...fila, texto])
       return
     }
-    await this.digitar(quadroId, texto, 'repasse')
+    await this.digitar(quadroId, texto)
   }
 
   aoEstado(quadroId: string, aviso: AvisoAgente): Promise<void> {
@@ -85,18 +85,13 @@ export class FilaMensagens {
     return this.livre(quadroId) ? this.soltar(quadroId) : Promise.resolve()
   }
 
-  /** A apresentacao pendente sai antes do repasse; um por parada. */
+  /** O proximo trabalho, um por parada; sem trabalho, a apresentacao continua esperando (D66). */
   private soltar(quadroId: string): Promise<void> {
     if (this.deps.segurar?.(quadroId)) return Promise.resolve()
-    const apresentacao = this.pendentes.get(quadroId)
-    if (apresentacao !== undefined) {
-      this.pendentes.delete(quadroId)
-      return this.digitar(quadroId, apresentacao, 'apresentacao')
-    }
     const [repasse, ...resto] = this.emOrdem.get(quadroId) ?? []
     if (repasse === undefined) return Promise.resolve()
     this.emOrdem.set(quadroId, resto)
-    return this.digitar(quadroId, repasse, 'repasse')
+    return this.digitar(quadroId, repasse)
   }
 
   /**
@@ -105,7 +100,8 @@ export class FilaMensagens {
    */
   async revisar(): Promise<void> {
     const agora = this.relogio()
-    const comEspera = new Set([...this.pendentes.keys(), ...[...this.emOrdem].filter(([, f]) => f.length > 0).map(([id]) => id)])
+    // so trabalho conta: a apresentacao sozinha espera o proximo trabalho, sem prazo (D66)
+    const comEspera = new Set([...this.emOrdem].filter(([, f]) => f.length > 0).map(([id]) => id))
     for (const id of this.esperandoDesde.keys()) if (!comEspera.has(id)) this.esperandoDesde.delete(id)
     for (const id of comEspera) {
       this.vigiarDemora(id, agora)
@@ -140,7 +136,8 @@ export class FilaMensagens {
       `digitou=${digitou === undefined ? 'nao' : `ha ${Math.round((agora - digitou) / 1000)} s`}`,
       `segurando=${!!this.deps.segurar?.(quadroId)}`,
       `semClaude=${this.semClaudeEm.has(quadroId)}`,
-      `naFila=${(this.emOrdem.get(quadroId) ?? []).length + (this.pendentes.has(quadroId) ? 1 : 0)}`,
+      `naFila=${(this.emOrdem.get(quadroId) ?? []).length}`,
+      `apresentacao=${this.pendentes.has(quadroId)}`,
     ].join(' ')
     this.deps.aoDemorar?.(quadroId, detalhe)
   }
@@ -170,20 +167,23 @@ export class FilaMensagens {
 
   /**
    * Texto e Enter separados: juntos o Claude trata como colagem e nao envia (D21). Sem claude.exe
-   * no terminal (saiu e ficou o PowerShell), nao digita: a mensagem volta para o comeco da fila.
+   * no terminal (saiu e ficou o PowerShell), nao digita: o trabalho volta para o comeco da fila e a
+   * apresentacao continua guardada. Com apresentacao guardada, ela vai na frente, na mesma mensagem.
    */
-  private async digitar(quadroId: string, texto: string, tipo: TipoMensagem): Promise<void> {
+  private async digitar(quadroId: string, trabalho: string): Promise<void> {
     this.digitouAgora.set(quadroId, this.relogio())
     if (!(await this.deps.temClaude(quadroId))) {
       this.digitouAgora.delete(quadroId)
       this.semClaudeEm.set(quadroId, this.relogio())
-      if (tipo === 'repasse') this.emOrdem.set(quadroId, [texto, ...(this.emOrdem.get(quadroId) ?? [])])
-      else if (!this.pendentes.has(quadroId)) this.pendentes.set(quadroId, texto)
+      this.emOrdem.set(quadroId, [trabalho, ...(this.emOrdem.get(quadroId) ?? [])])
       return
     }
+    const apresentacao = this.pendentes.get(quadroId)
+    this.pendentes.delete(quadroId)
     this.semClaudeEm.delete(quadroId)
     this.esperandoDesde.delete(quadroId)
-    this.aoDigitar(quadroId, tipo)
+    this.aoDigitar(quadroId, 'repasse')
+    const texto = apresentacao === undefined ? trabalho : comApresentacao(apresentacao, trabalho)
     await digitarMensagem({ escrever: (dados) => this.deps.escrever(quadroId, dados), esperar: this.deps.esperar }, texto)
   }
 }

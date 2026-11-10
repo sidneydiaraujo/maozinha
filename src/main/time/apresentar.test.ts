@@ -22,16 +22,28 @@ function fila(estados: Record<string, EstadoAgente | 'fechado'>, comClaude = tru
 describe('FilaMensagens', () => {
   it('parado: digita o texto e depois o Enter, separados', async () => {
     const { f, escrito } = fila({ a: 'parado' })
-    await f.mandar('a', 'oi')
+    await f.enfileirar('a', 'oi')
     expect(escrito).toEqual(['a:oi', 'a:\r'])
   })
 
-  it('parado mas sem claude.exe no terminal (saiu, ficou o PowerShell): nao digita e guarda', async () => {
+  it('D66: a apresentacao nunca e digitada sozinha, nem com o agente parado; espera o proximo trabalho', async () => {
+    const { f, escrito } = fila({ a: 'parado' })
+    await f.mandar('a', 'quem sou')
+    await f.aoEstado('a', { estado: 'parado' })
+    await f.aoPronto('a')
+    await f.revisar()
+    expect(escrito).toEqual([])
+    expect(f.pendente('a')).toBe('quem sou')
+  })
+
+  it('parado mas sem claude.exe no terminal (saiu, ficou o PowerShell): nao digita e guarda os dois', async () => {
     const { f, escrito } = fila({ a: 'parado' }, false)
-    await f.mandar('a', 'oi')
+    await f.mandar('a', 'quem sou')
+    await f.enfileirar('a', 'oi')
     await f.aoEstado('a', { estado: 'parado' })
     expect(escrito).toEqual([])
-    expect(f.pendente('a')).toBe('oi')
+    expect(f.pendente('a')).toBe('quem sou')
+    expect(f.emEspera('a')).toEqual(['oi'])
   })
 
   it('troca de modelo esperando: a mensagem segura e sai para o agente reaberto (A15)', async () => {
@@ -46,7 +58,7 @@ describe('FilaMensagens', () => {
       temClaude: async () => true,
       segurar: () => trocando,
     })
-    await f.mandar('a', 'oi')
+    await f.enfileirar('a', 'oi')
     await f.aoPronto('a')
     await f.aoEstado('a', { estado: 'parado' })
     expect(escrito).toEqual([])
@@ -66,7 +78,7 @@ describe('FilaMensagens', () => {
       pronto: () => pronto,
       temClaude: async () => true,
     })
-    await f.mandar('a', 'oi')
+    await f.enfileirar('a', 'oi')
     await f.aoPronto('a')
     expect(escrito).toEqual([])
     pronto = true
@@ -74,17 +86,19 @@ describe('FilaMensagens', () => {
     expect(escrito).toEqual(['a:oi', 'a:\r'])
   })
 
-  it('trabalhando ou sem estado: espera; a mais nova substitui; ao parar digita uma vez', async () => {
+  it('trabalhando: espera; a apresentacao mais nova substitui e vai na frente do trabalho, sem o pedido de "ok"', async () => {
     const { f, escrito } = fila({ a: 'trabalhando', b: 'fechado' })
-    await f.mandar('a', 'velha')
-    await f.mandar('a', 'nova')
+    await f.mandar('a', 'velha. Responda só "ok".')
+    await f.mandar('a', 'nova. Responda só "ok".')
+    await f.enfileirar('a', 'tarefa')
     await f.mandar('b', 'fechado espera')
     expect(escrito).toEqual([])
     await f.aoEstado('a', { estado: 'esperando' } as AvisoAgente)
     expect(escrito).toEqual([])
     await f.aoEstado('a', { estado: 'terminou' })
     await f.aoEstado('a', { estado: 'parado' })
-    expect(escrito).toEqual(['a:nova', 'a:\r'])
+    expect(escrito).toEqual(['a:nova. tarefa', 'a:\r'])
+    expect(f.pendente('a')).toBeUndefined()
     expect(f.pendente('b')).toBe('fechado espera')
     f.esquecer('b')
     expect(f.pendente('b')).toBeUndefined()
@@ -111,7 +125,7 @@ describe('FilaMensagens', () => {
     expect(f.emEspera('a')).toEqual(['dois'])
   })
 
-  it('apresentacao pendente sai antes do repasse; avisa o que digitou', async () => {
+  it('apresentacao guardada vai junto do primeiro repasse; o segundo vai sozinho; avisa como repasse', async () => {
     const tipos: string[] = []
     const escrito: string[] = []
     const f = new FilaMensagens(
@@ -125,13 +139,14 @@ describe('FilaMensagens', () => {
       },
       (id, tipo) => tipos.push(`${id}:${tipo}`),
     )
-    await f.enfileirar('a', 'repasse')
+    await f.enfileirar('a', 'um')
+    await f.enfileirar('a', 'dois')
     await f.mandar('a', 'quem sou')
     await f.aoEstado('a', { estado: 'parado' })
     await f.aoEstado('a', { estado: 'trabalhando' })
     await f.aoEstado('a', { estado: 'parado' })
-    expect(escrito.filter((e) => e !== 'a:\r')).toEqual(['a:quem sou', 'a:repasse'])
-    expect(tipos).toEqual(['a:apresentacao', 'a:repasse'])
+    expect(escrito.filter((e) => e !== 'a:\r')).toEqual(['a:quem sou um', 'a:dois'])
+    expect(tipos).toEqual(['a:repasse', 'a:repasse'])
   })
 
   it('repasse sem claude.exe volta para o comeco da fila; esquecer limpa tudo', async () => {
@@ -237,7 +252,7 @@ describe('FilaMensagens confere sozinha (A27)', () => {
     t.agora = DEMORA_MS
     await f.revisar()
     await f.revisar()
-    expect(demoras).toEqual(['a aberto=true estado=trabalhando pronto=true digitou=nao segurando=false semClaude=false naFila=1'])
+    expect(demoras).toEqual(['a aberto=true estado=trabalhando pronto=true digitou=nao segurando=false semClaude=false naFila=1 apresentacao=false'])
   })
 })
 

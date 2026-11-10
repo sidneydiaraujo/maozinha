@@ -263,3 +263,4 @@ Reabra o líder depois de instalar (a regra nova vai no início do agente).
 - [ ] 124. Peça ao agente livre algo num projeto (ex.: "leia o README do lousa-ia"): o projeto aparece na lateral como pasta própria, aberta e marcada, e o cabeçalho do quadro mostra "✦ lousa-ia".
 - [ ] 125. Um agente aberto em "sidne" que salva num projeto lá dentro: o mesmo (o projeto vira pasta própria).
 - [ ] 126. Ler outro projeto só para consultar não troca; salvar noutro projeto troca.
+- [ ] 127. (D66) Com um time aberto, feche um colega ou crie outro: os agentes parados do time não recebem mensagem nenhuma. A apresentação chega junto da próxima tarefa ou repasse, numa mensagem só.

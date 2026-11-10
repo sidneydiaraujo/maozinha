@@ -17,8 +17,9 @@ pelos ganchos do Claude, D63). A 0.4.13 traz também tudo da 0.4.12.
 **Instalador 0.4.14** (`release/Maozinha Setup 0.4.14.exe`) traz a D64 (o líder reaproveita colegas
 livres e "✕ excluir" na linha): itens 119 a 121 do roteiro, além dos 113 a 118.
 
-**D65 (quadro livre e projeto identificado sozinho)** está no código, ainda sem instalador: a versão
-nova pede o ok do Sidney. Aceite: itens 122 a 126 do roteiro.
+**D65 (quadro livre e projeto identificado sozinho)** e **D66 (apresentação do time só junto do
+trabalho)** estão no código, ainda sem instalador: a versão nova pede o ok do Sidney. Aceite: itens
+122 a 127 do roteiro.
 
 **Aceite do Sidney com o instalador 0.4.12**, que traz a revisão de 07/11 inteira (`docs/revisao/2026-11-07.md`, blocos 1 a 4).
 

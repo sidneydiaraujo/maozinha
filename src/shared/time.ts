@@ -98,6 +98,14 @@ export function timeDe(ligacoes: Ligacao[], quadroId: string): string[] {
 // --- Apresentacao do time (T29.1) ---
 
 export const MAXIMO_LETRAS_PAPEL = 40
+/**
+ * D66: a apresentacao vai na frente do trabalho, numa mensagem so; o pedido de responder "ok" sai
+ * (o agente responde ao trabalho).
+ */
+export function comApresentacao(apresentacao: string, trabalho: string): string {
+  return `${apresentacao.replace(/\s*Responda só "ok"\.\s*$/, '')} ${trabalho}`
+}
+
 export const TEXTO_SAIU_DO_TIME = '[Mãozinha] Você não faz mais parte do time. Siga só com o que eu pedir aqui. Responda só "ok".'
 // eslint-disable-next-line no-control-regex
 const CONTROLE = /[\u0000-\u001f\u007f-\u009f]+/g
