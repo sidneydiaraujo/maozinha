@@ -4,7 +4,11 @@
   "private": true,
   "description": "Mãozinha: canvas de terminais de IA com contas (perfis) isoladas",
   "author": "Sidney de Araujo Silva",
-  "license": "UNLICENSED",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sidneydiaraujo/maozinha.git"
+  },
   "main": "out/main/index.js",
   "scripts": {
     "dev": "node scripts/sem-run-as-node.mjs electron-vite dev",

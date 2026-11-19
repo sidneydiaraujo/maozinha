@@ -2,7 +2,7 @@
 
 Entrega: a Lousa ganha cara própria, de uma lousa de terminais para quem vive no VSCode:
 fundo azul-ardósia puxado do Abyss, texto cor de giz, âmbar para "esperando você" e um
-brilho que corre na borda só do quadro cujo agente está trabalhando. Nada do Thunders Gestão
+brilho que corre na borda só do quadro cujo agente está trabalhando. Nada do projeto da empresa
 como referência (nem cores, nem o `GOSTO.md`).
 
 Origem: avaliação de 19/10/2026, item "algo novo e legal das bibliotecas de front".

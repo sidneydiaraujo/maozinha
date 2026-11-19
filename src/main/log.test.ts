@@ -3,7 +3,7 @@ import { descrever, gravarEm, log, mascarar } from './log'
 
 describe('mascarar', () => {
   it('e-mail vira ***@dominio, o resto fica', () => {
-    expect(mascarar('conta sidney.silva+x@thunders.com.br logada')).toBe('conta ***@thunders.com.br logada')
+    expect(mascarar('conta fulano.silva+x@empresa.com.br logada')).toBe('conta ***@empresa.com.br logada')
     expect(mascarar('a@b.co e c_d@mail.gmail.com')).toBe('***@b.co e ***@mail.gmail.com')
     expect(mascarar('C:\\Users\\sidne\\.claude-pessoal sem email')).toBe('C:\\Users\\sidne\\.claude-pessoal sem email')
   })

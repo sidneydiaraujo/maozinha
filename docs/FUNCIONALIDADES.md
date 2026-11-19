@@ -193,7 +193,7 @@ experiência** até lá (seção 6.1).
 O OpenCove injeta as "variáveis de ambiente do projeto" em todo terminal e
 agente daquele projeto.
 - Projeto pessoal: nenhuma variável (herda a conta pessoal do lançador).
-- Projeto da empresa (um por repo, ex.: `C:\Users\sidne\thunders-gestao`):
+- Projeto da empresa (um por repo, ex.: `C:\Users\sidne\projeto-da-empresa`):
   `CLAUDE_CONFIG_DIR=C:\Users\sidne\.claude` e `HOME=C:\Users\sidne`.
 - Conferir em cada projeto com `claude auth status` (mostra e-mail e pasta).
 - Efeito colateral: com `CLAUDE_CONFIG_DIR` explícito, o Claude usa
